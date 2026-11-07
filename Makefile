@@ -59,11 +59,11 @@ sast:
 	uv run bandit -q -c pyproject.toml -r src
 	$(green)
 
-# Secrets beyond the reviewed baseline, in the files changed against origin/main (committed,
-# staged, unstaged or new); every tracked file on main itself or without origin/main.
+# Secrets beyond the reviewed baseline, in the files changed against origin/develop (committed,
+# staged, unstaged or new); every tracked file on develop itself or without origin/develop.
 secrets:
 	$(start)
-	if [ "$$(git rev-parse HEAD)" != "$$(git rev-parse --verify --quiet origin/main || true)" ] && base=$$(git merge-base HEAD origin/main 2>/dev/null); then
+	if [ "$$(git rev-parse HEAD)" != "$$(git rev-parse --verify --quiet origin/develop || true)" ] && base=$$(git merge-base HEAD origin/develop 2>/dev/null); then
 	  files=$$( { git diff --name-only --diff-filter=d "$$base"; git ls-files --others --exclude-standard; } | sort -u)
 	else
 	  files=$$(git ls-files)
@@ -107,14 +107,14 @@ documents:
 # Mutation testing (mutmut), for a sweep by hand: no stage and no agent runs it (the human,
 # 2026-10-19). MODULES names dotted modules or packages, each run by its pattern <name>.*, as in
 # make mutants MODULES='factory.machine.domain.disk factory.pipeline.application'. FEATURE=<feature id> takes instead
-# the modules under src/factory that the feature's story commits on origin/main changed, which needs
+# the modules under src/factory that the feature's story commits on origin/develop changed, which needs
 # a checkout with its history; MODULES given by hand wins. MUTANTS_SECONDS stops mutmut after that
 # many seconds (no stop when it is empty); MUTANTS_CHILDREN caps its workers (mutmut's default is
 # every core the machine reports, also inside a container limited to fewer).
 FEATURE ?=
 MUTANTS_SECONDS ?=
 MUTANTS_CHILDREN ?=
-FEATURE_MODULES = $(wildcard $(shell git log --format= --name-only -E --grep='^(ticket|work item) $(FEATURE)-S[0-9]{4}:' origin/main -- 'src/factory/*.py' 2>/dev/null | sort -u))
+FEATURE_MODULES = $(wildcard $(shell git log --format= --name-only -E --grep='^(ticket|work item) $(FEATURE)-S[0-9]{4}:' origin/develop -- 'src/factory/*.py' 2>/dev/null | sort -u))
 MODULES ?= $(if $(FEATURE),$(foreach module,$(FEATURE_MODULES),$(subst /,.,$(patsubst src/%.py,%,$(module)))))
 mutants:
 	if [ -z "$(FEATURE)$(MODULES)" ]; then echo "mutants: set MODULES or FEATURE, as in make mutants MODULES=factory.machine.domain.disk or make mutants FEATURE=F0012"; exit 2; fi
