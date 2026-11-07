@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 643
 comments_read: [6713530910]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: intake
+  started_at: '2026-11-07T21:56:38.853725Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -30,6 +34,11 @@ journal:
   speaker: human
   kind: comment
   at: '2026-11-07T21:56:36.452126Z'
+  stage: intake
+- number: 5
+  speaker: factory
+  kind: started
+  at: '2026-11-07T21:56:38.853725Z'
   stage: intake
 ---
 
@@ -84,3 +93,4 @@ Expect: `main`
 4. 2026-11-07 human: 1. Yes, as you wrote it: the guard fails on a file the test writes that holds `origin/main`, `heads/main`, `-b main` or `--initial-branch=main`, one row for each string.
    2. Yes: one passing row for a clean file inside the guard's scope, and no row for the exemption.
    3. Confirmed: criterion 2 is the only test of the docstring and comment clause.
+5. factory: started intake as vm.
