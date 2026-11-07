@@ -240,3 +240,4 @@ Times are UTC. The plan: `night-plan.md`.
 - 21:53 UTC: F0057-S0001 (the tests name the working branch through one constant): started; heartbeat at 13,43 recreated; the factory runs on the API key.
 - 21:56Z: F0057-S0001 PR #643 asked at intake (failing rows for the guard's four strings, a clean row, the docstring clause). Answered as proposed: one failing row per string, one clean row, criterion 2 the only test of the clause.
 - 22:12Z: F0057-S0001 PR #643 asked at doing: criterion 5 named shared.md, which does not describe paths (my mistake); MAIN_BRANCH stale in work.md, hosting.md, machine.md, pipeline.md. Answered (a): criterion 5 now names work.md's paths table and the three pages, by the answer, not by a commit on the branch.
+- 22:21Z: F0057-S0001 PR #643 asked again at review (round 1, no code findings): the same criterion 5 question. Answered (a); the reviewer writes it into criterion 5.
