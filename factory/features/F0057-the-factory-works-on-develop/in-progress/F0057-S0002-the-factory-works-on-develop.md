@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 644
 comments_read: [6713932106, 6714015757, 6714081152, 6714164393, 6714248996, 6714373146]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: docs
+  started_at: '2026-11-07T23:35:21.824619Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -270,6 +274,11 @@ journal:
   at: '2026-11-07T23:35:16.683540Z'
   stage: review
   run: 45bfcf38a3b9496f8ccb2cd37f1aee9d
+- number: 48
+  speaker: factory
+  kind: started
+  at: '2026-11-07T23:35:21.824619Z'
+  stage: docs
 ---
 
 # The factory works on develop
@@ -1083,3 +1092,4 @@ Expect: `develop`
       - tests/work/application/test_acceptance_closed.py
       - tests/work/domain/test_acceptance_description.py
       - tests/work/domain/test_stall_texts.py
+48. factory: started docs as vm.
