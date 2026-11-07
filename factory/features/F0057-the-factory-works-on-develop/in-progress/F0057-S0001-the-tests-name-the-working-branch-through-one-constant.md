@@ -1,11 +1,11 @@
 ---
 stage: review
-blocked: question
+blocked: null
 round: 1
 attempts: 0
 crashes: 0
 pull_request: 643
-comments_read: [6713530910, 6713705040]
+comments_read: [6713530910, 6713705040, 6713791298]
 handed_over: null
 claim: null
 journal:
@@ -137,6 +137,11 @@ journal:
   stage: review
   run: c945bbe1e0934ad78c44854139498bd2
   blocked: question
+- number: 24
+  speaker: human
+  kind: comment
+  at: '2026-11-07T22:21:48.255497Z'
+  stage: review
 ---
 
 # The tests name the working branch through one constant
@@ -559,3 +564,4 @@ Expect: `main`
       - `tests/watching/application/`: test_acceptance_ticks_merged.py, test_bill_service.py, test_board_in_progress.py
       - `tests/work/application/`: test_acceptance_closed.py, test_acceptance_facts_human.py, test_acceptance_merged_before_approval.py, test_acceptance_merged_on_two_routes.py, test_acceptance_reading.py, test_acceptance_refusals.py, test_acceptance_repeated.py, test_acceptance_service.py, test_acceptance_snapshots.py, test_board_reader.py, test_watcher_move_rule.py, test_work_items.py, test_work_items_duplicate.py
       - `tests/work/domain/`: test_stop_table.py
+24. 2026-11-07 human: (a). Write it into criterion 5 as you proposed, the same text I gave the coder above.
