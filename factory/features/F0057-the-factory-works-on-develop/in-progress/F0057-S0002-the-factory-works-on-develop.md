@@ -1,11 +1,11 @@
 ---
 stage: doing
-blocked: question
+blocked: null
 round: 1
 attempts: 0
 crashes: 0
 pull_request: 644
-comments_read: [6713932106, 6714015757, 6714081152]
+comments_read: [6713932106, 6714015757, 6714081152, 6714164393]
 handed_over: null
 claim: null
 journal:
@@ -121,6 +121,11 @@ journal:
   stage: doing
   run: ecdbcaed85e3476f95b4d04c1fc923d6
   blocked: question
+- number: 21
+  speaker: human
+  kind: comment
+  at: '2026-11-07T23:00:07.516301Z'
+  stage: doing
 ---
 
 # The factory works on develop
@@ -431,3 +436,4 @@ Expect: `develop`
     I would choose (a). The wrong message is a real fault on exactly the remote this story warns about. The renames are cheap and make no difference to behaviour, and no later F0057 story covers them (S0003 is Kumpel; S0004 and S0005 are documents).
 
     **State.** The working tree is as entry 16 left it, and `make check` was green there.
+21. 2026-11-07 human: (a), as you describe it: the scheduler's message follows WORK_BRANCH, the private names, comments and docstrings that mean the working branch are reworded without behaviour change, a new criterion (a remote with main and no develop: the repository stop names develop), and the tester has my leave to make the four pinned tests follow the constant. health.md:187 goes into this story's docs criterion.
