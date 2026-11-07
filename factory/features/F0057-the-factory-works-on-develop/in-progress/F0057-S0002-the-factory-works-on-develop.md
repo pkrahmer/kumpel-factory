@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 644
 comments_read: [6713932106, 6714015757, 6714081152, 6714164393]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-07T23:01:06.274330Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -137,6 +141,11 @@ journal:
   at: '2026-11-07T23:01:00.993861Z'
   stage: doing
   run: a2af38650a854b71ae65fe104243b0f7
+- number: 24
+  speaker: factory
+  kind: started
+  at: '2026-11-07T23:01:06.274330Z'
+  stage: tests
 ---
 
 # The factory works on develop
@@ -475,3 +484,4 @@ Expect: `develop`
 
     **Noticed, not touched:**
     - The next row of `health.md`, "`origin/main` has no factory/pipeline.yml yet", probably follows the constant already. The documenter should check both rows together.
+24. factory: started tests as vm.
