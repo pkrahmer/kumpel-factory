@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 644
 comments_read: [6713932106, 6714015757, 6714081152, 6714164393, 6714248996]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-07T23:07:46.683872Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -164,6 +168,11 @@ journal:
   speaker: human
   kind: comment
   at: '2026-11-07T23:07:44.223466Z'
+  stage: doing
+- number: 29
+  speaker: factory
+  kind: started
+  at: '2026-11-07T23:07:46.683872Z'
   stage: doing
 ---
 
@@ -574,3 +583,4 @@ Expect: `develop`
     - Other modules still have their own `_MAIN_REF`/`_ORIGIN_MAIN` for `origin/develop`, which is outside the approved list: `work/application/work_items.py:37`, `work/application/acceptance.py:69`, `work/application/acceptance_reading.py:41`, `watching/application/watcher.py:18` and `entry/wiring.py:184`.
     - The tester's rewrite of `## Interface` and the criteria (entry 25) was left out of the take, so the work item still lists only criteria 1–5. My write paths do not include the work item either. Criterion 4 (a remote with `main` and no `develop` gives a repository stop naming `develop`) and the `health.md:187` item of the docs criterion still need to be written in by a stage that may write it.
 28. 2026-11-07 human: (a).
+29. factory: started doing as vm.
