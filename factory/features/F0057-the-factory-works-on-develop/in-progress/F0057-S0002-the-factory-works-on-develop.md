@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 644
 comments_read: [6713932106, 6714015757, 6714081152, 6714164393, 6714248996]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-07T23:09:02.204645Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -196,6 +192,12 @@ journal:
   kind: started
   at: '2026-11-07T23:09:02.204645Z'
   stage: doing
+- number: 34
+  speaker: coder
+  kind: result
+  at: '2026-11-07T23:13:39.717887Z'
+  stage: doing
+  run: 0e295b28d4774726b3daf63f7fdf4c24
 ---
 
 # The factory works on develop
@@ -645,3 +647,36 @@ Expect: `develop`
 
     `lint`: lint: green (0.1 s)
 33. factory: started doing as vm.
+34. coder: Round 1, after the tester's change in entry 32. I changed no code this round. The code from entry 27 is already committed, and the tester's `OTHER_BRANCH` change ended the one failure, which came from the guard. `make check` is now green: `test: green (101.7 s)` with 99.22 % coverage, and the last line is `check: green`. `make duplicates` reports `6 new, 39 known, 4 gone`, the same as in entry 16.
+
+    **What this story built** (paths; the details are in entries 13, 16 and 27):
+    - `src/factory/shared/domain/paths.py`: `WORK_BRANCH = "develop"`.
+    - The repository stop's detail now follows the constant: `src/factory/pipeline/application/scheduler.py` gives `f"the repository has no {WORK_BRANCH} branch yet"`.
+    - Private names, comments and docstrings that mean the working branch are reworded, with no change in behaviour. These are in:
+      - `machine/application/preflight.py`
+      - `pipeline/application/scheduler.py`, `tick.py` and `stops.py`
+      - `pipeline/application/handlers/merged.py`, `reject.py` and `closed.py`
+    - `agents/agents/*.md`, `operator/template/CLAUDE.md` and `operator/template/Makefile`, `demo/todo-service/project/Makefile` and `demo/todo-service/project/CLAUDE.md`: every mention of the working branch says `develop`.
+
+    **Main choice.** Each module keeps its own private `_WORK_REF`, renamed in place. I rejected one shared `WORK_REF` in `factory.shared.domain.paths`, because the human approved only rewording (entry 21).
+
+    **Refactor.** I read the `src` diff again and found nothing to change.
+
+    **Description.** I did not rewrite it, because the work item is outside my write paths. Entry 21 changed the meaning of the task in two ways:
+    - It added a criterion: on a remote that has `main` but no `develop`, the repository stop names `develop`. The test is `tests/pipeline/application/test_repository_waiter.py::test_a_remote_with_main_but_no_develop_is_a_stop_naming_develop`.
+    - It added `docs/operator-guide/health.md:187` to the docs criterion.
+
+    The take dropped the tester's rewrite of `## Interface` and `## Acceptance criteria` (entries 25 and 32), so the work item still lists only criteria 1 to 5. A stage or the human that may write the work item should carry both changes.
+
+    **Noticed, not touched:**
+    - Several modules still keep their own `_MAIN_REF` or `_ORIGIN_MAIN` holding `origin/develop`. They are outside the list the human approved:
+      - `work/application/work_items.py:37`
+      - `work/application/acceptance.py:69`
+      - `work/application/acceptance_reading.py:41`
+      - `watching/application/watcher.py:18`
+      - `entry/wiring.py:184`
+    - The preflight's `main_branch_failing` details still say "on main at …". Tests pin them.
+    - The Kumpel scripts under `operator/skill/kumpel/scripts/` stay on `main`; F0057-S0003 moves them (entry 9).
+
+    `check`: check: green
+    `duplicates`: duplicates: 6 new, 39 known, 4 gone
