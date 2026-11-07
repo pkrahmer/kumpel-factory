@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 644
 comments_read: [6713932106, 6714015757, 6714081152, 6714164393, 6714248996, 6714373146, 6714554190]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: docs
+  started_at: '2026-11-07T23:38:02.593006Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -286,6 +290,11 @@ journal:
   speaker: human
   kind: comment
   at: '2026-11-07T23:37:57.817227Z'
+  stage: docs
+- number: 51
+  speaker: factory
+  kind: started
+  at: '2026-11-07T23:38:02.593006Z'
   stage: docs
 ---
 
@@ -1131,3 +1140,4 @@ Expect: `develop`
     5. **A promotion is a merge commit, never a squash or a rebase.** `make mutants` finds a feature's code by its story commits (`work item <id>: ...`), and a squash would make the next promotion conflict. `main` is never fixed directly: a fix goes to `develop` and reaches `main` with the next promotion.
     6. **The stop reason `main_branch_failing` keeps its name**, for the records contract and the history of `factory/stops.jsonl`.
     7. **Every commit Kumpel makes names Kumpel** (`Kumpel <kumpel@noreply.invalid>`) as its author, not only the start (the human, 2026-11-07).
+51. factory: started docs as vm.
