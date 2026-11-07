@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 1
 attempts: 0
@@ -124,6 +124,11 @@ journal:
   at: '2026-11-07T15:26:38.165319Z'
   stage: smoke-test
   run: cef5ccc6efea4fafb5c538c305ddf9a6
+- number: 22
+  speaker: factory
+  kind: done
+  at: '2026-11-07T15:30:31.552420Z'
+  stage: approval
 ---
 
 # A folder README keeps its opening and its link lines short
@@ -377,3 +382,4 @@ Expect: `0`
     - Criteria 6 and 7 (`make check`, docs) are outside what these commands touch. The factory's gate after the docs stage was green (journal 19).
 
     Findings: none. I fixed nothing and changed no file.
+22. factory: done (pull request merged); cost: 10 runs, 11.9 min, 58 turns, 211792 tokens in (1025815 more from cache), 26155 out, $2.21
