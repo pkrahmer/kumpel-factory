@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 644
 comments_read: [6713932106, 6714015757, 6714081152]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-07T22:55:55.571410Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -109,6 +113,11 @@ journal:
   at: '2026-11-07T22:55:50.091052Z'
   stage: review
   run: 1db7e5caa92a4e14b1e3529efe9333de
+- number: 19
+  speaker: factory
+  kind: started
+  at: '2026-11-07T22:55:55.571410Z'
+  stage: doing
 ---
 
 # The factory works on develop
@@ -392,3 +401,4 @@ Expect: `develop`
       - `tests/operator_scripts/test_operator_merge_reset.py`
       - `tests/operator_scripts/test_operator_skill_scripts.py`
       - `tests/operator_scripts/test_operator_skill_signature.py`
+19. factory: started doing as vm.
