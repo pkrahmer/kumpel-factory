@@ -1,5 +1,5 @@
 ---
-stage: review
+stage: docs
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 641
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: review
-  started_at: '2026-11-07T15:20:50.915746Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -100,6 +96,12 @@ journal:
   kind: started
   at: '2026-11-07T15:20:50.915746Z'
   stage: review
+- number: 17
+  speaker: reviewer
+  kind: result
+  at: '2026-11-07T15:21:39.668134Z'
+  stage: review
+  run: 7177beae61604b6db9eb360df3470bc2
 ---
 
 # A folder README keeps its opening and its link lines short
@@ -264,3 +266,41 @@ Expect: `0`
     `check`: check: green
     `duplicates`: duplicates: 6 new, 39 known, 4 gone
 16. factory: started review as vm.
+17. reviewer: Round 1 review of `git diff main...HEAD -- . ':!factory'`, which changes `src/factory/shared/domain/folder_readmes.py` and `tests/shared/domain/test_folder_readmes.py`. I read the diff against the work item.
+
+    no findings
+
+    What I checked:
+    - **Group 1, the acceptance criteria.** Every criterion has a row of `test_a_readme_out_of_its_form_gives_one_line_per_rule`, and I worked out each row's README line by line.
+      - Criterion 1: the rows `opening-of-two-sentences-with-a-link` (0) and `opening-of-three-sentences-with-a-link` (1).
+      - Criterion 2: the rows `link-line-of-25-words` and `link-line-of-26-words` at line 5, `link-line-of-two-sentences`, and `link-line-of-25-words-after-the-list` and `link-line-of-26-words-after-the-list` at line 9.
+        - `_link_line(25)` is 25 words with the link's markdown counted as written.
+        - It is one sentence, because `_SENTENCE_END` does not match the `.md)` inside the link.
+        - So both sides of both limits (25/26 words, 1/2 sentences) are tested.
+      - Criterion 3: the diff only adds rows and module-level helpers. No existing row changed.
+      - Criterion 4: `prose-in-the-paragraph-after-the-opening` expects line 5.
+      - Criterion 5: `only-link-in-the-opening`.
+      - The coder's `make check` was green (journal 15). Both of the reviewer's earlier findings now have rows.
+    - **The code against the Interface.**
+      - `_read_line` ends the opening at the first blank line after it, and sets `has_link` before it sorts the line, so a link in the opening counts as the link to a guide.
+      - `_read_line_past_opening` keeps `line <n> is no part of the form` for a line without a link and adds `line <n> is a long link line` through `_is_longer_than` with `LINK_LINE_SENTENCES`/`LINK_LINE_WORDS`.
+      - Line numbers are 1-based over the whole README. Code blocks are skipped as before.
+      - A README without a title still starts `past_opening`.
+    - **Group 2, architecture:** the change stays in a pure `shared.domain` module, with no I/O and no new imports.
+    - **Group 3, security:** no markers, secrets or shell strings.
+    - **Group 4, quality.**
+      - `_is_longer_than` replaces the sentence-and-word check that the subfolder line used to carry inline, so the new rule copies nothing.
+      - There is no dead code, and the one new comment says why.
+      - I ran `make duplicates` myself because the earlier review could not read it: `6 new, 39 known, 4 gone`.
+        - The one new finding in this diff's module is vulture's `unused function 'readme_problems'` (60 %). That was already true on main: only tests call the function, and the baseline does not carry it.
+        - The other five are in modules this diff does not touch.
+    - **Group 5, work item hygiene:**
+      - The journal gives the main choice (the opening ends at its blank line) and the option rejected (a link line ending the opening).
+      - The Description matches what was built.
+      - Docs criterion 7 names what the reader of `style.md` and `shared.md` must learn.
+
+    Earlier tests:
+    - `tests/shared/domain/test_folder_readmes.py` (written by F0055-S0001): changed under the human's leave of 2026-11-07 that the Interface quotes. It adds rows to `test_a_readme_out_of_its_form_gives_one_line_per_rule` and the module-level `GUIDE_LINK`, `LONG_LINK_LINE_5` and `_link_line` that they use, and changes no existing row or test.
+
+    Notes:
+    - `tests/shared/domain/test_folder_readmes.py`: the string `f"{FOLDER}: line 9 is a long link line"` is written out in two rows, while line 5 has the constant `LONG_LINK_LINE_5`. This is a naming point and does not send the work item back.
