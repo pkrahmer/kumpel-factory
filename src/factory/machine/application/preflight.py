@@ -471,7 +471,8 @@ class Preflight:
         try:
             reason = self._probe(stamp)
         except (GitError, ProjectCommandError, SnapshotError, ContainerError) as error:
-            self._raise("machine", _PREFLIGHT_FAILED, f"the probe on main could not run: {error}")
+            detail = f"the probe on {WORK_BRANCH} could not run: {error}"
+            self._raise("machine", _PREFLIGHT_FAILED, detail)
             return _PREFLIGHT_FAILED
         # The machine's items have passed or been skipped, so no machine stop may stand.
         self._stops.clear_stop(_PREFLIGHT_FAILED)
@@ -558,7 +559,8 @@ class Preflight:
         status = self._boundaries.health.read()
         if any(stop.reason == _MAIN_FAILING for stop in status.stops):
             return
-        detail = f"{PROBE_COMMAND} is red on main at {main[:_SHORT_COMMIT]} (probed earlier)"
+        commit = main[:_SHORT_COMMIT]
+        detail = f"{PROBE_COMMAND} is red on {WORK_BRANCH} at {commit} (probed earlier)"
         self._raise("repository", _MAIN_FAILING, detail)
 
     def _raise(self, scope: StopScope, reason: RepositoryStopReason, detail: str) -> None:
@@ -571,10 +573,10 @@ class Preflight:
 def _failing_detail(result: CheckResult, main: CommitId) -> str:
     commit = main[:_SHORT_COMMIT]
     if result.status == "time_limit":
-        return f"{PROBE_COMMAND} reached its time_limit on main at {commit}"
+        return f"{PROBE_COMMAND} reached its time_limit on {WORK_BRANCH} at {commit}"
     if not result.last_line.strip():
-        return f"{PROBE_COMMAND} {_ended(result)} and printed nothing on main at {commit}"
-    return f"{PROBE_COMMAND} is red on main at {commit}: {result.last_line}"
+        return f"{PROBE_COMMAND} {_ended(result)} and printed nothing on {WORK_BRANCH} at {commit}"
+    return f"{PROBE_COMMAND} is red on {WORK_BRANCH} at {commit}: {result.last_line}"
 
 
 def _ended(result: CheckResult) -> str:

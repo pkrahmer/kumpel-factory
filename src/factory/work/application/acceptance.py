@@ -295,7 +295,7 @@ class AcceptanceMerged(Handler):
         if git.show_file("HEAD", snapshot.path) is not None:
             self._book(recorder, snapshot)
         elif git.show_file("HEAD", destination_path(snapshot.path, "done")) is None:
-            raise CannotHandle(kind=event.kind, reason="no report on the main branch")
+            raise CannotHandle(kind=event.kind, reason=f"no report on the {WORK_BRANCH} branch")
         recorder.delete_branch(snapshot.branch)
 
     def _require_bookable(self, event: Event) -> None:
@@ -316,7 +316,8 @@ class AcceptanceMerged(Handler):
         records = read_cost_records(boundaries.git, boundaries.cost_reader, "HEAD", sidecar)
         # The move comes first: `git mv` refuses a destination that already exists.
         destination = move_with_cost_records(boundaries.git, snapshot.path, "done")
-        no_state = CannotHandle(kind=_MERGED, reason="the report on the main branch has no state")
+        no_state_reason = f"the report on the {WORK_BRANCH} branch has no state"
+        no_state = CannotHandle(kind=_MERGED, reason=no_state_reason)
         stage = require_state(document, no_state).stage
         before_approval = is_before_approval(self._definition, stage)
         booked = book_merge(
@@ -349,7 +350,7 @@ class AcceptanceClosed(Handler):
         if git.resolve(branch_ref) is None:
             if git.show_file(_WORK_REF, destination_path(snapshot.path, "done")) is None:
                 raise CannotHandle(
-                    kind=event.kind, reason="no report on the branch or the main branch"
+                    kind=event.kind, reason=f"no report on the branch or the {WORK_BRANCH} branch"
                 )
         else:
             recorder = WorkItemRecorder(self._boundaries)

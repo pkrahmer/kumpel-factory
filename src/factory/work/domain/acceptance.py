@@ -16,7 +16,7 @@ from factory.shared.domain.identifiers import (
     is_acceptance,
     parse_work_item_file_name,
 )
-from factory.shared.domain.paths import LifecycleFolder
+from factory.shared.domain.paths import WORK_BRANCH, LifecycleFolder
 from factory.shared.domain.sections import (
     JOURNAL,
     first_section,
@@ -50,9 +50,9 @@ _MERGED_BEFORE_APPROVAL_PREFIX = "done (pull request merged before approval); co
 ACCEPTANCE_CLOSING = (
     "Merge to accept the report and take the proposed stories into the feature's backlog, "
     "where you refine them before starting any. "
-    "Close, with a comment saying why, to refuse: the report stays on the main branch as refused "
-    "with your comment, the proposed stories are discarded, and the feature counts as not "
-    "accepted until another story is archived and a new acceptance runs. "
+    f"Close, with a comment saying why, to refuse: the report stays on the {WORK_BRANCH} branch "
+    "as refused with your comment, the proposed stories are discarded, and the feature counts "
+    "as not accepted until another story is archived and a new acceptance runs. "
     "Nobody answers comments while the acceptance waits here; they go into the report's journal."
 )
 

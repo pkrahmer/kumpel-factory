@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 2
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 644
 comments_read: [6713932106, 6714015757, 6714081152, 6714164393, 6714248996, 6714373146]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-07T23:28:39.113512Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -257,6 +253,12 @@ journal:
   kind: started
   at: '2026-11-07T23:28:39.113512Z'
   stage: doing
+- number: 45
+  speaker: coder
+  kind: result
+  at: '2026-11-07T23:33:35.674235Z'
+  stage: doing
+  run: 6227d825e673407087f2309db23c3845
 ---
 
 # The factory works on develop
@@ -968,3 +970,27 @@ Expect: `develop`
 
     `lint`: lint: green (0.2 s)
 44. factory: started doing as vm.
+45. coder: Round 2, after the tester's entry 43. I changed the texts that the human or the operator sees, as option (a) in entry 39 asks. Each now follows `WORK_BRANCH`. The renames and docstrings from entry 41 were already in place, and I changed no tests. `make check` is green: lint, types, layers, sast, secrets and licenses all green, `test: green (108.9 s)`, `check: green`.
+
+    **Built this round:**
+    - `src/factory/machine/application/preflight.py`: the five probe details now say `on {WORK_BRANCH}`. For example, `the probe on develop could not run: ...`, `lint is red on develop at <commit> (probed earlier)`, `lint reached its time_limit on develop at ...`, `... printed nothing on develop at ...` and `lint is red on develop at <commit>: ...`. This meets the new criterion 5. Two of these lines were over 100 columns, so I put the detail in a local `detail` or `commit` first.
+    - `src/factory/work/domain/acceptance.py`: `ACCEPTANCE_CLOSING` now says `the report stays on the {WORK_BRANCH} branch as refused` and imports `WORK_BRANCH`. I reflowed the string's lines; the text is otherwise the same.
+    - `src/factory/work/application/acceptance.py`: the three `CannotHandle` reasons now say `the {WORK_BRANCH} branch`.
+    - `src/factory/pipeline/application/stage.py`: the merge-conflict `ValueError` now says `with the {WORK_BRANCH} branch`. No test pins this text (entry 43).
+    - `src/factory/hosting/domain/post_texts.py`: the `merge_conflict` stall sentence now says `merging the {WORK_BRANCH} branch conflicts ...`, and the module imports `WORK_BRANCH` from `factory.shared.domain.paths`.
+    - No model in the records contract changed. `ACCEPTANCE_CLOSING` and the stall sentences are module constants, not models.
+
+    **Main choice.** Each text builds the branch's name from `WORK_BRANCH` in an f-string. I rejected writing a literal `develop`: the constant would change and the texts would not, which is the mismatch this story removes.
+
+    **Refactor.** I read the diff once. The only changes were the local variables needed to keep the lines within 100 columns. Nothing else needed changing.
+
+    **Description.** Entry 39 widened the Interface and added criterion 5. The tester added both to the work item in entry 43, but the factory left that edit out of what it kept, as outside the tester's write paths. The work item is outside my write paths too, so the Interface and the criteria may still lack entry 39's widening.
+
+    **Noticed, not touched (notes for a later story, as entry 39 asks):**
+    - The stop kind `main_branch_failing`, its row in `pipeline/domain/stop_table.py`, and the private `_MAIN_FAILING` in `preflight.py`.
+    - The stamp fields `main_failed` and `main_probed`, `EvaluationInput.main_commit`, and the local variables named `main` in `preflight.py` and `evaluation.py`.
+    - The `"main"` at `entry/run.py:51` and the comment at `entry/check_story.py:68`.
+    - The prose in test docstrings and comments that still says main (entry 43).
+
+    `check`: check: green
+    `duplicates`: duplicates: 6 new, 39 known, 4 gone
