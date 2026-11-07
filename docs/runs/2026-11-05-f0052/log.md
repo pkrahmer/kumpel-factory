@@ -238,3 +238,4 @@ Times are UTC. The plan: `night-plan.md`.
 - 21:49Z: on the human's order, the API key was copied unread from the human's file into /home/factory/.secrets/anthropic-api-key on factory-vm (multipass transfer into a 0700 folder, line ends stripped, owner factory, mode 600, 106 bytes; the temporary copy shredded). The factory's next agent call runs on the API; the subscription token stays in place but is not read. Budget: $75 on the key; new stories pause at about $60 spent for the human's check. The source file C:/Dev/Projects/ANTHROPIC_API_KEY is left as it was.
 
 - 21:53 UTC: F0057-S0001 (the tests name the working branch through one constant): started; heartbeat at 13,43 recreated; the factory runs on the API key.
+- 21:56Z: F0057-S0001 PR #643 asked at intake (failing rows for the guard's four strings, a clean row, the docstring clause). Answered as proposed: one failing row per string, one clean row, criterion 2 the only test of the clause.
