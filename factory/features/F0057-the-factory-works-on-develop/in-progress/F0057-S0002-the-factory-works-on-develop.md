@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 644
 comments_read: [6713932106, 6714015757, 6714081152, 6714164393, 6714248996]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-07T23:16:06.603133Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -209,6 +213,11 @@ journal:
   at: '2026-11-07T23:16:01.449739Z'
   stage: review
   run: c1cc10b2d3ef4dafa3362bc5f479916f
+- number: 37
+  speaker: factory
+  kind: started
+  at: '2026-11-07T23:16:06.603133Z'
+  stage: doing
 ---
 
 # The factory works on develop
@@ -755,3 +764,4 @@ Expect: `develop`
       - `tests/entry/test_health.py`
       - `tests/entry/test_run_waiter.py`
     - `tests/pipeline/application/test_repository_waiter.py`: under entry 21 (the message follows `WORK_BRANCH`, and the new criterion's test) and entry 28 (`OTHER_BRANCH`).
+37. factory: started doing as vm.
