@@ -1,17 +1,13 @@
 ---
 stage: doing
-blocked: null
+blocked: question
 round: 1
 attempts: 0
 crashes: 0
 pull_request: 644
 comments_read: [6713932106, 6714015757, 6714081152]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-07T22:55:55.571410Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -118,6 +114,13 @@ journal:
   kind: started
   at: '2026-11-07T22:55:55.571410Z'
   stage: doing
+- number: 20
+  speaker: coder
+  kind: question
+  at: '2026-11-07T22:56:16.585094Z'
+  stage: doing
+  run: ecdbcaed85e3476f95b4d04c1fc923d6
+  blocked: question
 ---
 
 # The factory works on develop
@@ -402,3 +405,29 @@ Expect: `develop`
       - `tests/operator_scripts/test_operator_skill_scripts.py`
       - `tests/operator_scripts/test_operator_skill_signature.py`
 19. factory: started doing as vm.
+20. coder: **Question (round 1).** Both of the reviewer's findings (entry 18) need you to widen the Interface. It says `src/factory/` is "otherwise unchanged", and finding 1 also touches earlier tests. I changed nothing this round.
+
+    I confirmed finding 1. `src/factory/pipeline/application/scheduler.py:135` returns the literal `"the repository has no main branch yet"` when `origin/develop` does not resolve. On a remote that has `main` but no `develop`, which is the case the Description says "must be clear at once", the stop names the wrong branch. The text is pinned by:
+    - `tests/pipeline/application/test_repository_waiter.py:32` (`NO_MAIN`)
+    - `tests/entry/test_health.py:64` and `:73`
+    - `tests/entry/test_run_waiter.py:40`
+    - the docs: `docs/operator-guide/health.md:187`
+
+    Options:
+    - **(a) Widen for both findings.**
+      - The scheduler's message becomes `f"the repository has no {WORK_BRANCH} branch yet"`.
+      - The private names and comments that mean the working branch are renamed or reworded, with no change in behaviour:
+        - `_MAIN_REF` and `_NO_MAIN_TO_PREPARE` in `machine/application/preflight.py`
+        - `_ORIGIN_MAIN` and `_main_fault` in `pipeline/application/scheduler.py`
+        - `_MAIN_REF` in `pipeline/application/tick.py`
+        - `_require_commit_beyond_main` and its message in `pipeline/application/stops.py`
+        - the docstrings and comments in `handlers/merged.py`, `handlers/reject.py`, `handlers/closed.py` and `tick.py`
+      - You add a criterion: on a remote with `main` and no `develop`, the repository stop names `develop`.
+      - You give the tester leave to make the four pinned tests above follow the constant. I would end the next round with `tests` naming that criterion and those tests, then make the code change once they are red.
+      - `health.md:187` follows in S0004, or in this story's docs criterion if you prefer.
+    - **(b) Finding 1 only.** Same as (a), but the renames and comments stay for a later story.
+    - **(c) Neither.** Both stay as they are, and a later story takes them on (R13).
+
+    I would choose (a). The wrong message is a real fault on exactly the remote this story warns about. The renames are cheap and make no difference to behaviour, and no later F0057 story covers them (S0003 is Kumpel; S0004 and S0005 are documents).
+
+    **State.** The working tree is as entry 16 left it, and `make check` was green there.
