@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: tests
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 641
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-07T15:15:35.398669Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -67,6 +63,12 @@ journal:
   kind: started
   at: '2026-11-07T15:15:35.398669Z'
   stage: doing
+- number: 11
+  speaker: coder
+  kind: result
+  at: '2026-11-07T15:15:54.564907Z'
+  stage: doing
+  run: cc10a00b7fa2466eb9a9eb90808346de
 ---
 
 # A folder README keeps its opening and its link lines short
@@ -186,3 +188,13 @@ Expect: `0`
    Earlier tests:
    - `tests/shared/domain/test_folder_readmes.py` (written by F0055-S0001): changed under the human's leave named in the Interface (2026-11-07). It only adds rows, plus the module-level `GUIDE_LINK`, `LONG_LINK_LINE_5` and `_link_line` that they use. No existing test or row changed.
 10. factory: started doing as vm.
+11. coder: Round 1: the reviewer's latest entry added two criteria, and both need only their test rows. I changed no code and no test, and I did not run `make check` this round.
+
+    - criterion 4: a line without a relative link in the paragraph right after the opening gives `<folder>: line 5 is no part of the form`. Add it as a row of `tests/shared/domain/test_folder_readmes.py::test_a_readme_out_of_its_form_gives_one_line_per_rule`, for example `_readme(links=(FREE_PROSE,))` expecting that line once.
+    - criterion 5: a README whose only relative link is in its opening gives no `<folder>: links to no guide`. Add it as a row of the same test, for example `_readme(opening=(f"What it holds, see {GUIDE_LINK}.",), links=())` expecting that line zero times.
+
+    I checked both against `src/factory/shared/domain/folder_readmes.py` as it stands:
+    - `'# W\n\nOne.\nTwo.\n\nFree prose here.\n\n- \`a/\` One sentence.\n'` gives `w: line 6 is no part of the form` (and `links to no guide`, since it has no link at all).
+    - `'# W\n\nWhat it holds, see [g](../docs/README.md).\n\n- \`a/\` One sentence.\n'` gives `[]`.
+
+    So the new rows should pass without a code change. What the journal changed: the reviewer added criteria 4 and 5 and renumbered the closing ones. The Description already says this, so I did not rewrite it.
