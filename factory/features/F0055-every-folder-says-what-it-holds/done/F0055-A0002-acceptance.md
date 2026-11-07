@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 0
 attempts: 0
@@ -30,8 +30,13 @@ journal:
   at: '2026-11-07T15:43:15.534170Z'
   stage: acceptance
   run: 6b356d4dff354841be19be59251228f5
+- number: 5
+  speaker: factory
+  kind: done
+  at: '2026-11-07T15:47:12.181655Z'
+  stage: done
 stories: [F0055-S0001, F0055-S0002, F0055-S0003, F0055-S0004, F0055-S0005, F0055-S0006, F0055-S0007, F0055-S0008, F0055-S0009]
-outcome: null
+outcome: accepted
 ---
 
 # Acceptance of Every folder says what it holds
@@ -244,3 +249,4 @@ The human answered 13 questions (11 questions, 2 at the round cap), and the stor
    7 Slow checks: make documents ok (60.1 s); make duplicates 6 new, 39 known, 4 gone, the same as at A0001. There is no scan and no SBOM. The slowest tests are the 10 s time-limit tests, and the feature's 114 tests take 0.4 s. Free disk fell 0.6 GB between disk start and disk acceptance while dataset use stayed at 1.5 GB. Nothing this feature did explains it, and it is the second such drop in a row.
    8 Cost: 97 runs, 139.5 min, $23.15. S0001 still stands out ($6.48, 19 runs). S0008 cost $1.40 (6 runs) and S0009 $2.21 (10 runs, one review round). The human answered 13 questions (11 questions, 2 at the round cap) and the stories waited 0.6 h; S0008 and S0009 asked none. S0001 and S0003 needed the human most, 3 answers each.
    Proposed: F0055-S0010 (docs repair: the guides name the folder READMEs as they are now) and F0055-S0011 (every listed README is pinned to the checked list, and the redundant test module goes, under the human's leave). Both pass factory-check-story, and their smoke tests are red today.
+5. factory: done (pull request merged); cost: 1 runs, 9.9 min, 33 turns, 76976 tokens in (1649071 more from cache), 24031 out, $1.43
