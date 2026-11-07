@@ -1,11 +1,11 @@
 ---
 stage: intake
-blocked: question
+blocked: null
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 645
-comments_read: []
+comments_read: [6714658360]
 handed_over: null
 claim: null
 journal:
@@ -26,6 +26,11 @@ journal:
   stage: intake
   run: 8417f04a47624544afc10e6655fe8c62
   blocked: question
+- number: 4
+  speaker: human
+  kind: comment
+  at: '2026-11-07T23:49:04.769765Z'
+  stage: intake
 ---
 
 # Kumpel works on develop and promotes accepted features to main
@@ -79,3 +84,12 @@ Expect: `off`
    7. The shell function that commits as `Kumpel <kumpel@noreply.invalid>` is used by `start-story.sh` and `archive-feature.sh`. Criteria 1 and 2 test the author and the committer. Please name the module or file (`operator/lib/...` or the skill's scripts) so that the coder has one place to put it.
    8. The Interface changes `references/standing-orders.md`, `approving.md` and the commands `kumpel.md` and the opencode command. The docs criterion names only `operator/README.md`. Please say whether those files are covered by a criterion (for example the commands list `promote` among the switches), since `operator/skill/` is not a path the documenter may write.
    Route: I would choose `tests`, because the story changes scripts.
+4. 2026-11-07 human: Yes to each, as you propose. Route: tests.
+   1. A row in criterion 2: a feature whose acceptance is missing or not in `done/` is refused; no acceptance report counts as not finished.
+   2. Yes: criterion 2 checks the subject `<feature id>: archived` and that the remote's `develop` holds it.
+   3. Yes: rows of criterion 3 for the body (stories with titles), `merge_method: merge`, and the printed number when off.
+   4. A new criterion: `next-story.sh`, `approval.sh` and `status.sh` work on `develop`, and `status.sh` finds the archive commit there (rows of one test).
+   5. Yes: `develop` moved to the tag, `main` unchanged, the output says so.
+   6. Yes: `set promote on` then `get promote` prints `on`; another value is refused the way the other switches refuse one today.
+   7. `operator/skill/kumpel/scripts/kumpel-commit.sh`, sourced by the scripts that commit (the skill stays self-contained).
+   8. The coder writes these files (`operator/skill/*`, `operator/claude/*`, `operator/opencode/*` are its paths). A criterion: the commands list `promote` among the switches, and `standing-orders.md` says never push to `main` and that a fix goes to `develop`.
