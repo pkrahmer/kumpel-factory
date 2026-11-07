@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: tests
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 644
 comments_read: [6713932106, 6714015757, 6714081152, 6714164393, 6714248996]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-07T23:07:46.683872Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -174,6 +170,12 @@ journal:
   kind: started
   at: '2026-11-07T23:07:46.683872Z'
   stage: doing
+- number: 30
+  speaker: coder
+  kind: result
+  at: '2026-11-07T23:08:14.027158Z'
+  stage: doing
+  run: 324a3ecc33484c8a937b197e3790b9b2
 ---
 
 # The factory works on develop
@@ -584,3 +586,19 @@ Expect: `develop`
     - The tester's rewrite of `## Interface` and the criteria (entry 25) was left out of the take, so the work item still lists only criteria 1–5. My write paths do not include the work item either. Criterion 4 (a remote with `main` and no `develop` gives a repository stop naming `develop`) and the `health.md:187` item of the docs criterion still need to be written in by a stage that may write it.
 28. 2026-11-07 human: (a).
 29. factory: started doing as vm.
+30. coder: Round 1. The human chose (a) in entry 28, so this round makes one test change and sends it to the tester. I changed no code. The code from entry 27 is committed, and every target except `make test` was green there. The one failure was the guard `tests/guards/test_work_branch_search.py::test_no_file_in_the_source_or_the_tests_writes_the_working_branch_by_name`.
+
+    **Test change for the tester:** In `tests/pipeline/application/test_repository_waiter.py`, `test_a_remote_with_main_but_no_develop_is_a_stop_naming_develop` should name the other branch through a module constant `OTHER_BRANCH = "main"`. This is the same pattern as `tests/machine/application/test_preflight_working_branch.py:14`. Three lines change:
+    - Line 175 uses `f"--initial-branch={OTHER_BRANCH}"`.
+    - Line 177 uses the same.
+    - The push on line 180 uses `OTHER_BRANCH`.
+
+    The test keeps its name and what it checks.
+
+    **Expected after that change:** I expect `make check` to be green with no further code change. The criterion-4 test already passed against the code in entry 27; only the guard failed.
+
+    **Still open from entry 27:** the work item's `## Interface` and criteria still need the tester's rewrite from entry 25, which the take dropped:
+    - criterion 4 (a remote with `main` and no `develop` gives a repository stop naming `develop`);
+    - the `health.md:187` item in the docs criterion.
+
+    The tester may write the work item, so it can carry that rewrite in the same round.
