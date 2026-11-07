@@ -21,7 +21,7 @@ from factory.shared.domain.identifiers import (
     work_item_of_branch,
     work_item_order,
 )
-from factory.shared.domain.paths import FEATURES_DIRECTORY, MAIN_BRANCH, REMOTE, cost_records_path
+from factory.shared.domain.paths import FEATURES_DIRECTORY, REMOTE, WORK_BRANCH, cost_records_path
 from factory.watching.domain.bills import (
     Bill,
     StageBill,
@@ -226,7 +226,7 @@ class BillService:
         branch_ref = f"{REMOTE}/{branch_name(work_item)}"
         if self._git.resolve(branch_ref) is not None:
             return branch_ref
-        return f"{REMOTE}/{MAIN_BRANCH}"
+        return f"{REMOTE}/{WORK_BRANCH}"
 
     def _work_item_path(self, ref: str, work_item: WorkItemId) -> str | None:
         for path in self._git.list_files(ref, FEATURES_DIRECTORY):

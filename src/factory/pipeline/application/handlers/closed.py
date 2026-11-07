@@ -21,7 +21,7 @@ from factory.pipeline.application.handlers.recording import (
 from factory.pipeline.domain.events import Event
 from factory.pipeline.domain.pipeline_definition import PipelineDefinition
 from factory.shared.domain.errors import CannotHandle
-from factory.shared.domain.paths import MAIN_BRANCH
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.work.domain.archive import destination_path
 from factory.work.domain.journal import FACTORY, HUMAN, NewEntry, append_entry
 from factory.work.domain.labels import labels_for
@@ -63,11 +63,11 @@ class ClosedHandler(Handler):
 
     def _discard(self, snapshot: WorkItemSnapshot) -> None:
         recorder = WorkItemRecorder(self._boundaries)
-        recorder.check_out(MAIN_BRANCH)
+        recorder.check_out(WORK_BRANCH)
         # Moved, not rewritten: main holds the human's text, the branch the factory's.
         self._boundaries.git.move(snapshot.path, destination_path(snapshot.path, "backlog"))
         subject = commit_subject(snapshot.id, "closed before the approval, back in the backlog")
-        recorder.publish(MAIN_BRANCH, subject)
+        recorder.publish(WORK_BRANCH, subject)
         recorder.delete_branch(snapshot.branch)
 
     def _send_back(self, target: Target) -> None:

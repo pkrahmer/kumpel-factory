@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-"""A project's own agents, read at `origin/main` before the installed ones."""
+"""A project's own agents, read at `origin/<working branch>` before the installed ones."""
 
 from typing import override
 
@@ -13,7 +13,7 @@ from factory.shared.domain.paths import AGENT_SUFFIX, PROJECT_AGENTS_DIRECTORY, 
 
 
 class ProjectAgentDefinitions(AgentDefinitionReader):
-    """A project's own agents at `origin/main` first, the installed ones otherwise."""
+    """A project's own agents at `origin/<working branch>` first, the installed ones otherwise."""
 
     def __init__(self, git: Git, installed: AgentDefinitionReader, ref: str = PIPELINE_REF) -> None:
         """Read the project's agents through `git` at `ref`, and `installed` where it has none."""

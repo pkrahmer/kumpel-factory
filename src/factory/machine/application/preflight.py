@@ -41,7 +41,7 @@ from factory.shared.domain.errors import (
     ProjectCommandError,
     SnapshotError,
 )
-from factory.shared.domain.paths import MAIN_BRANCH, REMOTE
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from factory.shared.domain.printed_lines import printed_lines
 from factory.shared.domain.settings import (
     API_LOGIN_FILE_VARIABLE,
@@ -58,7 +58,7 @@ PROBE_COMMAND = "lint"
 # A constant, the default of every project command: the preflight needs no pipeline definition.
 PROBE_TIME_LIMIT = timedelta(minutes=10)
 
-_MAIN_REF = f"{REMOTE}/{MAIN_BRANCH}"
+_MAIN_REF = f"{REMOTE}/{WORK_BRANCH}"
 _SHORT_COMMIT = 12
 _MAIN_FAILING: RepositoryStopReason = "main_branch_failing"
 _PREFLIGHT_FAILED: RepositoryStopReason = "preflight_failed"
@@ -76,7 +76,7 @@ _METADATA_ITEM = "metadata-block"
 # curl writes `000` as the HTTP code when it got no answer: refused, unreachable or timed out.
 _NOT_CONNECTED = "000"
 _HTTP_CODE = re.compile(r"[0-9]{3}")
-_NO_MAIN_TO_PREPARE = "no origin/main to prepare the stage environment from"
+_NO_MAIN_TO_PREPARE = f"no {_MAIN_REF} to prepare the stage environment from"
 
 PROBE_AGENT = "coder"
 PROBE_PROMPT = "Probe: end with the decision question and the entry probe."
@@ -283,7 +283,7 @@ def agent_run_probe_item(
         agent = installed.model_copy(update={"budget_usd": PROBE_BUDGET_USD})
         request = _probe_request(boundaries, agent, environment)
         stage_environment = stage_environment_of(boundaries)
-        stage_environment.prepare(main, MAIN_BRANCH, sync_time_limit=PROBE_TIME_LIMIT)
+        stage_environment.prepare(main, WORK_BRANCH, sync_time_limit=PROBE_TIME_LIMIT)
         result = stage_environment.run_agent(request)
     except (AgentDefinitionError, AgentRuntimeError, SnapshotError, ContainerError) as error:
         return PreflightItem(name=_PROBE_ITEM, passed=False, detail=str(error))
@@ -385,7 +385,7 @@ class MachineChecks:
 
     def _hosting_service(self) -> PreflightItem:
         try:
-            self._boundaries.hosting.find_open_pull_request(MAIN_BRANCH)
+            self._boundaries.hosting.find_open_pull_request(WORK_BRANCH)
         except HostingServiceError as error:
             detail = (
                 f"the hosting service failed {error.operation}: {error.detail}; "
@@ -534,10 +534,10 @@ class Preflight:
     def _run_probe(self, stamp: PreflightStamp, main: CommitId) -> RepositoryStopReason | None:
         # On main only: a work item's red branch is its own concern, not the machine's.
         git = self._boundaries.git
-        git.checkout(MAIN_BRANCH, start_point=_MAIN_REF)
+        git.checkout(WORK_BRANCH, start_point=_MAIN_REF)
         git.reset_to(_MAIN_REF)
         stage_environment_of(self._boundaries).prepare(
-            main, MAIN_BRANCH, sync_time_limit=PROBE_TIME_LIMIT
+            main, WORK_BRANCH, sync_time_limit=PROBE_TIME_LIMIT
         )
         result = self._boundaries.project_commands.run(PROBE_COMMAND, time_limit=PROBE_TIME_LIMIT)
         if self._boundaries.stop_requested():

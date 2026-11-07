@@ -41,7 +41,7 @@ _SYNC_COMMAND = "sync"
 # the host can map them. `--update-head-ok`: git refuses to
 # fetch into the checked-out branch, an unborn one too; the checkout and the reset after it
 # put the work tree right. The host's branches come in as `origin/<branch>` too, as in a
-# clone of the host's repository: the project's commands read `origin/main`. The escaped
+# clone of the host's repository: the project's commands read `origin/<working branch>`. The escaped
 # line end keeps the fetch on one line of the script.
 _SYNC_SCRIPT = """set -eu
 mkdir -p "$1" "$2"

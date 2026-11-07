@@ -19,7 +19,7 @@ from factory.pipeline.domain.stops import (
     stop_records_text,
 )
 from factory.shared.domain.errors import HostingServiceError
-from factory.shared.domain.paths import MAIN_BRANCH, REMOTE, STOP_RECORDS_FILE
+from factory.shared.domain.paths import REMOTE, STOP_RECORDS_FILE, WORK_BRANCH
 
 NO_DETAIL = "no detail given"
 
@@ -117,7 +117,7 @@ class StopService:
         # makes the fake and the production service fail alike.
         git = self._boundaries.git
         tip = git.resolve(f"{REMOTE}/{branch}")
-        if tip is None or git.is_ancestor(tip, f"{REMOTE}/{MAIN_BRANCH}"):
+        if tip is None or git.is_ancestor(tip, f"{REMOTE}/{WORK_BRANCH}"):
             raise HostingServiceError(
                 "create_pull_request",
                 f"branch {branch} is not on the remote with a commit beyond main",
@@ -139,18 +139,18 @@ class StopPublisher:
         local = self._boundaries.stop_records.read()
         if not local:
             return []
-        text = self._boundaries.git.show_file(f"{REMOTE}/{MAIN_BRANCH}", STOP_RECORDS_FILE) or ""
+        text = self._boundaries.git.show_file(f"{REMOTE}/{WORK_BRANCH}", STOP_RECORDS_FILE) or ""
         missing = _missing_records(local, parse_stop_records(text))
         if not missing:
             return []
         recorder = WorkItemRecorder(self._boundaries)
-        recorder.check_out(MAIN_BRANCH)
+        recorder.check_out(WORK_BRANCH)
         if text and not text.endswith("\n"):
             text += "\n"
         path = self._boundaries.checkout / STOP_RECORDS_FILE
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(text + stop_records_text(missing), encoding="utf-8", newline="\n")
-        recorder.publish(MAIN_BRANCH, "stops recorded")
+        recorder.publish(WORK_BRANCH, "stops recorded")
         return missing
 
 

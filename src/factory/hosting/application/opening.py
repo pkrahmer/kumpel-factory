@@ -8,11 +8,12 @@ from factory.pipeline.application.boundaries import Boundaries
 from factory.pipeline.domain.pipeline_definition import PipelineDefinition
 from factory.shared.domain.errors import WorkItemFormatError
 from factory.shared.domain.identifiers import WorkItemId, branch_name
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from factory.shared.domain.sections import JOURNAL, sections, title
 from factory.work.domain.journal import HUMAN, NewEntry, append_entry
 from factory.work.domain.work_item import WorkItemDocument, initial_state
 
-_MAIN = "origin/main"
+_MAIN = f"{REMOTE}/{WORK_BRANCH}"
 
 
 class PreparedWorkItem(BaseModel):
@@ -47,8 +48,8 @@ class WorkItemOpening:
         """Check out the work item's branch as the remote holds it and read its document.
 
         Reads only remote-tracking refs, never fetches, commits or pushes. A new branch starts
-        at `origin/main` with a first document; an existing one is reset to the remote's and
-        has `origin/main` merged in, a conflict aborted.
+        at `origin/<working branch>` with a first document; an existing one is reset to the
+        remote's and has `origin/<working branch>` merged in, a conflict aborted.
         """
         branch = branch_name(work_item)
         branch_existed = self._boundaries.git.resolve(f"origin/{branch}") is not None
@@ -76,7 +77,7 @@ class WorkItemOpening:
         self._boundaries.git.checkout(branch, start_point=_MAIN)
         text = self._boundaries.git.show_file(_MAIN, path)
         if text is None:
-            raise WorkItemFormatError("the work item file is not on origin/main", path)
+            raise WorkItemFormatError(f"the work item file is not on {_MAIN}", path)
         # The backlog file's own front matter is the human's draft, never the pipeline's state.
         specification = self._boundaries.work_item_reader.parse_specification(text)
         document = WorkItemDocument(

@@ -151,8 +151,8 @@ def run_instance(
     """Run the instance of `settings` until `should_stop`; `hosting` replaces PyGithub.
 
     The containers run in the image the project's stage file builds through `images`, podman's
-    by default, built again before the next tick when the file on `origin/main` changed; while
-    that file stands as a stop, no tick runs. The idle shutdown's `exit` ends
+    by default, built again before the next tick when the file on `origin/<working branch>`
+    changed; while that file stands as a stop, no tick runs. The idle shutdown's `exit` ends
     the loop through `request_stop`, and so does a machine stop that stands too long under that
     setting.
 
@@ -206,7 +206,7 @@ class _StartInputs:
 
 
 class _ProjectImageStart:
-    """The instance's tick, in the image the stage file on `origin/main` chose.
+    """The instance's tick, in the image the stage file on `origin/<working branch>` chose.
 
     The stage file is compared before every tick, and a tick is built again only when it changed.
     The tick's status lives in memory and counts across ticks until then: a rebuilt tick starts

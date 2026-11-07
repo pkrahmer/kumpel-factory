@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 643
 comments_read: [6713530910]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-07T22:01:18.200585Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -62,6 +58,12 @@ journal:
   kind: started
   at: '2026-11-07T22:01:18.200585Z'
   stage: doing
+- number: 10
+  speaker: coder
+  kind: result
+  at: '2026-11-07T22:06:15.142507Z'
+  stage: doing
+  run: 2803d32adae74e23a8df939b50d3a2ea
 ---
 
 # The tests name the working branch through one constant
@@ -159,3 +161,23 @@ Expect: `main`
 
    `lint`: lint: green (0.2 s)
 9. factory: started doing as vm.
+10. coder: I renamed the constant for the working branch and removed every branch name written out under `src/factory/`. I changed no tests. `make check` is green: `check: green`, test coverage 99.22 %.
+
+    What I built (24 files under `src/factory/`, 71 lines added and 70 removed):
+    - `src/factory/shared/domain/paths.py`: `MAIN_BRANCH` is now `WORK_BRANCH`, still `"main"`.
+    - Every module that imported `MAIN_BRANCH` now imports `WORK_BRANCH` and uses it the same way. That is task, the closed, hand_over and merged handlers, recovery, tick, stops, scheduler, pipeline_loading and stage under pipeline/application; preflight; work_items, acceptance and acceptance_reading; wiring; costs and watcher; pygithub_hosting. The derived names (`_MAIN_REF`, `_ORIGIN_MAIN`, `PIPELINE_REF`, `FORM_REF`) are still built from the constant, as the Interface says.
+    - `src/factory/hosting/application/opening.py`: `_MAIN` was written as `"origin/main"`. It is now `f"{REMOTE}/{WORK_BRANCH}"`, and its error message is built from `_MAIN`.
+    - `src/factory/machine/application/preflight.py`: the message `_NO_MAIN_TO_PREPARE` is now built from `_MAIN_REF`. Its text is unchanged, which the test in tests/hosting/application/test_agent_run_probe_environment.py expects.
+    - Docstrings and comments that named the branch now say `origin/<working branch>` or "the working branch". These are in recovery, scheduler, stage_environment, work_items, acceptance, run, watch, wiring, watcher, opening and project_agents. Four lines were reworded or rewrapped to stay within 100 characters (run.py, wiring.py, opening.py, scheduler.py).
+
+    Main choice: I built the two messages (opening, preflight) from the ref constants, so S0002 changes them with the one value. I rejected rewording them to "the working branch": that would change text a test checks, and the story allows no change in behaviour.
+
+    Refactor pass: I read the diff, which is a mechanical rename plus the lines above. Nothing needed changing.
+
+    Noticed but not touched:
+    - `hand_over.py` and `stage.py` build `f"origin/{WORK_BRANCH}"` with the remote written out instead of `REMOTE`. That was there before, and the guard does not catch it.
+    - Several local names still say "main" (`_MAIN_REF`, `_ORIGIN_MAIN`, `_MAIN`, `_NO_MAIN_TO_PREPARE`). The Interface keeps them, so S0002 or a later story may want to rename them.
+    - The meaning of the task is unchanged by the journal, so I did not rewrite the Description. The human's answers (entry 4) are already carried into criterion 2.
+
+    `check`: check: green
+    `duplicates`: duplicates: 6 new, 39 known, 4 gone

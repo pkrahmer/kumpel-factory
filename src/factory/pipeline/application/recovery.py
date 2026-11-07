@@ -235,7 +235,7 @@ def _stop_title(work_item: WorkItemSnapshot) -> str:
 def delete_stale_branches(boundaries: Boundaries) -> list[str]:
     """Delete the remote branches of stories back in the backlog or done; return their names.
 
-    A refused deletion is logged and left for the next call. Only `origin/main` and the
+    A refused deletion is logged and left for the next call. Only `origin/<working branch>` and the
     remote-tracking branches are read; `GitError` is not caught.
     """
     git = boundaries.git

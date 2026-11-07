@@ -33,8 +33,8 @@ from factory.shared.domain.identifiers import (
     parse_work_item_file_name,
 )
 from factory.shared.domain.paths import (
-    MAIN_BRANCH,
     REMOTE,
+    WORK_BRANCH,
     cost_records_path,
     feature_file_path,
     work_item_path,
@@ -66,7 +66,7 @@ from factory.work.domain.work_item import (
     require_state,
 )
 
-_MAIN_REF = f"{REMOTE}/{MAIN_BRANCH}"
+_MAIN_REF = f"{REMOTE}/{WORK_BRANCH}"
 _KIND = "acceptance_due"
 _HAND_OVER = "hand_over"
 _MERGED = "merged"
@@ -133,7 +133,7 @@ class AcceptanceService:
         return OpenedAcceptance(id=work_item, branch=branch, path=path, commit=commit)
 
     def facts(self, feature: FeatureId) -> AcceptanceFacts:
-        """The reviewer's facts of the feature as `origin/main` holds it.
+        """The reviewer's facts of the feature as `origin/<working branch>` holds it.
 
         Raises `ValueError` when the feature has no directory there.
         """
@@ -289,7 +289,7 @@ class AcceptanceMerged(Handler):
         """
         self._require_bookable(event)
         recorder = WorkItemRecorder(self._boundaries)
-        recorder.check_out(MAIN_BRANCH)
+        recorder.check_out(WORK_BRANCH)
         snapshot = target_of(event).snapshot
         git = self._boundaries.git
         if git.show_file("HEAD", snapshot.path) is not None:
@@ -326,7 +326,7 @@ class AcceptanceMerged(Handler):
             at=boundaries.clock.now(),
         )
         recorder.write(destination, booked)
-        recorder.publish(MAIN_BRANCH, commit_subject(snapshot.id, "merged, archived"))
+        recorder.publish(WORK_BRANCH, commit_subject(snapshot.id, "merged, archived"))
 
 
 class AcceptanceClosed(Handler):
@@ -408,7 +408,7 @@ class AcceptanceClosed(Handler):
         refused: WorkItemDocument,
         records: list[CostRecord],
     ) -> None:
-        recorder.check_out(MAIN_BRANCH)
+        recorder.check_out(WORK_BRANCH)
         destination = destination_path(snapshot.path, "done")
         boundaries = self._boundaries
         if boundaries.git.show_file("HEAD", destination) is not None:
@@ -419,7 +419,7 @@ class AcceptanceClosed(Handler):
         if records:
             sidecar = boundaries.checkout / cost_records_path(destination)
             boundaries.cost_writer.write(sidecar, records)
-        recorder.publish(MAIN_BRANCH, commit_subject(snapshot.id, "closed, refused"))
+        recorder.publish(WORK_BRANCH, commit_subject(snapshot.id, "closed, refused"))
 
 
 class SplitByWorkItemKind(Handler):
