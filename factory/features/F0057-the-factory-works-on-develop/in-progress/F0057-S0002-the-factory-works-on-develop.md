@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 644
 comments_read: [6713932106, 6714015757, 6714081152, 6714164393, 6714248996, 6714373146, 6714554190]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: smoke-test
+  started_at: '2026-11-07T23:42:40.794309Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -298,6 +302,11 @@ journal:
   at: '2026-11-07T23:42:35.394507Z'
   stage: docs
   run: d1ecdb3547e84578a5de4c417e50b73a
+- number: 53
+  speaker: factory
+  kind: started
+  at: '2026-11-07T23:42:40.794309Z'
+  stage: smoke-test
 ---
 
 # The factory works on develop
@@ -1160,3 +1169,4 @@ Expect: `develop`
     `check`: check: green
     `secrets`: secrets: green (3.2 s)
     `documents`: documents ok (57.4 s)
+53. factory: started smoke-test as vm.
