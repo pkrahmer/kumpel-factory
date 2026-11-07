@@ -1,17 +1,13 @@
 ---
 stage: intake
-blocked: null
+blocked: question
 round: 0
 attempts: 0
 crashes: 0
-pull_request: null
+pull_request: 645
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: intake
-  started_at: '2026-11-07T23:46:54.152624Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -23,6 +19,13 @@ journal:
   kind: started
   at: '2026-11-07T23:46:54.152624Z'
   stage: intake
+- number: 3
+  speaker: intake
+  kind: question
+  at: '2026-11-07T23:47:14.904952Z'
+  stage: intake
+  run: 8417f04a47624544afc10e6655fe8c62
+  blocked: question
 ---
 
 # Kumpel works on develop and promotes accepted features to main
@@ -66,3 +69,13 @@ Expect: `off`
 
 1. 2026-11-07 human: created.
 2. factory: started intake as vm.
+3. intake: Questions (format check passed; the Interface has behaviours and rules without a criterion):
+   1. `archive-feature.sh` also refuses a feature "whose last acceptance is not in `done/`". Criterion 2 tests only the story files in `backlog/` and `in-progress/`. Add a row for the missing or unfinished acceptance (I would add it to criterion 2), and say what a feature with no acceptance report counts as.
+   2. `archive-feature.sh` commits with the message `<feature id>: archived`, then pulls and pushes. No criterion checks the message or the push. Criterion 2 should say the commit subject and that `develop` on the remote holds it.
+   3. `promote.sh` has three behaviours with no criterion: the pull request body lists the feature's stories with their titles, the merge uses `merge_method: merge` (criterion 3 says "merge commit", which I read as this), and the "off" side prints the number. Please say whether the body is a row of criterion 3. I would add it.
+   4. `next-story.sh`, `approval.sh` and `status.sh` move to `develop` (`origin/develop...`), and `status.sh` looks up the archive commit on `develop`. Criterion 1 covers only `start-story.sh`, and criterion 4 covers only `merge.sh`. Each of these scripts needs a criterion, or the Interface line should drop them.
+   5. `reset-to-tag.sh` moves `develop` to the tag by force and leaves `main` alone, and says so. No criterion tests either part. I would add one (`develop` moved, `main` unchanged, the output says so).
+   6. `settings.sh set promote on|off` is the switch itself. Criterion 5 tests only the default `off`. Add a criterion that `set promote on` makes `get promote` print `on`, and that another value is refused (what does `set` do with it today?).
+   7. The shell function that commits as `Kumpel <kumpel@noreply.invalid>` is used by `start-story.sh` and `archive-feature.sh`. Criteria 1 and 2 test the author and the committer. Please name the module or file (`operator/lib/...` or the skill's scripts) so that the coder has one place to put it.
+   8. The Interface changes `references/standing-orders.md`, `approving.md` and the commands `kumpel.md` and the opencode command. The docs criterion names only `operator/README.md`. Please say whether those files are covered by a criterion (for example the commands list `promote` among the switches), since `operator/skill/` is not a path the documenter may write.
+   Route: I would choose `tests`, because the story changes scripts.
