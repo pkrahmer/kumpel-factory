@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 644
 comments_read: [6713932106, 6714015757, 6714081152]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-07T22:50:14.896936Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -96,6 +92,12 @@ journal:
   kind: started
   at: '2026-11-07T22:50:14.896936Z'
   stage: doing
+- number: 16
+  speaker: coder
+  kind: result
+  at: '2026-11-07T22:54:32.458092Z'
+  stage: doing
+  run: 9a1c7ee26b3248b393ce2425800b17f9
 ---
 
 # The factory works on develop
@@ -305,3 +307,27 @@ Expect: `develop`
     The journal changed criterion 3 (entry 4) and settled the Kumpel scripts (entry 9). The Description already reflects both; I did not rewrite it.
 14. 2026-11-07 human: (a). The coder may now write demo/todo-service/project/Makefile and demo/todo-service/project/CLAUDE.md (factory/pipeline.yml on main, for this story only). Make your sed change in both files.
 15. factory: started doing as vm.
+16. coder: I applied the human's answer (a) from entry 14. `make check` is now green: the last line is `check: green`, and `test: green (101.6 s)` with coverage at 99.22 %.
+
+    **What I built this round:**
+    - `demo/todo-service/project/Makefile`: every `origin/main` is now `origin/develop`. That is the `secrets` comment and recipe (lines 64–65 and 68) and `MUTATED` (line 114). "on main itself" is now "on develop itself". The demo's `secrets` recipe matches the template's again, so `tests/agent_files/test_demo_makefile_secrets.py::test_the_todo_demos_secrets_target_is_the_templates` passes.
+    - `demo/todo-service/project/CLAUDE.md`: lines 39–40 now say `origin/develop` and "on `develop` itself".
+    - I used the sed from entry 13, widened to the backticked form in the demo's `CLAUDE.md`.
+
+    **Built in round 0** (already committed, see entry 13):
+    - `src/factory/shared/domain/paths.py`: `WORK_BRANCH = "develop"`. The preflight finding follows from it.
+    - `agents/agents/*.md`: every working-branch mention says `develop`.
+    - `operator/template/CLAUDE.md` and `operator/template/Makefile`: the same, for a project made from the template.
+
+    **Main choice.** Constant and text edits only, as the Interface says. I rejected a preflight item of its own for `develop`. For the demo, I rejected keeping `origin/main` in the template (it breaks criterion 3) and changing the demo test (that is a test edit).
+
+    **Refactor.** I read the diff again and found nothing to change.
+
+    **Description.** Not rewritten. Entry 4 (criterion 3) and entry 9 (the Kumpel scripts) are already in it. Entry 14 only widened the coder's write paths to the demo files and does not change what the task means.
+
+    **Noticed, not touched:**
+    - `src/factory/machine/application/preflight.py:79`: the private names `_MAIN_REF` and `_NO_MAIN_TO_PREPARE` now hold `origin/develop`. The Interface keeps `src/factory/` otherwise unchanged, so I left them.
+    - The Kumpel scripts under `operator/skill/kumpel/scripts/` still work on `main`, as entry 9 decides; F0057-S0003 moves them.
+
+    `check`: check: green
+    `duplicates`: duplicates: 6 new, 39 known, 4 gone
