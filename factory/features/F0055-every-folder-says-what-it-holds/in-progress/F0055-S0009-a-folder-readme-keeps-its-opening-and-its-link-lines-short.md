@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 641
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-07T15:15:59.509728Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -78,6 +74,12 @@ journal:
   kind: started
   at: '2026-11-07T15:15:59.509728Z'
   stage: tests
+- number: 13
+  speaker: tester
+  kind: result
+  at: '2026-11-07T15:16:29.893680Z'
+  stage: tests
+  run: 4e04f2d0413946098b040b6551197792
 ---
 
 # A folder README keeps its opening and its link lines short
@@ -208,3 +210,23 @@ Expect: `0`
 
     So the new rows should pass without a code change. What the journal changed: the reviewer added criteria 4 and 5 and renumbered the closing ones. The Description already says this, so I did not rewrite it.
 12. factory: started tests as vm.
+13. tester: I added the two rows that the coder's entry 11 named, for the two criteria the reviewer added. Both are new rows of `test_a_readme_out_of_its_form_gives_one_line_per_rule` in `tests/shared/domain/test_folder_readmes.py`. The human's leave of 2026-11-07, quoted in the Interface, allows adding rows to that test. I changed no existing row.
+
+    - criterion 4: `tests/shared/domain/test_folder_readmes.py::test_a_readme_out_of_its_form_gives_one_line_per_rule`, row `prose-in-the-paragraph-after-the-opening`. The README is `_readme(links=(FREE_PROSE,))`, and the test expects `operator: line 5 is no part of the form` once.
+    - criterion 5: the same test, row `only-link-in-the-opening`. The README is `_readme(opening=(f"What it holds, see {GUIDE_LINK}.",), links=())`, and the test expects `operator: links to no guide` zero times.
+
+    Mapping of the other criteria, unchanged from entry 5:
+    - criterion 1: the rows `opening-of-two-sentences-with-a-link` and `opening-of-three-sentences-with-a-link`.
+    - criterion 2: the `link-line-*` rows.
+    - criterion 3: the existing rows.
+    - criterion 6: `make check`.
+    - criterion 7: docs, not tested.
+
+    Files: no new files were created. The only file changed is `tests/shared/domain/test_folder_readmes.py`, which F0055-S0001 wrote.
+
+    Results:
+    - `uv run pytest -q tests/shared/domain/test_folder_readmes.py`: 32 passed and none failed. The new rows pass because the coder's code already handles them, as entry 11 predicted, so they were never red.
+    - The test runner imported every module.
+    - `make lint`: green.
+
+    `lint`: lint: green (0.2 s)

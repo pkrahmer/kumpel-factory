@@ -243,6 +243,18 @@ def _link_line(words: int) -> str:
             1,
             id="link-line-of-26-words-after-the-list",
         ),
+        pytest.param(
+            _readme(links=(FREE_PROSE,)),
+            f"{FOLDER}: line 5 is no part of the form",
+            1,
+            id="prose-in-the-paragraph-after-the-opening",
+        ),
+        pytest.param(
+            _readme(opening=(f"What it holds, see {GUIDE_LINK}.",), links=()),
+            f"{FOLDER}: links to no guide",
+            0,
+            id="only-link-in-the-opening",
+        ),
     ],
 )
 def test_a_readme_out_of_its_form_gives_one_line_per_rule(
