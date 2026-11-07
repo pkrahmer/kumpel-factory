@@ -9,6 +9,7 @@ from factory.agents.domain.agent_runs import AgentRunResult
 from factory.hosting.application.opening import WorkItemOpening
 from factory.pipeline.application.boundaries import Boundaries
 from factory.pipeline.application.stage import LaunchedStage, StageLauncher
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.shared.domain.settings import InstanceSettings
 from factory.work.domain.work_item import WorkItemDocument, WorkItemState
 from support.git_support import PIPELINE_YAML, install_agents
@@ -52,8 +53,8 @@ def _launch(
     settings = boundaries.settings.model_copy(update={"agent_home": agent_home})
     boundaries = replace(boundaries, settings=settings)
     install_agents(agent_home, ["tester"])
-    human.push_file("main", "Makefile", MAKEFILE)
-    human.push_file("main", BACKLOG_PATH, STORY)
+    human.push_file(WORK_BRANCH, "Makefile", MAKEFILE)
+    human.push_file(WORK_BRANCH, BACKLOG_PATH, STORY)
     human.start(BACKLOG_PATH)
     state = WorkItemState(stage="tests", attempts=0, journal=[CREATED])
     document = WorkItemDocument(state=state, body=STORY + CREATED_LINE)

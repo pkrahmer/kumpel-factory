@@ -23,6 +23,7 @@ from factory.machine.domain.stage_layer import (
 )
 from factory.pipeline.application.boundaries import Boundaries
 from factory.pipeline.application.tick import Tick, TickOutcome
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.shared.domain.settings import InstanceSettings
 from support.git_support import remote_commit
 from support.human_clone import HumanClone
@@ -99,7 +100,7 @@ class Run:
 
 
 def _commit(remote: Path) -> str:
-    commit = remote_commit(remote, "main")
+    commit = remote_commit(remote, WORK_BRANCH)
     assert commit is not None
     return commit[:12]
 
@@ -123,15 +124,15 @@ class World:
 
     def write(self, text: str) -> Callable[[], None]:
         """The push of `text` as the stage file on `main`."""
-        return lambda: self.human.push_file("main", STAGE_FILE, text)
+        return lambda: self.human.push_file(WORK_BRANCH, STAGE_FILE, text)
 
     def touch_other(self) -> Callable[[], None]:
         """The push of a commit on `main` that leaves the stage file as it is."""
-        return lambda: self.human.push_file("main", "notes.txt", "another commit\n")
+        return lambda: self.human.push_file(WORK_BRANCH, "notes.txt", "another commit\n")
 
     def remove(self) -> Callable[[], None]:
         """The push of a commit on `main` that removes the stage file."""
-        return lambda: self.human.remove_file("main", STAGE_FILE)
+        return lambda: self.human.remove_file(WORK_BRANCH, STAGE_FILE)
 
     def run(
         self,
@@ -214,7 +215,7 @@ def test_a_new_main_that_leaves_the_stage_file_as_it_is_builds_nothing_and_logs_
     world: World, base_image: str, stage_file: str | None
 ) -> None:
     if stage_file is not None:
-        world.human.push_file("main", STAGE_FILE, stage_file)
+        world.human.push_file(WORK_BRANCH, STAGE_FILE, stage_file)
     images = ScriptedImages([PASSED])
 
     run = world.run(images, [world.touch_other()])
@@ -237,7 +238,7 @@ def test_a_new_main_that_leaves_the_stage_file_as_it_is_builds_nothing_and_logs_
 def test_a_changed_stage_file_is_built_once_before_the_next_stage_and_taken_by_every_later_one(
     world: World, base_image: str
 ) -> None:
-    world.human.push_file("main", STAGE_FILE, FIRST)
+    world.human.push_file(WORK_BRANCH, STAGE_FILE, FIRST)
     images = ScriptedImages([PASSED, PASSED])
 
     run = world.run(images, [world.write(SECOND), world.touch_other()])
@@ -273,7 +274,7 @@ def test_a_stage_file_added_to_a_project_without_one_is_built_and_taken(
 def test_a_removed_stage_file_returns_to_the_base_and_builds_nothing(
     world: World, base_image: str
 ) -> None:
-    world.human.push_file("main", STAGE_FILE, FIRST)
+    world.human.push_file(WORK_BRANCH, STAGE_FILE, FIRST)
     images = ScriptedImages([PASSED])
 
     run = world.run(images, [world.remove(), world.touch_other()])
@@ -289,7 +290,7 @@ def test_a_removed_stage_file_returns_to_the_base_and_builds_nothing(
 def test_a_main_that_moves_during_a_stage_changes_its_image_only_from_the_next_stage(
     world: World, base_image: str
 ) -> None:
-    world.human.push_file("main", STAGE_FILE, FIRST)
+    world.human.push_file(WORK_BRANCH, STAGE_FILE, FIRST)
     images = ScriptedImages([PASSED, PASSED])
 
     run = world.run(images, [lambda: None], during=[world.write(SECOND)])
@@ -377,7 +378,7 @@ def _base_seen(builds: int) -> Callable[[str], StageSeen]:
 def test_a_failed_rebuild_stands_as_a_stop_until_main_brings_another_stage_file(
     world: World, base_image: str, after: AfterFailure
 ) -> None:
-    world.human.push_file("main", STAGE_FILE, FIRST)
+    world.human.push_file(WORK_BRANCH, STAGE_FILE, FIRST)
     images = ScriptedImages(after.results)
 
     run = world.run(images, [world.write(SECOND), after.push(world)])
@@ -408,7 +409,7 @@ def test_a_failed_rebuild_stands_as_a_stop_until_main_brings_another_stage_file(
 def test_a_passed_rebuild_builds_under_the_same_tag_so_the_previous_image_is_removed(
     world: World, base_image: str
 ) -> None:
-    world.human.push_file("main", STAGE_FILE, FIRST)
+    world.human.push_file(WORK_BRANCH, STAGE_FILE, FIRST)
     images = ScriptedImages([PASSED, PASSED])
 
     world.run(images, [world.write(SECOND)])

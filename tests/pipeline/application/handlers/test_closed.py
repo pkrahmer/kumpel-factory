@@ -13,6 +13,7 @@ from factory.pipeline.application.handlers.closed import ClosedHandler
 from factory.pipeline.domain.events import Event
 from factory.shared.domain.errors import PushFailed
 from factory.shared.domain.kill_points import InjectedKill, KillPoint, KillPoints
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from factory.watching.application.costs import BillService
 from factory.work.domain.journal import HUMAN, JournalRecord
 from factory.work.domain.work_item import WorkItemDocument, WorkItemSnapshot, WorkItemState
@@ -37,7 +38,7 @@ Close = Callable[[str], WorkItemSnapshot]
 
 
 def _event(snapshot: WorkItemSnapshot, remote: Path) -> Event:
-    main = remote_commit(remote, "main")
+    main = remote_commit(remote, WORK_BRANCH)
     assert main is not None
     return Event(kind="closed", work_item=snapshot, remote_state=main)
 
@@ -87,10 +88,10 @@ def test_a_story_closed_at_doing_is_moved_back_under_backlog_on_main(
     _handle(boundaries, event)
 
     checkout.fetch()
-    assert checkout.show_file("origin/main", BACKLOG_PATH) is not None
-    assert checkout.show_file("origin/main", PATH) is None
-    assert checkout.list_files("origin/main", IN_PROGRESS) == []
-    [commit] = checkout.log("origin/main", since=event.remote_state)
+    assert checkout.show_file(f"{REMOTE}/{WORK_BRANCH}", BACKLOG_PATH) is not None
+    assert checkout.show_file(f"{REMOTE}/{WORK_BRANCH}", PATH) is None
+    assert checkout.list_files(f"{REMOTE}/{WORK_BRANCH}", IN_PROGRESS) == []
+    [commit] = checkout.log(f"{REMOTE}/{WORK_BRANCH}", since=event.remote_state)
     assert commit.subject == SUBJECT
 
 
@@ -98,13 +99,13 @@ def test_the_discarded_story_keeps_the_text_main_held_whatever_the_branch_held(
     boundaries: Boundaries, *, remote: Path, checkout: GitCli, close: Close
 ) -> None:
     snapshot = close("doing")
-    before = checkout.show_file("origin/main", PATH)
+    before = checkout.show_file(f"{REMOTE}/{WORK_BRANCH}", PATH)
     assert before is not None
 
     _handle(boundaries, _event(snapshot, remote))
 
     checkout.fetch()
-    assert checkout.show_file("origin/main", BACKLOG_PATH) == before
+    assert checkout.show_file(f"{REMOTE}/{WORK_BRANCH}", BACKLOG_PATH) == before
 
 
 @pytest.mark.parametrize("stage", ["intake", "tests", "review", "docs", "smoke-test"])
@@ -112,13 +113,13 @@ def test_a_story_closed_at_any_stage_before_the_approval_is_discarded_the_same_w
     boundaries: Boundaries, *, remote: Path, checkout: GitCli, close: Close, stage: str
 ) -> None:
     snapshot = close(stage)
-    before = checkout.show_file("origin/main", PATH)
+    before = checkout.show_file(f"{REMOTE}/{WORK_BRANCH}", PATH)
 
     _handle(boundaries, _event(snapshot, remote))
 
     checkout.fetch()
-    assert checkout.show_file("origin/main", BACKLOG_PATH) == before
-    assert checkout.show_file("origin/main", PATH) is None
+    assert checkout.show_file(f"{REMOTE}/{WORK_BRANCH}", BACKLOG_PATH) == before
+    assert checkout.show_file(f"{REMOTE}/{WORK_BRANCH}", PATH) is None
     assert remote_commit(remote, BRANCH) is None
 
 
@@ -131,7 +132,7 @@ def test_the_discard_commit_moves_only_that_story(
     _handle(boundaries, event)
 
     checkout.fetch()
-    checkout.reset_to("origin/main")
+    checkout.reset_to(f"{REMOTE}/{WORK_BRANCH}")
     assert checkout.changed_paths(event.remote_state) == [
         ChangedPath(path=BACKLOG_PATH, change="added"),
         ChangedPath(path=PATH, change="deleted"),
@@ -160,8 +161,8 @@ def test_a_story_started_again_after_a_discard_has_an_empty_bill(
     human.start(BACKLOG_PATH)
     checkout.fetch()
 
-    assert checkout.show_file("origin/main", SIDECAR) is None
-    assert checkout.show_file("origin/main", BACKLOG_SIDECAR) is None
+    assert checkout.show_file(f"{REMOTE}/{WORK_BRANCH}", SIDECAR) is None
+    assert checkout.show_file(f"{REMOTE}/{WORK_BRANCH}", BACKLOG_SIDECAR) is None
     assert remote_commit(remote, BRANCH) is None
     assert checkout.resolve(f"origin/{BRANCH}") is None
     result = BillService(boundaries.git, boundaries.cost_reader).for_work_item(WORK_ITEM)
@@ -178,7 +179,7 @@ def test_a_story_whose_branch_is_already_gone_is_discarded_without_an_error(
     _handle(boundaries, _event(snapshot, remote))
 
     checkout.fetch()
-    assert checkout.show_file("origin/main", BACKLOG_PATH) is not None
+    assert checkout.show_file(f"{REMOTE}/{WORK_BRANCH}", BACKLOG_PATH) is not None
     assert remote_commit(remote, BRANCH) is None
 
 
@@ -197,16 +198,16 @@ def test_a_kill_before_the_push_changes_nothing_and_a_second_run_discards_once(
     with pytest.raises(InjectedKill):
         _handle(boundaries, event)
 
-    assert remote_commit(remote, "main") == event.remote_state
+    assert remote_commit(remote, WORK_BRANCH) == event.remote_state
     assert remote_commit(remote, BRANCH) == snapshot.branch_commit
 
     _handle(boundaries, event)
 
     checkout.fetch()
-    [commit] = checkout.log("origin/main", since=event.remote_state)
+    [commit] = checkout.log(f"{REMOTE}/{WORK_BRANCH}", since=event.remote_state)
     assert commit.subject == SUBJECT
-    assert checkout.show_file("origin/main", BACKLOG_PATH) is not None
-    assert checkout.show_file("origin/main", PATH) is None
+    assert checkout.show_file(f"{REMOTE}/{WORK_BRANCH}", BACKLOG_PATH) is not None
+    assert checkout.show_file(f"{REMOTE}/{WORK_BRANCH}", PATH) is None
     assert remote_commit(remote, BRANCH) is None
 
 
@@ -225,8 +226,8 @@ def test_a_kill_after_the_move_is_pushed_leaves_the_branch_on_the_remote(
         _handle(boundaries, _event(snapshot, remote))
 
     checkout.fetch()
-    assert checkout.show_file("origin/main", BACKLOG_PATH) is not None
-    assert checkout.show_file("origin/main", PATH) is None
+    assert checkout.show_file(f"{REMOTE}/{WORK_BRANCH}", BACKLOG_PATH) is not None
+    assert checkout.show_file(f"{REMOTE}/{WORK_BRANCH}", PATH) is None
     assert remote_commit(remote, BRANCH) == snapshot.branch_commit
 
 
@@ -235,14 +236,14 @@ def test_a_main_moved_since_the_checkout_rejects_the_discard_and_keeps_the_branc
 ) -> None:
     snapshot = close("doing")
     event = _event(snapshot, remote)
-    human.push_file("main", "notes.md", "The human pushed this.\n")
-    moved = remote_commit(remote, "main")
+    human.push_file(WORK_BRANCH, "notes.md", "The human pushed this.\n")
+    moved = remote_commit(remote, WORK_BRANCH)
 
     with pytest.raises(PushFailed) as raised:
         _handle(boundaries, event)
 
     assert raised.value.outcome == "rejected"
-    assert remote_commit(remote, "main") == moved
+    assert remote_commit(remote, WORK_BRANCH) == moved
     assert remote_commit(remote, BRANCH) == snapshot.branch_commit
 
 
@@ -274,6 +275,6 @@ def test_a_refused_branch_deletion_fails_after_the_move_is_pushed(
     assert raised.value.branch == BRANCH
     assert raised.value.outcome == "rejected"
     checkout.fetch()
-    assert checkout.show_file("origin/main", BACKLOG_PATH) is not None
-    assert checkout.show_file("origin/main", PATH) is None
+    assert checkout.show_file(f"{REMOTE}/{WORK_BRANCH}", BACKLOG_PATH) is not None
+    assert checkout.show_file(f"{REMOTE}/{WORK_BRANCH}", PATH) is None
     assert remote_commit(remote, BRANCH) == snapshot.branch_commit

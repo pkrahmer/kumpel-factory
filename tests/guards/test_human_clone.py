@@ -5,6 +5,7 @@ from typing import Literal
 
 import pytest
 
+from factory.shared.domain.paths import WORK_BRANCH
 from support.git_support import remote_commit, run_git
 from support.human_clone import HumanClone
 
@@ -30,15 +31,15 @@ def test_merge_brings_the_branch_into_main_by_the_method(
     merges, first_parent_commits, tip_on_main = expected
     human.push_file(BRANCH, "one.txt", "one\n")
     human.push_file(BRANCH, "two.txt", "two\n")
-    human.push_file("main", "main.txt", "main\n")
-    before = remote_commit(remote, "main")
+    human.push_file(WORK_BRANCH, "main.txt", "main\n")
+    before = remote_commit(remote, WORK_BRANCH)
     tip = remote_commit(remote, BRANCH)
     assert before is not None
     assert tip is not None
 
     human.merge(BRANCH, method)
 
-    after = remote_commit(remote, "main")
+    after = remote_commit(remote, WORK_BRANCH)
     assert after is not None
     span = f"{before}..{after}"
     run_git(remote, "merge-base", "--is-ancestor", before, after)
@@ -50,7 +51,7 @@ def test_merge_brings_the_branch_into_main_by_the_method(
     if not merges:
         oldest = run_git(remote, "rev-list", "--reverse", span).split()[0]
         assert _parents(remote, oldest) == [before]
-    is_ancestor = run_git(remote, "branch", "--contains", tip, "--list", "main").strip() != ""
+    is_ancestor = run_git(remote, "branch", "--contains", tip, "--list", WORK_BRANCH).strip() != ""
     assert is_ancestor is tip_on_main
     for name, text in (("one.txt", "one\n"), ("two.txt", "two\n"), ("main.txt", "main\n")):
         assert run_git(remote, "show", f"main:{name}") == text
@@ -62,7 +63,7 @@ def test_start_moves_the_story_and_push_file_writes_the_branch(
     human.start(f"{FEATURE_FOLDER}/backlog/F0001-S0001-first.md")
     human.push_file(BRANCH, "notes/hello.txt", "hello\n")
 
-    files = run_git(remote, "ls-tree", "-r", "--name-only", "main", "--", FEATURE_FOLDER)
+    files = run_git(remote, "ls-tree", "-r", "--name-only", WORK_BRANCH, "--", FEATURE_FOLDER)
     assert f"{FEATURE_FOLDER}/in-progress/F0001-S0001-first.md" in files.splitlines()
     assert f"{FEATURE_FOLDER}/backlog/F0001-S0001-first.md" not in files.splitlines()
     assert run_git(remote, "show", f"{BRANCH}:notes/hello.txt") == "hello\n"

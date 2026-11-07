@@ -5,6 +5,7 @@ from typing import Literal
 
 from factory.hosting.adapters.git_cli import GitCli
 from factory.hosting.domain.git import GitOptions
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from support.git_support import TEST_IDENTITY, run_git, write_files
 
 
@@ -19,13 +20,13 @@ class HumanClone:
 
     def start(self, path: str) -> None:
         """Move the story at `path` from `backlog/` to `in-progress/` on `main` and push."""
-        self._on_branch("main")
+        self._on_branch(WORK_BRANCH)
         source = self._directory / path
         target = source.parent.parent / "in-progress" / source.name
         target.parent.mkdir(parents=True, exist_ok=True)
         source.rename(target)
         self._git.commit(f"start {source.name}")
-        self._push("main")
+        self._push(WORK_BRANCH)
 
     def push_file(self, branch: str, path: str, text: str) -> None:
         """Write `text` to `path` on `branch`, commit and push."""
@@ -47,7 +48,7 @@ class HumanClone:
 
     def merge(self, branch: str, method: Literal["merge", "squash", "rebase"]) -> None:
         """Bring `origin/<branch>` into `main` by `method` and push `main`."""
-        self._on_branch("main")
+        self._on_branch(WORK_BRANCH)
         incoming = f"origin/{branch}"
         if method == "merge":
             run_git(self._directory, "merge", "-q", "--no-ff", "-m", f"merge {branch}", incoming)
@@ -56,15 +57,17 @@ class HumanClone:
             self._git.commit(f"squash {branch}")
         else:
             run_git(self._directory, "checkout", "-q", "-B", "rebased", incoming)
-            run_git(self._directory, "rebase", "-q", "--force-rebase", "main")
-            run_git(self._directory, "checkout", "-q", "main")
+            run_git(self._directory, "rebase", "-q", "--force-rebase", WORK_BRANCH)
+            run_git(self._directory, "checkout", "-q", WORK_BRANCH)
             run_git(self._directory, "merge", "-q", "--ff-only", "rebased")
-        self._push("main")
+        self._push(WORK_BRANCH)
 
     def _on_branch(self, branch: str) -> None:
         run_git(self._directory, "fetch", "-q", "--prune", "origin")
         exists = self._git.resolve(f"origin/{branch}") is not None
-        self._git.checkout(branch, start_point=f"origin/{branch}" if exists else "origin/main")
+        self._git.checkout(
+            branch, start_point=f"origin/{branch}" if exists else f"{REMOTE}/{WORK_BRANCH}"
+        )
 
     def _push(self, branch: str) -> None:
         outcome = self._git.push(branch)

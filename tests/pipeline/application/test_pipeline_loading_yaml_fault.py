@@ -10,6 +10,7 @@ from factory.pipeline.application.pipeline_loading import PIPELINE_REF, Pipeline
 from factory.pipeline.domain.stops import RepositoryStop
 from factory.shared.adapters.clock import ManualClock
 from factory.shared.domain.errors import PipelineDefinitionInvalid
+from factory.shared.domain.paths import WORK_BRANCH
 from support.git_support import PIPELINE_YAML, install_agents
 from support.human_clone import HumanClone
 from support.log_support import log_lines
@@ -40,7 +41,7 @@ def test_a_repeated_key_on_main_is_one_stop_and_one_log_line(
     tmp_path: Path,
 ) -> None:
     install_agents(agent_home, ROLES)
-    human.push_file("main", PIPELINE_FILE, PIPELINE_YAML + "  done: {}\n")
+    human.push_file(WORK_BRANCH, PIPELINE_FILE, PIPELINE_YAML + "  done: {}\n")
     checkout.fetch()
     before = log_lines(tmp_path)
 

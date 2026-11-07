@@ -13,6 +13,7 @@ from factory.hosting.domain.hosting import PullRequestView
 from factory.pipeline.application.boundaries import Boundaries
 from factory.pipeline.application.stage import LaunchedStage, StageLauncher, StartedStage
 from factory.pipeline.application.stalls import StallContext
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.work.domain.journal import JournalRecord
 from factory.work.domain.work_item import WorkItemDocument, WorkItemState
 from support.definition_support import pipeline_definition
@@ -57,7 +58,7 @@ class SwitchingRuntime(ObservingRuntime):
 
 def open_work_item(boundaries: Boundaries, human: HumanClone, state: WorkItemState) -> None:
     """Start the story on `main` and push its branch with a document in `state`, then fetch."""
-    human.push_file("main", BACKLOG_PATH, STORY)
+    human.push_file(WORK_BRANCH, BACKLOG_PATH, STORY)
     human.start(BACKLOG_PATH)
     document = WorkItemDocument(state=state, body=BRANCH_BODY)
     human.push_file(BRANCH, PATH, boundaries.work_item_writer.render(document))

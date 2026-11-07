@@ -12,7 +12,7 @@ from factory.pipeline.application.handlers.recording import (
 )
 from factory.pipeline.domain.events import Event
 from factory.pipeline.domain.pipeline_definition import DONE_STAGE
-from factory.shared.domain.paths import MAIN_BRANCH, cost_records_path
+from factory.shared.domain.paths import WORK_BRANCH, cost_records_path
 from factory.watching.domain.bills import bill
 from factory.work.domain.journal import FACTORY, NewEntry, append_entry
 from factory.work.domain.work_item import WorkItemDocument, require_state
@@ -29,11 +29,11 @@ class MergedHandler(Handler):
         """Archive the story with its bill on main, push it, then delete its branch."""
         snapshot = target_of(event).snapshot
         recorder = WorkItemRecorder(self._boundaries)
-        recorder.check_out(MAIN_BRANCH)
+        recorder.check_out(WORK_BRANCH)
         archived = self._archived(recorder.read(snapshot.path), snapshot.path)
         destination = move_with_cost_records(self._boundaries.git, snapshot.path, "done")
         recorder.write(destination, archived)
-        recorder.publish(MAIN_BRANCH, commit_subject(snapshot.id, "merged, archived"))
+        recorder.publish(WORK_BRANCH, commit_subject(snapshot.id, "merged, archived"))
         recorder.delete_branch(snapshot.branch)
 
     def _archived(self, document: WorkItemDocument, path: str) -> WorkItemDocument:

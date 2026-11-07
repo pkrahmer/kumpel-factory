@@ -26,6 +26,7 @@ from factory.machine.application.preflight import (
 from factory.pipeline.application.boundaries import Boundaries
 from factory.pipeline.application.stops import StopService
 from factory.shared.domain.errors import AgentRuntimeError
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from factory.shared.domain.settings import InstanceSettings
 from factory.watching.domain.cost_records import ToolUse
 from factory.watching.domain.transcripts import Transcript
@@ -206,9 +207,9 @@ def test_the_probe_runs_once_for_each_image_build(
     tmp_path: Path,
 ) -> None:
     install_agents(agent_home, ["intake", "coder", "reviewer"])
-    human.push_file("main", "Makefile", "lint:\n\ttrue\nsync:\n\t@:\n")
+    human.push_file(WORK_BRANCH, "Makefile", "lint:\n\ttrue\nsync:\n\t@:\n")
     boundaries.git.fetch()
-    boundaries.git.checkout("main", start_point="origin/main")
+    boundaries.git.checkout(WORK_BRANCH, start_point=f"{REMOTE}/{WORK_BRANCH}")
     agent_runtime.queue(ScriptedRun(result=COMPLETED))
     agent_runtime.queue(ScriptedRun(result=COMPLETED))
     environment = {"PATH": "/opt/factory/bin:/usr/bin", "HOME": str(tmp_path)}

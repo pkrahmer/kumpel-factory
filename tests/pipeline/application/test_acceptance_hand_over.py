@@ -15,7 +15,7 @@ from factory.pipeline.domain.events import Event, EventKind
 from factory.pipeline.domain.pipeline_definition import PipelineDefinition
 from factory.shared.domain.errors import CannotHandle, HostingServiceError, PushFailed
 from factory.shared.domain.kill_points import InjectedKill, KillPoint, KillPoints
-from factory.shared.domain.paths import cost_records_path
+from factory.shared.domain.paths import WORK_BRANCH, cost_records_path
 from factory.watching.domain.bills import bills_by_stage, cost_table
 from factory.watching.domain.cost_records import CostRecord
 from factory.work.application.acceptance import AcceptanceHandOver, AcceptanceService
@@ -54,9 +54,9 @@ Publish = Callable[[WorkItemDocument], WorkItemSnapshot]
 @pytest.fixture
 def opened(boundaries: Boundaries, definition: PipelineDefinition, human: HumanClone) -> str:
     """Push the due feature `F0002-todo`, open its acceptance and return the branch."""
-    human.push_file("main", f"{TODO}/feature.md", "# Todo service\n")
-    human.push_file("main", f"{TODO}/done/F0002-S0001-a.md", "# A\n")
-    human.push_file("main", f"{TODO}/done/F0002-S0002-b.md", "# B\n")
+    human.push_file(WORK_BRANCH, f"{TODO}/feature.md", "# Todo service\n")
+    human.push_file(WORK_BRANCH, f"{TODO}/done/F0002-S0001-a.md", "# A\n")
+    human.push_file(WORK_BRANCH, f"{TODO}/done/F0002-S0002-b.md", "# B\n")
     boundaries.git.fetch()
     return AcceptanceService(boundaries, definition).open("F0002").branch
 

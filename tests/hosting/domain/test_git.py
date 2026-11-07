@@ -14,6 +14,7 @@ from factory.hosting.domain.git import (
     check_branch_name,
     check_git_argument,
 )
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 
 
 def test_git_time_limit_is_five_minutes() -> None:
@@ -64,7 +65,13 @@ def test_git_argument_that_is_empty_or_starts_with_a_dash_is_refused(value: str)
 
 @pytest.mark.parametrize(
     "value",
-    ["main", "origin/main", "HEAD~1", "work-item/F0001-S0001", "file:///tmp/remote.git"],
+    [
+        WORK_BRANCH,
+        f"{REMOTE}/{WORK_BRANCH}",
+        "HEAD~1",
+        "work-item/F0001-S0001",
+        "file:///tmp/remote.git",
+    ],
 )
 def test_git_argument_that_is_a_ref_branch_or_url_is_accepted(value: str) -> None:
     check_git_argument(value)
@@ -78,7 +85,7 @@ def test_branch_name_that_git_push_reads_as_an_option_or_a_refspec_is_refused(va
         check_branch_name(value)
 
 
-@pytest.mark.parametrize("value", ["main", "work-item/F0001-S0001", "feature/x", "a+b"])
+@pytest.mark.parametrize("value", [WORK_BRANCH, "work-item/F0001-S0001", "feature/x", "a+b"])
 def test_branch_name_without_refspec_syntax_is_accepted(value: str) -> None:
     check_branch_name(value)
 
@@ -140,8 +147,8 @@ def test_branch_name_that_git_takes_as_a_branch_is_accepted(value: str) -> None:
 
 
 def test_remote_branch_constructs_and_equal_instances_compare_equal() -> None:
-    branch = RemoteBranch(name="main", commit="a" * 40)
+    branch = RemoteBranch(name=WORK_BRANCH, commit="a" * 40)
 
-    assert branch.name == "main"
+    assert branch.name == WORK_BRANCH
     assert branch.commit == "a" * 40
-    assert branch == RemoteBranch(name="main", commit="a" * 40)
+    assert branch == RemoteBranch(name=WORK_BRANCH, commit="a" * 40)

@@ -19,6 +19,7 @@ from factory.pipeline.application.handlers.reject import RejectHandler
 from factory.pipeline.domain.events import Event
 from factory.shared.domain.errors import CannotHandle, HostingServiceError
 from factory.shared.domain.kill_points import InjectedKill, KillPoint, KillPoints
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.work.domain.journal import FACTORY, HUMAN, JournalRecord, entry_text
 from factory.work.domain.work_item import Claim, WorkItemDocument, WorkItemSnapshot, WorkItemState
 from support.branch_reading import remote_document
@@ -62,7 +63,7 @@ def _illegal(
     pull_request: int | None,
     claim: Claim | None = None,
 ) -> None:
-    # The opening commit's parent is on origin/main; a legal commit comes before the illegal one.
+    # The opening commit's parent is on the working branch; a legal commit precedes the illegal one.
     journal = [CREATED]
     _push(
         boundaries, human, WorkItemState(stage="tests", pull_request=pull_request, journal=journal)
@@ -88,7 +89,7 @@ def _event(boundaries: Boundaries, checkout: GitCli, remote: Path) -> Event:
         branch_commit=checkout.resolve(f"origin/{BRANCH}"),
         document=boundaries.work_item_reader.parse(text),
     )
-    main = remote_commit(remote, "main")
+    main = remote_commit(remote, WORK_BRANCH)
     assert main is not None
     return Event(kind="reject", work_item=snapshot, remote_state=main)
 
@@ -134,7 +135,7 @@ def _refused_untouched(
 
     assert raised.value.kind == "reject"
     assert remote_commit(remote, BRANCH) == branch_head
-    assert remote_commit(remote, "main") == event.remote_state
+    assert remote_commit(remote, WORK_BRANCH) == event.remote_state
     assert hosting.factory_posts(pull_request) == []
     assert hosting.labels(pull_request) == []
 
@@ -249,7 +250,7 @@ def test_a_kill_before_the_push_leaves_the_branch_and_a_second_run_corrects_once
         _handle(boundaries, event)
 
     assert remote_commit(remote, BRANCH) == illegal
-    assert remote_commit(remote, "main") == event.remote_state
+    assert remote_commit(remote, WORK_BRANCH) == event.remote_state
     assert checkout.status().changes == []
     [note] = hosting.factory_posts(pull_request)
     assert note.key == _correction_key()
@@ -297,7 +298,7 @@ def test_the_main_branch_keeps_its_head(
 
     _handle(boundaries, event)
 
-    assert remote_commit(remote, "main") == event.remote_state
+    assert remote_commit(remote, WORK_BRANCH) == event.remote_state
 
 
 def test_a_merge_commit_is_refused_and_nothing_is_written_or_posted(

@@ -19,7 +19,7 @@ from factory.pipeline.application.take import agent_working_directory
 from factory.pipeline.domain.pipeline_definition import PipelineDefinition, RoleDefinition
 from factory.shared.domain.errors import WorkItemFormatError
 from factory.shared.domain.identifiers import Name, WorkItemId, feature_of, is_acceptance
-from factory.shared.domain.paths import MAIN_BRANCH, REMOTE, STORY_FORM_FILE
+from factory.shared.domain.paths import REMOTE, STORY_FORM_FILE, WORK_BRANCH
 from factory.work.application.acceptance import AcceptanceService
 from factory.work.domain.acceptance import AcceptanceState, acceptance_prompt
 from factory.work.domain.journal import last_record
@@ -28,7 +28,7 @@ from factory.work.domain.work_item import WorkItemDocument, require_state
 
 # The form is read where only the human's merge changes it, never from the work tree an agent
 # writes in.
-FORM_REF = f"{REMOTE}/{MAIN_BRANCH}"
+FORM_REF = f"{REMOTE}/{WORK_BRANCH}"
 
 
 class TaskContext(BaseModel):

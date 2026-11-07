@@ -7,7 +7,7 @@ import pytest
 from factory.pipeline.application.boundaries import Boundaries
 from factory.shared.domain.errors import CannotHandle
 from factory.shared.domain.identifiers import branch_name
-from factory.shared.domain.paths import feature_file_path, work_item_path
+from factory.shared.domain.paths import WORK_BRANCH, feature_file_path, work_item_path
 from factory.watching.domain.board import AcceptanceStatus
 from factory.work.adapters.work_item_markdown import FrontmatterWorkItemWriter
 from factory.work.application.acceptance import AcceptanceService
@@ -39,7 +39,7 @@ def brought(
         state = AcceptanceState(stage="done", outcome=outcome, stories=ARCHIVED)
         report = WorkItemDocument(state=state, body="# Acceptance\n")
         text = FrontmatterWorkItemWriter().render(report)
-        human.push_file("main", report_of(FIRST, "done"), text)
+        human.push_file(WORK_BRANCH, report_of(FIRST, "done"), text)
     assert walk.status() == status
     return status
 
@@ -96,9 +96,9 @@ def test_a_story_file_counts_only_directly_in_its_folder(
     status: AcceptanceStatus,
     done: list[str],
 ) -> None:
-    human.push_file("main", feature_file_path(TODO), "# Todo service\n")
+    human.push_file(WORK_BRANCH, feature_file_path(TODO), "# Todo service\n")
     for path in paths:
-        human.push_file("main", path, "# Story\n")
+        human.push_file(WORK_BRANCH, path, "# Story\n")
     boundaries.git.fetch()
     reader = AcceptanceReader(boundaries, boundaries.pipeline_reader.parse(PIPELINE_YAML))
 

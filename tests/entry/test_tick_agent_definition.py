@@ -11,6 +11,7 @@ from factory.pipeline.application.boundaries import Boundaries
 from factory.pipeline.application.tick import Tick, TickOutcome
 from factory.pipeline.domain.stops import RepositoryStop
 from factory.shared.adapters.clock import ManualClock
+from factory.shared.domain.paths import WORK_BRANCH
 from support.agent_definition_support import COMPLETED
 from support.git_support import COLOURED_AGENT_FILE, PIPELINE_YAML, install_agents, write_agent
 from support.human_clone import HumanClone
@@ -25,7 +26,7 @@ def tick(boundaries: Boundaries, *, agent_home: Path, human: HumanClone) -> Tick
     """A started story on the remote and one role's agent file holding an unapplied key."""
     install_agents(agent_home, boundaries.pipeline_reader.parse(PIPELINE_YAML).roles)
     write_agent(agent_home, ROLE, COLOURED_AGENT_FILE)
-    human.push_file("main", BACKLOG_PATH, STORY)
+    human.push_file(WORK_BRANCH, BACKLOG_PATH, STORY)
     human.start(BACKLOG_PATH)
     return Tick(boundaries, INSTANCE, handler_factory(boundaries, INSTANCE, ENVIRONMENT))
 

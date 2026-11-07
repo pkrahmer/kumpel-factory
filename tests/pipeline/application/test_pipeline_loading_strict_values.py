@@ -8,6 +8,7 @@ from factory.hosting.adapters.git_cli import GitCli
 from factory.pipeline.application.boundaries import Boundaries
 from factory.pipeline.application.pipeline_loading import PipelineLoader
 from factory.shared.domain.errors import PipelineDefinitionInvalid
+from factory.shared.domain.paths import WORK_BRANCH
 from support.git_support import PIPELINE_YAML, install_agents
 from support.human_clone import HumanClone
 
@@ -30,7 +31,7 @@ def test_a_time_limit_written_as_a_boolean_is_one_reported_stop(
     install_agents(agent_home, ROLES)
     assert PIPELINE_YAML.count(CODER) == 1
     text = PIPELINE_YAML.replace(CODER, '  coder: {time_limit: true, write_paths: ["src/*"]}')
-    human.push_file("main", PIPELINE_FILE, text)
+    human.push_file(WORK_BRANCH, PIPELINE_FILE, text)
     checkout.fetch()
 
     with pytest.raises(PipelineDefinitionInvalid):

@@ -1,4 +1,4 @@
-"""The last stage change of a work item: its newest commit beyond origin/main on its branch."""
+"""The last stage change of a work item: its newest commit beyond the working branch."""
 
 from datetime import UTC, datetime
 from pathlib import Path
@@ -7,6 +7,7 @@ import pytest
 
 from factory.pipeline.application.boundaries import Boundaries
 from factory.shared.domain.identifiers import branch_name
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.work.adapters.work_item_markdown import (
     FrontmatterWorkItemReader,
     FrontmatterWorkItemWriter,
@@ -44,7 +45,7 @@ def _text(state: WorkItemState, body: str = BODY) -> str:
 
 
 def _open(human: HumanClone, state: WorkItemState) -> None:
-    # The branch's first commit opens it from origin/main; only the commits after it can change.
+    # The branch's first commit opens it off the working branch; only later commits can change.
     human.start(BACKLOG_PATH)
     human.push_file(BRANCH, PATH, _text(state))
 
@@ -155,7 +156,7 @@ def test_a_snapshot_without_a_branch_has_no_stage_change(
 def test_a_branch_whose_commits_beyond_main_left_the_file_alone_has_no_stage_change(
     boundaries: Boundaries, human: HumanClone
 ) -> None:
-    human.push_file("main", BACKLOG_PATH, _text(WorkItemState(stage="review")))
+    human.push_file(WORK_BRANCH, BACKLOG_PATH, _text(WorkItemState(stage="review")))
     human.start(BACKLOG_PATH)
     human.push_file(BRANCH, "src/other.py", "VALUE = 1\n")
 
@@ -224,7 +225,7 @@ def test_a_stage_change_that_keeps_the_journals_length_is_no_correction(
 def test_the_opening_commit_of_a_started_story_is_no_stage_change(
     boundaries: Boundaries, human: HumanClone
 ) -> None:
-    human.push_file("main", BACKLOG_PATH, _text(WorkItemState(stage="review")))
+    human.push_file(WORK_BRANCH, BACKLOG_PATH, _text(WorkItemState(stage="review")))
     _open(human, WorkItemState(stage="intake"))
 
     assert _last_change(boundaries) is None

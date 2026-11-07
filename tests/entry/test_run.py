@@ -32,6 +32,7 @@ from factory.pipeline.domain.events import Event, EventKind
 from factory.pipeline.domain.stops import HealthStatus, RepositoryStop
 from factory.shared.adapters.clock import ManualClock
 from factory.shared.domain.errors import SettingsInvalid
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from factory.shared.domain.settings import InstanceSettings, read_settings
 from factory.watching.adapters.record_log_jsonl import JsonLinesRecordLog
 from factory.work.domain.work_item import WorkItemDocument, WorkItemSnapshot, WorkItemState
@@ -198,7 +199,7 @@ def test_the_activity_tick_keeps_one_tick_and_the_errors_of_both_calls(
     agent_runtime: FakeAgentRuntime,
 ) -> None:
     install_agents(agent_home, boundaries.pipeline_reader.parse(PIPELINE_YAML).roles)
-    human.push_file("main", BACKLOG_PATH, STORY)
+    human.push_file(WORK_BRANCH, BACKLOG_PATH, STORY)
     human.start(BACKLOG_PATH)
     # A write outside the working directory makes each queued run raise inside the handler.
     for _ in range(2):
@@ -225,7 +226,7 @@ def test_run_instance_clones_a_missing_checkout_and_pauses_thirty_seconds_after_
 
     run_instance(settings, sleep=sleeps, should_stop=_stop_after(sleeps, 1), hosting=hosting)
 
-    assert run_git(settings.checkout, "rev-parse", "--verify", "origin/main")
+    assert run_git(settings.checkout, "rev-parse", "--verify", f"{REMOTE}/{WORK_BRANCH}")
     assert sleeps.seconds == [30.0]
 
 

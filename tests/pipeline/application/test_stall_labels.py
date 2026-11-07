@@ -15,6 +15,7 @@ from factory.pipeline.application.stage import StageReport, StageRunner
 from factory.pipeline.application.stalls import StallContext, StallResult, StallService
 from factory.shared.domain.errors import HostingServiceError
 from factory.shared.domain.identifiers import branch_name
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.work.domain.journal import JournalRecord, entry_text
 from factory.work.domain.work_item import WorkItemDocument, WorkItemState
 from support.definition_support import pipeline_definition
@@ -79,8 +80,8 @@ def _open_existing(
 ) -> None:
     """Start the story on `main` and push its branch with a document in `stage`, then fetch."""
     for path, text in (main_files or {}).items():
-        human.push_file("main", path, text)
-    human.push_file("main", BACKLOG_PATH, STORY)
+        human.push_file(WORK_BRANCH, path, text)
+    human.push_file(WORK_BRANCH, BACKLOG_PATH, STORY)
     human.start(BACKLOG_PATH)
     document = WorkItemDocument(
         state=WorkItemState(stage=stage, journal=[CREATED]), body=STORY + CREATED_LINE
@@ -91,7 +92,7 @@ def _open_existing(
 
 def _open_new(boundaries: Boundaries, human: HumanClone) -> None:
     """Start the story on `main` only: the factory has not opened it yet."""
-    human.push_file("main", BACKLOG_PATH, STORY)
+    human.push_file(WORK_BRANCH, BACKLOG_PATH, STORY)
     human.start(BACKLOG_PATH)
     boundaries.git.fetch()
 
@@ -198,7 +199,7 @@ def test_a_merge_conflict_stall_leaves_the_label_of_its_stage(
     install_agents(agent_home, ["coder"])
     _open_existing(boundaries, human, stage="doing", main_files={NOTES: "base\n"})
     human.push_file(BRANCH, NOTES, "branch\n")
-    human.push_file("main", NOTES, "main\n")
+    human.push_file(WORK_BRANCH, NOTES, "main\n")
     boundaries.git.fetch()
 
     report = _run(boundaries)

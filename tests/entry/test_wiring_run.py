@@ -16,6 +16,7 @@ from factory.hosting.adapters.fake_hosting import FakeHostingService
 from factory.pipeline.application.boundaries import Boundaries
 from factory.shared.domain.errors import SettingsInvalid
 from factory.shared.domain.identifiers import branch_name
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.shared.domain.settings import InstanceSettings, read_settings
 from support.agent_definition_support import COMPLETED
 from support.git_support import PIPELINE_YAML, install_agents, remote_commit, run_git
@@ -82,8 +83,8 @@ def test_build_tick_runs_one_stage_in_the_production_environment_under_its_insta
     tmp_path: Path,
 ) -> None:
     install_agents(agent_home, boundaries.pipeline_reader.parse(PIPELINE_YAML).roles)
-    human.push_file("main", "Makefile", "lint:\n\ttrue\nsync:\n\t@:\n")
-    human.push_file("main", BACKLOG_PATH, STORY)
+    human.push_file(WORK_BRANCH, "Makefile", "lint:\n\ttrue\nsync:\n\t@:\n")
+    human.push_file(WORK_BRANCH, BACKLOG_PATH, STORY)
     human.start(BACKLOG_PATH)
     token_file = tmp_path / "hosting-token"
     token_file.write_text("example-value\n", encoding="utf-8")

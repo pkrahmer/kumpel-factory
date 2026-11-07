@@ -8,6 +8,7 @@ from factory.hosting.adapters.git_cli import GitCli
 from factory.pipeline.application.boundaries import Boundaries
 from factory.pipeline.application.pipeline_loading import PipelineLoader
 from factory.shared.domain.errors import PipelineDefinitionInvalid
+from factory.shared.domain.paths import WORK_BRANCH
 from support.git_support import PIPELINE_YAML, install_agents
 from support.human_clone import HumanClone
 
@@ -60,7 +61,7 @@ def test_a_definition_the_rules_refuse_is_one_reported_stop(
 ) -> None:
     install_agents(agent_home, ROLES)
     assert PIPELINE_YAML.count(old) == 1
-    human.push_file("main", PIPELINE_FILE, PIPELINE_YAML.replace(old, new))
+    human.push_file(WORK_BRANCH, PIPELINE_FILE, PIPELINE_YAML.replace(old, new))
     checkout.fetch()
 
     with pytest.raises(PipelineDefinitionInvalid) as caught:

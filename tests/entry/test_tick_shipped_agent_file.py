@@ -7,6 +7,7 @@ from factory.agents.adapters.fake_agent_runtime import FakeAgentRuntime, Scripte
 from factory.entry.wiring import handler_factory
 from factory.pipeline.application.boundaries import Boundaries
 from factory.pipeline.application.tick import Tick
+from factory.shared.domain.paths import WORK_BRANCH
 from support.agent_definition_support import COMPLETED
 from support.git_support import PIPELINE_YAML, install_agents
 from support.human_clone import HumanClone
@@ -26,7 +27,7 @@ def test_a_stage_run_reads_its_agent_from_the_agent_folder(
 ) -> None:
     install_agents(agent_home, boundaries.pipeline_reader.parse(PIPELINE_YAML).roles)
     shutil.copyfile(AGENT_HOME / "agents" / f"{ROLE}.md", agent_home / "agents" / f"{ROLE}.md")
-    human.push_file("main", BACKLOG_PATH, STORY)
+    human.push_file(WORK_BRANCH, BACKLOG_PATH, STORY)
     human.start(BACKLOG_PATH)
     agent_runtime.queue(ScriptedRun(result=COMPLETED))
 

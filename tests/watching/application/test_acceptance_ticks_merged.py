@@ -7,6 +7,7 @@ import pytest
 from factory.agents.adapters.fake_agent_runtime import FakeAgentRuntime
 from factory.hosting.adapters.fake_hosting import FakeHostingService
 from factory.shared.domain.identifiers import branch_name
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.watching.domain.bills import bill, cost_line
 from factory.work.domain.work_item import Blocked
 from support.acceptance_walk import (
@@ -98,7 +99,7 @@ def test_the_ticks_after_the_booking_are_idle_commit_nothing_and_post_nothing(
 ) -> None:
     number = _merged(walk, stage, blocked)
     walk.tick()
-    main = remote_commit(remote, "main")
+    main = remote_commit(remote, WORK_BRANCH)
     posts = hosting.factory_posts(number)
 
     later = [walk.tick(), walk.tick()]
@@ -107,7 +108,7 @@ def test_the_ticks_after_the_booking_are_idle_commit_nothing_and_post_nothing(
         "idle",
         "idle",
     ]
-    assert remote_commit(remote, "main") == main
+    assert remote_commit(remote, WORK_BRANCH) == main
     assert hosting.factory_posts(number) == posts
 
 

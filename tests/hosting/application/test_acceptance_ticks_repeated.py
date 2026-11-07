@@ -6,7 +6,7 @@ import pytest
 
 from factory.hosting.adapters.git_cli import GitCli
 from factory.shared.domain.identifiers import branch_name
-from factory.shared.domain.paths import cost_records_path
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH, cost_records_path
 from support.acceptance_walk import (
     FIRST,
     FIRST_RECORDS,
@@ -57,13 +57,13 @@ def test_opening_the_repeated_acceptance_leaves_the_earlier_report_and_costs_byt
 ) -> None:
     paths = [report_of(FIRST, "done"), cost_records_path(report_of(FIRST, "done"))]
     checkout.fetch()
-    before = [checkout.show_file("origin/main", path) for path in paths]
+    before = [checkout.show_file(f"{REMOTE}/{WORK_BRANCH}", path) for path in paths]
     assert None not in before
 
     walk.tick()
 
     checkout.fetch()
-    assert [checkout.show_file("origin/main", path) for path in paths] == before
+    assert [checkout.show_file(f"{REMOTE}/{WORK_BRANCH}", path) for path in paths] == before
 
 
 @pytest.mark.parametrize(("stage", "kind"), REPEATED, ids=["at-approval", "at-acceptance"])

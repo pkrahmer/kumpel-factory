@@ -23,6 +23,7 @@ from factory.pipeline.application.stops import StopService
 from factory.pipeline.application.tick import IdleHandler, Tick
 from factory.pipeline.domain.events import Event, EventKind
 from factory.pipeline.domain.tick_status import TickStatus, find_error
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.work.domain.work_item import WorkItemDocument, WorkItemSnapshot, WorkItemState
 from support.definition_support import pipeline_definition
 from support.git_support import install_agents
@@ -128,7 +129,7 @@ def test_a_tick_over_the_handler_factory_runs_one_stage(
     agent_runtime: FakeAgentRuntime,
 ) -> None:
     install_agents(agent_home, pipeline_definition(boundaries).roles)
-    human.push_file("main", BACKLOG_PATH, STORY)
+    human.push_file(WORK_BRANCH, BACKLOG_PATH, STORY)
     human.start(BACKLOG_PATH)
     agent_runtime.queue(ScriptedRun(result=COMPLETED))
     tick = Tick(boundaries, INSTANCE, handler_factory(boundaries, INSTANCE, ENVIRONMENT))

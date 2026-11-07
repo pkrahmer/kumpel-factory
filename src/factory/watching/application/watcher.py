@@ -9,13 +9,13 @@ from factory.pipeline.domain.events import Event
 from factory.pipeline.domain.pipeline_definition import PipelineDefinition
 from factory.shared.domain.errors import GitError
 from factory.shared.domain.identifiers import Name
-from factory.shared.domain.paths import MAIN_BRANCH, REMOTE
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from factory.work.application.acceptance_reading import AcceptanceReader, running_work_items
 from factory.work.application.work_items import RemoteWorkItems
 from factory.work.domain.move_rule import IllegalChange, is_legal_change
 from factory.work.domain.work_item import WorkItemSnapshot
 
-_MAIN_REF = f"{REMOTE}/{MAIN_BRANCH}"
+_MAIN_REF = f"{REMOTE}/{WORK_BRANCH}"
 
 
 class Watcher:
@@ -30,7 +30,7 @@ class Watcher:
     def evaluate(self, definition: PipelineDefinition) -> Event:
         """The event the remote shows now under `definition`.
 
-        Raises `GitError`, also when origin/main does not resolve, and `WorkItemFormatError`
+        Raises `GitError`, also when the working branch does not resolve, and `WorkItemFormatError`
         for a work item file that cannot be read.
         """
         main_commit = self._main_commit()

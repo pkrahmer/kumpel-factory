@@ -37,7 +37,7 @@ def render_event(event: Event) -> str:
 def run_watch(boundaries: Boundaries, instance: Name, out: TextIO, err: TextIO) -> int:
     """Evaluate the last fetch once as `instance`, write the event and the board, and return.
 
-    Raises `GitError` when origin/main does not resolve.
+    Raises `GitError` when the working branch does not resolve.
     """
     commit = boundaries.git.resolve(PIPELINE_REF)
     if commit is None:

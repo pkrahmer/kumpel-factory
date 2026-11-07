@@ -20,6 +20,7 @@ from factory.pipeline.domain.events import Event, EventKind
 from factory.shared.adapters.clock import ManualClock
 from factory.shared.domain.errors import PushFailed, WorkItemFormatError
 from factory.shared.domain.identifiers import branch_name
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from factory.work.adapters.work_item_markdown import FrontmatterWorkItemWriter
 from factory.work.domain.work_item import WorkItemDocument, WorkItemState, initial_state
 from support.git_support import (
@@ -93,8 +94,8 @@ class StalePush(Handler):
     def handle(self, event: Event) -> None:
         self.events.append(event)
         status = self._git.status()
-        at_origin = status.head == self._git.resolve("origin/main")
-        self.on_main_at_origin.append(status.branch == "main" and at_origin)
+        at_origin = status.head == self._git.resolve(f"{REMOTE}/{WORK_BRANCH}")
+        self.on_main_at_origin.append(status.branch == WORK_BRANCH and at_origin)
         start = event.remote_state if self._base is None else self._base
         if self._meanwhile is not None:
             self._meanwhile()
@@ -168,7 +169,7 @@ def _push_state(human: HumanClone, state: WorkItemState, *, path: str = PATH) ->
 
 
 def _start_second(human: HumanClone) -> None:
-    human.push_file("main", SECOND_BACKLOG_PATH, "# Second story\n")
+    human.push_file(WORK_BRANCH, SECOND_BACKLOG_PATH, "# Second story\n")
     human.start(SECOND_BACKLOG_PATH)
 
 
@@ -244,7 +245,9 @@ def test_the_first_tick_after_the_remote_is_back_clears_the_fetch_stop(
 def test_an_invalid_pipeline_definition_ends_the_tick_before_the_restore(
     boundaries: Boundaries, human: HumanClone, tmp_path: Path
 ) -> None:
-    human.push_file("main", "factory/pipeline.yml", PIPELINE_YAML.replace('contract: "1.0"\n', ""))
+    human.push_file(
+        WORK_BRANCH, "factory/pipeline.yml", PIPELINE_YAML.replace('contract: "1.0"\n', "")
+    )
     untracked = tmp_path / CHECKOUT / "scratch.txt"
     untracked.write_text("left by someone\n", encoding="utf-8")
     handler = Recording()
@@ -272,9 +275,11 @@ def test_the_tick_after_the_definition_is_repaired_clears_its_stop(
     boundaries: Boundaries, human: HumanClone
 ) -> None:
     tick = _tick(boundaries, {"idle": IdleHandler()})
-    human.push_file("main", "factory/pipeline.yml", PIPELINE_YAML.replace('contract: "1.0"\n', ""))
+    human.push_file(
+        WORK_BRANCH, "factory/pipeline.yml", PIPELINE_YAML.replace('contract: "1.0"\n', "")
+    )
     tick.run()
-    human.push_file("main", "factory/pipeline.yml", PIPELINE_YAML)
+    human.push_file(WORK_BRANCH, "factory/pipeline.yml", PIPELINE_YAML)
 
     outcome = tick.run()
 
@@ -286,7 +291,7 @@ def test_the_tick_after_the_definition_is_repaired_clears_its_stop(
 def test_the_restore_discards_changes_and_names_them_in_one_line(
     boundaries: Boundaries, checkout: GitCli, human: HumanClone, tmp_path: Path
 ) -> None:
-    human.push_file("main", "notes/main.txt", "a newer main\n")
+    human.push_file(WORK_BRANCH, "notes/main.txt", "a newer main\n")
     directory = tmp_path / CHECKOUT
     (directory / ".git" / "info" / "exclude").write_text("ignored.log\n", encoding="utf-8")
     (directory / "ignored.log").write_text("kept\n", encoding="utf-8")
@@ -298,13 +303,13 @@ def test_the_restore_discards_changes_and_names_them_in_one_line(
     _tick(boundaries, {"idle": IdleHandler()}).run()
 
     assert (directory / "factory" / "story-form.md").read_text(encoding="utf-8") == (
-        checkout.show_file("origin/main", "factory/story-form.md")
+        checkout.show_file(f"{REMOTE}/{WORK_BRANCH}", "factory/story-form.md")
     )
     assert not (directory / "scratch.txt").exists()
     assert (directory / "ignored.log").read_text(encoding="utf-8") == "kept\n"
     status = checkout.status()
-    assert status.branch == "main"
-    assert status.head == checkout.resolve("origin/main")
+    assert status.branch == WORK_BRANCH
+    assert status.head == checkout.resolve(f"{REMOTE}/{WORK_BRANCH}")
     assert status.changes == []
     expected = f"discarded uncommitted changes: {paths[0]}, {paths[1]}"
     assert _texts(log_lines(tmp_path)).count(expected) == 1
@@ -466,7 +471,7 @@ def test_v1_leftover_files_change_nothing(
     assert outcome.event.kind == "run"
     assert outcome.event.work_item is not None
     assert outcome.event.work_item.id == WORK_ITEM
-    assert outcome.event.remote_state == remote_commit(remote, "main")
+    assert outcome.event.remote_state == remote_commit(remote, WORK_BRANCH)
     for name in V1_FILES:
         path = git_directory / name
         if v1_state == "absent":
@@ -526,7 +531,7 @@ def test_the_idle_handler_changes_nothing(
 ) -> None:
     checkout.fetch()
     status = checkout.status()
-    main = remote_commit(remote, "main")
+    main = remote_commit(remote, WORK_BRANCH)
     branches = checkout.remote_branches()
 
     outcome = _tick(boundaries, {"idle": IdleHandler()}).run()
@@ -535,7 +540,7 @@ def test_the_idle_handler_changes_nothing(
     assert outcome.event.kind == "idle"
     assert outcome.dispatch == "handled"
     assert checkout.status() == status
-    assert remote_commit(remote, "main") == main
+    assert remote_commit(remote, WORK_BRANCH) == main
     assert checkout.remote_branches() == branches
     assert hosting.pull_requests() == []
 
@@ -557,8 +562,8 @@ def test_the_restore_deletes_a_local_branch_the_remote_has_not_taken(
 ) -> None:
     human.start(BACKLOG_PATH)
     _push_state(human, initial_state("intake"))
-    checkout.checkout("scratch", start_point="origin/main")
-    checkout.checkout(BRANCH, start_point="origin/main")
+    checkout.checkout("scratch", start_point=f"{REMOTE}/{WORK_BRANCH}")
+    checkout.checkout(BRANCH, start_point=f"{REMOTE}/{WORK_BRANCH}")
     write_files(tmp_path / CHECKOUT, {"claim.txt": "a rejected claim\n"})
     checkout.commit("claim")
 
@@ -573,7 +578,7 @@ def test_the_restore_deletes_a_local_branch_of_a_started_story_without_a_remote_
     boundaries: Boundaries, checkout: GitCli, human: HumanClone, tmp_path: Path
 ) -> None:
     human.start(BACKLOG_PATH)
-    checkout.checkout(BRANCH, start_point="origin/main")
+    checkout.checkout(BRANCH, start_point=f"{REMOTE}/{WORK_BRANCH}")
     write_files(tmp_path / CHECKOUT, {"claim.txt": "a rejected claim\n"})
     checkout.commit("claim")
 

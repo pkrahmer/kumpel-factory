@@ -13,6 +13,7 @@ from factory.pipeline.application.boundaries import Boundaries
 from factory.pipeline.application.handlers.run import RunHandler
 from factory.pipeline.domain.events import Event
 from factory.shared.domain.errors import HostingServiceError
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.watching.application.watcher import Watcher
 from support.definition_support import pipeline_definition
 from support.git_support import install_agents
@@ -59,7 +60,7 @@ def _run_event(
     """Start a complete story and return the event the watcher sees for it."""
     definition = pipeline_definition(boundaries)
     install_agents(agent_home, definition.roles)
-    human.push_file("main", BACKLOG_PATH, STORY)
+    human.push_file(WORK_BRANCH, BACKLOG_PATH, STORY)
     human.start(BACKLOG_PATH)
     checkout.fetch()
     event = Watcher(boundaries, INSTANCE).evaluate(definition)

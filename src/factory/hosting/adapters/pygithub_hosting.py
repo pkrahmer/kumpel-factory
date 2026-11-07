@@ -22,7 +22,7 @@ from factory.hosting.domain.hosting import (
 )
 from factory.shared.domain.errors import HostingServiceError
 from factory.shared.domain.kill_points import KillPoint, KillPoints
-from factory.shared.domain.paths import LABEL_PREFIX, MAIN_BRANCH
+from factory.shared.domain.paths import LABEL_PREFIX, WORK_BRANCH
 
 
 @contextmanager
@@ -87,7 +87,7 @@ class PyGithubHostingService(HostingService):
         """Open a pull request from `branch` to the main branch, as draft or ready."""
         with _failing_as("create_pull_request"):
             pull = self._repository.create_pull(
-                base=MAIN_BRANCH, head=branch, title=title, body=body, draft=draft
+                base=WORK_BRANCH, head=branch, title=title, body=body, draft=draft
             )
             return _view(pull)
 

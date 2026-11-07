@@ -9,6 +9,7 @@ from factory.hosting.adapters.fake_hosting import FakeHostingService
 from factory.pipeline.application.boundaries import Boundaries
 from factory.pipeline.domain.events import Event
 from factory.pipeline.domain.pipeline_definition import PipelineDefinition
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.watching.application.watcher import Watcher
 from factory.work.application.acceptance_reading import AcceptanceReader
 from support.git_support import remote_commit
@@ -52,7 +53,7 @@ def test_a_started_story_of_the_feature_runs_before_its_in_flight_acceptance(
     push_complete(human, directory)
     open_acceptance(boundaries, definition, "F0002")
     backlog = f"{FEATURES}/{directory}/backlog/F0002-S0003-c.md"
-    human.push_file("main", backlog, "# C\n")
+    human.push_file(WORK_BRANCH, backlog, "# C\n")
     human.start(backlog)
 
     event = _evaluate(boundaries, definition)
@@ -82,7 +83,7 @@ def test_a_merged_acceptance_at_its_approval_is_a_merged_event(
         boundaries, human, acceptance_branch_state(boundaries).model_copy(update=update)
     )
     human.merge(ACCEPTANCE_BRANCH, method)
-    main = remote_commit(remote, "main")
+    main = remote_commit(remote, WORK_BRANCH)
     assert main is not None
     hosting.merge_by_human(view.number, main)
     boundaries.git.fetch()
@@ -103,7 +104,7 @@ def test_a_due_feature_is_an_acceptance_due_event_at_mains_head(
     event = _evaluate(boundaries, definition)
 
     assert (event.kind, event.feature, event.work_item) == ("acceptance_due", "F0002", None)
-    assert event.remote_state == remote_commit(remote, "main")
+    assert event.remote_state == remote_commit(remote, WORK_BRANCH)
 
 
 def test_without_an_acceptance_stage_acceptances_and_due_features_are_not_seen(

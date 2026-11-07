@@ -12,6 +12,7 @@ from factory.hosting.adapters.fake_hosting import FakeHostingService
 from factory.machine.application.project_commands import RecordingProjectCommands
 from factory.machine.application.stage_environment import stage_environment_of
 from factory.machine.domain.containers import CA_BUNDLE_NAMES
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.shared.domain.settings import InstanceSettings
 from support.claude_stand_in import REPLY
 from support.container_extra_support import COMMIT, OTHER, PROXY, env_words, volume, write_bundle
@@ -80,7 +81,9 @@ def test_every_container_of_a_stage_carries_both_settings_and_no_hosting_token(
     project_commands = boundaries.project_commands
     assert isinstance(project_commands, RecordingProjectCommands)
 
-    stage_environment_of(boundaries).prepare(COMMIT, "main", sync_time_limit=timedelta(minutes=5))
+    stage_environment_of(boundaries).prepare(
+        COMMIT, WORK_BRANCH, sync_time_limit=timedelta(minutes=5)
+    )
     boundaries.agent_runtime.run(_request(tmp_path))
     project_commands.inner.run("check", time_limit=timedelta(minutes=1))
 

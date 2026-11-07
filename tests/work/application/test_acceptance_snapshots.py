@@ -8,6 +8,7 @@ from factory.hosting.adapters.git_cli import GitCli
 from factory.pipeline.application.boundaries import Boundaries
 from factory.pipeline.domain.pipeline_definition import PipelineDefinition
 from factory.shared.domain.errors import WorkItemFormatError
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from factory.work.application.acceptance import AcceptanceService
 from factory.work.application.acceptance_reading import AcceptanceReader
 from factory.work.domain.acceptance import AcceptanceState
@@ -33,9 +34,9 @@ def todo(human: HumanClone) -> None:
 
 
 def _push_todo(human: HumanClone) -> None:
-    human.push_file("main", f"{TODO}/feature.md", "# Todo service\n")
-    human.push_file("main", f"{TODO}/done/F0002-S0001-a.md", "# A\n")
-    human.push_file("main", f"{TODO}/done/F0002-S0002-b.md", "# B\n")
+    human.push_file(WORK_BRANCH, f"{TODO}/feature.md", "# Todo service\n")
+    human.push_file(WORK_BRANCH, f"{TODO}/done/F0002-S0001-a.md", "# A\n")
+    human.push_file(WORK_BRANCH, f"{TODO}/done/F0002-S0002-b.md", "# B\n")
 
 
 @pytest.fixture
@@ -91,7 +92,7 @@ def test_a_report_on_its_branch_alone_gives_its_snapshot(
     [
         ("work-item/F0001-S0001", f"{EXAMPLE}/in-progress/F0001-S0001-first.md", False),
         ("work-item/F0001-A0001", f"{EXAMPLE}/in-progress/notes.md", False),
-        ("main", f"{EXAMPLE}/in-progress/F0002-A0001-acceptance.md", True),
+        (WORK_BRANCH, f"{EXAMPLE}/in-progress/F0002-A0001-acceptance.md", True),
         (
             "work-item/F0004-A0001",
             f"{FEATURES}/F0004-missing/in-progress/F0004-A0001-acceptance.md",
@@ -143,7 +144,7 @@ def test_a_merged_report_not_yet_recorded_has_mains_path_and_the_branchs_documen
             document=_parsed(boundaries, f"origin/{BRANCH}", REPORT),
         )
     ]
-    assert snapshots[0].document != _parsed(boundaries, "origin/main", REPORT)
+    assert snapshots[0].document != _parsed(boundaries, f"{REMOTE}/{WORK_BRANCH}", REPORT)
 
 
 @pytest.mark.usefixtures("opened")
@@ -166,7 +167,7 @@ def test_a_merged_report_whose_branch_is_deleted_is_read_from_main(
             folder="in-progress",
             branch=BRANCH,
             branch_commit=None,
-            document=_parsed(boundaries, "origin/main", REPORT),
+            document=_parsed(boundaries, f"{REMOTE}/{WORK_BRANCH}", REPORT),
         )
     ]
 
@@ -182,7 +183,7 @@ def test_a_recorded_report_gives_a_snapshot_only_from_a_leftover_branch(
     leftover: bool,
 ) -> None:
     accepted = AcceptanceState(stage="done", outcome="accepted", stories=ARCHIVED)
-    human.push_file("main", DONE_REPORT, _render(boundaries, accepted))
+    human.push_file(WORK_BRANCH, DONE_REPORT, _render(boundaries, accepted))
     if leftover:
         human.push_file(BRANCH, REPORT, _render(boundaries, _approval()))
 
@@ -208,8 +209,8 @@ def test_snapshots_of_two_features_come_in_work_item_order(
     boundaries: Boundaries, definition: PipelineDefinition, *, human: HumanClone
 ) -> None:
     later = AcceptanceState(stage="approval", stories=["F0003-S0001"])
-    human.push_file("main", f"{LATER}/feature.md", "# Later\n")
-    human.push_file("main", f"{LATER}/done/F0003-S0001-a.md", "# A\n")
+    human.push_file(WORK_BRANCH, f"{LATER}/feature.md", "# Later\n")
+    human.push_file(WORK_BRANCH, f"{LATER}/done/F0003-S0001-a.md", "# A\n")
     human.push_file(
         "main", f"{LATER}/in-progress/F0003-A0001-acceptance.md", _render(boundaries, later)
     )

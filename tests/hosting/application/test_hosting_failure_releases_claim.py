@@ -16,6 +16,7 @@ from factory.pipeline.application.stage import StageLauncher
 from factory.shared.domain.errors import HostingServiceError, WorkItemFormatError
 from factory.shared.domain.identifiers import WorkItemId, branch_name
 from factory.shared.domain.kill_points import KillPoints
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from factory.work.domain.work_item import WorkItemDocument
 from support.git_support import PIPELINE_YAML
 from support.log_support import state_log_lines
@@ -90,7 +91,7 @@ def _refuse_releases(world: World, work_item: WorkItemId, refusals: int) -> None
 def _branch_commits(world: World, work_item: WorkItemId) -> list[CommitInfo]:
     git = world.boundaries.git
     git.fetch()
-    return git.log(f"origin/{branch_name(work_item)}", since="origin/main")
+    return git.log(f"origin/{branch_name(work_item)}", since=f"{REMOTE}/{WORK_BRANCH}")
 
 
 def _handler_errors(world: World) -> list[tuple[str, str]]:
@@ -121,7 +122,7 @@ def launch(world: World, work_item: WorkItemId) -> _Launch:
     boundaries.git.fetch()
     [path] = [
         path
-        for path in boundaries.git.list_files("origin/main", f"{FEATURE}/in-progress")
+        for path in boundaries.git.list_files(f"{REMOTE}/{WORK_BRANCH}", f"{FEATURE}/in-progress")
         if Path(path).name.startswith(work_item)
     ]
     prepared = WorkItemOpening(boundaries, definition).prepare(work_item, path)

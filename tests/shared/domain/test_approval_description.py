@@ -8,6 +8,7 @@ from factory.hosting.domain.git import CommitInfo
 from factory.hosting.domain.hand_over import HAND_OVER_CLOSING, hand_over_description
 from factory.shared.domain.identifiers import WorkItemId, branch_name
 from factory.shared.domain.kill_points import InjectedKill, KillPoint
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from factory.work.domain.work_item import WorkItemDocument
 from support.proof_support import (
     World,
@@ -28,7 +29,7 @@ def _pushed(world: World, work_item: WorkItemId) -> tuple[WorkItemDocument, Sequ
     text = git.show_file(branch, work_item_file(world, work_item))
     assert text is not None
     document = world.boundaries.work_item_reader.parse(text)
-    return document, git.log(branch, since="origin/main")
+    return document, git.log(branch, since=f"{REMOTE}/{WORK_BRANCH}")
 
 
 @pytest.mark.parametrize(

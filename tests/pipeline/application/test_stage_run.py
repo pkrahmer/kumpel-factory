@@ -11,6 +11,7 @@ from factory.agents.application.agent_runtime import AgentRuntime
 from factory.agents.domain.agent_runs import QUESTION, AgentRunRequest, AgentRunResult
 from factory.hosting.application.git import Git
 from factory.pipeline.application.boundaries import Boundaries
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.watching.domain.cost_records import ToolUse
 from factory.watching.domain.transcripts import Transcript
 from support.human_clone import HumanClone
@@ -127,7 +128,7 @@ def test_a_branch_that_cannot_take_the_main_branch_stalls_before_the_claim(
 ) -> None:
     started = open_story(boundaries, human, agent_home, main_files={NOTES: "base\n"})
     human.push_file(BRANCH, NOTES, "branch\n")
-    human.push_file("main", NOTES, "main\n")
+    human.push_file(WORK_BRANCH, NOTES, "main\n")
     boundaries.git.fetch()
 
     report = run_stage(boundaries)

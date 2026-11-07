@@ -1,8 +1,9 @@
-"""The board reader counts the story files on origin/main and reads the work items in progress."""
+"""The board reader counts the stories on the working branch and reads those in progress."""
 
 from factory.pipeline.application.boundaries import Boundaries
 from factory.shared.adapters.clock import ManualClock
 from factory.shared.domain.identifiers import branch_name
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.watching.application.board import BoardReader, BoardView
 from factory.watching.domain.board import FeatureRow
 from factory.work.adapters.work_item_markdown import FrontmatterWorkItemWriter
@@ -24,12 +25,12 @@ def _read(boundaries: Boundaries) -> BoardView:
 
 
 def test_only_story_files_count_on_main(boundaries: Boundaries, human: HumanClone) -> None:
-    human.push_file("main", f"{FEATURE}/in-progress/.gitkeep", "")
-    human.push_file("main", f"{FEATURE}/done/.gitkeep", "")
-    human.push_file("main", f"{FEATURE}/backlog/notes.md", "# Notes\n")
-    human.push_file("main", f"{FEATURE}/backlog/feature.md", "# Misplaced\n")
-    human.push_file("main", f"{FEATURES}/F0002-empty/feature.md", "# Empty feature\n")
-    human.push_file("main", f"{FEATURES}/F0002-empty/backlog/.gitkeep", "")
+    human.push_file(WORK_BRANCH, f"{FEATURE}/in-progress/.gitkeep", "")
+    human.push_file(WORK_BRANCH, f"{FEATURE}/done/.gitkeep", "")
+    human.push_file(WORK_BRANCH, f"{FEATURE}/backlog/notes.md", "# Notes\n")
+    human.push_file(WORK_BRANCH, f"{FEATURE}/backlog/feature.md", "# Misplaced\n")
+    human.push_file(WORK_BRANCH, f"{FEATURES}/F0002-empty/feature.md", "# Empty feature\n")
+    human.push_file(WORK_BRANCH, f"{FEATURES}/F0002-empty/backlog/.gitkeep", "")
 
     view = _read(boundaries)
 
@@ -48,10 +49,10 @@ def test_only_story_files_count_on_main(boundaries: Boundaries, human: HumanClon
 def test_a_feature_title_comes_from_its_feature_file_else_its_directory(
     boundaries: Boundaries, human: HumanClone
 ) -> None:
-    human.push_file("main", f"{FEATURE}/feature.md", "Intro\n# Todo service\n# Later title\n")
-    human.push_file("main", f"{FEATURES}/F0002-missing/backlog/F0002-S0001-a.md", "# A\n")
-    human.push_file("main", f"{FEATURES}/F0003-untitled/feature.md", "No title here\n")
-    human.push_file("main", f"{FEATURES}/F0003-untitled/backlog/F0003-S0001-b.md", "# B\n")
+    human.push_file(WORK_BRANCH, f"{FEATURE}/feature.md", "Intro\n# Todo service\n# Later title\n")
+    human.push_file(WORK_BRANCH, f"{FEATURES}/F0002-missing/backlog/F0002-S0001-a.md", "# A\n")
+    human.push_file(WORK_BRANCH, f"{FEATURES}/F0003-untitled/feature.md", "No title here\n")
+    human.push_file(WORK_BRANCH, f"{FEATURES}/F0003-untitled/backlog/F0003-S0001-b.md", "# B\n")
 
     view = _read(boundaries)
 
@@ -70,9 +71,9 @@ def test_each_story_in_progress_is_a_row_with_its_state_from_its_branch(
     state = WorkItemState(stage="tests", pull_request=7, claim=claim)
     text = FrontmatterWorkItemWriter().render(WorkItemDocument(state=state, body="# First\n"))
     human.push_file(branch_name("F0001-S0001"), PATH, text)
-    human.push_file("main", SECOND_BACKLOG_PATH, "# Second story\n")
+    human.push_file(WORK_BRANCH, SECOND_BACKLOG_PATH, "# Second story\n")
     human.start(SECOND_BACKLOG_PATH)
-    human.push_file("main", f"{FEATURE}/backlog/F0001-S0003-third.md", "# Third story\n")
+    human.push_file(WORK_BRANCH, f"{FEATURE}/backlog/F0001-S0003-third.md", "# Third story\n")
 
     view = _read(boundaries)
 

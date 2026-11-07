@@ -24,7 +24,7 @@ from factory.pipeline.application.stage import (
 from factory.shared.adapters.clock import ManualClock
 from factory.shared.application.files import CostRecordReader
 from factory.shared.domain.identifiers import branch_name
-from factory.shared.domain.paths import cost_records_path
+from factory.shared.domain.paths import WORK_BRANCH, cost_records_path
 from factory.watching.domain.cost_records import CostRecord
 from factory.work.domain.journal import JournalRecord
 from factory.work.domain.work_item import WorkItemDocument, WorkItemState
@@ -156,8 +156,8 @@ def _open(
 ) -> None:
     """Push the Makefile, start the story and push its branch in `tests`, the sidecar beside it."""
     install_agents(agent_home, ["tester"])
-    human.push_file("main", "Makefile", makefile or _makefile())
-    human.push_file("main", BACKLOG_PATH, STORY)
+    human.push_file(WORK_BRANCH, "Makefile", makefile or _makefile())
+    human.push_file(WORK_BRANCH, BACKLOG_PATH, STORY)
     human.start(BACKLOG_PATH)
     state = WorkItemState(stage="tests", attempts=attempts, journal=[CREATED])
     document = WorkItemDocument(state=state, body=STORY + CREATED_LINE)

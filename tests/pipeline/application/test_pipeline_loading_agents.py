@@ -11,6 +11,7 @@ from factory.pipeline.application.pipeline_loading import PIPELINE_REF, Pipeline
 from factory.pipeline.domain.stops import RepositoryStop
 from factory.shared.adapters.clock import ManualClock
 from factory.shared.domain.errors import AgentDefinitionInvalid, PipelineDefinitionInvalid
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from support.git_support import COLOURED_AGENT_FILE, PIPELINE_YAML, install_agents, write_agent
 from support.human_clone import HumanClone
 
@@ -103,12 +104,12 @@ def test_a_refused_agent_file_after_a_refused_definition_leaves_only_the_agent_s
     checkout: GitCli,
     clock: ManualClock,
 ) -> None:
-    human.push_file("main", PIPELINE_FILE, WITHOUT_CONTRACT)
+    human.push_file(WORK_BRANCH, PIPELINE_FILE, WITHOUT_CONTRACT)
     checkout.fetch()
     loader = PipelineLoader(boundaries)
     with pytest.raises(PipelineDefinitionInvalid):
         loader.load()
-    human.push_file("main", PIPELINE_FILE, PIPELINE_YAML)
+    human.push_file(WORK_BRANCH, PIPELINE_FILE, PIPELINE_YAML)
     checkout.fetch()
     write_agent(agent_home, SECOND_ROLE, COLOURED_AGENT_FILE)
 
@@ -131,7 +132,7 @@ def test_a_refused_agent_file_at_a_commit_leaves_the_health_status_as_it_was(
     install_agents(agent_home, [FIRST_ROLE])
     write_agent(agent_home, SECOND_ROLE, COLOURED_AGENT_FILE)
     clock.advance(timedelta(seconds=5))
-    commit = checkout.resolve("origin/main")
+    commit = checkout.resolve(f"{REMOTE}/{WORK_BRANCH}")
     assert commit is not None
 
     error = _refused(loader, commit)

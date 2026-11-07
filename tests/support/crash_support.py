@@ -12,6 +12,7 @@ from factory.pipeline.domain.events import Event
 from factory.pipeline.domain.pipeline_definition import PipelineDefinition
 from factory.shared.adapters.clock import ManualClock
 from factory.shared.domain.identifiers import branch_name
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from factory.work.domain.journal import HUMAN, NewEntry, append_entry
 from factory.work.domain.work_item import (
     WorkItemDocument,
@@ -62,11 +63,11 @@ def claim(
     body: str = STORY,
 ) -> Claimed:
     """Start the story, check its branch out and claim the stage as `INSTANCE`."""
-    human.push_file("main", BACKLOG_PATH, STORY)
+    human.push_file(WORK_BRANCH, BACKLOG_PATH, STORY)
     human.start(BACKLOG_PATH)
     git = boundaries.git
     git.fetch()
-    git.checkout(BRANCH, start_point="origin/main")
+    git.checkout(BRANCH, start_point=f"{REMOTE}/{WORK_BRANCH}")
     state = initial_state(STAGE).model_copy(
         update={"crashes": crashes, "attempts": attempts, "pull_request": pull_request}
     )

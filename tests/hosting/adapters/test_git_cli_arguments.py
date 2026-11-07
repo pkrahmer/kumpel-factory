@@ -9,6 +9,7 @@ from factory.hosting.adapters import git_cli
 from factory.hosting.adapters.git_cli import GitCli
 from factory.hosting.domain.git import GitOptions
 from factory.shared.domain.kill_points import KillPoint, KillPoints
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from support.git_support import CHECKOUT, remote_commit, run_git, write_executable, write_files
 from support.human_clone import HumanClone
 
@@ -35,15 +36,15 @@ def _branch_and_head(directory: Path) -> tuple[str, str]:
 def test_push_of_an_option_like_branch_is_refused_before_anything_runs(
     tmp_path: Path, remote: Path, checkout: GitCli, human: HumanClone, kill_points: KillPoints
 ) -> None:
-    human.push_file("main", "human.txt", "human\n")
-    human_tip = remote_commit(remote, "main")
+    human.push_file(WORK_BRANCH, "human.txt", "human\n")
+    human_tip = remote_commit(remote, WORK_BRANCH)
     write_files(tmp_path / CHECKOUT, {"factory.txt": "factory\n"})
     checkout.commit("diverged")
 
     with pytest.raises(ValueError):
         checkout.push("--force")
 
-    assert remote_commit(remote, "main") == human_tip
+    assert remote_commit(remote, WORK_BRANCH) == human_tip
     assert kill_points.reached(KillPoint.BEFORE_PUSH) == 0
 
 
@@ -90,10 +91,10 @@ def test_delete_branch_of_an_option_like_name_is_refused(checkout: GitCli) -> No
         lambda cli: cli.resolve("-x"),
         lambda cli: cli.show_file("-x", "README.md"),
         lambda cli: cli.list_files("-x", "factory"),
-        lambda cli: cli.is_ancestor("-x", "main"),
-        lambda cli: cli.is_ancestor("main", "-x"),
+        lambda cli: cli.is_ancestor("-x", WORK_BRANCH),
+        lambda cli: cli.is_ancestor(WORK_BRANCH, "-x"),
         lambda cli: cli.log("-x"),
-        lambda cli: cli.log("main", since="-x"),
+        lambda cli: cli.log(WORK_BRANCH, since="-x"),
         lambda cli: cli.changed_paths("-x"),
         lambda cli: cli.merge("-x"),
         lambda cli: cli.reset_to("-x"),
@@ -115,7 +116,7 @@ def test_option_like_ref_is_refused_without_starting_git(
 def test_push_of_a_new_branch_with_hyphens_in_its_name_is_pushed(
     tmp_path: Path, remote: Path, checkout: GitCli
 ) -> None:
-    checkout.checkout(BRANCH, start_point="origin/main")
+    checkout.checkout(BRANCH, start_point=f"{REMOTE}/{WORK_BRANCH}")
     write_files(tmp_path / CHECKOUT, {"work.txt": "work\n"})
     commit = checkout.commit("work")
 
@@ -149,15 +150,15 @@ def test_git_runs_in_the_c_locale_whatever_the_environment_says(
 def test_push_of_a_forcing_refspec_is_refused_before_anything_runs(
     tmp_path: Path, remote: Path, checkout: GitCli, human: HumanClone, kill_points: KillPoints
 ) -> None:
-    human.push_file("main", "human.txt", "human\n")
-    human_tip = remote_commit(remote, "main")
+    human.push_file(WORK_BRANCH, "human.txt", "human\n")
+    human_tip = remote_commit(remote, WORK_BRANCH)
     write_files(tmp_path / CHECKOUT, {"factory.txt": "factory\n"})
     checkout.commit("diverged")
 
     with pytest.raises(ValueError):
         checkout.push("+main")
 
-    assert remote_commit(remote, "main") == human_tip
+    assert remote_commit(remote, WORK_BRANCH) == human_tip
     assert kill_points.reached(KillPoint.BEFORE_PUSH) == 0
 
 
@@ -198,7 +199,7 @@ def test_delete_remote_branch_of_a_refspec_is_refused(
 def test_push_of_a_new_branch_with_a_plus_inside_its_name_is_pushed(
     tmp_path: Path, remote: Path, checkout: GitCli
 ) -> None:
-    checkout.checkout("a+b", start_point="origin/main")
+    checkout.checkout("a+b", start_point=f"{REMOTE}/{WORK_BRANCH}")
     write_files(tmp_path / CHECKOUT, {"work.txt": "work\n"})
     commit = checkout.commit("work")
 
@@ -222,13 +223,13 @@ def test_delete_branch_of_a_refspec_like_name_is_not_refused_and_changes_nothing
 def test_push_of_a_negative_refspec_is_refused_before_anything_runs(
     remote: Path, checkout: GitCli, kill_points: KillPoints
 ) -> None:
-    main_tip = remote_commit(remote, "main")
+    main_tip = remote_commit(remote, WORK_BRANCH)
 
     with pytest.raises(ValueError):
         checkout.push("^main")
 
     assert kill_points.reached(KillPoint.BEFORE_PUSH) == 0
-    assert remote_commit(remote, "main") == main_tip
+    assert remote_commit(remote, WORK_BRANCH) == main_tip
 
 
 @pytest.mark.parametrize("branch", ["HEAD", "@"])
@@ -258,8 +259,8 @@ def _count_checks(monkeypatch: pytest.MonkeyPatch) -> list[str]:
 @pytest.mark.parametrize(
     ("operation", "expected"),
     [
-        (lambda cli: cli.merge("origin/main"), "up_to_date"),
-        (lambda cli: cli.reset_to("origin/main"), None),
+        (lambda cli: cli.merge(f"{REMOTE}/{WORK_BRANCH}"), "up_to_date"),
+        (lambda cli: cli.reset_to(f"{REMOTE}/{WORK_BRANCH}"), None),
         (lambda cli: cli.revert_paths("HEAD", ["a.txt", "b.txt"]), None),
         (lambda cli: cli.delete_branch("gone"), None),
     ],
@@ -280,13 +281,13 @@ def test_operation_checks_its_argument_once(
 def test_conflicting_merge_checks_its_argument_once(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, checkout: GitCli, human: HumanClone
 ) -> None:
-    human.push_file("main", "shared.txt", "human side\n")
+    human.push_file(WORK_BRANCH, "shared.txt", "human side\n")
     write_files(tmp_path / CHECKOUT, {"shared.txt": "factory side\n"})
     checkout.commit("factory side")
     checkout.fetch()
     checked = _count_checks(monkeypatch)
 
-    outcome = checkout.merge("origin/main")
+    outcome = checkout.merge(f"{REMOTE}/{WORK_BRANCH}")
 
     assert outcome == "conflict"
     assert len(checked) == 1, checked

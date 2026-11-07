@@ -6,6 +6,7 @@ import pytest
 
 from factory.hosting.adapters.git_cli import GitCli
 from factory.shared.domain.errors import GitError
+from factory.shared.domain.paths import WORK_BRANCH
 from support.git_support import CHECKOUT, commit_all, head_of, run_git, write_files
 
 
@@ -35,7 +36,7 @@ def test_reset_to_discards_tracked_changes_and_moves_the_branch(
     checkout.reset_to(base)
 
     assert head_of(directory) == base
-    assert run_git(directory, "rev-parse", "--abbrev-ref", "HEAD").strip() == "main"
+    assert run_git(directory, "rev-parse", "--abbrev-ref", "HEAD").strip() == WORK_BRANCH
     assert (directory / "a.txt").read_text(encoding="utf-8") == "a base\n"
     assert (directory / "b.txt").read_text(encoding="utf-8") == "b base\n"
     assert _status(directory) == ""

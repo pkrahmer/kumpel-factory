@@ -397,7 +397,7 @@ Before a stage may start, the preflight checks the machine: the tools, the datas
 - `opencode_item` checks the aliases only.
 - Both probes go through the environment like a stage.
 - `agent_run_probe_item` resolves `origin/main`. Without one the item fails with `no origin/main to prepare the stage environment from`, and no run starts.
-- It then calls `stage_environment_of(boundaries).prepare(main, MAIN_BRANCH, sync_time_limit=PROBE_TIME_LIMIT)` and `run_agent` on the same object.
+- It then calls `stage_environment_of(boundaries).prepare(main, WORK_BRANCH, sync_time_limit=PROBE_TIME_LIMIT)` and `run_agent` on the same object.
 - `SnapshotError` and `ContainerError` from `prepare` fail the item with their message.
 - `Preflight._run_probe` calls the same `prepare` after it puts the checkout on `main` and before `lint`. `Preflight.run` catches both errors beside `GitError` and `ProjectCommandError` and stops with `the probe on main could not run: <error>`.
 

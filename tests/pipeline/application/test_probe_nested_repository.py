@@ -5,6 +5,7 @@ from pathlib import Path
 from factory.agents.adapters.fake_agent_runtime import FakeAgentRuntime, ScriptedRun
 from factory.machine.application.preflight import agent_run_probe_item
 from factory.pipeline.application.boundaries import Boundaries
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.shared.domain.settings import InstanceSettings
 from support.agent_run_support import COMPLETED
 from support.git_support import install_agents
@@ -27,7 +28,7 @@ def test_a_probe_run_that_leaves_a_nested_repository_passes(
         pinned_agent_version="fake",
     )
     agent_runtime.queue(
-        ScriptedRun(writes={"sub/.git/HEAD": "ref: refs/heads/main\n"}, result=COMPLETED)
+        ScriptedRun(writes={"sub/.git/HEAD": f"ref: refs/heads/{WORK_BRANCH}\n"}, result=COMPLETED)
     )
 
     item = agent_run_probe_item(boundaries, settings, ENVIRONMENT)

@@ -9,6 +9,7 @@ from factory.machine.application.stage_environment import ContainerEnvironment
 from factory.pipeline.application.boundaries import Boundaries
 from factory.pipeline.application.take import TakeReport
 from factory.shared.adapters.clock import ManualClock
+from factory.shared.domain.paths import WORK_BRANCH
 from support.container_support import (
     FIRST,
     FIVE_MINUTES,
@@ -68,7 +69,7 @@ def test_take_copies_the_snapshots_changes_the_role_may_write(
         ),
         pytest.param(((BRANCH, FIRST),), False, None, id="prepare-alone"),
         pytest.param(
-            (("main", FIRST), (BRANCH, SECOND)),
+            ((WORK_BRANCH, FIRST), (BRANCH, SECOND)),
             True,
             "stage environment: reset 1.0 s, sync 2.0 s, advance 3.0 s, take 0.2 s",
             id="last-prepare-counts",
@@ -87,9 +88,9 @@ def test_one_timing_line_per_take_carries_the_last_prepares_durations(
     expected: str | None,
 ) -> None:
     start = started_with_sync(boundaries, human, agent_home)
-    main = boundaries.git.resolve("main")
+    main = boundaries.git.resolve(WORK_BRANCH)
     assert main is not None
-    commits = {"main": main, BRANCH: start.commit}
+    commits = {WORK_BRANCH: main, BRANCH: start.commit}
     dataset = container_dataset(boundaries, tmp_path)
     if prepares:
         pace = Pace(steps=prepares[0][1])

@@ -8,7 +8,7 @@ from factory.hosting.adapters.git_cli import GitCli
 from factory.pipeline.application.boundaries import Boundaries
 from factory.shared.domain.errors import WorkItemFormatError
 from factory.shared.domain.identifiers import branch_name
-from factory.shared.domain.paths import LIFECYCLE_FOLDERS
+from factory.shared.domain.paths import LIFECYCLE_FOLDERS, REMOTE, WORK_BRANCH
 from factory.work.adapters.work_item_markdown import FrontmatterWorkItemReader
 from factory.work.application.work_items import RemoteWorkItems
 from factory.work.domain.work_item import StoryFile, initial_state
@@ -42,14 +42,14 @@ def _ids(stories: list[StoryFile]) -> list[str]:
 
 def _commit_local_branch(checkout: GitCli, work_tree: Path, text: str) -> None:
     checkout.fetch()
-    checkout.checkout(BRANCH, start_point="origin/main")
+    checkout.checkout(BRANCH, start_point=f"{REMOTE}/{WORK_BRANCH}")
     write_files(work_tree, {PATH: text})
     checkout.commit("local state")
 
 
 def _push_in_progress(human: HumanClone, paths: list[str]) -> None:
     for path in paths:
-        human.push_file("main", path, "# A story\n")
+        human.push_file(WORK_BRANCH, path, "# A story\n")
 
 
 def test_in_progress_stories_are_listed_with_their_parts(
@@ -111,8 +111,8 @@ def test_stories_are_listed_in_plain_id_order(checkout: GitCli, human: HumanClon
 def test_files_that_are_not_story_files_are_not_listed(
     checkout: GitCli, human: HumanClone, path: str
 ) -> None:
-    human.push_file("main", path, "# Not a story\n")
-    human.push_file("main", f"{FEATURE}/in-progress/F0001-S0002-real.md", "# Real\n")
+    human.push_file(WORK_BRANCH, path, "# Not a story\n")
+    human.push_file(WORK_BRANCH, f"{FEATURE}/in-progress/F0001-S0002-real.md", "# Real\n")
 
     stories = _items(checkout).list_stories("in-progress")
 
@@ -180,7 +180,7 @@ def test_a_branch_only_in_the_checkout_is_not_read(
 
 
 def _start_with_state_in_file(human: HumanClone) -> None:
-    human.push_file("main", BACKLOG_PATH, SPECIFICATION_WITH_STATE)
+    human.push_file(WORK_BRANCH, BACKLOG_PATH, SPECIFICATION_WITH_STATE)
     human.start(BACKLOG_PATH)
 
 
@@ -262,7 +262,7 @@ def test_unreadable_front_matter_on_the_branch_is_a_format_error(
 def test_unreadable_front_matter_on_main_without_a_branch_is_a_format_error(
     checkout: GitCli, human: HumanClone, boundaries: Boundaries
 ) -> None:
-    human.push_file("main", BACKLOG_PATH, UNREADABLE)
+    human.push_file(WORK_BRANCH, BACKLOG_PATH, UNREADABLE)
     human.start(BACKLOG_PATH)
     items = _items(checkout)
 
@@ -313,7 +313,7 @@ def test_snapshots_come_in_plain_id_order_and_one_per_story_file(
 def test_ongoing_and_drafts_files_are_neither_listed_nor_read(
     checkout: GitCli, human: HumanClone, boundaries: Boundaries, folder: str
 ) -> None:
-    human.push_file("main", f"{FEATURE}/{folder}/F0001-S0003-x.md", "# Old layout\n")
+    human.push_file(WORK_BRANCH, f"{FEATURE}/{folder}/F0001-S0003-x.md", "# Old layout\n")
     items = _items(checkout)
 
     listed = [

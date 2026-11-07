@@ -22,7 +22,7 @@ from factory.shared.adapters.clock import ManualClock
 from factory.shared.domain.errors import CannotHandle, GitError, PushFailed
 from factory.shared.domain.identifiers import branch_name
 from factory.shared.domain.kill_points import InjectedKill, KillPoint, KillPoints
-from factory.shared.domain.paths import cost_records_path
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH, cost_records_path
 from factory.watching.adapters.cost_records_jsonl import JsonLinesCostRecordReader
 from factory.watching.application.machine import Clock
 from factory.watching.domain.cost_records import CostRecord
@@ -127,11 +127,11 @@ def _claim(
     costs: list[CostRecord] | None = None,
 ) -> _Claimed:
     """Start the story, check its branch out and claim the stage as `INSTANCE`."""
-    human.push_file("main", BACKLOG_PATH, STORY)
+    human.push_file(WORK_BRANCH, BACKLOG_PATH, STORY)
     human.start(BACKLOG_PATH)
     git = boundaries.git
     git.fetch()
-    git.checkout(BRANCH, start_point="origin/main")
+    git.checkout(BRANCH, start_point=f"{REMOTE}/{WORK_BRANCH}")
     state = initial_state(STAGE).model_copy(
         update={"attempts": attempts, "pull_request": pull_request}
     )
@@ -574,7 +574,7 @@ def test_a_git_error_from_the_discard_propagates_and_nothing_is_pushed(
         branch_commit="a" * 40,
         document=WorkItemDocument(state=state, body=STORY),
     )
-    main = remote_commit(remote, "main")
+    main = remote_commit(remote, WORK_BRANCH)
     rerun = _Rerun(clock)
 
     with pytest.raises(GitError):
@@ -582,4 +582,4 @@ def test_a_git_error_from_the_discard_propagates_and_nothing_is_pushed(
 
     assert rerun.events == []
     assert remote_commit(remote, BRANCH) is None
-    assert remote_commit(remote, "main") == main
+    assert remote_commit(remote, WORK_BRANCH) == main

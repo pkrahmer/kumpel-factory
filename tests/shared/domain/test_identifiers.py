@@ -22,6 +22,7 @@ from factory.shared.domain.identifiers import (
     work_item_of_branch,
     work_item_order,
 )
+from factory.shared.domain.paths import WORK_BRANCH
 
 WORK_ITEM_ID = TypeAdapter(WorkItemId)
 FEATURE = TypeAdapter(FeatureId)
@@ -213,7 +214,13 @@ def test_branch_name_is_the_prefix_and_the_id() -> None:
 
 @pytest.mark.parametrize(
     "branch",
-    ["main", "work-item/", "work-item/F0002", "work-item/F0002-S0001-slug", "ticket/F0002-S0001"],
+    [
+        WORK_BRANCH,
+        "work-item/",
+        "work-item/F0002",
+        "work-item/F0002-S0001-slug",
+        "ticket/F0002-S0001",
+    ],
 )
 def test_branch_that_is_not_a_work_item_branch_has_no_work_item(branch: str) -> None:
     assert work_item_of_branch(branch) is None

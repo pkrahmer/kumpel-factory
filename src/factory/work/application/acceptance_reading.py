@@ -20,8 +20,8 @@ from factory.shared.domain.identifiers import (
 )
 from factory.shared.domain.paths import (
     FEATURES_DIRECTORY,
-    MAIN_BRANCH,
     REMOTE,
+    WORK_BRANCH,
     LifecycleFolder,
     work_item_path,
 )
@@ -38,7 +38,7 @@ from factory.work.domain.acceptance import (
 )
 from factory.work.domain.work_item import WorkItemDocument, WorkItemSnapshot
 
-_MAIN_REF = f"{REMOTE}/{MAIN_BRANCH}"
+_MAIN_REF = f"{REMOTE}/{WORK_BRANCH}"
 
 
 class AcceptanceReader:

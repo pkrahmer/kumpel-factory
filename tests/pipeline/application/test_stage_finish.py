@@ -27,6 +27,7 @@ from factory.pipeline.domain.pipeline_definition import PipelineDefinition
 from factory.shared.adapters.clock import ManualClock
 from factory.shared.domain.errors import HostingServiceError, PushFailed
 from factory.shared.domain.identifiers import branch_name
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.work.domain.journal import JournalRecord, entry_text
 from factory.work.domain.work_item import WorkItemDocument, WorkItemState
 from support.git_support import PIPELINE_YAML, install_agents
@@ -162,8 +163,8 @@ def _aftermath(
 ) -> AgentAftermath:
     """Open the work item in `state` with `body`, launch it with `run` and process the run."""
     install_agents(agent_home, ROLES)
-    human.push_file("main", "Makefile", makefile or _makefile(tmp_path / TARGETS_LOG))
-    human.push_file("main", BACKLOG_PATH, body)
+    human.push_file(WORK_BRANCH, "Makefile", makefile or _makefile(tmp_path / TARGETS_LOG))
+    human.push_file(WORK_BRANCH, BACKLOG_PATH, body)
     human.start(BACKLOG_PATH)
     document = WorkItemDocument(
         state=state or WorkItemState(stage="tests", journal=[CREATED]), body=body + CREATED_LINE

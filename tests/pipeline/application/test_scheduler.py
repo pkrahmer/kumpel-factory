@@ -12,6 +12,7 @@ from factory.hosting.domain.git import GitOptions
 from factory.pipeline.application.scheduler import CheckoutPreparer, Scheduler, pause_after
 from factory.shared.domain.errors import AgentRuntimeError, GitError
 from factory.shared.domain.kill_points import InjectedKill, KillPoint
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from factory.shared.domain.settings import InstanceSettings
 from factory.watching.application.machine import FactoryLog
 from support.git_support import CHECKOUT, TEST_IDENTITY
@@ -250,11 +251,11 @@ def test_a_missing_checkout_is_cloned_and_cloned_again_after_removal(
     preparer = CheckoutPreparer(git, _settings(remote, directory))
 
     preparer.prepare()
-    assert git.resolve("origin/main") is not None
+    assert git.resolve(f"{REMOTE}/{WORK_BRANCH}") is not None
 
     shutil.rmtree(directory)
     preparer.prepare()
-    assert git.resolve("origin/main") is not None
+    assert git.resolve(f"{REMOTE}/{WORK_BRANCH}") is not None
 
 
 @pytest.mark.usefixtures("checkout")

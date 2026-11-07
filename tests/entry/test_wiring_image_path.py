@@ -17,6 +17,7 @@ from factory.machine.application.images import Images
 from factory.machine.application.stage_environment import stage_environment_of
 from factory.machine.domain.containers import SYSTEM_PATH
 from factory.pipeline.application.boundaries import Boundaries
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.shared.domain.settings import InstanceSettings
 from support.agent_definition_support import COMPLETED
 from support.container_extra_support import CHECK_LIMIT, COMMIT, env_words
@@ -68,7 +69,9 @@ def test_the_sync_the_check_and_the_agent_take_the_path_of_the_image_in_use(
     )
     scripts = tmp_path / "scripts"
 
-    stage_environment_of(boundaries).prepare(COMMIT, "main", sync_time_limit=timedelta(minutes=5))
+    stage_environment_of(boundaries).prepare(
+        COMMIT, WORK_BRANCH, sync_time_limit=timedelta(minutes=5)
+    )
     boundaries.project_commands.run("check", time_limit=CHECK_LIMIT)
     agent = agent_environment(scripts, tmp_path / "home", boundaries.image_path)
 
@@ -107,8 +110,8 @@ def test_the_tick_gives_the_agent_run_the_path_of_the_image_in_use(
         images=FakeImages(paths={IMAGE: JDK_PATH}),
     )
     install_agents(agent_home, boundaries.pipeline_reader.parse(PIPELINE_YAML).roles)
-    human.push_file("main", "Makefile", "lint:\n\ttrue\nsync:\n\t@:\n")
-    human.push_file("main", BACKLOG_PATH, STORY)
+    human.push_file(WORK_BRANCH, "Makefile", "lint:\n\ttrue\nsync:\n\t@:\n")
+    human.push_file(WORK_BRANCH, BACKLOG_PATH, STORY)
     human.start(BACKLOG_PATH)
     token_file = tmp_path / "hosting-token"
     token_file.write_text("example-value\n", encoding="utf-8")

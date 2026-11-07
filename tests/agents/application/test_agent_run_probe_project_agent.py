@@ -9,6 +9,7 @@ from factory.agents.adapters.fake_agent_runtime import FakeAgentRuntime, Scripte
 from factory.agents.application.project_agents import ProjectAgentDefinitions
 from factory.machine.application.preflight import PROBE_BUDGET_USD, agent_run_probe_item
 from factory.pipeline.application.boundaries import Boundaries
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from factory.shared.domain.settings import InstanceSettings
 from support.git_support import COLOURED_AGENT_FILE, PROJECT_CODER, install_agents
 from support.human_clone import HumanClone
@@ -23,7 +24,7 @@ from support.probe_support import COMPLETED, ENVIRONMENT
             COLOURED_AGENT_FILE,
             False,
             None,
-            "agent coder: factory/agents/coder.md at origin/main: "
+            f"agent coder: factory/agents/coder.md at {REMOTE}/{WORK_BRANCH}: "
             "key not applied by the agent runtime: colour",
             id="faulty-project-coder",
         ),
@@ -42,9 +43,9 @@ def test_the_probe_runs_the_project_coder(
     detail: str | None,
 ) -> None:
     install_agents(agent_home, ["intake", "coder", "reviewer"])
-    human.push_file("main", "factory/agents/coder.md", text)
+    human.push_file(WORK_BRANCH, "factory/agents/coder.md", text)
     boundaries.git.fetch()
-    boundaries.git.checkout("main", start_point="origin/main")
+    boundaries.git.checkout(WORK_BRANCH, start_point=f"{REMOTE}/{WORK_BRANCH}")
     project = dataclasses.replace(
         boundaries,
         agent_definitions=ProjectAgentDefinitions(boundaries.git, boundaries.agent_definitions),

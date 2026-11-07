@@ -6,6 +6,7 @@ import pytest
 
 from factory.agents.adapters.agent_files import FrontmatterAgentDefinitionReader
 from factory.pipeline.adapters.pipeline_yaml import RuamelPipelineDefinitionReader
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from factory.work.adapters.work_item_markdown import RuamelYamlHandler
 from support.shipped_agents import (
     AGENT_HOME,
@@ -107,7 +108,8 @@ TEMPLATE_RULES_LINES = [
     "and format check), `make types` (`mypy --strict`), `make layers` (<the layers command>), "
     "`make sast` (semgrep with the rules in `security/semgrep`, and bandit over <the package "
     "folder>), `make secrets` (detect-secrets against `.secrets.baseline`, over the files changed "
-    "against `origin/main`, every tracked file on `main` itself), `make licenses` (pip-licenses "
+    f"against `{REMOTE}/{WORK_BRANCH}`, every tracked file on `main` itself), "
+    "`make licenses` (pip-licenses "
     "against an allow list for the production dependencies) and `make test` (pytest on every "
     "core with pytest-xdist, coverage as `pyproject.toml` sets it, a JUnit report in "
     "`.reports/junit.xml`). Each target ends with the line `<target>: green (<seconds> s)`; "
@@ -116,7 +118,8 @@ TEMPLATE_RULES_LINES = [
     "(pylint's duplicate-code) and dead code (vulture) in <the package folder> to `.reports/` and "
     "counts them on its last line: a report, never a check. `make mutants FEATURE=<feature id>` "
     "runs mutmut over the modules of <the package folder> that the feature's story commits on "
-    "`origin/main` changed (`work item <id>: ...`, or the pull request's title `<id>: ...` after "
+    f"`{REMOTE}/{WORK_BRANCH}` changed (`work item <id>: ...`, "
+    "or the pull request's title `<id>: ...` after "
     "a squash merge), and lists the surviving mutants: for a sweep by hand, never run by a stage "
     "and never part of `make check`; mutmut rewrites the source with its own import, so its "
     "runs leave out the tests that read the source (`pytest_add_cli_args` in `[tool.mutmut]` "

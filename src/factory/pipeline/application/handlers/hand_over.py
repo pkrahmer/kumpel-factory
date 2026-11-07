@@ -14,7 +14,7 @@ from factory.pipeline.application.handlers.recording import (
 from factory.pipeline.domain.events import Event
 from factory.pipeline.domain.pipeline_definition import PipelineDefinition
 from factory.shared.domain.errors import CannotHandle
-from factory.shared.domain.paths import MAIN_BRANCH, cost_records_path
+from factory.shared.domain.paths import WORK_BRANCH, cost_records_path
 from factory.watching.domain.bills import bills_by_stage, cost_table
 from factory.watching.domain.human_waits import human_line, human_waits
 from factory.work.domain.work_item import (
@@ -75,7 +75,7 @@ class HandOverHandler(Handler):
         sidecar = self._boundaries.checkout / cost_records_path(snapshot.path)
         records = self._boundaries.cost_reader.read(sidecar)
         commits = self._boundaries.git.log(
-            f"origin/{snapshot.branch}", since=f"origin/{MAIN_BRANCH}"
+            f"origin/{snapshot.branch}", since=f"origin/{WORK_BRANCH}"
         )
         hosting = self._boundaries.hosting
         hosting.set_description(number, hand_over_description(document, commits))

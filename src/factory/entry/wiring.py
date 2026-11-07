@@ -93,7 +93,7 @@ from factory.shared.adapters.clock import SleepingWaiter, SystemClock
 from factory.shared.application.files import PipelineDefinitionReader, WorkItemReader
 from factory.shared.domain.errors import ContainerError, GitError, SettingsInvalid
 from factory.shared.domain.identifiers import Name
-from factory.shared.domain.paths import MAIN_BRANCH, REMOTE
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from factory.shared.domain.settings import (
     CREDENTIAL_FILE_VARIABLE,
     DATASET_VARIABLE,
@@ -181,7 +181,7 @@ _RESULT_RECORDS_PATH = Path("records", "known-results.jsonl")
 _MISSING = "missing"
 _USER_SLICES = Path("/sys/fs/cgroup/user.slice")
 _MEMINFO = Path("/proc/meminfo")
-_ORIGIN_MAIN = f"{REMOTE}/{MAIN_BRANCH}"
+_ORIGIN_MAIN = f"{REMOTE}/{WORK_BRANCH}"
 _STAGE_IMAGE_FAILED: RepositoryStopReason = "stage_image_failed"
 _SHORT_COMMIT_LENGTH = 12
 # Room for curl's own five seconds and the container's start.
@@ -424,9 +424,9 @@ class StageImageReport:
 
 
 def stage_image_report(git: Git, log: FactoryLog, clock: Clock) -> StageImageReport:
-    """Return the report of a stage image change to `log`, at the commit of `origin/main`.
+    """Return the report of a stage image change to `log`, at the working branch's commit.
 
-    `GitError` when `origin/main` does not exist.
+    `GitError` when `origin/<working branch>` does not exist.
     """
     commit = git.resolve(_ORIGIN_MAIN)
     if commit is None:
@@ -435,7 +435,7 @@ def stage_image_report(git: Git, log: FactoryLog, clock: Clock) -> StageImageRep
 
 
 def stage_file_on_main(git: Git) -> str | None:
-    """Return the text of the stage file on `origin/main`, or `None` without one."""
+    """Return the text of the stage file on `origin/<working branch>`, or `None` without one."""
     return git.show_file(_ORIGIN_MAIN, STAGE_FILE)
 
 

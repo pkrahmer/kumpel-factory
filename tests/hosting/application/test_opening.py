@@ -1,4 +1,4 @@
-"""Opening a started work item: its branch from `origin/main`, its first document, its draft PR."""
+"""Opening a started work item: its branch off the working branch, its document, its draft PR."""
 
 from pathlib import Path
 
@@ -11,6 +11,7 @@ from factory.pipeline.application.boundaries import Boundaries
 from factory.shared.adapters.clock import ManualClock
 from factory.shared.domain.errors import HostingServiceError, WorkItemFormatError
 from factory.shared.domain.identifiers import branch_name
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from factory.work.domain.journal import JournalRecord
 from factory.work.domain.story_form import check_story_form
 from factory.work.domain.work_item import WorkItemDocument, WorkItemState, initial_state
@@ -41,7 +42,7 @@ def _opening(boundaries: Boundaries) -> WorkItemOpening:
 def _start(human: HumanClone, checkout: GitCli, text: str = BODY_WITH_JOURNAL) -> None:
     """Write the backlog story on `main` (unless the seed holds it), start it and fetch."""
     if text != SEEDED_BODY:
-        human.push_file("main", BACKLOG_PATH, text)
+        human.push_file(WORK_BRANCH, BACKLOG_PATH, text)
     human.start(BACKLOG_PATH)
     checkout.fetch()
 
@@ -75,7 +76,7 @@ def test_new_work_item_is_branched_from_origin_main_without_pushing(
     assert prepared.path == PATH
     assert prepared.work_item == WORK_ITEM
     assert status.branch == BRANCH
-    assert status.head == checkout.resolve("origin/main")
+    assert status.head == checkout.resolve(f"{REMOTE}/{WORK_BRANCH}")
     assert status.changes == []
     assert prepared.branch_existed is False
     assert prepared.merge_conflict is False
@@ -213,7 +214,7 @@ def test_origin_main_is_merged_into_the_branch(
 ) -> None:
     _start(human, checkout)
     _push_branch(boundaries, human, _branch_state())
-    human.push_file("main", NOTES, "added on main\n")
+    human.push_file(WORK_BRANCH, NOTES, "added on main\n")
     checkout.fetch()
 
     prepared = _opening(boundaries).prepare(WORK_ITEM, PATH)
@@ -226,11 +227,11 @@ def test_origin_main_is_merged_into_the_branch(
 def test_merge_conflict_is_aborted_and_reported(
     boundaries: Boundaries, checkout: GitCli, human: HumanClone
 ) -> None:
-    human.push_file("main", NOTES, "base\n")
+    human.push_file(WORK_BRANCH, NOTES, "base\n")
     _start(human, checkout)
     _push_branch(boundaries, human, _branch_state())
     human.push_file(BRANCH, NOTES, "branch\n")
-    human.push_file("main", NOTES, "main\n")
+    human.push_file(WORK_BRANCH, NOTES, "main\n")
     checkout.fetch()
 
     prepared = _opening(boundaries).prepare(WORK_ITEM, PATH)
@@ -246,13 +247,13 @@ def test_merge_conflict_is_aborted_and_reported(
 
 def test_prepare_never_fetches(boundaries: Boundaries, checkout: GitCli, human: HumanClone) -> None:
     _start(human, checkout)
-    fetched_main = checkout.resolve("origin/main")
-    human.push_file("main", NOTES, "pushed after the fetch\n")
+    fetched_main = checkout.resolve(f"{REMOTE}/{WORK_BRANCH}")
+    human.push_file(WORK_BRANCH, NOTES, "pushed after the fetch\n")
 
     _opening(boundaries).prepare(WORK_ITEM, PATH)
 
     assert not (boundaries.checkout / NOTES).exists()
-    assert checkout.resolve("origin/main") == fetched_main
+    assert checkout.resolve(f"{REMOTE}/{WORK_BRANCH}") == fetched_main
 
 
 def test_new_draft_pull_request_is_created(

@@ -10,7 +10,7 @@ from factory.shared.domain.identifiers import (
 )
 
 REMOTE = "origin"
-MAIN_BRANCH = "main"
+WORK_BRANCH = "main"
 FACTORY_DIRECTORY = "factory"
 PIPELINE_DEFINITION_FILE = "factory/pipeline.yml"
 STORY_FORM_FILE = "factory/story-form.md"

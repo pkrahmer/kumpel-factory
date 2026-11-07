@@ -19,6 +19,7 @@ from factory.pipeline.application.handlers.run import RunHandler
 from factory.pipeline.application.handlers.run_gate import RunGate
 from factory.pipeline.application.tick import IdleHandler, Tick
 from factory.pipeline.domain.events import EventKind
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.work.application.acceptance import (
     AcceptanceClosed,
     AcceptanceHandOver,
@@ -128,7 +129,7 @@ def test_the_run_entry_runs_the_stage_of_a_started_story_without_a_pull_request(
     agent_runtime: FakeAgentRuntime,
 ) -> None:
     install_agents(agent_home, pipeline_definition(boundaries).roles)
-    human.push_file("main", BACKLOG_PATH, STORY)
+    human.push_file(WORK_BRANCH, BACKLOG_PATH, STORY)
     human.start(BACKLOG_PATH)
     agent_runtime.queue(ScriptedRun(result=COMPLETED))
     tick = Tick(

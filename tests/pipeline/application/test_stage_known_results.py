@@ -10,6 +10,7 @@ from factory.hosting.adapters.fake_hosting import FakeHostingService
 from factory.pipeline.application.boundaries import Boundaries
 from factory.pipeline.application.stage import StageReport, StageRunner
 from factory.pipeline.domain.known_results import ResultRecord
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.watching.adapters.record_log_jsonl import JsonLinesRecordLog
 from factory.work.domain.journal import entry_text
 from factory.work.domain.work_item import WorkItemDocument, WorkItemState
@@ -118,7 +119,7 @@ def test_the_docs_stage_takes_the_coders_passed_check_on_the_same_code(
     coder_records = stages.records.read()
     stages.run()
     if main_change:
-        human.push_file("main", "src/b.py", "b = 1\n")
+        human.push_file(WORK_BRANCH, "src/b.py", "b = 1\n")
         stages.boundaries.git.fetch()
     stages.run()
 

@@ -19,8 +19,8 @@ from factory.shared.domain.identifiers import (
 )
 from factory.shared.domain.paths import (
     FEATURES_DIRECTORY,
-    MAIN_BRANCH,
     REMOTE,
+    WORK_BRANCH,
     LifecycleFolder,
     feature_file_path,
     folder_of,
@@ -34,7 +34,7 @@ from factory.work.domain.work_item import (
     initial_state,
 )
 
-_MAIN_REF = f"{REMOTE}/{MAIN_BRANCH}"
+_MAIN_REF = f"{REMOTE}/{WORK_BRANCH}"
 
 
 class RemoteWorkItems:
@@ -70,7 +70,7 @@ class RemoteWorkItems:
         return snapshots
 
     def last_stage_change(self, snapshot: WorkItemSnapshot) -> StageChange | None:
-        """The stage change of the newest commit beyond origin/main that touched the file.
+        """The stage change of the newest commit beyond the working branch that touched the file.
 
         `None` when there is no such commit, when it is a merge or the branch's opening commit,
         when the file is missing before or after it, when the earlier text cannot be read, or

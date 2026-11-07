@@ -14,7 +14,7 @@ from factory.pipeline.domain.pipeline_definition import PipelineDefinition
 from factory.shared.adapters.clock import ManualClock
 from factory.shared.domain.errors import CannotHandle, PushFailed
 from factory.shared.domain.kill_points import InjectedKill, KillPoint, KillPoints
-from factory.shared.domain.paths import cost_records_path
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH, cost_records_path
 from factory.watching.domain.bills import bill
 from factory.watching.domain.cost_records import CostRecord
 from factory.work.application.acceptance import AcceptanceMerged, AcceptanceService
@@ -57,9 +57,9 @@ Merge = Callable[[WorkItemSnapshot], Event]
 @pytest.fixture
 def opened(boundaries: Boundaries, definition: PipelineDefinition, human: HumanClone) -> str:
     """Push the due feature `F0002-todo`, open its acceptance and return the branch."""
-    human.push_file("main", f"{TODO}/feature.md", "# Todo service\n")
-    human.push_file("main", f"{TODO}/done/F0002-S0001-a.md", "# A\n")
-    human.push_file("main", f"{TODO}/done/F0002-S0002-b.md", "# B\n")
+    human.push_file(WORK_BRANCH, f"{TODO}/feature.md", "# Todo service\n")
+    human.push_file(WORK_BRANCH, f"{TODO}/done/F0002-S0001-a.md", "# A\n")
+    human.push_file(WORK_BRANCH, f"{TODO}/done/F0002-S0002-b.md", "# B\n")
     boundaries.git.fetch()
     return AcceptanceService(boundaries, definition).open("F0002").branch
 
@@ -132,7 +132,7 @@ def merge(
 
     def run(snapshot: WorkItemSnapshot) -> Event:
         human.merge(BRANCH, "merge")
-        main = remote_commit(remote, "main")
+        main = remote_commit(remote, WORK_BRANCH)
         assert main is not None
         hosting.merge_by_human(pull_request, main)
         checkout.fetch()
@@ -148,7 +148,7 @@ def merge(
 
 def _main_text(checkout: GitCli, path: str) -> str | None:
     checkout.fetch()
-    return checkout.show_file("origin/main", path)
+    return checkout.show_file(f"{REMOTE}/{WORK_BRANCH}", path)
 
 
 def _booked(boundaries: Boundaries, checkout: GitCli) -> AcceptanceState:
@@ -184,7 +184,7 @@ def test_a_merged_acceptance_is_booked_accepted_in_done_with_its_cost_records(
     assert _main_text(checkout, DONE_SIDECAR) == (
         None if records is None else sidecar_text(records)
     )
-    assert checkout.list_files("origin/main", f"{TODO}/in-progress") == []
+    assert checkout.list_files(f"{REMOTE}/{WORK_BRANCH}", f"{TODO}/in-progress") == []
 
 
 def test_after_the_booking_the_branch_is_gone_and_a_second_handling_changes_nothing(
@@ -199,11 +199,11 @@ def test_after_the_booking_the_branch_is_gone_and_a_second_handling_changes_noth
     event = merge(publish())
     handler = AcceptanceMerged(boundaries, definition)
     handler.handle(event)
-    booked = remote_commit(remote, "main")
+    booked = remote_commit(remote, WORK_BRANCH)
 
     handler.handle(event)
 
-    assert remote_commit(remote, "main") == booked
+    assert remote_commit(remote, WORK_BRANCH) == booked
     assert remote_commit(remote, BRANCH) is None
     assert checkout.resolve(f"refs/heads/{BRANCH}") is None
     assert checkout.resolve(f"origin/{BRANCH}") is None
@@ -223,11 +223,11 @@ def test_the_booking_commit_changes_only_the_report_and_keeps_the_proposed_stori
     AcceptanceMerged(boundaries, definition).handle(event)
 
     checkout.fetch()
-    [commit] = checkout.log("origin/main", since=event.remote_state)
+    [commit] = checkout.log(f"{REMOTE}/{WORK_BRANCH}", since=event.remote_state)
     assert commit.subject == SUBJECT
-    changed = run_git(remote, "diff-tree", "--no-commit-id", "--name-only", "-r", "main")
+    changed = run_git(remote, "diff-tree", "--no-commit-id", "--name-only", "-r", WORK_BRANCH)
     assert set(changed.splitlines()) == {REPORT, SIDECAR, DONE_REPORT, DONE_SIDECAR}
-    assert checkout.show_file("origin/main", PROPOSED) == PROPOSED_TEXT
+    assert checkout.show_file(f"{REMOTE}/{WORK_BRANCH}", PROPOSED) == PROPOSED_TEXT
 
 
 def test_a_merge_books_accepted_whatever_the_recommendation_says(
@@ -296,7 +296,7 @@ def test_an_event_the_handler_cannot_book_raises_its_reason_and_changes_nothing(
     if pull_request_state == "merged":
         hosting.merge_by_human(pull_request, FAKE_MERGE)
     view = None if pull_request_state is None else hosting.get_pull_request(pull_request)
-    main = remote_commit(remote, "main")
+    main = remote_commit(remote, WORK_BRANCH)
     assert main is not None
     event = Event(
         kind=kind,
@@ -310,7 +310,7 @@ def test_an_event_the_handler_cannot_book_raises_its_reason_and_changes_nothing(
         AcceptanceMerged(boundaries, used).handle(event)
 
     assert (raised.value.kind, raised.value.reason) == (kind, reason)
-    assert remote_commit(remote, "main") == main
+    assert remote_commit(remote, WORK_BRANCH) == main
     assert remote_commit(remote, BRANCH) == snapshot.branch_commit
 
 
@@ -333,7 +333,7 @@ def test_after_a_kill_after_the_push_a_second_handling_books_once_and_deletes_th
 
     kinds = [record.kind for record in _booked(boundaries, checkout).journal]
     assert kinds.count("done") == 1
-    assert len(checkout.log("origin/main", since=event.remote_state)) == 1
+    assert len(checkout.log(f"{REMOTE}/{WORK_BRANCH}", since=event.remote_state)) == 1
     assert remote_commit(remote, BRANCH) is None
 
 
@@ -354,7 +354,7 @@ def test_a_main_moved_since_the_fetch_rejects_the_booking_and_keeps_the_branch(
 ) -> None:
     snapshot = publish()
     event = merge(snapshot)
-    human.push_file("main", "notes.md", "The human pushed this.\n")
+    human.push_file(WORK_BRANCH, "notes.md", "The human pushed this.\n")
 
     with pytest.raises(PushFailed) as raised:
         AcceptanceMerged(boundaries, definition).handle(event)

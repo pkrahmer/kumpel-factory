@@ -13,6 +13,7 @@ from factory.pipeline.application.boundaries import Boundaries
 from factory.pipeline.application.claims import StageStart
 from factory.pipeline.application.take import copy_changed
 from factory.shared.domain.errors import WorkItemFormatError
+from factory.shared.domain.paths import WORK_BRANCH
 from support.human_clone import HumanClone
 from support.take_support import AGENT_TEXT, changes, make_dataset, run_take, tree, write_dataset
 from support.undo_support import PATH, start_stage, with_broken_work_item, without_work_item
@@ -248,7 +249,7 @@ def test_copy_changed_mirrors_each_changed_path_into_the_target(
 def test_a_dropped_path_is_neither_taken_nor_left(
     boundaries: Boundaries, human: HumanClone, tmp_path: Path, path: str, change: str
 ) -> None:
-    human.push_file("main", ".gitignore", ".venv/\n")
+    human.push_file(WORK_BRANCH, ".gitignore", ".venv/\n")
     start = start_stage(boundaries, human)
     mount_point = make_dataset(boundaries, tmp_path)
     if path != "checkout":

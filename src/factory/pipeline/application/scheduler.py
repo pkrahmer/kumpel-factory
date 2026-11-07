@@ -10,12 +10,12 @@ from factory.pipeline.application.boundaries import Boundaries
 from factory.pipeline.application.stops import StopService
 from factory.pipeline.domain.stops import RepositoryStop, RepositoryStopReason
 from factory.shared.domain.errors import GitError
-from factory.shared.domain.paths import MAIN_BRANCH, PIPELINE_DEFINITION_FILE, REMOTE
+from factory.shared.domain.paths import PIPELINE_DEFINITION_FILE, REMOTE, WORK_BRANCH
 from factory.shared.domain.settings import InstanceSettings
 from factory.watching.application.machine import FactoryLog
 
 _UNAVAILABLE: RepositoryStopReason = "repository_unavailable"
-_ORIGIN_MAIN = f"{REMOTE}/{MAIN_BRANCH}"
+_ORIGIN_MAIN = f"{REMOTE}/{WORK_BRANCH}"
 
 FIRST_IDLE_PAUSE = timedelta(seconds=30)
 MAX_PAUSE = timedelta(seconds=120)
@@ -94,7 +94,7 @@ class CheckoutPreparer:
 
 
 class RepositoryWaiter:
-    """Prepares the checkout and waits, as a stop, until `origin/main` holds the pipeline."""
+    """Prepares the checkout and waits, as a stop, until the working branch holds the pipeline."""
 
     def __init__(
         self, preparer: CheckoutPreparer, boundaries: Boundaries, stops: StopService
@@ -105,7 +105,7 @@ class RepositoryWaiter:
         self._stops = stops
 
     def prepare(self) -> bool:
-        """True once the checkout's `origin/main` holds the pipeline definition.
+        """True once the checkout's `origin/<working branch>` holds the pipeline definition.
 
         Otherwise the fault stands as the stop `repository_unavailable` and this is `False`.
         """

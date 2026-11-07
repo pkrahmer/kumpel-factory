@@ -9,6 +9,7 @@ from factory.hosting.adapters.fake_hosting import FakeHostingService
 from factory.pipeline.application.boundaries import Boundaries
 from factory.shared.domain.identifiers import branch_name
 from factory.shared.domain.kill_points import InjectedKill, KillPoint, KillPoints
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from factory.shared.domain.sections import section_text
 from factory.work.domain.journal import NewEntry, append_entry
 from factory.work.domain.work_item import WorkItemDocument
@@ -95,7 +96,7 @@ def test_the_close_is_committed_as_close_recorded_on_the_branch_and_closed_refus
     _push_entries(boundaries, human, document, [NOT_ACCEPTED, TOO_WIDE, RED])
     walk.close(number, "Cut the second story.")
     branch_head = remote_commit(remote, BRANCH)
-    main_head = remote_commit(remote, "main")
+    main_head = remote_commit(remote, WORK_BRANCH)
     assert branch_head is not None
     assert main_head is not None
     kill_points.arm(KillPoint.AFTER_PUSH)
@@ -108,5 +109,5 @@ def test_the_close_is_committed_as_close_recorded_on_the_branch_and_closed_refus
     assert branch_commit.subject == f"work item {FIRST}: close recorded"
     walk.tick()
     boundaries.git.fetch()
-    [main_commit] = boundaries.git.log("origin/main", since=main_head)
+    [main_commit] = boundaries.git.log(f"{REMOTE}/{WORK_BRANCH}", since=main_head)
     assert main_commit.subject == f"work item {FIRST}: closed, refused"

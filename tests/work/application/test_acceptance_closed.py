@@ -16,7 +16,7 @@ from factory.pipeline.domain.pipeline_definition import PipelineDefinition
 from factory.shared.adapters.clock import ManualClock
 from factory.shared.domain.errors import CannotHandle, PushFailed
 from factory.shared.domain.kill_points import InjectedKill, KillPoint, KillPoints
-from factory.shared.domain.paths import cost_records_path
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH, cost_records_path
 from factory.shared.domain.sections import section_text
 from factory.watching.domain.bills import bill
 from factory.watching.domain.board import AcceptanceStatus
@@ -66,9 +66,9 @@ Publish = Callable[..., WorkItemSnapshot]
 @pytest.fixture
 def opened(boundaries: Boundaries, definition: PipelineDefinition, human: HumanClone) -> str:
     """Push the due feature `F0002-todo`, open its acceptance and return the branch."""
-    human.push_file("main", f"{TODO}/feature.md", "# Todo service\n")
-    human.push_file("main", f"{DONE}/F0002-S0001-a.md", "# A\n")
-    human.push_file("main", f"{DONE}/F0002-S0002-b.md", "# B\n")
+    human.push_file(WORK_BRANCH, f"{TODO}/feature.md", "# Todo service\n")
+    human.push_file(WORK_BRANCH, f"{DONE}/F0002-S0001-a.md", "# A\n")
+    human.push_file(WORK_BRANCH, f"{DONE}/F0002-S0002-b.md", "# B\n")
     boundaries.git.fetch()
     return AcceptanceService(boundaries, definition).open("F0002").branch
 
@@ -148,7 +148,7 @@ def _closed(hosting: FakeHostingService, pull_request: int, snapshot: WorkItemSn
 
 
 def _main(remote: Path) -> str:
-    main = remote_commit(remote, "main")
+    main = remote_commit(remote, WORK_BRANCH)
     assert main is not None
     return main
 
@@ -165,7 +165,7 @@ def _on_branch(boundaries: Boundaries, checkout: GitCli) -> WorkItemDocument:
 
 
 def _booked(boundaries: Boundaries, checkout: GitCli) -> WorkItemDocument:
-    return _document(boundaries, checkout, "origin/main", DONE_REPORT)
+    return _document(boundaries, checkout, f"{REMOTE}/{WORK_BRANCH}", DONE_REPORT)
 
 
 def _state(document: WorkItemDocument) -> AcceptanceState:
@@ -179,7 +179,7 @@ def _records(document: WorkItemDocument, kind: JournalKind) -> list[JournalRecor
 
 def _reports_in_done(checkout: GitCli) -> list[str]:
     checkout.fetch()
-    return [name for name in checkout.list_files("origin/main", DONE) if "-A" in name]
+    return [name for name in checkout.list_files(f"{REMOTE}/{WORK_BRANCH}", DONE) if "-A" in name]
 
 
 def _record_only(handler: AcceptanceClosed, event: Event, kill_points: KillPoints) -> None:
@@ -296,15 +296,15 @@ def test_a_closed_acceptance_is_booked_refused_in_done_and_nothing_else_reaches_
         recorded, role=ROLE, on=CLOSED_ON, bill=bill(records or []), at=clock.now()
     )
     checkout.fetch()
-    assert checkout.show_file("origin/main", DONE_REPORT) == (
+    assert checkout.show_file(f"{REMOTE}/{WORK_BRANCH}", DONE_REPORT) == (
         boundaries.work_item_writer.render(expected)
     )
-    assert checkout.show_file("origin/main", DONE_SIDECAR) == (
+    assert checkout.show_file(f"{REMOTE}/{WORK_BRANCH}", DONE_SIDECAR) == (
         None if records is None else sidecar_text(records)
     )
-    changed = run_git(remote, "diff", "--name-only", before, "main").splitlines()
+    changed = run_git(remote, "diff", "--name-only", before, WORK_BRANCH).splitlines()
     assert set(changed) == ({DONE_REPORT} if records is None else {DONE_REPORT, DONE_SIDECAR})
-    assert checkout.show_file("origin/main", PROPOSED) is None
+    assert checkout.show_file(f"{REMOTE}/{WORK_BRANCH}", PROPOSED) is None
 
 
 def test_after_the_booking_the_branch_is_gone_and_a_second_handling_changes_nothing(
@@ -366,7 +366,7 @@ def test_after_a_kill_at_the_push_of_main_a_second_handling_books_once(
 
     assert len(_records(_booked(boundaries, checkout), "close")) == 1
     assert _reports_in_done(checkout) == [DONE_REPORT]
-    assert len(checkout.log("origin/main", since=before)) == 1
+    assert len(checkout.log(f"{REMOTE}/{WORK_BRANCH}", since=before)) == 1
     assert remote_commit(remote, BRANCH) is None
 
 
@@ -516,7 +516,7 @@ def test_a_refused_feature_is_due_again_only_after_another_story_is_archived(
     assert _status(reader) == "refused"
     assert "F0002" not in reader.due_features()
 
-    human.push_file("main", f"{DONE}/F0002-S0003-c.md", "# C\n")
+    human.push_file(WORK_BRANCH, f"{DONE}/F0002-S0003-c.md", "# C\n")
     boundaries.git.fetch()
 
     assert _status(reader) == "due"
@@ -536,7 +536,7 @@ def test_a_main_moved_since_the_fetch_rejects_the_booking_after_the_close_is_rec
     pull_request: int,
 ) -> None:
     event = _closed(hosting, pull_request, publish())
-    human.push_file("main", "notes.md", "The human pushed this.\n")
+    human.push_file(WORK_BRANCH, "notes.md", "The human pushed this.\n")
 
     with pytest.raises(PushFailed) as raised:
         AcceptanceClosed(boundaries, definition).handle(event)

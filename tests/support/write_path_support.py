@@ -4,6 +4,7 @@ from datetime import UTC, datetime
 
 from factory.hosting.adapters.git_cli import GitCli
 from factory.pipeline.application.claims import StageStart
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from factory.work.domain.work_item import Claim
 from support.human_clone import HumanClone
 
@@ -11,8 +12,8 @@ PIPELINE_FILE = "factory/pipeline.yml"
 
 
 def stage_start(checkout: GitCli, stage: str) -> StageStart:
-    """A claim of `stage` whose stage-start commit is the checkout's `origin/main`."""
-    commit = checkout.resolve("origin/main")
+    """A claim of `stage` whose stage-start commit is the checkout's `origin/<working branch>`."""
+    commit = checkout.resolve(f"{REMOTE}/{WORK_BRANCH}")
     assert commit is not None
     claim = Claim(
         instance="factory-1",
@@ -25,5 +26,5 @@ def stage_start(checkout: GitCli, stage: str) -> StageStart:
 
 def push_definition(human: HumanClone, checkout: GitCli, text: str) -> None:
     """Push `text` as the pipeline definition on `main` and fetch it into the checkout."""
-    human.push_file("main", PIPELINE_FILE, text)
+    human.push_file(WORK_BRANCH, PIPELINE_FILE, text)
     checkout.fetch()

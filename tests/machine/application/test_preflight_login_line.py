@@ -10,6 +10,7 @@ from factory.machine.application.preflight import MachineChecks, Preflight
 from factory.machine.domain.preflight import PreflightItem
 from factory.pipeline.application.boundaries import Boundaries
 from factory.pipeline.application.stops import StopService
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.shared.domain.settings import InstanceSettings
 from support.git_support import install_agents
 from support.human_clone import HumanClone
@@ -31,7 +32,7 @@ def test_a_passed_machine_item_s_detail_is_logged_once_per_image(
     runs: int,
 ) -> None:
     install_agents(agent_home, ROLES)
-    human.push_file("main", "Makefile", MAKEFILE)
+    human.push_file(WORK_BRANCH, "Makefile", MAKEFILE)
     checkout.fetch()
     settings = InstanceSettings.model_validate(
         {

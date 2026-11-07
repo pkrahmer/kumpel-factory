@@ -11,7 +11,7 @@ from factory.hosting.domain.post_texts import done_entry_text
 from factory.pipeline.application.boundaries import Boundaries
 from factory.pipeline.domain.events import Event
 from factory.pipeline.domain.pipeline_definition import PipelineDefinition
-from factory.shared.domain.paths import cost_records_path
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH, cost_records_path
 from factory.watching.domain.bills import bill
 from factory.watching.domain.board import AcceptanceStatus
 from factory.watching.domain.cost_records import CostRecord
@@ -88,7 +88,7 @@ def merge_opened(
             document=boundaries.work_item_reader.parse(text),
         )
         human.merge(opened.branch, "merge")
-        main = remote_commit(remote, "main")
+        main = remote_commit(remote, WORK_BRANCH)
         assert main is not None
         hosting.merge_by_human(view.number, main)
         checkout.fetch()
@@ -112,11 +112,11 @@ def first_accepted(
     merge_opened: Merge,
 ) -> None:
     """Accept `F0002-A0001` for two stories, then archive a third story on main."""
-    human.push_file("main", f"{TODO}/feature.md", "# Todo service\n")
-    human.push_file("main", f"{TODO}/done/F0002-S0001-a.md", "# A\n")
-    human.push_file("main", f"{TODO}/done/F0002-S0002-b.md", "# B\n")
+    human.push_file(WORK_BRANCH, f"{TODO}/feature.md", "# Todo service\n")
+    human.push_file(WORK_BRANCH, f"{TODO}/done/F0002-S0001-a.md", "# A\n")
+    human.push_file(WORK_BRANCH, f"{TODO}/done/F0002-S0002-b.md", "# B\n")
     AcceptanceMerged(boundaries, definition).handle(merge_opened(FIRST, FIRST_RECORDS))
-    human.push_file("main", f"{TODO}/done/F0002-S0003-c.md", "# C\n")
+    human.push_file(WORK_BRANCH, f"{TODO}/done/F0002-S0003-c.md", "# C\n")
     checkout.fetch()
 
 
@@ -125,7 +125,7 @@ def _status(reader: AcceptanceReader) -> AcceptanceStatus:
 
 
 def _done_entry(boundaries: Boundaries, checkout: GitCli, work_item: str) -> str:
-    text = checkout.show_file("origin/main", _done_report(work_item))
+    text = checkout.show_file(f"{REMOTE}/{WORK_BRANCH}", _done_report(work_item))
     assert text is not None
     document = boundaries.work_item_reader.parse(text)
     assert document.state is not None
@@ -158,13 +158,13 @@ def test_opening_the_repeated_acceptance_leaves_the_earlier_report_and_its_costs
     boundaries: Boundaries, definition: PipelineDefinition, *, checkout: GitCli
 ) -> None:
     paths = [_done_report(FIRST), cost_records_path(_done_report(FIRST))]
-    before = [checkout.show_file("origin/main", path) for path in paths]
+    before = [checkout.show_file(f"{REMOTE}/{WORK_BRANCH}", path) for path in paths]
     assert None not in before
 
     AcceptanceService(boundaries, definition).open("F0002")
 
     checkout.fetch()
-    assert [checkout.show_file("origin/main", path) for path in paths] == before
+    assert [checkout.show_file(f"{REMOTE}/{WORK_BRANCH}", path) for path in paths] == before
 
 
 @pytest.mark.usefixtures("first_accepted")

@@ -21,6 +21,7 @@ from factory.pipeline.domain.events import Event, EventKind
 from factory.pipeline.domain.pipeline_definition import PipelineDefinition
 from factory.shared.domain.errors import GitError, PipelineDefinitionInvalid
 from factory.shared.domain.identifiers import branch_name
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from factory.watching.application.board import BoardReader
 from factory.watching.application.watcher import Watcher
 from factory.watching.domain.board import render_board
@@ -188,9 +189,11 @@ def test_run_watch_fetches_nothing(
 def test_an_invalid_definition_is_reported_without_a_stop(
     boundaries: Boundaries, human: HumanClone, checkout: GitCli
 ) -> None:
-    human.push_file("main", "factory/pipeline.yml", PIPELINE_YAML.replace('contract: "1.0"\n', ""))
+    human.push_file(
+        WORK_BRANCH, "factory/pipeline.yml", PIPELINE_YAML.replace('contract: "1.0"\n', "")
+    )
     checkout.fetch()
-    commit = checkout.resolve("origin/main")
+    commit = checkout.resolve(f"{REMOTE}/{WORK_BRANCH}")
     assert commit is not None
     with pytest.raises(PipelineDefinitionInvalid) as refused:
         PipelineLoader(boundaries).load(commit)
@@ -207,7 +210,7 @@ def test_an_invalid_definition_is_reported_without_a_stop(
 def test_run_watch_without_origin_main_raises_git_error(
     boundaries: Boundaries, tmp_path: Path
 ) -> None:
-    run_git(tmp_path, "init", "-q", "--bare", "--initial-branch=main", "empty.git")
+    run_git(tmp_path, "init", "-q", "--bare", f"--initial-branch={WORK_BRANCH}", "empty.git")
     run_git(tmp_path, "clone", "-q", str(tmp_path / "empty.git"), "empty-clone")
     git = GitCli(tmp_path / "empty-clone", GitOptions(identity=TEST_IDENTITY))
 

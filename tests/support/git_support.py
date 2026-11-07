@@ -11,6 +11,7 @@ from factory.hosting.domain.git import GitIdentity
 from factory.pipeline.adapters.pipeline_yaml import RuamelPipelineDefinitionReader
 from factory.shared.adapters.process import ProcessRequest, run_process
 from factory.shared.domain.errors import PipelineDefinitionInvalid
+from factory.shared.domain.paths import WORK_BRANCH
 
 CHECKOUT = "checkout"
 
@@ -137,13 +138,13 @@ def clone(remote: Path, target: Path) -> Path:
 def make_remote(root: Path) -> Path:
     """Create the bare remote `root/remote.git` whose `main` holds `REMOTE_FILES`."""
     root.mkdir(parents=True, exist_ok=True)
-    run_git(root, "init", "-q", "--initial-branch=main", "seed")
+    run_git(root, "init", "-q", f"--initial-branch={WORK_BRANCH}", "seed")
     seed = root / "seed"
     write_files(seed, REMOTE_FILES)
     commit_all(seed, "seed")
-    run_git(root, "init", "-q", "--bare", "--initial-branch=main", "remote.git")
+    run_git(root, "init", "-q", "--bare", f"--initial-branch={WORK_BRANCH}", "remote.git")
     remote = root / "remote.git"
-    run_git(seed, "push", "-q", str(remote), "main")
+    run_git(seed, "push", "-q", str(remote), WORK_BRANCH)
     return remote
 
 

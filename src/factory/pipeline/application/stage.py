@@ -29,7 +29,7 @@ from factory.pipeline.domain.checks import CheckResult, command_line
 from factory.pipeline.domain.pipeline_definition import PipelineDefinition, ProjectCommandDefinition
 from factory.shared.domain.errors import HostingServiceError, PushFailed
 from factory.shared.domain.identifiers import Name, WorkItemId, is_acceptance
-from factory.shared.domain.paths import MAIN_BRANCH, cost_records_path
+from factory.shared.domain.paths import WORK_BRANCH, cost_records_path
 from factory.watching.application.costs import CostRecorder, CostRun
 from factory.watching.application.transcripts import session_transcripts
 from factory.watching.domain.cost_records import ToolUse, TranscriptRef
@@ -484,7 +484,7 @@ class StageFinisher:
     def _description(self, started: StartedStage, moved: WorkItemDocument) -> str:
         if is_acceptance(started.work_item):
             return acceptance_description(moved, _role_of(self._definition, started.stage))
-        commits = self._boundaries.git.log("HEAD", since=f"origin/{MAIN_BRANCH}")
+        commits = self._boundaries.git.log("HEAD", since=f"origin/{WORK_BRANCH}")
         return hand_over_description(moved, commits)
 
 

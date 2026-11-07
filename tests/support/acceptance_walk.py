@@ -9,6 +9,8 @@ from factory.pipeline.application.tick import Tick, TickOutcome
 from factory.pipeline.domain.events import Event, EventKind
 from factory.shared.domain.identifiers import FeatureId, branch_name
 from factory.shared.domain.paths import (
+    REMOTE,
+    WORK_BRANCH,
     LifecycleFolder,
     cost_records_path,
     feature_file_path,
@@ -99,13 +101,13 @@ class AcceptanceWalk:
         self._hosting = hosting
         self.evaluations: list[Event] = []
         self.outcomes: list[TickOutcome] = []
-        human.push_file("main", feature_file_path(TODO), "# Todo service\n")
+        human.push_file(WORK_BRANCH, feature_file_path(TODO), "# Todo service\n")
         self.archive("F0002-S0001-a.md", "# A\n")
         self.archive("F0002-S0002-b.md", "# B\n")
 
     def archive(self, name: str, text: str) -> None:
         """Push the story file `name` into the feature's `done/` on main."""
-        self._human.push_file("main", work_item_path(TODO, "done", name), text)
+        self._human.push_file(WORK_BRANCH, work_item_path(TODO, "done", name), text)
 
     def evaluate(self) -> Event:
         """Fetch and keep the event the watcher sees now."""
@@ -176,7 +178,7 @@ class AcceptanceWalk:
     def merge(self, work_item: str, number: int) -> None:
         """Merge the acceptance's branch into main as the human, and its pull request with it."""
         self._human.merge(branch_name(work_item), "merge")
-        main = remote_commit(self._remote, "main")
+        main = remote_commit(self._remote, WORK_BRANCH)
         assert main is not None
         self._hosting.merge_by_human(number, main)
 
@@ -187,9 +189,11 @@ class AcceptanceWalk:
         self._hosting.close_by_human(number)
 
     def booked(self, work_item: str) -> WorkItemDocument:
-        """The report of `work_item` in `done/` on origin/main."""
+        """The report of `work_item` in `done/` on origin/<working branch>."""
         self._boundaries.git.fetch()
-        text = self._boundaries.git.show_file("origin/main", report_of(work_item, "done"))
+        text = self._boundaries.git.show_file(
+            f"{REMOTE}/{WORK_BRANCH}", report_of(work_item, "done")
+        )
         assert text is not None
         return self._boundaries.work_item_reader.parse(text)
 

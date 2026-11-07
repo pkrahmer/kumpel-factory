@@ -11,6 +11,7 @@ from factory.hosting.application.hosting import HostingService
 from factory.pipeline.application.boundaries import Boundaries
 from factory.shared.adapters.clock import ManualClock
 from factory.shared.domain.identifiers import Name
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.shared.domain.settings import InstanceSettings
 from support.human_clone import HumanClone
 from support.stage_run_support import INSTANCE
@@ -30,7 +31,7 @@ def _push_held_story(boundaries: Boundaries, human: HumanClone, clock: ManualClo
 
 
 def _push_invalid_definition(boundaries: Boundaries, human: HumanClone) -> None:
-    human.push_file("main", "factory/pipeline.yml", INVALID_YAML)
+    human.push_file(WORK_BRANCH, "factory/pipeline.yml", INVALID_YAML)
     boundaries.git.fetch()
 
 

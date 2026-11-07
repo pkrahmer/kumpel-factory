@@ -12,7 +12,7 @@ from factory.hosting.domain.post_texts import done_entry_text
 from factory.pipeline.application.boundaries import Boundaries
 from factory.pipeline.domain.events import Event
 from factory.pipeline.domain.pipeline_definition import PipelineDefinition
-from factory.shared.domain.paths import cost_records_path
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH, cost_records_path
 from factory.watching.domain.bills import bill, cost_line
 from factory.work.application.acceptance import AcceptanceMerged, AcceptanceService
 from factory.work.application.acceptance_reading import AcceptanceReader
@@ -41,9 +41,9 @@ Merge = Callable[..., Event]
 @pytest.fixture
 def opened(boundaries: Boundaries, definition: PipelineDefinition, human: HumanClone) -> str:
     """Push the due feature `F0002-todo`, open its acceptance and return the branch."""
-    human.push_file("main", f"{TODO}/feature.md", "# Todo service\n")
-    human.push_file("main", f"{TODO}/done/F0002-S0001-a.md", "# A\n")
-    human.push_file("main", f"{TODO}/done/F0002-S0002-b.md", "# B\n")
+    human.push_file(WORK_BRANCH, f"{TODO}/feature.md", "# Todo service\n")
+    human.push_file(WORK_BRANCH, f"{TODO}/done/F0002-S0001-a.md", "# A\n")
+    human.push_file(WORK_BRANCH, f"{TODO}/done/F0002-S0002-b.md", "# B\n")
     boundaries.git.fetch()
     return AcceptanceService(boundaries, definition).open("F0002").branch
 
@@ -108,7 +108,7 @@ def merge(
 
     def run(snapshot: WorkItemSnapshot, method: MergeMethod = "merge") -> Event:
         human.merge(opened, method)
-        main = remote_commit(remote, "main")
+        main = remote_commit(remote, WORK_BRANCH)
         assert main is not None
         hosting.merge_by_human(pull_request, main)
         checkout.fetch()
@@ -125,7 +125,7 @@ def merge(
 def _booked(boundaries: Boundaries, checkout: GitCli) -> tuple[AcceptanceState, str]:
     """The report booked in `done/` on main: its state and the text of its last entry."""
     checkout.fetch()
-    text = checkout.show_file("origin/main", DONE_REPORT)
+    text = checkout.show_file(f"{REMOTE}/{WORK_BRANCH}", DONE_REPORT)
     assert text is not None
     document = boundaries.work_item_reader.parse(text)
     state = document.state
@@ -150,7 +150,7 @@ def test_an_acceptance_merged_at_its_review_stage_is_booked_accepted_before_appr
     state, text = _booked(boundaries, checkout)
     assert (state.stage, state.outcome) == ("done", "accepted")
     assert text == BEFORE_APPROVAL + cost_line(bill(RECORDS))
-    assert checkout.show_file("origin/main", REPORT) is None
+    assert checkout.show_file(f"{REMOTE}/{WORK_BRANCH}", REPORT) is None
 
 
 def test_an_acceptance_merged_before_approval_stamps_its_done_entry_with_the_time_and_stage(
@@ -223,7 +223,7 @@ def test_every_merge_method_books_an_acceptance_merged_before_approval_alike(
     state, text = _booked(boundaries, checkout)
     assert (state.stage, state.outcome) == ("done", "accepted")
     assert text == BEFORE_APPROVAL + cost_line(bill(RECORDS))
-    assert checkout.list_files("origin/main", f"{TODO}/in-progress") == []
+    assert checkout.list_files(f"{REMOTE}/{WORK_BRANCH}", f"{TODO}/in-progress") == []
 
 
 def test_the_proposed_stories_of_a_merge_before_approval_leave_the_feature_incomplete(

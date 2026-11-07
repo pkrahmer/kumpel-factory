@@ -22,6 +22,7 @@ from factory.pipeline.application.boundaries import Boundaries
 from factory.pipeline.application.tick import Tick, TickOutcome
 from factory.pipeline.domain.stops import RepositoryStop
 from factory.shared.domain.errors import GitError
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.shared.domain.settings import InstanceSettings
 from support.human_clone import HumanClone
 from support.log_support import state_log_lines
@@ -90,7 +91,7 @@ class Outage(RemoteOutage):
 
         def push() -> None:
             self.come_back()
-            self.human.push_file("main", STAGE_FILE, text)
+            self.human.push_file(WORK_BRANCH, STAGE_FILE, text)
             self.go_away()
 
         return push
@@ -187,7 +188,7 @@ def test_while_the_fetch_fails_the_image_in_use_stays_and_nothing_is_built(
     outage: Outage, base_image: str, stage_file: str | None
 ) -> None:
     if stage_file is not None:
-        outage.human.push_file("main", STAGE_FILE, stage_file)
+        outage.human.push_file(WORK_BRANCH, STAGE_FILE, stage_file)
     images = CountingImages()
 
     run = outage.run(images, [outage.go_away, lambda: None, outage.come_back])
@@ -209,7 +210,7 @@ def test_while_the_fetch_fails_the_image_in_use_stays_and_nothing_is_built(
 def test_the_first_fetch_that_passes_after_the_outage_clears_fetch_failed_and_ticks(
     outage: Outage, base_image: str, changed: bool
 ) -> None:
-    outage.human.push_file("main", STAGE_FILE, FIRST)
+    outage.human.push_file(WORK_BRANCH, STAGE_FILE, FIRST)
     images = CountingImages()
     during = outage.push_during_outage(SECOND) if changed else lambda: None
 

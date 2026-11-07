@@ -4,6 +4,7 @@ from pathlib import Path
 
 from factory.agents.adapters.fake_agent_runtime import FakeAgentRuntime, ScriptedRun
 from factory.pipeline.application.boundaries import Boundaries
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.work.domain.work_item import WorkItemState
 from support.human_clone import HumanClone
 from support.stage_run_support import CREATED, completed, open_story, pushed_state, run_stage
@@ -25,7 +26,9 @@ def test_a_nested_repository_left_by_the_agent_does_not_stall_the_stage(
         roles=("intake",),
     )
     agent_runtime.queue(
-        ScriptedRun(writes={"sub/.git/HEAD": "ref: refs/heads/main\n"}, result=completed("tests"))
+        ScriptedRun(
+            writes={"sub/.git/HEAD": f"ref: refs/heads/{WORK_BRANCH}\n"}, result=completed("tests")
+        )
     )
 
     report = run_stage(boundaries)

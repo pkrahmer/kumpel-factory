@@ -11,6 +11,7 @@ from factory.hosting.adapters.fake_hosting import FakeHostingService
 from factory.pipeline.application.boundaries import Boundaries
 from factory.pipeline.application.stage import StageReport, StageRunner
 from factory.pipeline.domain.pipeline_definition import PipelineDefinition
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.work.application.acceptance import AcceptanceService
 from factory.work.domain.acceptance import acceptance_description
 from factory.work.domain.work_item import WorkItemState
@@ -29,9 +30,9 @@ def report_path(
 ) -> str:
     """Push the feature `F0002-todo`, open its acceptance and return the report's path."""
     install_agents(agent_home, definition.roles)
-    human.push_file("main", f"{TODO}/feature.md", "# Todo service\n")
-    human.push_file("main", f"{TODO}/done/F0002-S0001-a.md", "# A\n")
-    human.push_file("main", f"{TODO}/done/F0002-S0002-b.md", "# B\n")
+    human.push_file(WORK_BRANCH, f"{TODO}/feature.md", "# Todo service\n")
+    human.push_file(WORK_BRANCH, f"{TODO}/done/F0002-S0001-a.md", "# A\n")
+    human.push_file(WORK_BRANCH, f"{TODO}/done/F0002-S0002-b.md", "# B\n")
     boundaries.git.fetch()
     return AcceptanceService(boundaries, definition).open("F0002").path
 

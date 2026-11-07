@@ -16,6 +16,7 @@ from factory.pipeline.domain.events import Event
 from factory.shared.adapters.clock import ManualClock
 from factory.shared.domain.errors import GitError
 from factory.shared.domain.identifiers import branch_name
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from factory.watching.application.watcher import Watcher
 from factory.work.domain.work_item import Claim, WorkItemState, initial_state
 from support.branch_reading import push_state
@@ -99,7 +100,7 @@ def test_a_started_story_without_a_branch_runs_at_the_first_stage(
     assert event.work_item is not None
     assert event.work_item.id == WORK_ITEM
     assert event.work_item.document.state == initial_state(definition.first_stage())
-    assert event.remote_state == remote_commit(remote, "main")
+    assert event.remote_state == remote_commit(remote, WORK_BRANCH)
 
 
 def test_no_waiting_work_item_makes_no_hosting_call(
@@ -172,10 +173,10 @@ def test_the_claim_tier_is_decided_by_the_claim_service(
 
 
 def test_a_remote_without_main_is_a_git_error(boundaries: Boundaries, tmp_path: Path) -> None:
-    run_git(tmp_path, "init", "-q", "--bare", "--initial-branch=main", "empty.git")
+    run_git(tmp_path, "init", "-q", "--bare", f"--initial-branch={WORK_BRANCH}", "empty.git")
     git = GitCli(tmp_path / "empty-clone", GitOptions(identity=TEST_IDENTITY))
     git.clone(str(tmp_path / "empty.git"))
     empty = replace(boundaries, git=git)
 
-    with pytest.raises(GitError, match="origin/main"):
+    with pytest.raises(GitError, match=f"{REMOTE}/{WORK_BRANCH}"):
         Watcher(empty, INSTANCE).evaluate(pipeline_definition(boundaries))

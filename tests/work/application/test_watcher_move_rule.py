@@ -10,6 +10,7 @@ from factory.pipeline.adapters.pipeline_yaml import RuamelPipelineDefinitionRead
 from factory.pipeline.application.boundaries import Boundaries
 from factory.pipeline.domain.events import Event
 from factory.shared.domain.identifiers import branch_name
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.watching.application.watcher import Watcher
 from factory.work.adapters.work_item_markdown import FrontmatterWorkItemWriter
 from factory.work.domain.journal import JournalKind, JournalRecord
@@ -68,7 +69,7 @@ def _merge(
     method: Literal["merge", "squash", "rebase"],
 ) -> None:
     human.merge(BRANCH, method)
-    merge_commit = remote_commit(remote, "main")
+    merge_commit = remote_commit(remote, WORK_BRANCH)
     assert merge_commit is not None
     hosting.merge_by_human(number, merge_commit)
 
@@ -143,7 +144,7 @@ def test_the_opening_commit_of_a_started_story_is_no_reject(
     boundaries: Boundaries, human: HumanClone
 ) -> None:
     on_main = WorkItemDocument(state=WorkItemState(stage="review"), body=BODY)
-    human.push_file("main", BACKLOG_PATH, FrontmatterWorkItemWriter().render(on_main))
+    human.push_file(WORK_BRANCH, BACKLOG_PATH, FrontmatterWorkItemWriter().render(on_main))
     human.start(BACKLOG_PATH)
     push_state(human, WorkItemState(stage=FIXTURE.first_stage()))
 

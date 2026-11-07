@@ -1,4 +1,4 @@
-"""A project's own agents at `origin/main` first, the installed ones otherwise."""
+"""A project's own agents at `origin/<working branch>` first, the installed ones otherwise."""
 
 from collections.abc import Callable
 from decimal import Decimal
@@ -15,6 +15,7 @@ from factory.shared.domain.errors import (
     AgentDefinitionMissing,
     GitError,
 )
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from support.git_support import AGENT_FILE, COLOURED_AGENT_FILE, install_agents
 from support.human_clone import HumanClone
 
@@ -39,7 +40,7 @@ def project(
 
 
 def _push(human: HumanClone, boundaries: Boundaries, files: dict[str, str]) -> None:
-    human.push_files("main", files)
+    human.push_files(WORK_BRANCH, files)
     boundaries.git.fetch()
 
 
@@ -86,7 +87,7 @@ def test_the_project_file_replaces_the_installed_agent_of_its_role(
     assert agent.instructions == instructions
 
 
-@pytest.mark.parametrize("ref", ["origin/main", "origin/none"])
+@pytest.mark.parametrize("ref", [f"{REMOTE}/{WORK_BRANCH}", "origin/none"])
 @pytest.mark.parametrize("name", ["Coder", "../coder"])
 def test_a_name_that_is_not_an_agent_name_is_refused_before_git_is_read(
     boundaries: Boundaries, installed: FrontmatterAgentDefinitionReader, *, ref: str, name: str
@@ -123,7 +124,7 @@ def test_a_ref_that_does_not_exist_is_a_git_error(
     [
         pytest.param("branch", "The project's coder.", id="checked-out-branch"),
         pytest.param("edit", "The project's coder.", id="uncommitted-edit"),
-        pytest.param("main", "The new coder.", id="new-main-fetched"),
+        pytest.param(WORK_BRANCH, "The new coder.", id="new-main-fetched"),
     ],
 )
 def test_the_agent_is_read_at_the_ref_at_every_call_never_from_the_work_tree(
@@ -144,7 +145,7 @@ def test_the_agent_is_read_at_the_ref_at_every_call_never_from_the_work_tree(
         (boundaries.checkout / CODER_FILE).write_text(
             PROJECT_CODER.replace("The project's coder.", "The edited coder."), encoding="utf-8"
         )
-    if change == "main":
+    if change == WORK_BRANCH:
         human.push_file(
             "main", CODER_FILE, PROJECT_CODER.replace("The project's coder.", "The new coder.")
         )
@@ -158,13 +159,14 @@ def test_the_agent_is_read_at_the_ref_at_every_call_never_from_the_work_tree(
     [
         pytest.param(
             COLOURED_AGENT_FILE,
-            "factory/agents/coder.md at origin/main: key not applied by the agent runtime: colour",
+            f"factory/agents/coder.md at {REMOTE}/{WORK_BRANCH}: "
+            "key not applied by the agent runtime: colour",
             "colour",
             id="unapplied-key",
         ),
         pytest.param(
             "Do the work.\n",
-            "factory/agents/coder.md at origin/main: no front matter",
+            f"factory/agents/coder.md at {REMOTE}/{WORK_BRANCH}: no front matter",
             "",
             id="no-front-matter",
         ),

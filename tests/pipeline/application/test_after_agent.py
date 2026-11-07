@@ -25,7 +25,7 @@ from factory.pipeline.application.stalls import StallResult
 from factory.pipeline.application.task import StoryFormChecker
 from factory.shared.adapters.clock import ManualClock
 from factory.shared.domain.identifiers import branch_name
-from factory.shared.domain.paths import cost_records_path
+from factory.shared.domain.paths import WORK_BRANCH, cost_records_path
 from factory.work.domain.journal import JournalRecord, entry_text
 from factory.work.domain.work_item import Claim, WorkItemDocument, WorkItemState
 from support.definition_support import pipeline_definition
@@ -105,7 +105,7 @@ def _launch(
 ) -> LaunchedStage:
     """Open the work item at `stage` with `body` and launch the stage with `run` queued."""
     install_agents(agent_home, ROLES)
-    human.push_file("main", BACKLOG_PATH, body)
+    human.push_file(WORK_BRANCH, BACKLOG_PATH, body)
     human.start(BACKLOG_PATH)
     document = WorkItemDocument(
         state=WorkItemState(stage=stage, journal=[CREATED]), body=body + CREATED_LINE

@@ -8,6 +8,7 @@ from factory.machine.adapters.fake_snapshots import FakeSnapshots
 from factory.machine.application.stage_environment import ContainerEnvironment, stage_environment_of
 from factory.pipeline.application.boundaries import Boundaries
 from factory.shared.domain.identifiers import branch_name
+from factory.shared.domain.paths import WORK_BRANCH
 from support.container_support import RESET_PREFIX, timing_lines
 from support.git_support import PIPELINE_YAML, clone
 from support.proof_support import (
@@ -53,7 +54,7 @@ def test_the_remotes_makefile_has_a_silent_sync_that_succeeds(remote: Path, tmp_
 
 
 def test_a_story_walks_to_approval_in_the_world_on_the_container_fakes(world: World) -> None:
-    world.human.push_file("main", "Makefile", PASSING_MAKEFILE)
+    world.human.push_file(WORK_BRANCH, "Makefile", PASSING_MAKEFILE)
     work_item = start_story(world)
     definition = world.boundaries.pipeline_reader.parse(PIPELINE_YAML)
     git = world.boundaries.git

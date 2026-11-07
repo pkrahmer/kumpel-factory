@@ -10,7 +10,7 @@ from factory.pipeline.application.boundaries import Boundaries
 from factory.pipeline.application.task import StoryFormChecker, TaskComposer, TaskContext
 from factory.pipeline.domain.pipeline_definition import PipelineDefinition
 from factory.shared.domain.errors import WorkItemFormatError
-from factory.shared.domain.paths import STORY_FORM_FILE
+from factory.shared.domain.paths import STORY_FORM_FILE, WORK_BRANCH
 from factory.work.application.acceptance import AcceptanceService
 from factory.work.domain.acceptance import AcceptanceState, acceptance_prompt
 from factory.work.domain.work_item import WorkItemDocument, WorkItemState
@@ -30,9 +30,9 @@ FACT_PREFIX = "Archived stories:"
 @pytest.fixture
 def todo(boundaries: Boundaries, human: HumanClone) -> None:
     """Push the feature `F0002-todo` with two archived stories to `main` and fetch."""
-    human.push_file("main", f"{TODO}/feature.md", "# Todo service\n")
-    human.push_file("main", f"{TODO}/done/F0002-S0001-a.md", "# A\n")
-    human.push_file("main", f"{TODO}/done/F0002-S0002-b.md", "# B\n")
+    human.push_file(WORK_BRANCH, f"{TODO}/feature.md", "# Todo service\n")
+    human.push_file(WORK_BRANCH, f"{TODO}/done/F0002-S0001-a.md", "# A\n")
+    human.push_file(WORK_BRANCH, f"{TODO}/done/F0002-S0002-b.md", "# B\n")
     boundaries.git.fetch()
 
 
@@ -86,7 +86,7 @@ def _remove_form_at_main(boundaries: Boundaries, tmp_path: Path) -> None:
     directory = tmp_path / "human"
     run_git(directory, "rm", "-q", STORY_FORM_FILE)
     run_git(directory, "commit", "-q", "-m", "remove the story form")
-    run_git(directory, "push", "-q", "origin", "main")
+    run_git(directory, "push", "-q", "origin", WORK_BRANCH)
     boundaries.git.fetch()
 
 

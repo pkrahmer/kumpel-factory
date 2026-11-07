@@ -14,7 +14,7 @@ from factory.pipeline.domain.pipeline_definition import PipelineDefinition
 from factory.shared.application.files import WorkItemReader
 from factory.shared.domain.errors import CannotHandle
 from factory.shared.domain.identifiers import branch_name
-from factory.shared.domain.paths import MAIN_BRANCH
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.work.adapters.work_item_markdown import FrontmatterWorkItemReader
 from factory.work.application.acceptance import (
     AcceptanceClosed,
@@ -81,7 +81,7 @@ def _closed(walk: AcceptanceWalk, number: int) -> None:
             AcceptanceMerged,
             "merged",
             "the report on the main branch has no state",
-            MAIN_BRANCH,
+            WORK_BRANCH,
             id="merged",
         ),
         pytest.param(

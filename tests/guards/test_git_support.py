@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pytest
 
+from factory.shared.domain.paths import WORK_BRANCH
 from support.git_support import (
     REMOTE_FILES,
     clone,
@@ -27,7 +28,7 @@ def _push_commit(remote: Path, work: Path) -> str:
     (work / "pushed.txt").write_text("pushed\n", encoding="utf-8")
     run_git(work, "add", "-A")
     run_git(work, "commit", "-q", "-m", "pushed")
-    run_git(work, "push", "-q", "origin", "main")
+    run_git(work, "push", "-q", "origin", WORK_BRANCH)
     return run_git(work, "rev-parse", "HEAD").strip()
 
 
@@ -46,8 +47,8 @@ def test_copy_is_a_bare_remote_at_the_templates_main(template: Path, tmp_path: P
 
     assert remote == root / "remote.git"
     assert run_git(remote, "rev-parse", "--is-bare-repository").strip() == "true"
-    assert remote_commit(remote, "main") is not None
-    assert remote_commit(remote, "main") == remote_commit(template / "remote.git", "main")
+    assert remote_commit(remote, WORK_BRANCH) is not None
+    assert remote_commit(remote, WORK_BRANCH) == remote_commit(template / "remote.git", WORK_BRANCH)
     assert (root / "seed").is_dir()
 
 
@@ -61,24 +62,24 @@ def test_clone_of_the_copy_holds_exactly_the_remote_files(template: Path, tmp_pa
 
 def test_push_to_the_copy_leaves_the_template_alone(template: Path, tmp_path: Path) -> None:
     template_remote = template / "remote.git"
-    before = remote_commit(template_remote, "main")
+    before = remote_commit(template_remote, WORK_BRANCH)
     remote = copy_remote(template, tmp_path / "copy")
 
     pushed = _push_commit(remote, tmp_path / "work")
 
-    assert remote_commit(remote, "main") == pushed
-    assert remote_commit(template_remote, "main") == before
+    assert remote_commit(remote, WORK_BRANCH) == pushed
+    assert remote_commit(template_remote, WORK_BRANCH) == before
 
 
 def test_push_to_the_template_leaves_the_copy_alone(template: Path, tmp_path: Path) -> None:
     template_remote = template / "remote.git"
     remote = copy_remote(template, tmp_path / "copy")
-    before = remote_commit(remote, "main")
+    before = remote_commit(remote, WORK_BRANCH)
 
     pushed = _push_commit(template_remote, tmp_path / "work")
 
-    assert remote_commit(template_remote, "main") == pushed
-    assert remote_commit(remote, "main") == before
+    assert remote_commit(template_remote, WORK_BRANCH) == pushed
+    assert remote_commit(remote, WORK_BRANCH) == before
 
 
 @pytest.mark.parametrize(
@@ -111,7 +112,9 @@ def test_copy_creates_its_root_and_refuses_one_already_filled(
     else:
         remote = copy_remote(template, root)
         assert remote == root / "remote.git"
-        assert remote_commit(remote, "main") == remote_commit(template / "remote.git", "main")
+        assert remote_commit(remote, WORK_BRANCH) == remote_commit(
+            template / "remote.git", WORK_BRANCH
+        )
         assert (root / "seed").is_dir()
 
 
@@ -123,7 +126,7 @@ def test_copy_runs_no_git(template: Path, tmp_path: Path, monkeypatch: pytest.Mo
         remote = copy_remote(template, tmp_path / "copy")
 
     assert remote == tmp_path / "copy" / "remote.git"
-    assert remote_commit(remote, "main") == remote_commit(template / "remote.git", "main")
+    assert remote_commit(remote, WORK_BRANCH) == remote_commit(template / "remote.git", WORK_BRANCH)
 
 
 def test_remote_fixture_is_a_copy_of_the_session_template(
@@ -131,18 +134,22 @@ def test_remote_fixture_is_a_copy_of_the_session_template(
 ) -> None:
     assert remote == tmp_path / "origin" / "remote.git"
     assert not remote.resolve().is_relative_to(remote_template.resolve())
-    assert remote_commit(remote, "main") is not None
-    assert remote_commit(remote, "main") == remote_commit(remote_template / "remote.git", "main")
+    assert remote_commit(remote, WORK_BRANCH) is not None
+    assert remote_commit(remote, WORK_BRANCH) == remote_commit(
+        remote_template / "remote.git", WORK_BRANCH
+    )
 
 
 def test_world_with_a_template_copies_its_remote(template: Path, tmp_path: Path) -> None:
     world = build_world(tmp_path / "world", template=template)
 
-    assert remote_commit(world.remote, "main") == remote_commit(template / "remote.git", "main")
+    assert remote_commit(world.remote, WORK_BRANCH) == remote_commit(
+        template / "remote.git", WORK_BRANCH
+    )
 
 
 def test_world_without_a_template_makes_its_own_remote(tmp_path: Path) -> None:
     world = build_world(tmp_path / "world")
 
-    assert remote_commit(world.remote, "main") is not None
+    assert remote_commit(world.remote, WORK_BRANCH) is not None
     assert _files(clone(world.remote, tmp_path / "work")) == REMOTE_FILES

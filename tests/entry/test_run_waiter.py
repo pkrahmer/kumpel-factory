@@ -5,6 +5,7 @@ from pathlib import Path
 from factory.entry.run import run_instance
 from factory.entry.wiring import health_store
 from factory.hosting.adapters.fake_hosting import FakeHostingService
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.shared.domain.settings import InstanceSettings
 from support.git_support import run_git
 from support.wiring_support import with_dataset
@@ -13,7 +14,7 @@ from support.wiring_support import with_dataset
 def test_run_instance_over_a_remote_without_commits_stops_and_pauses_thirty_seconds(
     tmp_path: Path, agent_home: Path, hosting: FakeHostingService
 ) -> None:
-    run_git(tmp_path, "init", "-q", "--bare", "--initial-branch=main", "empty.git")
+    run_git(tmp_path, "init", "-q", "--bare", f"--initial-branch={WORK_BRANCH}", "empty.git")
     token_file = tmp_path / "hosting-token"
     token_file.write_text("example-value\n", encoding="utf-8")
     state = tmp_path / "instance-state"

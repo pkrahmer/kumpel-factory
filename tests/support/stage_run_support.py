@@ -8,7 +8,7 @@ from factory.hosting.domain.git import CommitId
 from factory.pipeline.application.boundaries import Boundaries
 from factory.pipeline.application.stage import StageReport, StageRunner
 from factory.shared.domain.identifiers import branch_name
-from factory.shared.domain.paths import cost_records_path
+from factory.shared.domain.paths import WORK_BRANCH, cost_records_path
 from factory.watching.domain.cost_records import CostRecord
 from factory.work.domain.journal import JournalRecord
 from factory.work.domain.work_item import WorkItemDocument, WorkItemState
@@ -92,10 +92,10 @@ def open_story(
     The state is by default the stage `tests` with the human's created record.
     """
     install_agents(agent_home, list(roles))
-    human.push_file("main", "Makefile", makefile or stage_makefile())
+    human.push_file(WORK_BRANCH, "Makefile", makefile or stage_makefile())
     for path, text in (main_files or {}).items():
-        human.push_file("main", path, text)
-    human.push_file("main", BACKLOG_PATH, body)
+        human.push_file(WORK_BRANCH, path, text)
+    human.push_file(WORK_BRANCH, BACKLOG_PATH, body)
     human.start(BACKLOG_PATH)
     opened = state or WorkItemState(stage="tests", journal=[CREATED])
     document = WorkItemDocument(state=opened, body=body + CREATED_LINE)

@@ -12,6 +12,7 @@ from factory.hosting.adapters.git_cli import GitCli
 from factory.hosting.domain.git import GitOptions
 from factory.machine.application.preflight import PROBE_PROMPT, agent_run_probe_item
 from factory.pipeline.application.boundaries import Boundaries
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from factory.shared.domain.settings import InstanceSettings
 from support.container_support import (
     SYNC_MARKER,
@@ -56,7 +57,7 @@ def test_the_probe_runs_after_the_dataset_is_prepared_for_main(
 
     assert item.passed
     assert dataset_git(dataset, "rev-parse", "HEAD").strip() == main
-    assert dataset_git(dataset, "symbolic-ref", "--short", "HEAD").strip() == "main"
+    assert dataset_git(dataset, "symbolic-ref", "--short", "HEAD").strip() == WORK_BRANCH
     assert (dataset.workspace / "checkout" / SYNC_MARKER).is_file()
     assert dataset.snapshots.changed_paths() == []
     [request] = agent_runtime.requests()
@@ -67,7 +68,7 @@ def test_the_probe_runs_after_the_dataset_is_prepared_for_main(
 
 def _without_main(boundaries: Boundaries, _human: HumanClone, tmp_path: Path) -> Dataset:
     empty = tmp_path / "empty.git"
-    run_git(tmp_path, "init", "-q", "--bare", "--initial-branch=main", empty.name)
+    run_git(tmp_path, "init", "-q", "--bare", f"--initial-branch={WORK_BRANCH}", empty.name)
     directory = clone(empty, tmp_path / "empty-checkout")
     git = GitCli(directory, GitOptions(identity=TEST_IDENTITY))
     return container_dataset(replace(boundaries, git=git, checkout=directory), tmp_path)
@@ -89,7 +90,7 @@ def _failing_sync(boundaries: Boundaries, human: HumanClone, tmp_path: Path) -> 
     [
         pytest.param(
             _without_main,
-            lambda _dataset: "no origin/main to prepare the stage environment from",
+            lambda _dataset: f"no {REMOTE}/{WORK_BRANCH} to prepare the stage environment from",
             id="no-main",
         ),
         pytest.param(

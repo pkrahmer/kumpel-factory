@@ -8,6 +8,7 @@ from pathlib import Path
 
 import pytest
 
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from support.claude_stand_in import Step, read_calls
 from support.git_support import commit_all, run_git, write_files
 from support.template_make_support import (
@@ -163,7 +164,7 @@ def test_test_is_green_when_no_test_is_collected(tmp_path: Path) -> None:
 
 def _set_origin_main(folder: Path) -> None:
     head = run_git(folder, "rev-parse", "HEAD").strip()
-    run_git(folder, "update-ref", "refs/remotes/origin/main", head)
+    run_git(folder, "update-ref", f"refs/remotes/{REMOTE}/{WORK_BRANCH}", head)
 
 
 def _branch(folder: Path, files: dict[str, str]) -> None:
@@ -253,7 +254,7 @@ def test_secrets_scans_the_changed_files_or_every_tracked_file(
     status: int,
     files: list[str] | None,
 ) -> None:
-    run_git(project, "init", "-q", "--initial-branch=main")
+    run_git(project, "init", "-q", f"--initial-branch={WORK_BRANCH}")
     write_files(project, TRACKED)
     commit_all(project, "seed")
     setup(project)
@@ -340,7 +341,7 @@ def test_duplicates_counts_similar_and_dead_code(
 
 
 def _feature_history(folder: Path, branch: str) -> None:
-    run_git(folder, "init", "-q", "--initial-branch=main")
+    run_git(folder, "init", "-q", f"--initial-branch={WORK_BRANCH}")
     write_files(folder, {"src/todo/items.py": "def add() -> None: ...\n"})
     commit_all(folder, "work item F0003-S0001: doing ends: review")
     write_files(folder, {"src/todo/lists.py": "def make() -> None: ...\n"})
