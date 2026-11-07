@@ -1,17 +1,13 @@
 ---
-stage: review
+stage: doing
 blocked: null
-round: 0
+round: 1
 attempts: 0
 crashes: 0
 pull_request: 641
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: review
-  started_at: '2026-11-07T15:14:10.702703Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -56,13 +52,19 @@ journal:
   kind: started
   at: '2026-11-07T15:14:10.702703Z'
   stage: review
+- number: 9
+  speaker: reviewer
+  kind: result
+  at: '2026-11-07T15:15:30.312823Z'
+  stage: review
+  run: cf32733647be4e6cba3840f08cefb1af
 ---
 
 # A folder README keeps its opening and its link lines short
 
 ## Description
 
-Feature decision 6 says a folder README stays a pointer: an opening of at most two sentences and nothing beside the links and the subfolder lines. `readme_problems` lets two things past it. A line that carries a relative link is taken as a link line and never counted, so an opening that carries a link escapes the two-sentence limit (`One. Two. Three. Four. Five, see [g](g.md).` gives `[]`), and a link line may hold any number of sentences of any length, after the subfolder list too (eight lines of 200 words, each with a link, give `[]`). Only the line limit bounds them. `docs/project-guide/style.md` already says "no other prose", so the code is laxer than the documents. This story closes both: the opening is the first paragraph after the title and counts its sentences whether or not it carries a link, and every other line that is no subfolder line and carries a relative link holds one sentence of at most 25 words. All 22 READMEs of today keep to these rules (measured at the feature's acceptance), so no README changes. The word limit of the opening itself and the number of link lines stay as they are (the human, 2026-11-07). No README changes in this story: the human shortened `docs/README.md`'s one long link line on main before it started, so all 22 READMEs keep to the new rules.
+Feature decision 6 says a folder README stays a pointer: an opening of at most two sentences and nothing beside the links and the subfolder lines. `readme_problems` lets two things past it. A line that carries a relative link is taken as a link line and never counted, so an opening that carries a link escapes the two-sentence limit (`One. Two. Three. Four. Five, see [g](g.md).` gives `[]`), and a link line may hold any number of sentences of any length, after the subfolder list too (eight lines of 200 words, each with a link, give `[]`). Only the line limit bounds them. `docs/project-guide/style.md` already says "no other prose", so the code is laxer than the documents. This story closes both: the opening is the first paragraph after the title and counts its sentences whether or not it carries a link, and every other line that is no subfolder line and carries a relative link holds one sentence of at most 25 words. The word limit of the opening itself and the number of link lines stay as they are (the human, 2026-11-07). No README changes in this story: the human shortened `docs/README.md`'s one long link line on main before it started, so all 22 READMEs keep to the new rules.
 
 ## Interface
 
@@ -85,8 +87,10 @@ def readme_problems(folder: str, readme: str | None, subfolders: Sequence[str]) 
 1. An opening that carries a relative link counts its sentences, rows of the test of the form: an opening of two sentences with a link gives no line; one of three sentences with a link gives `<folder>: the opening is longer than two sentences`.
 2. A link line keeps its limits, rows of the same test: a link line of one sentence of 25 words gives no line; one of 26 words gives `<folder>: line <n> is a long link line`; one of two sentences gives the same line; a link line of 26 words after the subfolder list gives it too.
 3. Every existing row of the test of the form keeps its result.
-4. `make check` stays green.
-5. docs: `docs/project-guide/style.md`, *Folder READMEs*: the reader learns that the opening is the first paragraph and counts its sentences with or without a link, and that a line with a link outside it is one sentence of at most 25 words. `docs/project-guide/shared.md`, *The folder READMEs*: the new finding of `readme_problems`.
+4. The opening ends at its first blank line, a row of the same test: a line without a relative link in the paragraph right after the opening (`line 5` of the test's README) gives `<folder>: line 5 is no part of the form`.
+5. A link in the opening counts as the README's link to a guide, a row of the same test: a README whose only relative link is in its opening gives no `<folder>: links to no guide`.
+6. `make check` stays green.
+7. docs: `docs/project-guide/style.md`, *Folder READMEs*: the reader learns that the opening is the first paragraph and counts its sentences with or without a link, and that a line with a link outside it is one sentence of at most 25 words. `docs/project-guide/shared.md`, *The folder READMEs*: the new finding of `readme_problems`.
 
 ## Smoke test
 
@@ -158,3 +162,17 @@ Expect: `0`
    `check`: check: green
    `duplicates`: duplicates: 6 new, 39 known, 4 gone
 8. factory: started review as vm.
+9. reviewer: Reviewed `git diff main...HEAD -- . ':!factory'` (`src/factory/shared/domain/folder_readmes.py`, `tests/shared/domain/test_folder_readmes.py`) against the work item. The code matches the Interface. The opening now ends at its first blank line (`_read_line`), so a link inside it no longer ends it. A link line after the opening is checked by `_read_line_past_opening` through `_is_longer_than`. The finding text and the line numbers match the Interface. The new rows cover criteria 1 and 2 on both sides of each limit: 2/3 sentences with a link, 25/26 words before and after the list, and 1/2 sentences. Each row's README is built so that the line numbers 5 and 9 are right. The coder's `make check` was green (journal 7). Architecture holds: the change stays in a pure `shared.domain` module with no I/O. Security is clean: no markers and no strings handed to a shell. Quality is fine: the shared `_is_longer_than` removes the old copied sentence-and-word check. There is no dead code, and the one comment says why.
+
+   Findings:
+   1. criterion 4 added: it needs its test. `folder_readmes.py:_read_line` makes a new behaviour that no row pins. A line without a relative link in the paragraph after the opening used to count as part of the opening. It now gives `line <n> is no part of the form`. The existing rows show this only after the subfolder list (`free-prose-after-the-list`). The row `only-link-a-web-address` now also gives `line 5 is no part of the form`, but it does not assert it. Fix: a row of `test_a_readme_out_of_its_form_gives_one_line_per_rule`, for example `_readme(links=(FREE_PROSE,))` expecting `operator: line 5 is no part of the form` once.
+   2. criterion 5 added: it needs its test. The Interface says "A link in the opening still counts as the README's link to a guide", and `_read_line` was rewritten around `has_link`. Every row still carries the default `LINK` line, so no row has its only relative link in the opening. Fix: a row such as `_readme(opening=(f"What it holds, see {GUIDE_LINK}.",), links=())` expecting `operator: links to no guide` zero times.
+
+   description corrected: "All 22 READMEs of today keep to these rules (measured at the feature's acceptance), so no README changes." -> removed. The Description's last sentence already says what is true: the human shortened `docs/README.md`'s long link line before this story started.
+
+   I renumbered the closing criteria: `make check` is now 6 and docs is now 7.
+
+   I could not read the new findings that `make duplicates` reported (journal 7: "6 new"): no report is in the checkout. The diff is small and adds no copied logic.
+
+   Earlier tests:
+   - `tests/shared/domain/test_folder_readmes.py` (written by F0055-S0001): changed under the human's leave named in the Interface (2026-11-07). It only adds rows, plus the module-level `GUIDE_LINK`, `LONG_LINK_LINE_5` and `_link_line` that they use. No existing test or row changed.
