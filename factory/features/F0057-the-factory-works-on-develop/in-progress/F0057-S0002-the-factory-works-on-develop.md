@@ -1,17 +1,13 @@
 ---
 stage: doing
-blocked: null
+blocked: question
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 644
 comments_read: [6713932106, 6714015757]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-07T22:46:31.131853Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -79,6 +75,13 @@ journal:
   kind: started
   at: '2026-11-07T22:46:31.131853Z'
   stage: doing
+- number: 13
+  speaker: coder
+  kind: question
+  at: '2026-11-07T22:49:25.819070Z'
+  stage: doing
+  run: 5619743c38af4e23a3ec51066b212cc5
+  blocked: question
 ---
 
 # The factory works on develop
@@ -251,3 +254,38 @@ Expect: `develop`
 
     `lint`: lint: green (0.2 s)
 12. factory: started doing as vm.
+13. coder: **Question.** `make check` is red on one earlier test, and I can't fix it from inside my write paths.
+
+    The test is `tests/agent_files/test_demo_makefile_secrets.py::test_the_todo_demos_secrets_target_is_the_templates`. It asserts that the `secrets` recipe in `demo/todo-service/project/Makefile` is the same as the one in `operator/template/Makefile`. To meet criterion 3 (guard row `remote-ref`), the template now says `origin/develop`. The demo still says `origin/main`, so the two recipes differ. The pytest summary line:
+    `FAILED tests/agent_files/test_demo_makefile_secrets.py::test_the_todo_demos_secrets_target_is_the_templates - assert ['\t$(start)'..., '\tfi', ...] == ['\t$(start)'..., '\tfi', ...]`
+
+    `demo/` is not in the coder's write paths in `factory/pipeline.yml`, and the Interface does not name it.
+
+    Options:
+    - (a) The demo follows the template. Either you commit the change on this branch, or you add `demo/*` to the coder's write paths for this story and I make it. The change is `sed -i -e 's#origin/main#origin/develop#g' -e 's/on main itself/on develop itself/' demo/todo-service/project/Makefile`. That covers lines 64–65, 68 and 114. The same forms are in `demo/todo-service/project/CLAUDE.md` lines 39–40 (`origin/main`, "on `main` itself") and would follow for consistency, though no test needs them.
+    - (b) The template's `secrets` recipe keeps `origin/main`. That breaks criterion 3's `remote-ref` row, so I reject it.
+    - (c) The demo test stops comparing against the template. That changes what the test checks, so I reject it.
+
+    I would choose (a): the demo is a project made from the template, and the story says such a project works on `develop`.
+
+    **What I built** (left in the working tree):
+    - `src/factory/shared/domain/paths.py`: `WORK_BRANCH = "develop"`. The preflight finding follows from the constant: "no origin/develop to prepare the stage environment from".
+    - `agents/agents/*.md`, every working-branch mention now says `develop`:
+      - R10's "reaches `develop` only through the human's merge", in all seven files.
+      - `develop...HEAD` in the documenter and reviewer files.
+      - `git diff develop --` in the coder file.
+      - "that `develop` already holds" in the reviewer file.
+      - "writes your report to `develop`" in the acceptance-reviewer file.
+      - "the main choice" and "the main decision" stay.
+    - `operator/template/CLAUDE.md` and `operator/template/Makefile`: every `origin/main` is now `origin/develop`, and "on (`)main(`) itself" is now `develop`.
+
+    **Main choice.** I did everything with the constant and text edits, with no new code, as the Interface says. I rejected extra work such as a preflight item of its own for `develop`.
+
+    **Checks.** Every other test passes, including criteria 1–3. The targets before `make test` ran green; the targets after it did not run because the test target failed.
+
+    **Refactor.** Nothing to simplify in this diff.
+
+    **Noticed, not touched:**
+    - `src/factory/machine/application/preflight.py:79`: the private names `_MAIN_REF` and `_NO_MAIN_TO_PREPARE` now hold `origin/develop`. The Interface says `src/factory/` is otherwise unchanged, so I left the names as they are. Renaming them would be a small refactor if you want it.
+
+    The journal changed criterion 3 (entry 4) and settled the Kumpel scripts (entry 9). The Description already reflects both; I did not rewrite it.

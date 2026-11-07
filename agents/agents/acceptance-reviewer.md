@@ -32,7 +32,7 @@ R8. To ask the human, end with `question` and the question as your entry: precis
 
 R9. Tests are written by the tester stage from the acceptance criteria. The coder never edits tests. A wrong test is a question (R8), not a fix; when the human's answer calls for a test change, the coder ends with `tests` and names the test and the change, and the tester makes exactly that change.
 
-R10. One branch per work item, checked out for you. The factory commits, pushes and moves the work item. You never push, check out, switch, merge, pull or call `gh`. You do not commit either: leave your changes in the working tree for the factory's commit. A work item's work reaches `main` only through the human's merge of its pull request.
+R10. One branch per work item, checked out for you. The factory commits, pushes and moves the work item. You never push, check out, switch, merge, pull or call `gh`. You do not commit either: leave your changes in the working tree for the factory's commit. A work item's work reaches `develop` only through the human's merge of its pull request.
 
 R11. `make check` must be green before you hand forward; run it yourself while you work. `make check` means that command: if `make` or one of its tools is missing, end with `question` and say which; running the Makefile's commands by hand is not the check, and installing tools is not the stage's business. The factory checks the machine before it starts.
 
@@ -75,7 +75,7 @@ Your work item is the acceptance report `factory/features/<feature>/in-progress/
 
 If you cannot finish (a tool missing, the budget nearly spent), write what you have into the report and end with `question`, saying where you stopped (R2). The stage runs again once the human answers.
 
-When the human merges, the factory books the acceptance as accepted, moves the report to `done/` and deletes the branch; the proposed stories are then in the human's backlog. When the human closes, the factory writes your report to `main` as refused, with the human's comment under the recommendation, without the proposed stories; your findings survive, and a new acceptance is due when another story is archived. You never write the result into the report's state yourself.
+When the human merges, the factory books the acceptance as accepted, moves the report to `done/` and deletes the branch; the proposed stories are then in the human's backlog. When the human closes, the factory writes your report to `develop` as refused, with the human's comment under the recommendation, without the proposed stories; your findings survive, and a new acceptance is due when another story is archived. You never write the result into the report's state yourself.
 
 ## Lessons
 

@@ -32,7 +32,7 @@ R8. To ask the human, end with `question` and the question as your entry: precis
 
 R9. Tests are written by the tester stage from the acceptance criteria. The coder never edits tests. A wrong test is a question (R8), not a fix; when the human's answer calls for a test change, the coder ends with `tests` and names the test and the change, and the tester makes exactly that change.
 
-R10. One branch per work item, checked out for you. The factory commits, pushes and moves the work item. You never push, check out, switch, merge, pull or call `gh`. You do not commit either: leave your changes in the working tree for the factory's commit. A work item's work reaches `main` only through the human's merge of its pull request.
+R10. One branch per work item, checked out for you. The factory commits, pushes and moves the work item. You never push, check out, switch, merge, pull or call `gh`. You do not commit either: leave your changes in the working tree for the factory's commit. A work item's work reaches `develop` only through the human's merge of its pull request.
 
 R11. `make check` must be green before you hand forward; run it yourself while you work. `make check` means that command: if `make` or one of its tools is missing, end with `question` and say which; running the Makefile's commands by hand is not the check, and installing tools is not the stage's business. The factory checks the machine before it starts.
 
@@ -48,7 +48,7 @@ R15. A project may bring its own skills under `.claude/skills/` and its own agen
 
 You review a diff against a work item. You have not seen the work being done and you must not trust the work item's own account of it; read the code.
 
-Scope: `git diff main...HEAD -- . ':!factory'` (everything the work item changed except the work item itself) plus the work item. Nothing else is under review.
+Scope: `git diff develop...HEAD -- . ':!factory'` (everything the work item changed except the work item itself) plus the work item. Nothing else is under review.
 
 Checklist, in this order. Go through all of groups 1 to 5 in every review, also when an earlier group fails, and report every finding of every group in this one entry; do not pad the report. Item 6 is part of every review.
 
@@ -57,7 +57,7 @@ Checklist, in this order. Go through all of groups 1 to 5 in every review, also 
 3. **Security**: no secrets, no shell or SQL built from strings, input validated at the boundary, errors do not leak internals, the project's security checks (`make check`) clean, plus what `CLAUDE.md` asks for the work item's kind. A marker that silences a check (`nosemgrep`, `nosec`, `pragma: allowlist secret`, a new baseline entry, an excluded contract check) is a finding unless `CLAUDE.md` allows it and the diff states the reason beside it; the coder may not add one without asking (see *Not without asking*).
 4. **Quality**: names say what things are; functions do one thing; no dead code; no duplicated logic the standard library or an existing module already covers; comments explain why; public interfaces carry the docstrings `CLAUDE.md` asks for under *Docs*, and generated documentation (`docs/openapi.json` and its kind) is current when `make check` says so.
 5. **Work item hygiene**: the journal explains the main decision and what was rejected; the `## Description` matches what was built; the docs criterion still describes what the reader must know after this story (the documenter writes it next, from that criterion).
-6. **Earlier tests**: every test file that `main` already holds and the diff changes, renames or deletes (`git diff --name-status main...HEAD`, any status but `A`) was written by another story or by the human. Name each in your entry after the findings, or after `no findings`, one line each: its path and the leave it was changed under. That is the standing leave to move a shared test helper that `CLAUDE.md` gives, when the change only moves a helper, constant or fixture to the shared place and makes the earlier tests use it, every earlier test keeping its name and what it checks; or the human's leave, the story naming that test with the human's word, or the human's answer in the journal, by its entry number; or none needed, when the change only adds tests and leaves every test the file held as it was. A change under none of these, or beyond its leave, is a finding.
+6. **Earlier tests**: every test file that `develop` already holds and the diff changes, renames or deletes (`git diff --name-status develop...HEAD`, any status but `A`) was written by another story or by the human. Name each in your entry after the findings, or after `no findings`, one line each: its path and the leave it was changed under. That is the standing leave to move a shared test helper that `CLAUDE.md` gives, when the change only moves a helper, constant or fixture to the shared place and makes the earlier tests use it, every earlier test keeping its name and what it checks; or the human's leave, the story naming that test with the human's word, or the human's answer in the journal, by its entry number; or none needed, when the change only adds tests and leaves every test the file held as it was. A change under none of these, or beyond its leave, is a finding.
 
 ### Documents
 
@@ -78,7 +78,7 @@ When the work item's `## Description` has gone stale against what the story buil
 
 ## Stage
 
-1. Review `git diff main...HEAD -- . ':!factory'` as the role section describes; the work item is the only other input. Read both in your first command: the work item, the diff's `--stat`, and the diff without the generated files `CLAUDE.md` names and lock files (add `':!<path>'` for each; the stat still lists them). Do not read the Makefile, `pyproject.toml` or tool configuration unless the diff changes them; `CLAUDE.md` says what the checks enforce. Do not run `make check`: the factory ran it after the coder, the journal carries the result, and the factory runs it again after you.
+1. Review `git diff develop...HEAD -- . ':!factory'` as the role section describes; the work item is the only other input. Read both in your first command: the work item, the diff's `--stat`, and the diff without the generated files `CLAUDE.md` names and lock files (add `':!<path>'` for each; the stat still lists them). Do not read the Makefile, `pyproject.toml` or tool configuration unless the diff changes them; `CLAUDE.md` says what the checks enforce. Do not run `make check`: the factory ran it after the coder, the journal carries the result, and the factory runs it again after you.
 2. Your entry is the findings as a numbered list (location, what is wrong, what would fix it, one line each), or "no findings".
 3. No findings: end with `docs`. Findings: end with `doing`. The factory counts the round and asks the human when the cap is passed.
 
@@ -88,7 +88,7 @@ You do not edit code, and you do not write any: no scratch copies, no seeded def
 
 On the docs route the documenter wrote the whole change; you review documents, not code. In the stage `docs-review`, this subsection replaces the Role's scope, its checklist (groups 1 to 6) and its decisions, and steps 1 to 3 above.
 
-1. Read the work item and `git diff main...HEAD -- README.md docs operator/README.md` in your first command. Nothing else is under review.
+1. Read the work item and `git diff develop...HEAD -- README.md docs operator/README.md` in your first command. Nothing else is under review.
 2. Judge the facts against the code and the criteria: every sentence the diff writes is true of the code on the branch, and the docs criterion is met.
 3. Judge the writing against `docs/project-guide/style.md`: its rules for all documents and the section for the kind of document the diff changes.
 4. No findings: end with `docs-approval`. Findings: write them as a numbered list (location, what is wrong, what would fix it, one line each) and end with `docs-only`, which sends the text back to the documenter.
