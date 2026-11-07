@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 644
 comments_read: [6713932106, 6714015757, 6714081152, 6714164393, 6714248996]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-07T23:09:02.204645Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -187,6 +191,11 @@ journal:
   at: '2026-11-07T23:08:56.826312Z'
   stage: tests
   run: ffd0f489bd5041c3b440bc48883f6f16
+- number: 33
+  speaker: factory
+  kind: started
+  at: '2026-11-07T23:09:02.204645Z'
+  stage: doing
 ---
 
 # The factory works on develop
@@ -635,3 +644,4 @@ Expect: `develop`
     **Still open:** the work item's `## Interface` and `## Acceptance criteria` still list only criteria 1 to 5. They lack the repository-stop criterion (a remote with `main` and no `develop` gives a stop naming `develop`) and the `docs/operator-guide/health.md` item of the docs criterion, both from entries 21 and 25. My rewrite in entry 25 was dropped from the take as outside the write paths, so I did not try again. A stage, or the human, that may write the work item's Description should carry it.
 
     `lint`: lint: green (0.1 s)
+33. factory: started doing as vm.
