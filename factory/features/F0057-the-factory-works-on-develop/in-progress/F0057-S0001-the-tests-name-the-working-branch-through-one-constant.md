@@ -1,11 +1,11 @@
 ---
 stage: intake
-blocked: question
+blocked: null
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 643
-comments_read: []
+comments_read: [6713530910]
 handed_over: null
 claim: null
 journal:
@@ -26,6 +26,11 @@ journal:
   stage: intake
   run: 6d854be502294030bccbae73b2a1be15
   blocked: question
+- number: 4
+  speaker: human
+  kind: comment
+  at: '2026-11-07T21:56:36.452126Z'
+  stage: intake
 ---
 
 # The tests name the working branch through one constant
@@ -76,3 +81,6 @@ Expect: `main`
    - Docs criterion: it names what the reader must know (`WORK_BRANCH` names the working branch, and no code or test writes it literally). It dictates no sentences.
    - Architecture: the change sits in the `shared` domain layer and in tests, with nothing new for the layers.
    - Scope: it matches F0057 S0001 and decision 9. The human's leave for changing earlier tests is in the Interface.
+4. 2026-11-07 human: 1. Yes, as you wrote it: the guard fails on a file the test writes that holds `origin/main`, `heads/main`, `-b main` or `--initial-branch=main`, one row for each string.
+   2. Yes: one passing row for a clean file inside the guard's scope, and no row for the exemption.
+   3. Confirmed: criterion 2 is the only test of the docstring and comment clause.
