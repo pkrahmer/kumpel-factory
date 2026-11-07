@@ -1,17 +1,13 @@
 ---
 stage: doing
-blocked: null
+blocked: question
 round: 2
 attempts: 0
 crashes: 0
 pull_request: 644
 comments_read: [6713932106, 6714015757, 6714081152, 6714164393, 6714248996]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-07T23:16:06.603133Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -218,6 +214,13 @@ journal:
   kind: started
   at: '2026-11-07T23:16:06.603133Z'
   stage: doing
+- number: 38
+  speaker: coder
+  kind: question
+  at: '2026-11-07T23:16:55.571795Z'
+  stage: doing
+  run: 4f1a41ec45ce49738b101e034d9c52b3
+  blocked: question
 ---
 
 # The factory works on develop
@@ -765,3 +768,57 @@ Expect: `develop`
       - `tests/entry/test_run_waiter.py`
     - `tests/pipeline/application/test_repository_waiter.py`: under entry 21 (the message follows `WORK_BRANCH`, and the new criterion's test) and entry 28 (`OTHER_BRANCH`).
 37. factory: started doing as vm.
+38. coder: **Question (round 2).** I need your answer on the reviewer's finding 1 (entry 36). It goes beyond what you approved in entry 21, and earlier tests pin these texts. I changed nothing this round. The working tree is as entry 34 left it, and `make check` was green there.
+
+    **Finding 1, confirmed by grep.** These texts in `src/factory` still say "main" where they mean the working branch (`develop` now). Behaviour is already right everywhere: for example, `pygithub_hosting.py:90` opens pull requests with `base=WORK_BRANCH`. Only the words are wrong.
+
+    - **Texts the human or the operator sees:**
+      - `work/domain/acceptance.py:53`: `ACCEPTANCE_CLOSING`, "the report stays on the main branch as refused".
+      - `machine/application/preflight.py:474`, `:561`, `:574`, `:576` and `:577`: stop details such as "lint is red on main at <commit>" and "the probe on main could not run".
+      - `pipeline/application/stage.py:162`: "has a merge conflict with the main branch".
+      - `hosting/domain/post_texts.py:36` (`merge_conflict`): "merging the main branch conflicts". The reviewer did not list this one; I found it with the same grep.
+      - `work/application/acceptance.py:298`, `:319` and `:352`: `CannotHandle` reasons that say "the main branch".
+    - **Docstrings and comments only:**
+      - `work/application/work_items.py:85` and `:149`
+      - `work/application/acceptance.py:278`, `:286`, `:333` and `:341`
+      - `work/application/acceptance_reading.py:90`
+      - `work/domain/work_item.py:87` and `:100`
+      - `entry/wiring.py:461`
+      - `hosting/application/hosting.py:20` and `hosting/adapters/pygithub_hosting.py:87`
+      - `machine/domain/preflight.py:41`
+    - **Private names that mean `origin/develop`:** `_MAIN_REF`/`_ORIGIN_MAIN` in:
+      - `work/application/work_items.py:37`
+      - `work/application/acceptance.py:69`
+      - `work/application/acceptance_reading.py:41`
+      - `watching/application/watcher.py:18`
+      - `entry/wiring.py:184`
+    - **Earlier tests that pin the visible texts** (grep of `tests` for `main branch|on main at|probe on main`):
+      - `tests/machine/application/test_preflight_run.py` and `test_preflight_run_environment.py`
+      - `tests/hosting/application/test_preflight_stale_main_stop.py`
+      - `tests/pipeline/application/test_preflight_stop_detail.py`, `test_preflight_stops_commit.py`, `test_acceptance_merged.py`, `test_acceptance_no_state_refusals.py` and `test_stall_edges.py`
+      - `tests/work/application/test_acceptance_closed.py`
+      - `tests/work/domain/test_acceptance_description.py` and `test_stall_texts.py`
+
+    **Options:**
+    - **(a) Widen the Interface to all of the above.**
+      - The visible texts follow `WORK_BRANCH`, for example `f"lint is red on {WORK_BRANCH} at ..."` and "stays on the develop branch".
+      - The docstrings say "the working branch", and the private names become `_WORK_REF`, with no change in behaviour.
+      - You give the tester leave to make the pinned tests above follow the constant. Each keeps its name and what it checks.
+      - A new criterion: the preflight's red-probe stop detail names `develop` on a remote with `develop`. I would add no criterion for the other texts.
+      - The `docs/operator-guide/` pages that quote these texts follow in S0004.
+    - **(b) The same as (a), visible texts only.** Docstrings and private names wait for a later story.
+    - **(c) Neither.** A later story takes all of it (R13). The Interface's line "every other use follows the constant" would be reworded to name these texts as left for that story.
+
+    I would choose (a). The operator reads "red on main" while the probe runs on `develop`, so the texts are misleading on exactly the remote this story moves to. The renames cost nothing, and no later F0057 story covers code (S0003 is Kumpel; S0004 and S0005 are documents).
+
+    **Finding 2, for the tester after your answer, under the standing leave in `CLAUDE.md`:**
+    - `make_remote` (`tests/support/git_support.py:138`) gains a `branch` parameter (and the files), defaulting to today's behaviour.
+    - Its docstring stops saying "whose `main` holds".
+    - These tests use it instead of their copies:
+      - `tests/pipeline/application/test_repository_waiter.py:174-181`
+      - `tests/machine/application/test_preflight_working_branch.py:19-26`
+      - `make_bare_remote` in `tests/support/operator_skill_support.py:144`, if it fits
+
+    After your answer, I will end the next round with `tests` naming finding 2 and any test changes your answer allows, so the tester makes them in one round.
+
+    **Noticed, not touched:** nothing beyond the above.
