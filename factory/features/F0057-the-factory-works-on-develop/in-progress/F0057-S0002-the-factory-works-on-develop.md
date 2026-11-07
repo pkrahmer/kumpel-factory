@@ -1,11 +1,11 @@
 ---
 stage: doing
-blocked: question
+blocked: null
 round: 2
 attempts: 0
 crashes: 0
 pull_request: 644
-comments_read: [6713932106, 6714015757, 6714081152, 6714164393, 6714248996]
+comments_read: [6713932106, 6714015757, 6714081152, 6714164393, 6714248996, 6714373146]
 handed_over: null
 claim: null
 journal:
@@ -221,6 +221,11 @@ journal:
   stage: doing
   run: 4f1a41ec45ce49738b101e034d9c52b3
   blocked: question
+- number: 39
+  speaker: human
+  kind: comment
+  at: '2026-11-07T23:20:47.283812Z'
+  stage: doing
 ---
 
 # The factory works on develop
@@ -822,3 +827,4 @@ Expect: `develop`
     After your answer, I will end the next round with `tests` naming finding 2 and any test changes your answer allows, so the tester makes them in one round.
 
     **Noticed, not touched:** nothing beyond the above.
+39. 2026-11-07 human: (a), with the tester's leave for the pinned tests and finding 2 as you describe. After this round, ask only for something that blocks; anything else that still says main in words goes to the journal as a note for a later story.
