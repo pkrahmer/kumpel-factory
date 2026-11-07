@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 641
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: smoke-test
+  started_at: '2026-11-07T15:26:16.950242Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -113,6 +117,11 @@ journal:
   at: '2026-11-07T15:26:11.936282Z'
   stage: docs
   run: 7629bc6bb47740fb84a6746c72629510
+- number: 20
+  speaker: factory
+  kind: started
+  at: '2026-11-07T15:26:16.950242Z'
+  stage: smoke-test
 ---
 
 # A folder README keeps its opening and its link lines short
@@ -339,3 +348,4 @@ Expect: `0`
     `check`: check: green
     `secrets`: secrets: green (0.5 s)
     `documents`: documents ok (61.0 s)
+20. factory: started smoke-test as vm.
