@@ -1,5 +1,5 @@
 ---
-stage: intake
+stage: tests
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 643
 comments_read: [6713530910]
 handed_over: null
-claim:
-  instance: vm
-  stage: intake
-  started_at: '2026-11-07T21:56:38.853725Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -40,6 +36,12 @@ journal:
   kind: started
   at: '2026-11-07T21:56:38.853725Z'
   stage: intake
+- number: 6
+  speaker: intake
+  kind: result
+  at: '2026-11-07T21:56:54.843162Z'
+  stage: intake
+  run: e615b12c2bf443eb9e6613fd14b8eb20
 ---
 
 # The tests name the working branch through one constant
@@ -59,7 +61,7 @@ The factory's working branch is named by the constant `MAIN_BRANCH` in `factory.
 ## Acceptance criteria
 
 1. `from factory.shared.domain.paths import WORK_BRANCH` gives `"main"`, and `MAIN_BRANCH` no longer exists (one test).
-2. The guard of the Interface passes on the repository and fails on a file that holds `origin/main` (rows of one test, the failing row on a file the test writes).
+2. The guard of the Interface passes on the repository, passes on a clean file inside its scope that holds none of the four strings, and fails on a file the test writes that holds `origin/main`, `heads/main`, `-b main` or `--initial-branch=main`, one row for each string (rows of one test). This test is also the only test of the Interface's docstring and comment clause.
 3. Every earlier test passes unchanged in what it checks; the entry names the modules changed under the leave.
 4. `make check` stays green.
 5. docs: `docs/project-guide/shared.md`, where `paths` is described: the reader learns that `WORK_BRANCH` names the factory's working branch and that no code or test writes the name literally. `docs/decisions.md`: none in this story.
@@ -94,3 +96,12 @@ Expect: `main`
    2. Yes: one passing row for a clean file inside the guard's scope, and no row for the exemption.
    3. Confirmed: criterion 2 is the only test of the docstring and comment clause.
 5. factory: started intake as vm.
+6. intake: accepted
+   - Interface: names `factory.shared.domain.paths`, `MAIN_BRANCH` to `WORK_BRANCH` (value `main`), the derived names, the new guard file and the human's leave for earlier tests. Concrete.
+   - Criteria: criterion 1 is one test covering both sides (new name has value `main`, old name gone). Criterion 2 is carried in from the human's answer (journal entry 4): one failing row per string (`origin/main`, `heads/main`, `-b main`, `--initial-branch=main`), one passing row for a clean file, and this test as the only test of the docstring and comment clause. Criterion 3 names the modules changed under the leave. Each criterion is testable. Both sides of the guard rule are present.
+   - Smoke test: the command is runnable, with no pytest, so there is no `-q` issue. Its `Expect: main` is checkable.
+   - Docs criterion: names what the reader must know (`WORK_BRANCH` names the working branch, and no code or test writes it literally) and dictates no sentences. The `docs/shared.md` target is a path the documenter may write.
+   - Architecture: the change sits in the `shared` domain layer, the tests and one guard under `tests/guards/`. No layer rule is touched.
+   - Scope: matches F0057 S0001 and decision 9, with the value unchanged and no behaviour change. The leave to change earlier tests is stated in the Interface (human, 2026-11-07).
+   Route: `tests`, because the Interface changes code under `src/factory/` and tests.
+   Story edit: criterion 2 reworded exactly as the human answered in journal entry 4.
