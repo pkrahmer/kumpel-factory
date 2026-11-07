@@ -1,3 +1,30 @@
+---
+stage: intake
+blocked: null
+round: 0
+attempts: 0
+crashes: 0
+pull_request: null
+comments_read: []
+handed_over: null
+claim:
+  instance: vm
+  stage: intake
+  started_at: '2026-11-07T23:46:54.152624Z'
+  lease_duration: 60
+journal:
+- number: 1
+  speaker: human
+  kind: created
+  at: '2026-11-07T23:46:54.145527Z'
+  stage: intake
+- number: 2
+  speaker: factory
+  kind: started
+  at: '2026-11-07T23:46:54.152624Z'
+  stage: intake
+---
+
 # Kumpel works on develop and promotes accepted features to main
 
 ## Description
@@ -36,3 +63,6 @@ d=$(mktemp -d); trap 'rm -rf "$d"' EXIT; export KUMPEL_SETTINGS="$d/s.json"; sh 
 Expect: `off`
 
 ## Journal
+
+1. 2026-11-07 human: created.
+2. factory: started intake as vm.
