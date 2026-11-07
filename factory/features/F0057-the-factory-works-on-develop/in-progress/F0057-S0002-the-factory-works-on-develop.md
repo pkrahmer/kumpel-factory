@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 644
 comments_read: [6713932106, 6714015757]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-07T22:46:31.131853Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -70,6 +74,11 @@ journal:
   at: '2026-11-07T22:46:26.022950Z'
   stage: tests
   run: af5c2e717b1443c0889dbe4991b4ba31
+- number: 12
+  speaker: factory
+  kind: started
+  at: '2026-11-07T22:46:31.131853Z'
+  stage: doing
 ---
 
 # The factory works on develop
@@ -241,3 +250,4 @@ Expect: `develop`
     - `tests/hosting/adapters/test_git_cli_branches.py` stays red until the constant changes, as entry 8 says.
 
     `lint`: lint: green (0.2 s)
+12. factory: started doing as vm.
