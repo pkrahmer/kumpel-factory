@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 644
 comments_read: [6713932106, 6714015757]
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-07T22:45:20.655055Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -68,6 +64,12 @@ journal:
   kind: started
   at: '2026-11-07T22:45:20.655055Z'
   stage: tests
+- number: 11
+  speaker: tester
+  kind: result
+  at: '2026-11-07T22:46:26.022950Z'
+  stage: tests
+  run: af5c2e717b1443c0889dbe4991b4ba31
 ---
 
 # The factory works on develop
@@ -206,3 +208,36 @@ Expect: `develop`
    The factory left out changes outside the write paths: src/factory/shared/domain/paths.py.
 9. 2026-11-07 human: (a). The Kumpel scripts are F0057-S0003's (already planned there, reset-to-tag.sh included, moving develop). In this story they stay on main, and their three test files take the scripts' branch from a constant `"main"` of their own in tests/support/operator_skill_support.py; S0003 replaces it.
 10. factory: started tests as vm.
+11. tester: I applied the human's answer (a) from entry 9. The criteria tests from entry 8 are already committed and unchanged. This round only made the Kumpel scripts' tests independent of `WORK_BRANCH`.
+
+    **The change.**
+    - `tests/support/operator_skill_support.py` now has its own constant, `SCRIPTS_BRANCH = "main"`: the branch the skill scripts work on. `make_bare_remote` builds the remote and the seed push on it, and the module no longer imports `WORK_BRANCH`. F0057-S0003 replaces this constant when it moves the scripts.
+    - In the three operator-script test files, `WORK_BRANCH` is now `SCRIPTS_BRANCH`, imported from the support module. Every test keeps its name and checks the same thing:
+      - `tests/operator_scripts/test_operator_skill_scripts.py`: the `log` and `ls-tree` of the pushed branch.
+      - `tests/operator_scripts/test_operator_skill_signature.py`: the `log` of the pushed branch.
+      - `tests/operator_scripts/test_operator_merge_reset.py`: the `PATCH /git/refs/heads/<branch>` routes and requests. ruff format re-wrapped one line.
+    - The S0001 guard `tests/guards/test_work_branch_search.py` stays green. A plain `"main"` is not one of its literals.
+
+    **Criteria → tests** (from entry 8, unchanged):
+    - criterion 1: `tests/shared/domain/test_work_branch.py::test_the_working_branch_is_one_constant_named_work_branch` (the earlier test, its value changed to `"develop"`)
+    - criterion 2: `tests/machine/application/test_preflight_working_branch.py::test_a_remote_with_main_but_no_develop_gets_a_finding_naming_origin_develop`
+    - criterion 3: `tests/guards/test_working_branch_in_agent_texts.py::test_no_agent_or_template_file_names_main_as_the_working_branch`, one row per form: `remote-ref`, `three-dot-diff`, `git-diff`, `human-merge`, `acceptance-report`, `already-holds`, `on-itself`
+    - criterion 3, the side that stays: `tests/guards/test_working_branch_in_agent_texts.py::test_main_as_an_ordinary_word_stays_in_the_agent_files`
+    - criteria 4 and 5: no test (`make check` and docs).
+
+    **Files created**, both in the previous round: `tests/machine/application/test_preflight_working_branch.py` and `tests/guards/test_working_branch_in_agent_texts.py`.
+
+    **Earlier test files changed:**
+    - In this round, under the human's answer in entry 9: `tests/support/operator_skill_support.py` and the three `tests/operator_scripts/` files above.
+    - In the previous round, under the human's leave of 2026-11-07: the files listed in entry 8.
+
+    **Run.** One `uv run pytest -q` over the three operator-script files, both guards and the two criterion test files. Five still fail, as they should until the coder's change: criterion 1, criterion 2, and the guard rows `acceptance-report`, `already-holds` and `on-itself`. The operator-script tests pass. They no longer depend on `WORK_BRANCH`, so they stay green after the constant changes. `make lint` is green.
+
+    **Modules not importable:** none. Every failure is a wrong result.
+
+    **For the coder:**
+    - Set `WORK_BRANCH = "develop"` in `src/factory/shared/domain/paths.py`.
+    - Change the agent files and `operator/template/CLAUDE.md` and `Makefile`.
+    - `tests/hosting/adapters/test_git_cli_branches.py` stays red until the constant changes, as entry 8 says.
+
+    `lint`: lint: green (0.2 s)

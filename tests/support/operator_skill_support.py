@@ -7,10 +7,11 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from factory.shared.adapters.process import ProcessResult
-from factory.shared.domain.paths import WORK_BRANCH
 from support.git_support import commit_all, run_git, write_executable, write_files
 from support.operator_support import CURL_STAND_IN, ROOT, hosting_env, run_script
 
+# The branch the skill scripts start, approve, archive and reset on, not the factory's.
+SCRIPTS_BRANCH = "main"
 SKILL = ROOT / "operator" / "skill" / "kumpel"
 SCRIPTS = SKILL / "scripts"
 REPOSITORY = "owner/repo"
@@ -143,14 +144,14 @@ def make_operator(tmp_path: Path) -> Operator:
 def make_bare_remote(root: Path, files: dict[str, str]) -> tuple[Path, Path]:
     """A bare remote `root/remote.git` whose `main` holds `files`, and the seed that pushes."""
     root.mkdir(parents=True, exist_ok=True)
-    run_git(root, "init", "-q", f"--initial-branch={WORK_BRANCH}", "seed")
+    run_git(root, "init", "-q", f"--initial-branch={SCRIPTS_BRANCH}", "seed")
     seed = root / "seed"
     write_files(seed, files)
     commit_all(seed, "seed")
-    run_git(root, "init", "-q", "--bare", f"--initial-branch={WORK_BRANCH}", "remote.git")
+    run_git(root, "init", "-q", "--bare", f"--initial-branch={SCRIPTS_BRANCH}", "remote.git")
     remote = root / "remote.git"
     run_git(seed, "remote", "add", "origin", str(remote))
-    run_git(seed, "push", "-q", "origin", WORK_BRANCH)
+    run_git(seed, "push", "-q", "origin", SCRIPTS_BRANCH)
     return remote, seed
 
 
