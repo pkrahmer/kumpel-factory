@@ -1,5 +1,5 @@
 ---
-stage: smoke-test
+stage: approval
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 643
 comments_read: [6713530910, 6713705040, 6713791298]
 handed_over: null
-claim:
-  instance: vm
-  stage: smoke-test
-  started_at: '2026-11-07T22:27:19.751456Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -173,6 +169,12 @@ journal:
   kind: started
   at: '2026-11-07T22:27:19.751456Z'
   stage: smoke-test
+- number: 30
+  speaker: smoke-tester
+  kind: result
+  at: '2026-11-07T22:27:42.535161Z'
+  stage: smoke-test
+  run: 983ddfe6359b46eda13c830c789cdf9c
 ---
 
 # The tests name the working branch through one constant
@@ -636,3 +638,22 @@ Expect: `main`
     `secrets`: secrets: green (4.6 s)
     `documents`: documents ok (59.4 s)
 29. factory: started smoke-test as vm.
+30. smoke-tester: Ran the smoke test from the repository root as written. Nothing was fixed.
+
+    Command 1:
+    ```bash
+    uv run python -c "from factory.shared.domain.paths import WORK_BRANCH; print(WORK_BRANCH)"
+    ```
+    Output (exit 0):
+    ```
+    Bytecode compiled 4164 files in 50ms
+    main
+    ```
+    Expect: `main`. Met. The line before it is uv's own bytecode note and does not come from the command's code.
+
+    Re-read the acceptance criteria against what I saw. The smoke test contradicts none of them. I also made some quick read-only spot checks beyond the smoke test, and none of them contradicts a criterion:
+    - Criterion 1: `from factory.shared.domain.paths import MAIN_BRANCH` raises `ImportError: cannot import name 'MAIN_BRANCH' ... Did you mean: 'WORK_BRANCH'?`, so the old name is gone. A grep for `MAIN_BRANCH` under `src/`, `tests/` and `docs/` finds it only in the test that checks it is absent (`tests/shared/domain/test_work_branch.py:9`) and in the human's `docs/runs/` log.
+    - Criterion 5: `docs/project-guide/work.md:394-396` names `WORK_BRANCH` in the `paths` table. It says the constant names the working branch, that no code or test writes the name literally, and it names the guard. `hosting.md:23`, `machine.md:400` and `pipeline.md:624/640/641/773` name `WORK_BRANCH`.
+    - Criteria 2–4 (the guard, the earlier tests, `make check`) are not exercised by the smoke test. The factory's checks gate them; I did not run `make check` here.
+
+    Findings: none. Decision: approval.
