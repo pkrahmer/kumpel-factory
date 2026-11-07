@@ -1660,3 +1660,16 @@ Date: 2026-11-07 (F0055-S0007).
 - Decision: the factory is licensed under the Apache License 2.0. Each Python module under `src/factory/` and each script under `operator/` outside `operator/template/` carries the comment line `SPDX-License-Identifier: Apache-2.0`: the first line of a module, the line after the shebang of a script, the first line of a file without one. The copyright and the author stand once, in `NOTICE`. The tests get no header. A guard, `tests/guards/test_license_headers.py`, fails for a file in that scope without the line.
 - Why: Apache 2.0 for its explicit patent grant (the human, 2026-11-07); the dependencies' licenses are unchanged, and the Makefile's allow list is about them.
 - Rejected: `SPDX-FileCopyrightText` with the author's name in every file, which would carry the name into every project that copies a file; and the same line with a project name (`The Kumpel Authors`).
+
+## The factory works on `develop`; `main` holds the accepted features
+
+Date: 2026-11-07 (F0057).
+
+- Decision 1: `develop` is the factory's working branch, and `main` becomes the protected line of accepted features (the human, 2026-11-07). The archive after a merge, the closes, the acceptance's booking, the stop records, the claims' base and every read of `origin/<working branch>` move to `develop`. Rejected: a protected `stable` with `main` as the working branch, which needed no code; a setting for the branch's name; every factory write as its own pull request; a bypass for a separate identity.
+- Decision 2: the constant is named `WORK_BRANCH` (in `factory.shared.domain.paths`), since `main` keeps a meaning of its own after this feature.
+- Decision 3: Kumpel promotes, behind a switch `promote`, off by default (the human, 2026-11-07). With it off, Kumpel opens the promotion pull request and the human merges it.
+- Decision 4: a promotion carries `develop`'s tip (the human, 2026-11-07). A promotion therefore runs best before the next feature starts. Rejected: the feature's archive commit through a short branch, which keeps a next feature already started out of `main`.
+- Decision 5: a promotion is a merge commit, never a squash or a rebase. `make mutants` finds a feature's code by its story commits (`work item <id>: ...`), and a squash would make the next promotion conflict. `main` is never fixed directly: a fix goes to `develop` and reaches `main` with the next promotion.
+- Decision 6: the stop reason `main_branch_failing` keeps its name, for the records contract and the history of `factory/stops.jsonl`.
+- Decision 7: every commit Kumpel makes names Kumpel (`Kumpel <kumpel@noreply.invalid>`) as its author, not only the start (the human, 2026-11-07).
+- Why: the human's wording is the "Decision" lines above; no further reason is recorded for decisions 2 to 7 beyond what they state. Rejected options are written only where the human named them (decisions 1 and 4).

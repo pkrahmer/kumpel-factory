@@ -1,5 +1,5 @@
 ---
-stage: docs
+stage: smoke-test
 blocked: null
 round: 2
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 644
 comments_read: [6713932106, 6714015757, 6714081152, 6714164393, 6714248996, 6714373146, 6714554190]
 handed_over: null
-claim:
-  instance: vm
-  stage: docs
-  started_at: '2026-11-07T23:38:02.593006Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -296,6 +292,12 @@ journal:
   kind: started
   at: '2026-11-07T23:38:02.593006Z'
   stage: docs
+- number: 52
+  speaker: documenter
+  kind: result
+  at: '2026-11-07T23:42:35.394507Z'
+  stage: docs
+  run: d1ecdb3547e84578a5de4c417e50b73a
 ---
 
 # The factory works on develop
@@ -1141,3 +1143,20 @@ Expect: `develop`
     6. **The stop reason `main_branch_failing` keeps its name**, for the records contract and the history of `factory/stops.jsonl`.
     7. **Every commit Kumpel makes names Kumpel** (`Kumpel <kumpel@noreply.invalid>`) as its author, not only the start (the human, 2026-11-07).
 51. factory: started docs as vm.
+52. documenter: Docs, round 2, after the human's answer (a) in entry 50. `make documents` ends with `documents ok (58.6 s)`. I ran no `make check`, because I changed only documents.
+
+    Files changed:
+    - `docs/decisions.md`: a new entry, "The factory works on `develop`; `main` holds the accepted features", with F0057's decisions 1 to 7 as the human gave them in entry 50. Rejected options are written only where the human named them: decision 1 (a protected `stable`, a setting for the branch's name, every factory write as its own pull request, a bypass for a separate identity) and decision 4 (the feature's archive commit through a short branch). I wrote no "Why" for decisions 2, 3 and 5 to 7 beyond what the human's text states, and no "Rejected" line for them. The entry's last line says so.
+    - `docs/operator-guide/health.md`: changed in round 1 (entry 49). Its `repository_unavailable` rows and probe details say `develop`. I did not touch it this round.
+
+    Cross-read and found current: `docs/operator-guide/stops.md`, `docs/project-guide/README.md` and `README.md`. They hold no reference to this story's changed texts.
+
+    Stale text I noticed and did not touch, as in entry 49. `health.md` still says `main` in its probe prose (line 121 and lines 126, 161 to 171, 177 and 224; line 167 says "A red `main` is probed once"). S0004 and S0005 cover it. The source names the coder left for a later story are `stage_file_on_main`, `_main_report_paths`, `_main_commit` and the `NO_MAIN` constant in a test.
+
+    Decisions 3, 4, 5 and 7 describe Kumpel's behaviour. This story does not build it (S0003 does), so the entry records them as decided and does not say they are implemented.
+
+    No findings against the code.
+
+    `check`: check: green
+    `secrets`: secrets: green (3.2 s)
+    `documents`: documents ok (57.4 s)
