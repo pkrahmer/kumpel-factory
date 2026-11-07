@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: tests
 blocked: null
 round: 2
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 644
 comments_read: [6713932106, 6714015757, 6714081152, 6714164393, 6714248996, 6714373146]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-07T23:20:49.795759Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -235,6 +231,12 @@ journal:
   kind: started
   at: '2026-11-07T23:20:49.795759Z'
   stage: doing
+- number: 41
+  speaker: coder
+  kind: result
+  at: '2026-11-07T23:24:55.867538Z'
+  stage: doing
+  run: c6a94fcb7bcd4f4a98961616159519f0
 ---
 
 # The factory works on develop
@@ -838,3 +840,60 @@ Expect: `develop`
     **Noticed, not touched:** nothing beyond the above.
 39. 2026-11-07 human: (a), with the tester's leave for the pinned tests and finding 2 as you describe. After this round, ask only for something that blocks; anything else that still says main in words goes to the journal as a note for a later story.
 40. factory: started doing as vm.
+41. coder: Round 2, after the human chose (a) in entry 39. The visible texts can only change once their pinned tests and the new criterion's test exist, so this round sends the test changes to the tester. Meanwhile I made every part of (a) that changes no behaviour. `make check` is green with it (`test: green (107.5 s)`, 99.22 % coverage, `check: green`).
+
+    **Built this round (text and private names only, no behaviour change):**
+    - Private names renamed to `_WORK_REF` (was `_MAIN_REF` or `_ORIGIN_MAIN`, holding `origin/develop`):
+      - `src/factory/work/application/work_items.py`
+      - `src/factory/work/application/acceptance.py`
+      - `src/factory/work/application/acceptance_reading.py`
+      - `src/factory/watching/application/watcher.py`
+      - `src/factory/entry/wiring.py`
+    - Docstrings and comments now say "the working branch" instead of "main". I shortened some wording to stay within 100 columns.
+      - In those five modules.
+      - `work/domain/work_item.py` (`WorkItemSnapshot`, `StoryFile`)
+      - `machine/domain/preflight.py` (`PreflightStamp`)
+      - `pipeline/domain/evaluation.py` (`EvaluationInput`)
+      - `hosting/application/hosting.py` and `hosting/adapters/pygithub_hosting.py` (`create_pull_request`)
+    - None of these models is in the records contract. I regenerated it with `uv run python -m factory.entry.contract` and the output was unchanged.
+
+    **For the tester (the human's answer in entry 39):**
+    1. **New criterion, placed before `make check` and docs:** on a fake remote whose `develop` probe is red, the preflight's `main_branch_failing` stop detail names `develop` (`lint is red on develop at <commit>: ...`, not `on main`). One test, red against today's literal at `src/factory/machine/application/preflight.py:577`.
+    2. **The human's leave for earlier tests:** these tests pin the visible texts. Each changes only so that the expected text follows `WORK_BRANCH`, and each keeps its name and what it checks. The new texts I will write:
+       - Preflight details: `f"... on {WORK_BRANCH} at {commit}"` (`preflight.py:474`, `:561`, `:574`, `:576`, `:577`). For example `the probe on develop could not run: ...`, `lint is red on develop at ... (probed earlier)`, `lint reached its time_limit on develop at ...`, `lint ... and printed nothing on develop at ...`.
+       - `ACCEPTANCE_CLOSING` (`work/domain/acceptance.py:53`): `the report stays on the {WORK_BRANCH} branch as refused`.
+       - `stage.py:162`: `has a merge conflict with the {WORK_BRANCH} branch`.
+       - `post_texts.py:36` `merge_conflict`: `merging the {WORK_BRANCH} branch conflicts and the merge was aborted`.
+       - `CannotHandle` reasons in `work/application/acceptance.py:298`, `:319` and `:352`: `no report on the {WORK_BRANCH} branch`, `the report on the {WORK_BRANCH} branch has no state`, `no report on the branch or the {WORK_BRANCH} branch`.
+       - The tests that pin these (from grepping `tests` for `main branch|on main at|probe on main`; the tester should grep again for these exact texts):
+         - `tests/machine/application/test_preflight_run.py`
+         - `tests/machine/application/test_preflight_run_environment.py`
+         - `tests/hosting/application/test_preflight_stale_main_stop.py`
+         - `tests/pipeline/application/test_preflight_stop_detail.py`
+         - `tests/pipeline/application/test_preflight_stops_commit.py`
+         - `tests/pipeline/application/test_acceptance_merged.py`
+         - `tests/pipeline/application/test_acceptance_no_state_refusals.py`
+         - `tests/pipeline/application/test_stall_edges.py`
+         - `tests/work/application/test_acceptance_closed.py`
+         - `tests/work/domain/test_acceptance_description.py`
+         - `tests/work/domain/test_stall_texts.py`
+    3. **The reviewer's finding 2, under the standing leave in `CLAUDE.md`:**
+       - `make_remote` (`tests/support/git_support.py:138`) gains a `branch` parameter (and the files), defaulting to today's behaviour.
+       - Its docstring stops saying "whose `main` holds".
+       - These use it instead of their copies:
+         - `tests/pipeline/application/test_repository_waiter.py:174-181`
+         - `tests/machine/application/test_preflight_working_branch.py:19-26`
+         - `make_bare_remote` in `tests/support/operator_skill_support.py:144`, if it fits
+    4. **Work item:** the Interface should list entry 39's widening above "`src/factory/` otherwise unchanged". That means the visible texts, the docstrings and private names in the modules listed here, and the leave for the tests in item 2. The new criterion becomes 5, so `make check` and docs become 6 and 7. My write paths do not include the work item.
+
+    Once those tests are red, I will change the visible texts and nothing else.
+
+    **Main choice.** I made the renames now, with `make check` green, and left the visible texts until their tests exist. I rejected changing the texts now: that would have left `make check` red, with failures that are not in my power to fix.
+
+    **Refactor.** I read the diff once. Some docstrings were shortened to fit 100 columns; there was nothing else to change.
+
+    **Noticed, not touched (notes for a later story, as entry 39 asks):**
+    - The stop kind `main_branch_failing` and its table row (`pipeline/domain/stop_table.py:60`).
+    - The stamp fields `main_failed`/`main_probed`, `EvaluationInput.main_commit`, and the local variables named `main` in `preflight.py` and `evaluation.py`.
+    - The `"main"` at `entry/run.py:51`.
+    - The comment at `entry/check_story.py:68`.
