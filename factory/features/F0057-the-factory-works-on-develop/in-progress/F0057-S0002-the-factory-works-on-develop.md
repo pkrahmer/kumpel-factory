@@ -1,3 +1,30 @@
+---
+stage: intake
+blocked: null
+round: 0
+attempts: 0
+crashes: 0
+pull_request: null
+comments_read: []
+handed_over: null
+claim:
+  instance: vm
+  stage: intake
+  started_at: '2026-11-07T22:33:05.202549Z'
+  lease_duration: 60
+journal:
+- number: 1
+  speaker: human
+  kind: created
+  at: '2026-11-07T22:33:05.195233Z'
+  stage: intake
+- number: 2
+  speaker: factory
+  kind: started
+  at: '2026-11-07T22:33:05.202549Z'
+  stage: intake
+---
+
 # The factory works on develop
 
 ## Description
@@ -28,3 +55,6 @@ uv run python -c "from factory.shared.domain.paths import WORK_BRANCH; print(WOR
 Expect: `develop`
 
 ## Journal
+
+1. 2026-11-07 human: created.
+2. factory: started intake as vm.
