@@ -13,6 +13,7 @@ from factory.machine.adapters.make_commands import ContainerMakeCommands
 from factory.machine.adapters.podman_runs import PodmanRuns
 from factory.machine.application.stage_environment import ContainerEnvironment
 from factory.machine.domain.containers import ContainerLaunch, ContainerResult, Mount
+from factory.shared.domain.paths import WORK_BRANCH
 from support.claude_stand_in import REPLY as CLAUDE_REPLY
 from support.claude_stand_in import Step, claude_request, write_stand_in
 from support.container_runtime_support import container_environment, container_request, make_state
@@ -143,7 +144,7 @@ def sync_words(
     environment = ContainerEnvironment(
         dataset.boundaries, dataset.snapshots, runs, extra_environment=extra, ca_bundle=bundle
     )
-    environment.prepare(COMMIT, "main", sync_time_limit=FIVE_MINUTES)
+    environment.prepare(COMMIT, WORK_BRANCH, sync_time_limit=FIVE_MINUTES)
     [words] = runs.words
     return words
 

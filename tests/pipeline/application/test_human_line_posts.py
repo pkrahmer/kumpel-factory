@@ -16,7 +16,7 @@ from factory.pipeline.application.handlers.hand_over import HandOverHandler
 from factory.pipeline.domain.events import Event
 from factory.pipeline.domain.pipeline_definition import PipelineDefinition
 from factory.shared.domain.identifiers import branch_name
-from factory.shared.domain.paths import cost_records_path
+from factory.shared.domain.paths import WORK_BRANCH, cost_records_path
 from factory.watching.domain.bills import bills_by_stage, cost_table
 from factory.work.application.acceptance import AcceptanceHandOver, AcceptanceService
 from factory.work.domain.acceptance import AcceptanceState
@@ -70,9 +70,9 @@ def _open_nothing(
 def _open_acceptance(
     boundaries: Boundaries, definition: PipelineDefinition, human: HumanClone
 ) -> None:
-    human.push_file("main", f"{TODO}/feature.md", "# Todo service\n")
-    human.push_file("main", f"{TODO}/done/F0002-S0001-a.md", "# A\n")
-    human.push_file("main", f"{TODO}/done/F0002-S0002-b.md", "# B\n")
+    human.push_file(WORK_BRANCH, f"{TODO}/feature.md", "# Todo service\n")
+    human.push_file(WORK_BRANCH, f"{TODO}/done/F0002-S0001-a.md", "# A\n")
+    human.push_file(WORK_BRANCH, f"{TODO}/done/F0002-S0002-b.md", "# B\n")
     boundaries.git.fetch()
     AcceptanceService(boundaries, definition).open("F0002")
 

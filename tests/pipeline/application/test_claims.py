@@ -16,6 +16,7 @@ from factory.shared.adapters.clock import ManualClock
 from factory.shared.domain.errors import PushFailed
 from factory.shared.domain.identifiers import branch_name
 from factory.shared.domain.kill_points import InjectedKill, KillPoint, KillPoints
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from factory.work.domain.journal import JournalRecord
 from factory.work.domain.work_item import Claim, WorkItemDocument, WorkItemState
 from support.git_support import PIPELINE_YAML, TEST_IDENTITY, remote_commit
@@ -57,7 +58,7 @@ def _prepare(
     state: WorkItemState | None = None,
     committed: bool = True,
 ) -> WorkItemDocument:
-    """Put the work item on its branch, created from `origin/main`, and return its document."""
+    """Put the work item on its branch, created from the working branch, and return its document."""
     document = WorkItemDocument(state=_state() if state is None else state, body=BODY)
     put_work_item(boundaries, BRANCH, PATH, document, committed=committed)
     return document
@@ -111,7 +112,7 @@ def test_claim_copies_the_lease_duration_of_the_stages_role(
 ) -> None:
     definition = None
     if pipeline is not None:
-        human.push_file("main", PIPELINE_FILE, pipeline)
+        human.push_file(WORK_BRANCH, PIPELINE_FILE, pipeline)
         definition = _definition(boundaries, pipeline)
     document = _prepare(boundaries)
 
@@ -297,7 +298,7 @@ def test_claim_refuses_when_another_branch_is_checked_out_and_writes_nothing(
     boundaries: Boundaries, remote: Path
 ) -> None:
     document = _prepare(boundaries)
-    boundaries.git.checkout("main", start_point="origin/main")
+    boundaries.git.checkout(WORK_BRANCH, start_point=f"{REMOTE}/{WORK_BRANCH}")
     before = _snapshot(boundaries, remote, BRANCH, PATH)
 
     with pytest.raises(ValueError, match=r".+"):
@@ -355,7 +356,7 @@ def test_claim_on_a_new_branch_commits_the_uncommitted_opening_on_main(
     boundaries: Boundaries, remote: Path
 ) -> None:
     document = _prepare(boundaries, committed=False)
-    main = boundaries.git.resolve("origin/main")
+    main = boundaries.git.resolve(f"{REMOTE}/{WORK_BRANCH}")
     assert remote_commit(remote, BRANCH) is None
 
     start = _claim(boundaries, document)

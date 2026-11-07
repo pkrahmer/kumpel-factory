@@ -14,6 +14,7 @@ from factory.pipeline.application.stalls import StallContext, StallService
 from factory.pipeline.application.task import TaskComposer, TaskContext
 from factory.shared.domain.errors import CannotHandle, WorkItemFormatError
 from factory.shared.domain.identifiers import branch_name
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.work.domain.journal import JournalRecord
 from factory.work.domain.work_item import Claim, WorkItemDocument, WorkItemSnapshot, WorkItemState
 from support.crash_support import Rerun
@@ -47,7 +48,7 @@ def _branch_head(remote: Path) -> str:
 @pytest.fixture
 def opened(boundaries: Boundaries, human: HumanClone) -> None:
     """Start the story on `main` and push its branch with a document in stage `tests`."""
-    human.push_file("main", BACKLOG_PATH, STORY)
+    human.push_file(WORK_BRANCH, BACKLOG_PATH, STORY)
     human.start(BACKLOG_PATH)
     document = WorkItemDocument(state=WorkItemState(stage="tests", journal=[CREATED]), body=BODY)
     human.push_file(BRANCH, PATH, boundaries.work_item_writer.render(document))

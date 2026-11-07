@@ -11,6 +11,7 @@ from factory.agents.domain.agent_runs import AgentRunResult
 from factory.entry.wiring import build_tick, machine_extras
 from factory.pipeline.application.boundaries import Boundaries
 from factory.pipeline.application.tick import TickOutcome
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.shared.domain.settings import InstanceSettings
 from support.git_support import PIPELINE_YAML, install_agents
 from support.human_clone import HumanClone
@@ -96,8 +97,8 @@ def test_a_tick_stops_on_a_failed_extra_and_otherwise_probes_in_the_stages_envir
 ) -> None:
     roles = boundaries.pipeline_reader.parse(PIPELINE_YAML).roles
     install_agents(agent_home, {*roles, "coder"})
-    human.push_file("main", "Makefile", "lint:\n\ttrue\nsync:\n\t@:\n")
-    human.push_file("main", BACKLOG_PATH, STORY)
+    human.push_file(WORK_BRANCH, "Makefile", "lint:\n\ttrue\nsync:\n\t@:\n")
+    human.push_file(WORK_BRANCH, BACKLOG_PATH, STORY)
     human.start(BACKLOG_PATH)
     token_file = tmp_path / "hosting-token"
     if token_file_exists:

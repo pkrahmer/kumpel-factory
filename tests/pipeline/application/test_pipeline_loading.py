@@ -15,6 +15,7 @@ from factory.pipeline.application.stops import StopService
 from factory.pipeline.domain.stops import HealthStatus, RepositoryStop
 from factory.shared.adapters.clock import ManualClock
 from factory.shared.domain.errors import GitError, PipelineDefinitionInvalid
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from factory.watching.application.machine import HealthStatusStore
 from support.git_support import CHECKOUT, PIPELINE_YAML, clone, install_agents, run_git
 from support.human_clone import HumanClone
@@ -64,7 +65,7 @@ def _refused(loader: PipelineLoader, ref: str = PIPELINE_REF) -> str:
 
 
 def test_the_pipeline_ref_is_main_on_the_remote() -> None:
-    assert PIPELINE_REF == "origin/main"
+    assert f"{REMOTE}/{WORK_BRANCH}" == PIPELINE_REF
 
 
 def test_load_reads_main_on_the_remote_not_the_work_tree(
@@ -96,7 +97,7 @@ def test_a_definition_without_contract_is_refused_with_its_fault(
     boundaries: Boundaries, agent_home: Path, human: HumanClone, checkout: GitCli
 ) -> None:
     install_agents(agent_home, ROLES)
-    _push(human, checkout, "main", WITHOUT_CONTRACT)
+    _push(human, checkout, WORK_BRANCH, WITHOUT_CONTRACT)
 
     assert _refused(PipelineLoader(boundaries)) == "missing key: contract"
 
@@ -111,7 +112,7 @@ def test_a_refusal_raises_one_stop_and_writes_its_line(
     tmp_path: Path,
 ) -> None:
     install_agents(agent_home, ROLES)
-    _push(human, checkout, "main", WITHOUT_CONTRACT)
+    _push(human, checkout, WORK_BRANCH, WITHOUT_CONTRACT)
     clock.advance(timedelta(seconds=5))
 
     _refused(PipelineLoader(boundaries))
@@ -130,7 +131,7 @@ def test_a_refusal_opens_no_pull_request_and_posts_nothing(
     hosting: FakeHostingService,
 ) -> None:
     install_agents(agent_home, ROLES)
-    _push(human, checkout, "main", WITHOUT_CONTRACT)
+    _push(human, checkout, WORK_BRANCH, WITHOUT_CONTRACT)
 
     _refused(PipelineLoader(boundaries))
 
@@ -141,7 +142,7 @@ def test_a_missing_key_with_a_default_takes_the_default(
     boundaries: Boundaries, agent_home: Path, human: HumanClone, checkout: GitCli, tmp_path: Path
 ) -> None:
     install_agents(agent_home, ROLES)
-    _push(human, checkout, "main", PIPELINE_YAML.replace("crash_cap: 2\n", ""))
+    _push(human, checkout, WORK_BRANCH, PIPELINE_YAML.replace("crash_cap: 2\n", ""))
 
     definition = PipelineLoader(boundaries).load()
 
@@ -165,12 +166,12 @@ def test_a_definition_missing_on_main_is_refused_and_stops(
     remover = clone(remote, tmp_path / "remover")
     run_git(remover, "rm", "-q", PIPELINE_FILE)
     run_git(remover, "commit", "-q", "-m", "remove the pipeline definition")
-    run_git(remover, "push", "-q", "origin", "main")
+    run_git(remover, "push", "-q", "origin", WORK_BRANCH)
     checkout.fetch()
 
     fault = _refused(PipelineLoader(boundaries))
 
-    assert fault == "factory/pipeline.yml is missing at origin/main"
+    assert fault == f"factory/pipeline.yml is missing at {REMOTE}/{WORK_BRANCH}"
     assert boundaries.health.read().stops == [_stop(fault, clock)]
 
 
@@ -291,7 +292,7 @@ def test_a_successful_load_at_another_ref_leaves_the_stop_in_place(
     tmp_path: Path,
 ) -> None:
     install_agents(agent_home, ROLES)
-    _push(human, checkout, "main", WITHOUT_CONTRACT)
+    _push(human, checkout, WORK_BRANCH, WITHOUT_CONTRACT)
     loader = PipelineLoader(boundaries)
     _refused(loader)
     status = boundaries.health.read()
@@ -323,7 +324,7 @@ def test_an_unwritable_health_status_raises_os_error_after_the_stop_line(
 def test_the_agents_are_checked_only_when_the_text_is_valid(
     boundaries: Boundaries, human: HumanClone, checkout: GitCli, clock: ManualClock
 ) -> None:
-    _push(human, checkout, "main", WITHOUT_CONTRACT)
+    _push(human, checkout, WORK_BRANCH, WITHOUT_CONTRACT)
 
     fault = _refused(PipelineLoader(boundaries))
 

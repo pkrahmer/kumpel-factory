@@ -22,6 +22,7 @@ from factory.machine.domain.stage_layer import (
 from factory.pipeline.application.boundaries import Boundaries
 from factory.pipeline.application.stops import StopService
 from factory.pipeline.domain.stops import RepositoryStop
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.shared.domain.settings import InstanceSettings
 from support.git_support import PIPELINE_YAML, install_agents, run_git
 from support.human_clone import HumanClone
@@ -66,7 +67,7 @@ def _push_bytes(tmp_path: Path, remote: Path, path: str, data: bytes) -> None:
     run_git(clone, "add", path)
     identity = ["-c", "user.name=Human", "-c", "user.email=human@example.org"]
     run_git(clone, *identity, "commit", "-q", "-m", f"write {path}")
-    run_git(clone, "push", "-q", "origin", "main")
+    run_git(clone, "push", "-q", "origin", WORK_BRANCH)
 
 
 def test_a_start_without_a_stage_file_builds_nothing_and_keeps_the_base(
@@ -83,7 +84,7 @@ def test_a_start_without_a_stage_file_builds_nothing_and_keeps_the_base(
 def test_a_start_with_a_valid_stage_file_builds_it_once_and_takes_the_project_image(
     boundaries: Boundaries, settings: InstanceSettings, human: HumanClone
 ) -> None:
-    human.push_file("main", STAGE_FILE, VALID)
+    human.push_file(WORK_BRANCH, STAGE_FILE, VALID)
     images = FakeImages()
 
     started = _start(boundaries, settings, images)
@@ -112,7 +113,7 @@ def test_a_stage_file_that_does_not_build_stands_as_a_stop(
     result: ImageBuild,
     seconds: int,
 ) -> None:
-    human.push_file("main", STAGE_FILE, VALID)
+    human.push_file(WORK_BRANCH, STAGE_FILE, VALID)
 
     started = _start(boundaries, settings, FakeImages(build_result=result))
 
@@ -124,7 +125,7 @@ def test_a_stage_file_that_does_not_build_stands_as_a_stop(
 
 
 def _push_broken_rule(human: HumanClone, _tmp_path: Path, _remote: Path) -> None:
-    human.push_file("main", STAGE_FILE, "FROM debian:bookworm\n")
+    human.push_file(WORK_BRANCH, STAGE_FILE, "FROM debian:bookworm\n")
 
 
 def _push_not_utf_8(_human: HumanClone, tmp_path: Path, remote: Path) -> None:
@@ -179,7 +180,7 @@ def test_the_next_start_ends_a_stage_image_stop(
         RepositoryStop(scope="machine", reason="stage_image_failed", detail="a fault", at=AT)
     )
     if stage_file is not None:
-        human.push_file("main", STAGE_FILE, stage_file)
+        human.push_file(WORK_BRANCH, STAGE_FILE, stage_file)
 
     started = _start(boundaries, settings, FakeImages())
 
@@ -190,7 +191,7 @@ def test_the_next_start_ends_a_stage_image_stop(
 def test_no_stage_starts_while_the_stage_image_stop_stands(
     instance_settings: InstanceSettings, hosting: FakeHostingService, human: HumanClone
 ) -> None:
-    human.push_file("main", STAGE_FILE, VALID)
+    human.push_file(WORK_BRANCH, STAGE_FILE, VALID)
     sleeps: list[float] = []
     images = FakeImages(build_result=FAILED)
 
@@ -228,13 +229,13 @@ def test_a_run_with_a_valid_stage_file_runs_its_preflight_on_the_project_image(
     inspected: list[str],
 ) -> None:
     install_agents(agent_home, boundaries.pipeline_reader.parse(PIPELINE_YAML).roles)
-    human.push_file("main", STAGE_FILE, VALID)
+    human.push_file(WORK_BRANCH, STAGE_FILE, VALID)
     settings = instance_settings.model_copy(update={"image": BASE_IDENTITY})
     assert settings.stage_image is not None
     layer = stage_layer(VALID, BASE_IDENTITY)
     tag = project_image_tag(settings.stage_image)
     names = {"layer": layer.identity, "base": BASE_IDENTITY, "project": tag}
-    main = run_git(remote, "rev-parse", "main").strip()
+    main = run_git(remote, "rev-parse", WORK_BRANCH).strip()
     stamps = JsonPreflightStampFile(settings.state_directory / "preflight-stamp.json")
     stamps.write(PreflightStamp(image=names[stamped], main_probed=main))
     podman = dataset_podman(tmp_path, PodmanPlan(stdout=f"{PODMAN_VERSION}\n"))

@@ -11,6 +11,7 @@ from factory.agents.application.project_agents import ProjectAgentDefinitions
 from factory.entry.wiring import handler_factory
 from factory.pipeline.application.boundaries import Boundaries
 from factory.pipeline.application.tick import Tick
+from factory.shared.domain.paths import WORK_BRANCH
 from support.agent_definition_support import COMPLETED
 from support.git_support import PIPELINE_YAML, install_agents
 from support.human_clone import HumanClone
@@ -43,8 +44,8 @@ def test_the_stage_runs_the_project_agent_of_its_role(
 ) -> None:
     install_agents(agent_home, boundaries.pipeline_reader.parse(PIPELINE_YAML).roles)
     if project_file:
-        human.push_file("main", "factory/agents/intake.md", PROJECT_INTAKE)
-    human.push_file("main", BACKLOG_PATH, STORY)
+        human.push_file(WORK_BRANCH, "factory/agents/intake.md", PROJECT_INTAKE)
+    human.push_file(WORK_BRANCH, BACKLOG_PATH, STORY)
     human.start(BACKLOG_PATH)
     project = dataclasses.replace(
         boundaries,

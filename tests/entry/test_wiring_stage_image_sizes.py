@@ -15,6 +15,7 @@ from factory.machine.application.images import ImageBuild
 from factory.machine.domain.stage_layer import STAGE_FILE, project_image_tag, stage_layer
 from factory.pipeline.application.boundaries import Boundaries
 from factory.pipeline.application.stops import StopService
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.shared.domain.settings import InstanceSettings
 from support.human_clone import HumanClone
 from support.recording_log import RecordingLog
@@ -46,7 +47,7 @@ def _lines(boundaries: Boundaries, settings: InstanceSettings, images: SizedImag
 def test_a_built_image_logs_its_sizes_and_its_warnings(
     boundaries: Boundaries, local_settings: InstanceSettings, human: HumanClone
 ) -> None:
-    human.push_file("main", STAGE_FILE, VALID)
+    human.push_file(WORK_BRANCH, STAGE_FILE, VALID)
     build = ImageBuild(passed=True, duration=timedelta(seconds=3), output_tail="done", warnings=2)
     images = SizedImages(
         {BASE: 1_580_000_000, project_image_tag(BASE): 2_000_000_000}.get, build_result=build
@@ -74,14 +75,14 @@ def test_a_start_without_a_stage_file_logs_the_base_size_once(
 def test_a_return_to_the_base_gives_both_sizes_without_a_build(
     boundaries: Boundaries, local_settings: InstanceSettings, human: HumanClone
 ) -> None:
-    human.push_file("main", STAGE_FILE, VALID)
+    human.push_file(WORK_BRANCH, STAGE_FILE, VALID)
     build = ImageBuild(passed=True, duration=timedelta(seconds=3), output_tail="done", warnings=0)
     images = SizedImages(
         {BASE: 1_580_000_000, project_image_tag(BASE): 2_000_000_000}.get, build_result=build
     )
     settings = _settings(local_settings)
     _lines(boundaries, settings, images)
-    human.remove_file("main", STAGE_FILE)
+    human.remove_file(WORK_BRANCH, STAGE_FILE)
     boundaries.git.fetch()
 
     # A return to the base is chosen without a report, as the run chooses it.
@@ -111,7 +112,7 @@ def test_a_size_that_cannot_be_read_is_logged_unknown(
     sizes: dict[str, int],
     text: str,
 ) -> None:
-    human.push_file("main", STAGE_FILE, VALID)
+    human.push_file(WORK_BRANCH, STAGE_FILE, VALID)
     build = ImageBuild(passed=True, duration=timedelta(seconds=3), output_tail="done", warnings=0)
     images = SizedImages(sizes.get, build_result=build)
 

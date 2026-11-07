@@ -19,7 +19,7 @@ from factory.hosting.domain.hosting import (
     parse_post_key,
     render_post,
 )
-from factory.shared.domain.paths import LABEL_PREFIX, MAIN_BRANCH
+from factory.shared.domain.paths import LABEL_PREFIX, WORK_BRANCH
 
 KINDS = (
     "question",
@@ -56,7 +56,7 @@ def _view(**changes: Any) -> PullRequestView:
 
 
 def test_constants_have_their_values() -> None:
-    assert MAIN_BRANCH == "main"
+    assert WORK_BRANCH == "main"
     assert LABEL_PREFIX == "stage:"
     assert FACTORY_MARKER == "<!-- factory -->"
 

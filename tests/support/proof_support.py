@@ -28,7 +28,7 @@ from factory.shared.adapters.clock import ManualClock, ManualWaiter
 from factory.shared.domain.identifiers import Name, WorkItemId, branch_name
 from factory.shared.domain.kill_point_cases import KILL_POINT_CASES, KillPointCase
 from factory.shared.domain.kill_points import InjectedKill, KillPoint, KillPoints
-from factory.shared.domain.paths import cost_records_path
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH, cost_records_path
 from factory.shared.domain.settings import InstanceSettings
 from factory.watching.adapters.cost_records_jsonl import (
     JsonLinesCostRecordReader,
@@ -86,7 +86,7 @@ START = datetime(2026, 10, 12, 12, 0, tzinfo=UTC)
 FEATURE = "factory/features/F0001-example"
 FIRST_BACKLOG_STORY = f"{FEATURE}/backlog/F0001-S0001-first.md"
 LEAK_PATH = "src/leak.py"
-MAIN = "origin/main"
+MAIN = f"{REMOTE}/{WORK_BRANCH}"
 QUESTION = "Which format does the title take?"
 STORY = """\
 # {title}
@@ -246,19 +246,19 @@ def start_story(world: World, title: str = "Example") -> WorkItemId:
     """Push a story of the example feature that passes the form, start it and return its id."""
     git = world.boundaries.git
     git.fetch()
-    backlog = git.list_files("origin/main", f"{FEATURE}/backlog")
+    backlog = git.list_files(f"{REMOTE}/{WORK_BRANCH}", f"{FEATURE}/backlog")
     if FIRST_BACKLOG_STORY in backlog:
         path = FIRST_BACKLOG_STORY
     else:
         names = [
             name
             for folder in ("backlog", "in-progress", "done")
-            for name in git.list_files("origin/main", f"{FEATURE}/{folder}")
+            for name in git.list_files(f"{REMOTE}/{WORK_BRANCH}", f"{FEATURE}/{folder}")
         ]
         numbers = [int(match.group(1)) for name in names if (match := _STORY_NUMBER.search(name))]
         number = max(numbers, default=0) + 1
         path = f"{FEATURE}/backlog/F0001-S{number:04d}-{_slug(title)}.md"
-    world.human.push_file("main", path, STORY.format(title=title))
+    world.human.push_file(WORK_BRANCH, path, STORY.format(title=title))
     world.human.start(path)
     return Path(path).name[: len("F0001-S0001")]
 
@@ -266,15 +266,15 @@ def start_story(world: World, title: str = "Example") -> WorkItemId:
 def _work_item_path(world: World, work_item: WorkItemId) -> str:
     git = world.boundaries.git
     git.fetch()
-    for path in git.list_files("origin/main", f"{FEATURE}/in-progress"):
+    for path in git.list_files(f"{REMOTE}/{WORK_BRANCH}", f"{FEATURE}/in-progress"):
         if Path(path).name.startswith(work_item):
             return path
-    raise AssertionError(f"{work_item} is not in progress on origin/main")
+    raise AssertionError(f"{work_item} is not in progress on {REMOTE}/{WORK_BRANCH}")
 
 
 def _opening_document(world: World, path: str) -> WorkItemDocument:
     boundaries = world.boundaries
-    text = boundaries.git.show_file("origin/main", path)
+    text = boundaries.git.show_file(f"{REMOTE}/{WORK_BRANCH}", path)
     assert text is not None
     body = boundaries.work_item_reader.parse_specification(text).body
     if "## Journal" not in body:
@@ -376,7 +376,7 @@ def rerun(world: World, *, empty_disk: bool = False) -> World:
 
 
 def _claim_commits(world: World, work_item: WorkItemId, ref: str) -> list[CommitId]:
-    """The commits of `ref` off `origin/main` whose state carries a claim, newest first."""
+    """The commits of `ref` off the working branch whose state carries a claim, newest first."""
     git = world.boundaries.git
     if git.resolve(ref) is None:
         return []
@@ -508,8 +508,8 @@ def drive_to(world: World, work_item: WorkItemId, stage: str) -> None:
     """Tick the started `work_item` through each stage's first move until it waits at `stage`."""
     git = world.boundaries.git
     git.fetch()
-    if git.show_file("origin/main", "Makefile") != PASSING_MAKEFILE:
-        world.human.push_file("main", "Makefile", PASSING_MAKEFILE)
+    if git.show_file(f"{REMOTE}/{WORK_BRANCH}", "Makefile") != PASSING_MAKEFILE:
+        world.human.push_file(WORK_BRANCH, "Makefile", PASSING_MAKEFILE)
     definition = world.boundaries.pipeline_reader.parse(PIPELINE_YAML)
     for _ in range(DRIVE_LIMIT):
         state = _current(world, work_item)
@@ -611,7 +611,7 @@ def _costs(world: World, work_item: WorkItemId, ref: str) -> list[CostRecord]:
 
 
 def _stall_commit(world: World, work_item: WorkItemId) -> CommitId | None:
-    """The commit of `origin/<branch>` off `origin/main` that adds the first `stall` record."""
+    """The commit of `origin/<branch>` off the working branch that adds the first `stall` record."""
     path = _work_item_path(world, work_item)
     adding: CommitId | None = None
     branch = f"origin/{branch_name(work_item)}"

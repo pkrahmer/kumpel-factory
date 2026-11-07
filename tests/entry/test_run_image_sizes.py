@@ -12,6 +12,7 @@ from factory.hosting.adapters.fake_hosting import FakeHostingService
 from factory.machine.domain.stage_layer import STAGE_FILE
 from factory.pipeline.application.boundaries import Boundaries
 from factory.pipeline.application.tick import Tick, TickOutcome
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.shared.domain.settings import InstanceSettings
 from support.human_clone import HumanClone
 from support.log_support import state_log_lines
@@ -90,15 +91,15 @@ def test_the_sizes_change_only_after_a_build_or_a_return_to_the_base(
     human: HumanClone,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    human.push_file("main", STAGE_FILE, FIRST)
+    human.push_file(WORK_BRANCH, STAGE_FILE, FIRST)
 
     seen = _run(
         base_identity_settings,
         hosting,
         monkeypatch,
         [
-            lambda: human.push_file("main", "notes.txt", "another commit\n"),
-            lambda: human.remove_file("main", STAGE_FILE),
+            lambda: human.push_file(WORK_BRANCH, "notes.txt", "another commit\n"),
+            lambda: human.remove_file(WORK_BRANCH, STAGE_FILE),
         ],
     )
 
@@ -119,7 +120,7 @@ def test_a_run_without_a_stage_file_logs_the_base_size_only_at_its_start(
         base_identity_settings,
         hosting,
         monkeypatch,
-        [lambda: human.push_file("main", "notes.txt", "another commit\n")],
+        [lambda: human.push_file(WORK_BRANCH, "notes.txt", "another commit\n")],
     )
 
     lines = state_log_lines(base_identity_settings.state_directory)

@@ -19,7 +19,7 @@ from factory.pipeline.domain.events import EventKind
 from factory.pipeline.domain.pipeline_definition import PipelineDefinition
 from factory.pipeline.domain.stops import StopRecord, parse_stop_records
 from factory.shared.adapters.process import ProcessRequest, run_process
-from factory.shared.domain.paths import STOP_RECORDS_FILE
+from factory.shared.domain.paths import REMOTE, STOP_RECORDS_FILE, WORK_BRANCH
 from factory.shared.domain.settings import InstanceSettings
 from factory.watching.adapters.record_log_jsonl import JsonLinesRecordLog
 from support.disk_support import FakeDiskSpace
@@ -149,7 +149,7 @@ def _disk_room(context: _Context) -> None:
 def _definition_invalid(context: _Context) -> None:
     _local_record(context)
     broken = PIPELINE_YAML.replace('contract: "1.0"\n', "")
-    context.human.push_file("main", "factory/pipeline.yml", broken)
+    context.human.push_file(WORK_BRANCH, "factory/pipeline.yml", broken)
 
 
 def _agent_invalid(context: _Context) -> None:
@@ -210,19 +210,19 @@ def test_a_tick_publishes_the_records_only_once_it_got_past_the_restore(
 
     for prepare, expected in steps:
         prepare(context)
-        head = remote_commit(context.remote, "main")
+        head = remote_commit(context.remote, WORK_BRANCH)
         try:
             tick.run()
         finally:
             _unlock(context)
         if expected is None:
-            assert remote_commit(context.remote, "main") == head
+            assert remote_commit(context.remote, WORK_BRANCH) == head
         else:
             assert _remote_pairs(context.remote) == expected
 
 
 class _UnresolvableMainForStopRecords(GitCli):
-    """Real git, except that `origin/main` is gone while the stop records file is read."""
+    """Real git, except that the working branch is gone while the stop records file is read."""
 
     def __init__(self, directory: Path) -> None:
         super().__init__(directory, GitOptions(identity=TEST_IDENTITY))
@@ -232,20 +232,20 @@ class _UnresolvableMainForStopRecords(GitCli):
     def show_file(self, ref: str, path: str) -> str | None:
         if path != STOP_RECORDS_FILE:
             return super().show_file(ref, path)
-        commit = self.resolve("origin/main")
+        commit = self.resolve(f"{REMOTE}/{WORK_BRANCH}")
         assert commit is not None
-        run_git(self._checkout, "update-ref", "-d", "refs/remotes/origin/main")
+        run_git(self._checkout, "update-ref", "-d", f"refs/remotes/{REMOTE}/{WORK_BRANCH}")
         try:
             return super().show_file(ref, path)
         finally:
-            run_git(self._checkout, "update-ref", "refs/remotes/origin/main", commit)
+            run_git(self._checkout, "update-ref", f"refs/remotes/{REMOTE}/{WORK_BRANCH}", commit)
 
 
 def _refuse_main(context: _Context, boundaries: Boundaries) -> Boundaries:
     hook = context.remote / "hooks" / "pre-receive"
     hook.write_text(
         "#!/bin/sh\nwhile read old new ref; do\n"
-        '  [ "$ref" = refs/heads/main ] && exit 1\ndone\nexit 0\n',
+        f'  [ "$ref" = refs/heads/{WORK_BRANCH} ] && exit 1\ndone\nexit 0\n',
         encoding="utf-8",
     )
     hook.chmod(0o755)
@@ -253,7 +253,7 @@ def _refuse_main(context: _Context, boundaries: Boundaries) -> Boundaries:
 
 
 def _folder_in_place(context: _Context, boundaries: Boundaries) -> Boundaries:
-    context.human.push_file("main", f"{STOP_RECORDS_FILE}/placeholder.txt", "a folder\n")
+    context.human.push_file(WORK_BRANCH, f"{STOP_RECORDS_FILE}/placeholder.txt", "a folder\n")
     return boundaries
 
 

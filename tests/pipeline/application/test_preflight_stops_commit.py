@@ -9,7 +9,7 @@ import pytest
 
 from factory.machine.domain.preflight import PreflightStamp
 from factory.pipeline.domain.stops import StopRecord, stop_records_text
-from factory.shared.domain.paths import STOP_RECORDS_FILE
+from factory.shared.domain.paths import REMOTE, STOP_RECORDS_FILE, WORK_BRANCH
 from factory.watching.adapters.record_log_jsonl import JsonLinesRecordLog
 from support import preflight_support
 from support.log_support import log_lines
@@ -53,8 +53,8 @@ def _move_main(rig: Rig, move: Callable[[Rig], None]) -> None:
     move(rig)
     # As the tick's restore leaves it before the preflight runs: on main at the remote's commit.
     rig.checkout.fetch()
-    rig.checkout.checkout("main", start_point="origin/main")
-    rig.checkout.reset_to("origin/main")
+    rig.checkout.checkout(WORK_BRANCH, start_point=f"{REMOTE}/{WORK_BRANCH}")
+    rig.checkout.reset_to(f"{REMOTE}/{WORK_BRANCH}")
 
 
 @pytest.fixture

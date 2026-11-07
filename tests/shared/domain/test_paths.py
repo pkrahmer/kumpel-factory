@@ -11,10 +11,10 @@ from factory.shared.domain.paths import (
     FEATURES_DIRECTORY,
     LABEL_PREFIX,
     LIFECYCLE_FOLDERS,
-    MAIN_BRANCH,
     PIPELINE_DEFINITION_FILE,
     REMOTE,
     STORY_FORM_FILE,
+    WORK_BRANCH,
     LifecycleFolder,
     cost_records_path,
     folder_of,
@@ -34,7 +34,7 @@ def test_path_constants_have_their_stated_values() -> None:
     assert COST_RECORDS_SUFFIX == ".costs.jsonl"
     assert BRANCH_PREFIX == "work-item/"
     assert REMOTE == "origin"
-    assert MAIN_BRANCH == "main"
+    assert WORK_BRANCH == "main"
     assert LABEL_PREFIX == "stage:"
 
 

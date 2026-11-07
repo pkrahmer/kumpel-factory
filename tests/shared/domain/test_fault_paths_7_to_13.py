@@ -7,6 +7,7 @@ import pytest
 
 from factory.shared.domain.identifiers import WorkItemId, branch_name
 from factory.shared.domain.kill_points import InjectedKill, KillPoint
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from factory.work.domain.acceptance import AcceptanceState
 from factory.work.domain.work_item import WorkItemState
 from support.git_support import remote_commit
@@ -45,7 +46,7 @@ def _number(world: World, work_item: WorkItemId) -> int:
 
 def _merge_main(world: World, work_item: WorkItemId) -> None:
     world.human.merge(branch_name(work_item), "merge")
-    main = remote_commit(world.remote, "main")
+    main = remote_commit(world.remote, WORK_BRANCH)
     assert main is not None
     world.hosting.merge_by_human(_number(world, work_item), main)
 
@@ -134,7 +135,7 @@ def test_reject_killed_before_push_reverts_once_and_leaves_main_clean(
     world: World, work_item: WorkItemId
 ) -> None:
     drive_to(world, work_item, "tests")
-    main_before = world.boundaries.git.resolve("origin/main")
+    main_before = world.boundaries.git.resolve(f"{REMOTE}/{WORK_BRANCH}")
     _moved_by_hand(world, work_item, "review")
     world.kill_points.arm(KillPoint.BEFORE_PUSH, after=0)
     with pytest.raises(InjectedKill):
@@ -151,7 +152,7 @@ def test_reject_killed_before_push_reverts_once_and_leaves_main_clean(
     assert head_state(restarted, work_item).stage == "tests"
     assert len(posts(restarted, work_item, "correction")) == 1
     assert changes == []
-    assert git.resolve("origin/main") == main_before
+    assert git.resolve(f"{REMOTE}/{WORK_BRANCH}") == main_before
 
 
 def test_two_items_in_progress_tick_killed_after_claim_push_reruns_lower_id_and_other_waits(
@@ -205,11 +206,11 @@ def _tick_until_acceptance_opened(world: World) -> None:
 def _booked(world: World) -> WorkItemState | None:
     git = world.boundaries.git
     git.fetch()
-    done = git.list_files("origin/main", f"{FEATURE}/done")
+    done = git.list_files(f"{REMOTE}/{WORK_BRANCH}", f"{FEATURE}/done")
     [path] = [
         path for path in done if Path(path).name.startswith(ACCEPTANCE) and path.endswith(".md")
     ]
-    text = git.show_file("origin/main", path)
+    text = git.show_file(f"{REMOTE}/{WORK_BRANCH}", path)
     assert text is not None
     return world.boundaries.work_item_reader.parse(text).state
 

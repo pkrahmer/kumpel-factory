@@ -10,6 +10,7 @@ import pytest
 from factory.hosting.adapters.git_cli import GitCli
 from factory.hosting.domain.git import GitOptions
 from factory.pipeline.application.scheduler import CheckoutPreparer
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from factory.shared.domain.settings import InstanceSettings
 from support.git_support import TEST_IDENTITY, clone
 from support.settings_support import AGENT_HOME
@@ -48,7 +49,7 @@ def _existing(remote: Path, directory: Path) -> Path:
 def test_a_missing_checkout_is_cloned(remote: Path, directory: Path, git: GitCli) -> None:
     CheckoutPreparer(git, _settings(remote, directory)).prepare()
 
-    assert git.resolve("origin/main") is not None
+    assert git.resolve(f"{REMOTE}/{WORK_BRANCH}") is not None
 
 
 def test_an_existing_checkout_is_kept_with_its_files_and_modes(
@@ -68,7 +69,7 @@ def test_an_existing_checkout_is_kept_with_its_files_and_modes(
 def _missing(remote: Path, directory: Path, git: GitCli) -> None:
     CheckoutPreparer(git, _settings(remote, directory)).prepare()
 
-    assert git.resolve("origin/main") is not None
+    assert git.resolve(f"{REMOTE}/{WORK_BRANCH}") is not None
 
 
 def _group_writable(remote: Path, directory: Path, git: GitCli) -> None:
@@ -87,11 +88,11 @@ def _nested(remote: Path, directory: Path, git: GitCli) -> None:
     nested = directory / "sub" / ".git"
     nested.mkdir(parents=True)
     head = nested / "HEAD"
-    head.write_text("ref: refs/heads/main\n", encoding="utf-8")
+    head.write_text(f"ref: refs/heads/{WORK_BRANCH}\n", encoding="utf-8")
 
     CheckoutPreparer(git, _settings(remote, directory)).prepare()
 
-    assert head.read_text(encoding="utf-8") == "ref: refs/heads/main\n"
+    assert head.read_text(encoding="utf-8") == f"ref: refs/heads/{WORK_BRANCH}\n"
 
 
 def _docstring(_remote: Path, _directory: Path, _git: GitCli) -> None:

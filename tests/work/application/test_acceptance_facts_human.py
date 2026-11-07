@@ -6,6 +6,7 @@ from datetime import UTC, datetime, timedelta
 import pytest
 
 from factory.pipeline.application.boundaries import Boundaries
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.work.application.acceptance import AcceptanceService
 from factory.work.domain.acceptance import AcceptanceState
 from factory.work.domain.journal import HUMAN, Blocked, JournalKind, JournalRecord
@@ -83,7 +84,7 @@ def test_the_facts_carry_the_waits_of_the_archived_stories_only(
         **extra(boundaries),
     }
     for path, text in files.items():
-        human.push_file("main", path, text)
+        human.push_file(WORK_BRANCH, path, text)
     boundaries.git.fetch()
     definition = boundaries.pipeline_reader.parse(PIPELINE_YAML)
 

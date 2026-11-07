@@ -11,6 +11,7 @@ from factory.pipeline.domain.pipeline_definition import PipelineDefinition
 from factory.shared.adapters.clock import ManualClock
 from factory.shared.domain.errors import WorkItemFormatError
 from factory.shared.domain.identifiers import branch_name
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.watching.application.board import BoardReader
 from factory.watching.domain.board import BoardRow
 from factory.work.application.acceptance import AcceptanceService
@@ -127,7 +128,7 @@ def test_rows_come_in_work_item_order(
     expected: list[str],
 ) -> None:
     for path, text in pushed:
-        human.push_file("main", path, text)
+        human.push_file(WORK_BRANCH, path, text)
     for path in started:
         human.start(path)
 

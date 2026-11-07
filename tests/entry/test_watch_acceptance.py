@@ -6,6 +6,7 @@ import pytest
 
 from factory.entry.watch import run_watch
 from factory.pipeline.application.boundaries import Boundaries
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.watching.application.board import BoardReader
 from support.git_support import PIPELINE_YAML
 from support.human_clone import HumanClone
@@ -51,7 +52,7 @@ def test_without_an_acceptance_stage_the_board_has_no_acceptance_status(
     boundaries: Boundaries, human: HumanClone
 ) -> None:
     without = PIPELINE_YAML.replace("acceptance_stage: acceptance\n", "")
-    human.push_file("main", "factory/pipeline.yml", without)
+    human.push_file(WORK_BRANCH, "factory/pipeline.yml", without)
     boundaries.git.fetch()
 
     view = BoardReader(boundaries).read(boundaries.pipeline_reader.parse(without))

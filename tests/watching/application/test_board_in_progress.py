@@ -1,6 +1,7 @@
 """The board counts a feature's story in progress beside its backlog and done stories."""
 
 from factory.pipeline.application.boundaries import Boundaries
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.watching.application.board import BoardReader
 from factory.watching.domain.board import FeatureRow
 from support.git_support import PIPELINE_YAML
@@ -12,8 +13,8 @@ FEATURE = "factory/features/F0001-example"
 def test_a_feature_row_counts_one_story_in_each_folder(
     boundaries: Boundaries, human: HumanClone
 ) -> None:
-    human.push_file("main", f"{FEATURE}/backlog/F0001-S0002-second.md", "# Second story\n")
-    human.push_file("main", f"{FEATURE}/done/F0001-S0003-third.md", "# Third story\n")
+    human.push_file(WORK_BRANCH, f"{FEATURE}/backlog/F0001-S0002-second.md", "# Second story\n")
+    human.push_file(WORK_BRANCH, f"{FEATURE}/done/F0001-S0003-third.md", "# Third story\n")
     human.start(f"{FEATURE}/backlog/F0001-S0001-first.md")
     boundaries.git.fetch()
     definition = boundaries.pipeline_reader.parse(PIPELINE_YAML)

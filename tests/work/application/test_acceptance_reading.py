@@ -5,6 +5,7 @@ import pytest
 from factory.pipeline.application.boundaries import Boundaries
 from factory.pipeline.domain.pipeline_definition import PipelineDefinition
 from factory.shared.domain.errors import WorkItemFormatError
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.watching.domain.board import FeatureRow
 from factory.work.adapters.work_item_markdown import FrontmatterWorkItemWriter
 from factory.work.application.acceptance_reading import AcceptanceReader
@@ -33,9 +34,9 @@ def _reader(boundaries: Boundaries, definition: PipelineDefinition) -> Acceptanc
 
 def _push_complete(human: HumanClone, directory: str) -> None:
     feature = directory.split("-", maxsplit=1)[0]
-    human.push_file("main", f"{FEATURES}/{directory}/feature.md", f"# {directory}\n")
-    human.push_file("main", f"{FEATURES}/{directory}/done/{feature}-S0001-a.md", "# A\n")
-    human.push_file("main", f"{FEATURES}/{directory}/done/{feature}-S0002-b.md", "# B\n")
+    human.push_file(WORK_BRANCH, f"{FEATURES}/{directory}/feature.md", f"# {directory}\n")
+    human.push_file(WORK_BRANCH, f"{FEATURES}/{directory}/done/{feature}-S0001-a.md", "# A\n")
+    human.push_file(WORK_BRANCH, f"{FEATURES}/{directory}/done/{feature}-S0002-b.md", "# B\n")
 
 
 def _report(state: AcceptanceState) -> str:
@@ -68,8 +69,8 @@ def test_a_complete_feature_on_main_is_due_and_a_stray_directory_has_no_entry(
     boundaries: Boundaries, human: HumanClone, definition: PipelineDefinition
 ) -> None:
     _push_complete(human, "F0002-todo")
-    human.push_file("main", f"{TODO}/in-progress/.gitkeep", "")
-    human.push_file("main", f"{FEATURES}/notes/readme.md", "# Notes\n")
+    human.push_file(WORK_BRANCH, f"{TODO}/in-progress/.gitkeep", "")
+    human.push_file(WORK_BRANCH, f"{FEATURES}/notes/readme.md", "# Notes\n")
 
     entries = _reader(boundaries, definition).read()
 
@@ -88,7 +89,7 @@ def test_a_recorded_covering_report_is_accepted_and_the_next_id_follows_it(
 ) -> None:
     _push_complete(human, "F0002-todo")
     state = AcceptanceState(stage="done", outcome="accepted", stories=ARCHIVED)
-    human.push_file("main", f"{TODO}/done/F0002-A0001-acceptance.md", _report(state))
+    human.push_file(WORK_BRANCH, f"{TODO}/done/F0002-A0001-acceptance.md", _report(state))
 
     entry = _entry(_reader(boundaries, definition).read(), "F0002")
 
@@ -143,7 +144,7 @@ def test_an_unreadable_report_on_main_is_a_format_error_with_its_path(
 ) -> None:
     _push_complete(human, "F0002-todo")
     path = f"{TODO}/done/F0002-A0001-acceptance.md"
-    human.push_file("main", path, text)
+    human.push_file(WORK_BRANCH, path, text)
     reader = _reader(boundaries, definition)
 
     with pytest.raises(WorkItemFormatError) as caught:
@@ -214,8 +215,8 @@ def test_fill_board_sets_each_known_feature_status_in_order(
 def test_the_first_of_two_directories_of_one_feature_counts(
     boundaries: Boundaries, human: HumanClone, definition: PipelineDefinition
 ) -> None:
-    human.push_file("main", f"{FEATURES}/F0002-a/done/F0002-S0001-a.md", "# A\n")
-    human.push_file("main", f"{FEATURES}/F0002-b/backlog/F0002-S0002-b.md", "# B\n")
+    human.push_file(WORK_BRANCH, f"{FEATURES}/F0002-a/done/F0002-S0001-a.md", "# A\n")
+    human.push_file(WORK_BRANCH, f"{FEATURES}/F0002-b/backlog/F0002-S0002-b.md", "# B\n")
     reader = _reader(boundaries, definition)
 
     files = reader.feature_files("F0002")

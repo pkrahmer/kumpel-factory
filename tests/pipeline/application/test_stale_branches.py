@@ -9,6 +9,7 @@ from factory.hosting.adapters.git_cli import GitCli
 from factory.pipeline.application.boundaries import Boundaries
 from factory.pipeline.application.recovery import delete_stale_branches
 from factory.shared.domain.identifiers import branch_name
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from support.git_support import CHECKOUT, remote_commit, run_git
 from support.human_clone import HumanClone
 from support.log_support import log_lines
@@ -55,7 +56,7 @@ def test_the_branch_of_a_story_in_progress_stays(
     assert remote_commit(remote, BRANCH) == before
 
 
-@pytest.mark.parametrize("branch", ["main", "scratch", "work-item/not-an-id"])
+@pytest.mark.parametrize("branch", [WORK_BRANCH, "scratch", "work-item/not-an-id"])
 def test_a_branch_no_work_item_owns_stays(
     boundaries: Boundaries, *, remote: Path, checkout: GitCli, human: HumanClone, branch: str
 ) -> None:
@@ -72,14 +73,14 @@ def test_a_branch_no_work_item_owns_stays(
 def test_a_backlog_story_without_a_branch_changes_nothing(
     boundaries: Boundaries, *, remote: Path, checkout: GitCli, tmp_path: Path
 ) -> None:
-    main_before = remote_commit(remote, "main")
+    main_before = remote_commit(remote, WORK_BRANCH)
     branches_before = checkout.remote_branches()
 
     deleted = delete_stale_branches(boundaries)
 
     assert deleted == []
     assert log_lines(tmp_path) == []
-    assert remote_commit(remote, "main") == main_before
+    assert remote_commit(remote, WORK_BRANCH) == main_before
     checkout.fetch()
     assert checkout.remote_branches() == branches_before
 
@@ -94,7 +95,7 @@ def test_a_story_moved_back_in_the_work_tree_only_keeps_its_branch(
 ) -> None:
     human.start(BACKLOG_PATH)
     _push_branch(human, checkout, BRANCH)
-    checkout.reset_to("origin/main")
+    checkout.reset_to(f"{REMOTE}/{WORK_BRANCH}")
     directory = tmp_path / CHECKOUT
     (directory / BACKLOG_PATH).parent.mkdir(parents=True, exist_ok=True)
     (directory / IN_PROGRESS_PATH).rename(directory / BACKLOG_PATH)
@@ -116,8 +117,8 @@ def test_an_id_with_a_story_file_in_progress_as_well_keeps_its_branch(
     human: HumanClone,
     folder: str,
 ) -> None:
-    human.push_file("main", f"{FEATURE}/{folder}/F0001-S0002-second.md", "# T\n")
-    human.push_file("main", f"{FEATURE}/in-progress/F0001-S0002-other.md", "# T\n")
+    human.push_file(WORK_BRANCH, f"{FEATURE}/{folder}/F0001-S0002-second.md", "# T\n")
+    human.push_file(WORK_BRANCH, f"{FEATURE}/in-progress/F0001-S0002-other.md", "# T\n")
     _push_branch(human, checkout, SECOND_BRANCH)
     before = remote_commit(remote, SECOND_BRANCH)
 
@@ -131,7 +132,7 @@ def test_an_id_with_a_story_file_in_progress_as_well_keeps_its_branch(
 def test_two_stale_branches_are_deleted_in_the_order_of_their_names(
     boundaries: Boundaries, *, remote: Path, checkout: GitCli, human: HumanClone
 ) -> None:
-    human.push_file("main", SECOND_BACKLOG_PATH, "# Second story\n")
+    human.push_file(WORK_BRANCH, SECOND_BACKLOG_PATH, "# Second story\n")
     human.push_file(SECOND_BRANCH, "marker.txt", "x\n")
     _push_branch(human, checkout, BRANCH)
 
@@ -192,7 +193,7 @@ def test_the_cleanup_leaves_the_pull_request_the_hosting_service_and_the_checkou
     number = hosting.create_pull_request(BRANCH, f"{WORK_ITEM}: first", "body", draft=True).number
     hosting.close_by_human(number)
     status = checkout.status()
-    main_head = checkout.resolve("refs/heads/main")
+    main_head = checkout.resolve(f"refs/heads/{WORK_BRANCH}")
 
     deleted = delete_stale_branches(boundaries)
 
@@ -200,7 +201,7 @@ def test_the_cleanup_leaves_the_pull_request_the_hosting_service_and_the_checkou
     assert hosting.get_pull_request(number).state == "closed"
     assert all(hosting.factory_posts(pull.number) == [] for pull in hosting.pull_requests())
     assert checkout.status().branch == status.branch
-    assert checkout.resolve("refs/heads/main") == main_head
+    assert checkout.resolve(f"refs/heads/{WORK_BRANCH}") == main_head
 
 
 def test_the_branch_of_a_done_story_is_deleted(
@@ -211,7 +212,7 @@ def test_the_branch_of_a_done_story_is_deleted(
     human: HumanClone,
     tmp_path: Path,
 ) -> None:
-    human.push_file("main", SECOND_DONE_PATH, "# T\n")
+    human.push_file(WORK_BRANCH, SECOND_DONE_PATH, "# T\n")
     _push_branch(human, checkout, SECOND_BRANCH)
 
     deleted = delete_stale_branches(boundaries)
@@ -230,8 +231,8 @@ def test_an_id_in_the_backlog_and_done_is_logged_as_done(
     human: HumanClone,
     tmp_path: Path,
 ) -> None:
-    human.push_file("main", SECOND_BACKLOG_PATH, "# T\n")
-    human.push_file("main", SECOND_DONE_PATH, "# T\n")
+    human.push_file(WORK_BRANCH, SECOND_BACKLOG_PATH, "# T\n")
+    human.push_file(WORK_BRANCH, SECOND_DONE_PATH, "# T\n")
     _push_branch(human, checkout, SECOND_BRANCH)
 
     deleted = delete_stale_branches(boundaries)

@@ -15,6 +15,7 @@ from factory.pipeline.application.stops import StopService
 from factory.pipeline.domain.stops import StopPosted, WorkItemStop
 from factory.shared.domain.errors import GitError, HostingServiceError
 from factory.shared.domain.kill_points import InjectedKill, KillPoint, KillPoints
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from support.git_support import TEST_IDENTITY, run_git
 from support.human_clone import HumanClone
 
@@ -146,7 +147,13 @@ def test_no_pull_request_is_opened_for_a_branch_without_a_commit_beyond_main(
     remote_branch: str,
 ) -> None:
     if remote_branch == "at-main":
-        run_git(tmp_path / "human", "push", "-q", "origin", f"origin/main:refs/heads/{BRANCH}")
+        run_git(
+            tmp_path / "human",
+            "push",
+            "-q",
+            "origin",
+            f"{REMOTE}/{WORK_BRANCH}:refs/heads/{BRANCH}",
+        )
         checkout.fetch()
 
     with pytest.raises(HostingServiceError) as raised:

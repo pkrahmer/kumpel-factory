@@ -9,6 +9,7 @@ import pytest
 from factory.hosting.adapters.git_cli import GitCli
 from factory.shared.domain.errors import GitError
 from factory.shared.domain.kill_points import KillPoint, KillPoints
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from support.git_support import (
     CHECKOUT,
     TEST_IDENTITY,
@@ -47,7 +48,7 @@ def _identities(directory: Path) -> list[str]:
 
 
 def _branch_with_commit(directory: Path, branch: str, files: dict[str, str]) -> str:
-    run_git(directory, "checkout", "-q", "-B", branch, "origin/main")
+    run_git(directory, "checkout", "-q", "-B", branch, f"{REMOTE}/{WORK_BRANCH}")
     write_files(directory, files)
     return commit_all(directory, f"on {branch}")
 
@@ -55,14 +56,14 @@ def _branch_with_commit(directory: Path, branch: str, files: dict[str, str]) -> 
 def _pushed_branch(directory: Path, branch: str) -> str:
     commit = _branch_with_commit(directory, branch, {"pushed.txt": "pushed\n"})
     run_git(directory, "push", "-q", "origin", branch)
-    run_git(directory, "checkout", "-q", "main")
+    run_git(directory, "checkout", "-q", WORK_BRANCH)
     return commit
 
 
 def _diverge(directory: Path, other: dict[str, str], main: dict[str, str]) -> tuple[str, str]:
     """Commit `other` on branch `other` and `main` on `main`; return both commits, main first."""
     other_commit = _branch_with_commit(directory, "other", other)
-    run_git(directory, "checkout", "-q", "main")
+    run_git(directory, "checkout", "-q", WORK_BRANCH)
     write_files(directory, main)
     return commit_all(directory, "on main"), other_commit
 
@@ -144,7 +145,7 @@ def test_delete_remote_branch_reaches_no_kill_point(
 def test_delete_branch_removes_an_unmerged_local_branch(tmp_path: Path, checkout: GitCli) -> None:
     directory = tmp_path / CHECKOUT
     _branch_with_commit(directory, "other", {"other.txt": "other\n"})
-    run_git(directory, "checkout", "-q", "main")
+    run_git(directory, "checkout", "-q", WORK_BRANCH)
 
     checkout.delete_branch("other")
 
@@ -182,7 +183,10 @@ def test_merge_of_a_contained_ref_is_up_to_date_and_keeps_head(
     write_files(directory, {"local.txt": "local\n"})
     before = commit_all(directory, "local")
 
-    assert checkout.merge("origin/main", fast_forward_only=fast_forward_only) == "up_to_date"
+    assert (
+        checkout.merge(f"{REMOTE}/{WORK_BRANCH}", fast_forward_only=fast_forward_only)
+        == "up_to_date"
+    )
 
     assert _head(directory) == before
 
@@ -194,12 +198,12 @@ def test_merge_of_a_descendant_fast_forwards_without_a_merge_commit(
     directory = tmp_path / CHECKOUT
     before = _head(directory)
     ahead = _branch_with_commit(directory, "ahead", {"ahead.txt": "ahead\n"})
-    run_git(directory, "checkout", "-q", "main")
+    run_git(directory, "checkout", "-q", WORK_BRANCH)
 
     assert checkout.merge("ahead", fast_forward_only=fast_forward_only) == "fast_forwarded"
 
     assert _head(directory) == ahead
-    assert _head(directory, "refs/heads/main") == ahead
+    assert _head(directory, f"refs/heads/{WORK_BRANCH}") == ahead
     assert _parents(directory) == [before]
 
 

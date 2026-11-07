@@ -14,6 +14,7 @@ from factory.pipeline.application.scheduler import CheckoutPreparer, RepositoryW
 from factory.pipeline.application.stops import StopService
 from factory.pipeline.domain.stops import RepositoryStop
 from factory.shared.adapters.clock import ManualClock
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from factory.shared.domain.settings import InstanceSettings
 from factory.watching.application.machine import FactoryLog
 from support.git_support import (
@@ -29,7 +30,7 @@ from support.human_clone import HumanClone
 from support.settings_support import AGENT_HOME
 
 NO_MAIN = "the repository has no main branch yet"
-NO_PIPELINE = "origin/main has no factory/pipeline.yml yet"
+NO_PIPELINE = f"{REMOTE}/{WORK_BRANCH} has no factory/pipeline.yml yet"
 
 
 class RecordingLog(FactoryLog):
@@ -86,7 +87,7 @@ def empty_remote(tmp_path: Path) -> Path:
     """Return a bare repository without any commit."""
     root = tmp_path / "empty"
     root.mkdir()
-    run_git(root, "init", "-q", "--bare", "--initial-branch=main", "remote.git")
+    run_git(root, "init", "-q", "--bare", f"--initial-branch={WORK_BRANCH}", "remote.git")
     return root / "remote.git"
 
 
@@ -94,10 +95,10 @@ def _push_main(remote: Path, files: dict[str, str]) -> str:
     """Push a commit of `files` as `main` of `remote` from a seed of its own; return its id."""
     seed = remote.parent / "seed"
     if not seed.exists():
-        run_git(remote.parent, "init", "-q", "--initial-branch=main", "seed")
+        run_git(remote.parent, "init", "-q", f"--initial-branch={WORK_BRANCH}", "seed")
     write_files(seed, files)
     commit = commit_all(seed, "seed")
-    run_git(seed, "push", "-q", "--force", str(remote), "main")
+    run_git(seed, "push", "-q", "--force", str(remote), WORK_BRANCH)
     return commit
 
 
@@ -106,15 +107,15 @@ def test_a_ready_checkout_is_not_fetched_and_leaves_no_stop(
 ) -> None:
     clone(remote, tmp_path / "instance")
     ready = instance(str(remote))
-    human.push_file("main", "docs/later.md", "pushed after the clone\n")
-    later = remote_commit(remote, "main")
+    human.push_file(WORK_BRANCH, "docs/later.md", "pushed after the clone\n")
+    later = remote_commit(remote, WORK_BRANCH)
 
     prepared = ready.waiter.prepare()
 
     assert prepared is True
     assert ready.unavailable() == []
     assert later is not None
-    assert ready.git.resolve("origin/main") != later
+    assert ready.git.resolve(f"{REMOTE}/{WORK_BRANCH}") != later
 
 
 def _missing_url(tmp_path: Path) -> str:
@@ -124,7 +125,7 @@ def _missing_url(tmp_path: Path) -> str:
 def _deleted_after_clone(tmp_path: Path) -> str:
     root = tmp_path / "vanishing"
     root.mkdir()
-    run_git(root, "init", "-q", "--bare", "--initial-branch=main", "remote.git")
+    run_git(root, "init", "-q", "--bare", f"--initial-branch={WORK_BRANCH}", "remote.git")
     remote = root / "remote.git"
     clone(remote, tmp_path / "instance")
     shutil.rmtree(remote)
@@ -176,7 +177,7 @@ def test_the_pushed_pipeline_definition_is_fetched_and_clears_the_stop(
     prepared = waiting.waiter.prepare()
 
     assert prepared is True
-    assert waiting.git.resolve("origin/main") == pushed
+    assert waiting.git.resolve(f"{REMOTE}/{WORK_BRANCH}") == pushed
     assert waiting.unavailable() == []
 
 
@@ -202,7 +203,7 @@ def test_a_repeated_fault_is_reported_once_and_a_changed_fault_again(
     after_repeat = len(waiting.log.stop_lines())
     _push_main(empty_remote, {"README.md": "no factory here\n"})
     waiting.waiter.prepare()
-    run_git(empty_remote, "update-ref", "-d", "refs/heads/main")
+    run_git(empty_remote, "update-ref", "-d", f"refs/heads/{WORK_BRANCH}")
     waiting.waiter.prepare()
 
     assert after_repeat == 1

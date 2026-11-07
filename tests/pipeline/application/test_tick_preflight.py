@@ -18,6 +18,7 @@ from factory.pipeline.application.tick import IdleHandler, Tick, TickOutcome
 from factory.pipeline.domain.events import EventKind
 from factory.pipeline.domain.pipeline_definition import PipelineDefinition
 from factory.shared.domain.identifiers import branch_name
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.shared.domain.settings import InstanceSettings
 from support.git_support import CHECKOUT, PIPELINE_YAML, install_agents, remote_commit
 from support.human_clone import HumanClone
@@ -74,10 +75,10 @@ class Machine:
         return [stop.reason for stop in self.boundaries.health.read().stops]
 
     def push_main(self, path: str, text: str) -> None:
-        self.human.push_file("main", path, text)
+        self.human.push_file(WORK_BRANCH, path, text)
 
     def remove_from_main(self, path: str) -> None:
-        self.human.remove_file("main", path)
+        self.human.remove_file(WORK_BRANCH, path)
 
     def log_lines(self) -> list[str]:
         return state_log_lines(self.directory / "state")
@@ -92,7 +93,7 @@ def machine(
     human: HumanClone,
     agent_home: Path,
 ) -> Machine:
-    """Return a ready machine whose `origin/main` carries a `lint` that passes, agents installed."""
+    """Return a ready machine whose working branch has a passing `lint`, agents installed."""
     install_agents(agent_home, boundaries.pipeline_reader.parse(PIPELINE_YAML).roles)
     machine = Machine(boundaries, checkout, human, tmp_path)
     machine.push_main("Makefile", MAKEFILE)
@@ -102,7 +103,7 @@ def machine(
 
 @pytest.fixture
 def red_main(machine: Machine) -> Machine:
-    """Return the machine with a file `BROKEN` on `origin/main`, which makes its `lint` red."""
+    """Return the machine with a file `BROKEN` on the working branch, which makes its `lint` red."""
     machine.push_main("BROKEN", "red\n")
     return machine
 

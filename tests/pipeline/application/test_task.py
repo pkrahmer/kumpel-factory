@@ -14,7 +14,7 @@ from factory.pipeline.application.boundaries import Boundaries
 from factory.pipeline.application.task import StoryFormChecker, TaskComposer, TaskContext
 from factory.pipeline.domain.pipeline_definition import PipelineDefinition
 from factory.shared.domain.errors import AgentDefinitionMissing, WorkItemFormatError
-from factory.shared.domain.paths import STORY_FORM_FILE
+from factory.shared.domain.paths import STORY_FORM_FILE, WORK_BRANCH
 from factory.work.domain.journal import JournalKind, JournalRecord
 from factory.work.domain.story_form import FormFinding
 from factory.work.domain.work_item import WorkItemDocument, WorkItemState
@@ -137,7 +137,7 @@ def _story_document(body: str = STORY) -> WorkItemDocument:
 
 
 def _push_form(human: HumanClone, boundaries: Boundaries, text: str) -> None:
-    human.push_file("main", STORY_FORM_FILE, text)
+    human.push_file(WORK_BRANCH, STORY_FORM_FILE, text)
     boundaries.git.fetch()
 
 
@@ -319,7 +319,7 @@ def test_a_form_absent_at_main_is_a_format_error(boundaries: Boundaries, tmp_pat
     directory = tmp_path / "human"
     run_git(directory, "rm", "-q", STORY_FORM_FILE)
     run_git(directory, "commit", "-q", "-m", "remove the story form")
-    run_git(directory, "push", "-q", "origin", "main")
+    run_git(directory, "push", "-q", "origin", WORK_BRANCH)
     boundaries.git.fetch()
 
     with pytest.raises(WorkItemFormatError) as caught:

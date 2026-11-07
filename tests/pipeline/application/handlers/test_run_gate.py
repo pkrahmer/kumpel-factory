@@ -16,6 +16,7 @@ from factory.pipeline.application.handlers.merged import MergedHandler
 from factory.pipeline.application.handlers.run_gate import RunGate
 from factory.pipeline.domain.events import Event, EventKind
 from factory.shared.domain.errors import HostingServiceError
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from factory.work.domain.journal import HUMAN, JournalRecord
 from factory.work.domain.work_item import WorkItemDocument, WorkItemSnapshot, WorkItemState
 from support.git_support import PIPELINE_YAML, remote_commit
@@ -206,7 +207,7 @@ def _pushed_story(boundaries: Boundaries, human: HumanClone, pull_request: int) 
 
 def _due_run(snapshot: WorkItemSnapshot, checkout: GitCli, remote: Path) -> Event:
     checkout.fetch()
-    main = remote_commit(remote, "main")
+    main = remote_commit(remote, WORK_BRANCH)
     assert main is not None
     fetched = snapshot.model_copy(update={"branch_commit": checkout.resolve(f"origin/{BRANCH}")})
     return Event(kind="run", work_item=fetched, remote_state=main)
@@ -235,8 +236,8 @@ def test_a_story_closed_while_its_stage_was_due_is_discarded_without_a_run(
     _real_gate(boundaries, run).handle(event)
 
     checkout.fetch()
-    assert checkout.show_file("origin/main", BACKLOG_PATH) is not None
-    assert checkout.show_file("origin/main", PATH) is None
+    assert checkout.show_file(f"{REMOTE}/{WORK_BRANCH}", BACKLOG_PATH) is not None
+    assert checkout.show_file(f"{REMOTE}/{WORK_BRANCH}", PATH) is None
     assert remote_commit(remote, BRANCH) is None
     assert run.events == []
 
@@ -252,7 +253,7 @@ def test_a_story_merged_while_its_stage_was_due_is_archived_without_a_run(
 ) -> None:
     snapshot = _pushed_story(boundaries, human, pull_request)
     human.merge(BRANCH, "merge")
-    merge_commit = remote_commit(remote, "main")
+    merge_commit = remote_commit(remote, WORK_BRANCH)
     assert merge_commit is not None
     hosting.merge_by_human(pull_request, merge_commit)
     event = _due_run(snapshot, checkout, remote)
@@ -261,6 +262,6 @@ def test_a_story_merged_while_its_stage_was_due_is_archived_without_a_run(
     _real_gate(boundaries, run).handle(event)
 
     checkout.fetch()
-    assert checkout.show_file("origin/main", DONE_PATH) is not None
-    assert checkout.show_file("origin/main", PATH) is None
+    assert checkout.show_file(f"{REMOTE}/{WORK_BRANCH}", DONE_PATH) is not None
+    assert checkout.show_file(f"{REMOTE}/{WORK_BRANCH}", PATH) is None
     assert run.events == []

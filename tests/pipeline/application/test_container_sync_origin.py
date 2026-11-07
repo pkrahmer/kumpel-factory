@@ -7,6 +7,7 @@ import pytest
 from factory.hosting.domain.git import CommitId
 from factory.machine.application.stage_environment import _SYNC_SCRIPT
 from factory.pipeline.application.boundaries import Boundaries
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from support.container_support import (
     FIVE_MINUTES,
     GONE,
@@ -47,9 +48,9 @@ def _host_commit(boundaries: Boundaries, ref: str) -> str:
 @pytest.mark.parametrize(
     ("dataset_ref", "host_branch"),
     [
-        pytest.param("origin/main", "main", id="origin-main"),
+        pytest.param(f"{REMOTE}/{WORK_BRANCH}", WORK_BRANCH, id="origin-main"),
         pytest.param(f"origin/{BRANCH}", BRANCH, id="origin-branch"),
-        pytest.param("main", "main", id="local-main"),
+        pytest.param(WORK_BRANCH, WORK_BRANCH, id="local-main"),
     ],
 )
 def test_the_dataset_checkout_holds_the_host_branches_as_origin_refs(
@@ -74,13 +75,13 @@ def test_a_branch_deleted_on_the_host_is_gone_from_local_and_origin_refs(
 ) -> None:
     run_git(boundaries.checkout, "branch", GONE)
     environment = container_environment(dataset)
-    environment.prepare(main_commit, "main", sync_time_limit=FIVE_MINUTES)
+    environment.prepare(main_commit, WORK_BRANCH, sync_time_limit=FIVE_MINUTES)
     refs = (f"refs/heads/{GONE}", f"refs/remotes/origin/{GONE}")
     listed = dataset_git(dataset, "for-each-ref", "--format=%(refname)", *refs).split()
     assert sorted(listed) == sorted(refs)
     run_git(boundaries.checkout, "branch", "-D", GONE)
 
-    environment.prepare(main_commit, "main", sync_time_limit=FIVE_MINUTES)
+    environment.prepare(main_commit, WORK_BRANCH, sync_time_limit=FIVE_MINUTES)
 
     assert dataset_git(dataset, "for-each-ref", "--format=%(refname)", *refs).split() == []
 
@@ -90,7 +91,9 @@ def test_the_merge_base_of_head_and_origin_main_is_the_host_main_commit(
 ) -> None:
     container_environment(dataset).prepare(branch_commit, BRANCH, sync_time_limit=FIVE_MINUTES)
 
-    assert dataset_git(dataset, "merge-base", "HEAD", "origin/main").strip() == main_commit
+    assert (
+        dataset_git(dataset, "merge-base", "HEAD", f"{REMOTE}/{WORK_BRANCH}").strip() == main_commit
+    )
 
 
 def test_the_sync_script_fetches_both_refspecs_on_one_line_and_names_no_container_path() -> None:

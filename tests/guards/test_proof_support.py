@@ -9,6 +9,7 @@ from pathlib import Path
 import pytest
 
 from factory.shared.domain.identifiers import branch_name
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from factory.work.domain.work_item import WorkItemState
 from support.proof_support import (
     FEATURE,
@@ -110,7 +111,7 @@ def _story_without_branch(world: World) -> tuple[WorkItemState | None, WorkItemS
 
 def _path_off_main(world: World) -> tuple[WorkItemState | None, WorkItemState | None]:
     world.boundaries.git.fetch()
-    return state_at(world, "origin/main", f"{FEATURE}/in-progress/none.md"), None
+    return state_at(world, f"{REMOTE}/{WORK_BRANCH}", f"{FEATURE}/in-progress/none.md"), None
 
 
 @pytest.mark.parametrize(

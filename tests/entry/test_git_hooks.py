@@ -9,6 +9,7 @@ import pytest
 from factory.entry.wiring import git_environment
 from factory.hosting.adapters.git_cli import GitCli
 from factory.hosting.domain.git import GitOptions
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from support.git_support import CHECKOUT, clone, remote_commit, run_git
 
 BRANCH = "work"
@@ -38,7 +39,7 @@ def _commit_with_pre_commit(git: GitCli, checkout: Path, marker: Path, _: Path) 
 def _checkout_with_post_checkout(git: GitCli, checkout: Path, marker: Path, _: Path) -> None:
     _write_hook(checkout / ".git" / "hooks" / "post-checkout", marker)
 
-    git.checkout(BRANCH, start_point="origin/main")
+    git.checkout(BRANCH, start_point=f"{REMOTE}/{WORK_BRANCH}")
 
     assert run_git(checkout, "rev-parse", "--abbrev-ref", "HEAD").strip() == BRANCH
 

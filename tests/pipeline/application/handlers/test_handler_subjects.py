@@ -8,6 +8,7 @@ from factory.pipeline.application.handlers.comments import CommentCopier
 from factory.pipeline.application.handlers.reject import RejectHandler
 from factory.pipeline.domain.events import Event
 from factory.pipeline.domain.pipeline_definition import PipelineDefinition
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from factory.work.domain.work_item import WorkItemDocument, WorkItemSnapshot
 from support.human_clone import HumanClone
 
@@ -97,7 +98,7 @@ def test_the_move_back_names_the_work_item_and_both_stages(
     pushed = _push_at_approval(
         boundaries, human=human, checkout=checkout, work_item=work_item, handed_over=None
     )
-    main = checkout.resolve("origin/main")
+    main = checkout.resolve(f"{REMOTE}/{WORK_BRANCH}")
     assert main is not None
 
     RejectHandler(boundaries).handle(Event(kind="reject", work_item=pushed, remote_state=main))

@@ -10,6 +10,7 @@ import pytest
 from factory.hosting.adapters.git_cli import GitCli
 from factory.hosting.domain.git import GitOptions
 from factory.pipeline.domain.stops import RepositoryStop
+from factory.shared.domain.paths import WORK_BRANCH
 from support import preflight_support
 from support.git_support import CHECKOUT, TEST_IDENTITY, clone, run_git
 from support.log_support import log_lines
@@ -29,7 +30,7 @@ def _push_fix(rig: Rig, _tmp_path: Path) -> None:
 
 
 def _empty_remote(rig: Rig, tmp_path: Path) -> None:
-    run_git(tmp_path, "init", "-q", "--bare", "--initial-branch=main", "empty.git")
+    run_git(tmp_path, "init", "-q", "--bare", f"--initial-branch={WORK_BRANCH}", "empty.git")
     directory = clone(tmp_path / "empty.git", tmp_path / "empty-checkout")
     rig.boundaries = replace(
         rig.boundaries,

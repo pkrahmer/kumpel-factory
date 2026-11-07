@@ -12,6 +12,7 @@ from factory.hosting.adapters.git_cli import GitCli
 from factory.hosting.application.git import Git
 from factory.hosting.domain.git import GitOptions, RemoteBranch
 from factory.shared.domain.errors import FetchFailed, GitError
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from support.git_support import CHECKOUT, clone, commit_all, run_git, write_executable, write_files
 
 
@@ -19,7 +20,9 @@ def _other_clone(tmp_path: Path, remote: Path) -> Path:
     return clone(remote, tmp_path / "other")
 
 
-def _push_branch(work: Path, branch: str, files: dict[str, str], start: str = "origin/main") -> str:
+def _push_branch(
+    work: Path, branch: str, files: dict[str, str], start: str = f"{REMOTE}/{WORK_BRANCH}"
+) -> str:
     run_git(work, "checkout", "-q", "-b", branch, start)
     write_files(work, files)
     commit = commit_all(work, f"on {branch}")
@@ -28,10 +31,10 @@ def _push_branch(work: Path, branch: str, files: dict[str, str], start: str = "o
 
 
 def _push_main(work: Path, files: dict[str, str]) -> str:
-    run_git(work, "checkout", "-q", "main")
+    run_git(work, "checkout", "-q", WORK_BRANCH)
     write_files(work, files)
     commit = commit_all(work, "on main")
-    run_git(work, "push", "-q", "origin", "main")
+    run_git(work, "push", "-q", "origin", WORK_BRANCH)
     return commit
 
 
@@ -222,7 +225,7 @@ def test_remote_branches_lists_the_remote_tracking_branches_sorted(
     tmp_path: Path, remote: Path, checkout: GitCli
 ) -> None:
     other = _other_clone(tmp_path, remote)
-    main = run_git(other, "rev-parse", "origin/main").strip()
+    main = run_git(other, "rev-parse", f"{REMOTE}/{WORK_BRANCH}").strip()
     item = _push_branch(other, "work-item/F0001-S0001", {"a.txt": "a\n"})
     lower = _push_branch(other, "feature-b", {"b.txt": "b\n"})
     upper = _push_branch(other, "Zeta", {"z.txt": "z\n"})
@@ -233,7 +236,7 @@ def test_remote_branches_lists_the_remote_tracking_branches_sorted(
     assert checkout.remote_branches() == [
         RemoteBranch(name="Zeta", commit=upper),
         RemoteBranch(name="feature-b", commit=lower),
-        RemoteBranch(name="main", commit=main),
+        RemoteBranch(name=WORK_BRANCH, commit=main),
         RemoteBranch(name="work-item/F0001-S0001", commit=item),
     ]
 
@@ -243,12 +246,12 @@ def test_resolve_returns_the_full_commit_id(tmp_path: Path, checkout: GitCli) ->
 
     assert len(head) == 40
     assert checkout.resolve("HEAD") == head
-    assert checkout.resolve("origin/main") == head
+    assert checkout.resolve(f"{REMOTE}/{WORK_BRANCH}") == head
     assert checkout.resolve(head) == head
 
 
 def test_resolve_returns_none_for_a_missing_ref(tmp_path: Path, checkout: GitCli) -> None:
-    run_git(tmp_path, "init", "-q", "--initial-branch=main", "empty")
+    run_git(tmp_path, "init", "-q", f"--initial-branch={WORK_BRANCH}", "empty")
 
     assert checkout.resolve("origin/nope") is None
     assert GitCli(tmp_path / "empty").resolve("HEAD") is None
@@ -263,18 +266,18 @@ def test_show_file_returns_the_text_as_committed(
 
     checkout.fetch()
 
-    assert checkout.show_file("origin/main", "notes/grüße.md") == "changed\n"
+    assert checkout.show_file(f"{REMOTE}/{WORK_BRANCH}", "notes/grüße.md") == "changed\n"
     assert checkout.show_file(older, "notes/grüße.md") == "Grüße, élan\nsecond line\n"
-    assert checkout.show_file("origin/main", "factory/features/F0001-example/feature.md") == (
-        "# Example feature\n"
-    )
+    assert checkout.show_file(
+        f"{REMOTE}/{WORK_BRANCH}", "factory/features/F0001-example/feature.md"
+    ) == ("# Example feature\n")
 
 
 def test_show_file_returns_none_for_no_file_and_raises_for_a_missing_ref(
     checkout: GitCli,
 ) -> None:
-    assert checkout.show_file("origin/main", "factory/missing.md") is None
-    assert checkout.show_file("origin/main", "factory/features") is None
+    assert checkout.show_file(f"{REMOTE}/{WORK_BRANCH}", "factory/missing.md") is None
+    assert checkout.show_file(f"{REMOTE}/{WORK_BRANCH}", "factory/features") is None
     with pytest.raises(GitError):
         checkout.show_file("origin/nope", "factory/pipeline.yml")
 
@@ -287,7 +290,7 @@ def test_list_files_returns_all_paths_under_a_directory_sorted(
 
     checkout.fetch()
 
-    assert checkout.list_files("origin/main", "factory/features") == [
+    assert checkout.list_files(f"{REMOTE}/{WORK_BRANCH}", "factory/features") == [
         "factory/features/F0001-example/backlog/F0001-S0001-first.md",
         "factory/features/F0001-example/feature.md",
         "factory/features/F0001-example/read me é.txt",
@@ -297,14 +300,14 @@ def test_list_files_returns_all_paths_under_a_directory_sorted(
 def test_list_files_is_empty_for_a_missing_directory_and_raises_for_a_missing_ref(
     checkout: GitCli,
 ) -> None:
-    assert checkout.list_files("origin/main", "factory/nope") == []
+    assert checkout.list_files(f"{REMOTE}/{WORK_BRANCH}", "factory/nope") == []
     with pytest.raises(GitError):
         checkout.list_files("origin/nope", "factory")
 
 
 def test_is_ancestor_follows_history(tmp_path: Path, remote: Path, checkout: GitCli) -> None:
     other = _other_clone(tmp_path, remote)
-    earlier = run_git(other, "rev-parse", "origin/main").strip()
+    earlier = run_git(other, "rev-parse", f"{REMOTE}/{WORK_BRANCH}").strip()
     later = _push_main(other, {"later.txt": "later\n"})
     left = _push_branch(other, "left", {"left.txt": "left\n"}, start=earlier)
     right = _push_branch(other, "right", {"right.txt": "right\n"}, start=earlier)
@@ -319,7 +322,7 @@ def test_is_ancestor_follows_history(tmp_path: Path, remote: Path, checkout: Git
 
 @pytest.mark.parametrize(
     ("ancestor", "descendant"),
-    [("origin/nope", "origin/main"), ("origin/main", "origin/nope")],
+    [("origin/nope", f"{REMOTE}/{WORK_BRANCH}"), (f"{REMOTE}/{WORK_BRANCH}", "origin/nope")],
     ids=["unknown-ancestor", "unknown-descendant"],
 )
 def test_is_ancestor_raises_for_an_unknown_ref(

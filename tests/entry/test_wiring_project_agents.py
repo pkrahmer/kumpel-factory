@@ -8,6 +8,7 @@ from factory.agents.application.project_agents import ProjectAgentDefinitions
 from factory.entry.wiring import build_boundaries
 from factory.hosting.adapters.fake_hosting import FakeHostingService
 from factory.hosting.adapters.git_cli import GitCli
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.shared.domain.settings import InstanceSettings
 from support.git_support import PROJECT_CODER, install_agents
 from support.human_clone import HumanClone
@@ -26,7 +27,7 @@ def test_the_built_agent_definitions_read_the_project_agents_first(
     name: str,
     instructions: str,
 ) -> None:
-    human.push_file("main", "factory/agents/coder.md", PROJECT_CODER)
+    human.push_file(WORK_BRANCH, "factory/agents/coder.md", PROJECT_CODER)
     GitCli(local_settings.checkout).clone(str(remote))
     install_agents(local_settings.agent_home, ["coder", "tester"])
 

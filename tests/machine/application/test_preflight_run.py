@@ -18,6 +18,7 @@ from factory.machine.domain.preflight import PreflightStamp
 from factory.pipeline.domain.checks import CheckResult
 from factory.pipeline.domain.stops import RepositoryStop
 from factory.shared.domain.errors import ProjectCommandError
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from support import preflight_support
 from support.git_support import CHECKOUT, TEST_IDENTITY, clone, run_git
 from support.preflight_support import (
@@ -49,7 +50,7 @@ def _raising(error: ProjectCommandError) -> Callable[[str, timedelta], CheckResu
 def test_a_red_lint_on_a_work_items_branch_does_not_fail_and_the_probe_ends_on_main(
     rig: Rig, tmp_path: Path
 ) -> None:
-    rig.checkout.checkout(WORK_ITEM_BRANCH, start_point="origin/main")
+    rig.checkout.checkout(WORK_ITEM_BRANCH, start_point=f"{REMOTE}/{WORK_BRANCH}")
     (tmp_path / CHECKOUT / "BROKEN").write_text("red\n", encoding="utf-8")
     rig.checkout.commit("break the branch")
     branch_lint = MakeProjectCommands(tmp_path / CHECKOUT).run("lint", time_limit=PROBE_TIME_LIMIT)
@@ -58,7 +59,7 @@ def test_a_red_lint_on_a_work_items_branch_does_not_fail_and_the_probe_ends_on_m
     assert rig.preflight().run() is None
 
     status = rig.checkout.status()
-    assert status.branch == "main"
+    assert status.branch == WORK_BRANCH
     assert status.head == rig.main()
 
 
@@ -233,7 +234,7 @@ def test_a_valid_stamp_clears_a_standing_preflight_stop(rig: Rig) -> None:
 def test_without_an_origin_main_no_lint_runs_and_the_preflight_passes(
     rig: Rig, tmp_path: Path
 ) -> None:
-    run_git(tmp_path, "init", "-q", "--bare", "--initial-branch=main", "empty.git")
+    run_git(tmp_path, "init", "-q", "--bare", f"--initial-branch={WORK_BRANCH}", "empty.git")
     directory = clone(tmp_path / "empty.git", tmp_path / "empty-checkout")
     rig.boundaries = replace(
         rig.boundaries,

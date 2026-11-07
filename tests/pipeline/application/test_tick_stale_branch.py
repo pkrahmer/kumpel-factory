@@ -14,6 +14,7 @@ from factory.pipeline.application.tick import IdleHandler, Tick, TickOutcome
 from factory.pipeline.domain.events import Event
 from factory.shared.domain.identifiers import branch_name
 from factory.shared.domain.kill_points import InjectedKill, KillPoint, KillPoints
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.work.domain.journal import HUMAN, JournalRecord
 from factory.work.domain.work_item import (
     WorkItemDocument,
@@ -71,7 +72,7 @@ def _discard_killed_after_push(
         branch_commit=checkout.resolve(f"origin/{BRANCH}"),
         document=boundaries.work_item_reader.parse(text),
     )
-    main = remote_commit(remote, "main")
+    main = remote_commit(remote, WORK_BRANCH)
     assert main is not None
     kill_points.arm(KillPoint.AFTER_PUSH)
     with pytest.raises(InjectedKill):

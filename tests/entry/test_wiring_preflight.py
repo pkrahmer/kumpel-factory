@@ -8,6 +8,7 @@ from factory.entry.wiring import build_preflight, build_tick
 from factory.machine.adapters.preflight_stamp_file import JsonPreflightStampFile
 from factory.pipeline.application.boundaries import Boundaries
 from factory.pipeline.application.tick import TickOutcome
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.shared.domain.settings import InstanceSettings
 from support.git_support import PIPELINE_YAML, install_agents
 from support.human_clone import HumanClone
@@ -42,7 +43,7 @@ def settings(tmp_path: Path, remote: Path, agent_home: Path) -> InstanceSettings
 def ready(boundaries: Boundaries, *, human: HumanClone, agent_home: Path) -> Boundaries:
     """Return the boundaries with the agents installed and a passing `lint` on `main`."""
     install_agents(agent_home, boundaries.pipeline_reader.parse(PIPELINE_YAML).roles)
-    human.push_file("main", "Makefile", "lint:\n\ttrue\n")
+    human.push_file(WORK_BRANCH, "Makefile", "lint:\n\ttrue\n")
     boundaries.git.fetch()
     return boundaries
 

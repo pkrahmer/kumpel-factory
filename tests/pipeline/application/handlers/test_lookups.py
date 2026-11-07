@@ -17,6 +17,7 @@ from factory.pipeline.domain.events import Event, EventKind
 from factory.pipeline.domain.pipeline_definition import PipelineDefinition
 from factory.pipeline.domain.tick_status import TickStatus
 from factory.shared.domain.errors import CannotHandle
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.work.domain.work_item import WorkItemDocument, WorkItemSnapshot, WorkItemState
 from support.git_support import remote_commit
 from support.human_clone import HumanClone
@@ -122,13 +123,13 @@ def test_a_lookup_handler_changes_nothing_on_the_hosting_service_or_the_remote(
     kind: EventKind,
     handler: Handler,
 ) -> None:
-    main = remote_commit(remote, "main")
+    main = remote_commit(remote, WORK_BRANCH)
     comments = hosting.list_comments(pull_request)
 
     _raised(handler, _event(kind, work_item, "detail"))
 
     assert hosting.list_comments(pull_request) == comments
-    assert remote_commit(remote, "main") == main
+    assert remote_commit(remote, WORK_BRANCH) == main
     assert remote_commit(remote, BRANCH) == work_item.branch_commit
 
 

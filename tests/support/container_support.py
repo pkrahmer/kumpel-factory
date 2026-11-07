@@ -21,6 +21,7 @@ from factory.pipeline.application.boundaries import Boundaries
 from factory.pipeline.application.claims import StageStart
 from factory.pipeline.application.stage import StageReport
 from factory.shared.adapters.clock import ManualClock
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from factory.shared.domain.settings import InstanceSettings
 from factory.watching.domain.cost_records import ToolUse
 from factory.watching.domain.transcripts import Transcript
@@ -128,11 +129,11 @@ def container_environment(dataset: Dataset) -> ContainerEnvironment:
 
 def push_main(boundaries: Boundaries, human: HumanClone, files: dict[str, str]) -> CommitId:
     """Push `files` to `main`, bring the host's `main` to it and return its commit."""
-    human.push_files("main", files)
+    human.push_files(WORK_BRANCH, files)
     git = boundaries.git
     git.fetch()
-    git.checkout("main", start_point="origin/main")
-    commit = git.resolve("main")
+    git.checkout(WORK_BRANCH, start_point=f"{REMOTE}/{WORK_BRANCH}")
+    commit = git.resolve(WORK_BRANCH)
     assert commit is not None
     return commit
 

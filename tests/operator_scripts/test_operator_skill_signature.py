@@ -7,6 +7,7 @@ from pathlib import Path
 import pytest
 
 from factory.shared.adapters.process import ProcessResult
+from factory.shared.domain.paths import WORK_BRANCH
 from support.git_support import clone, run_git
 from support.operator_skill_support import (
     PREFIX,
@@ -163,7 +164,7 @@ def test_the_start_commit_is_kumpels_and_the_clone_keeps_its_identity(operator: 
     run_git(operator.checkout, "config", "user.email", "human@example.invalid")
     result = run_start_story(operator, "F0001-S0002")
     assert result.exit_status == 0, result.stderr
-    pushed = run_git(bare, "log", "-1", "--format=%s%n%an <%ae>%n%cn <%ce>", "main")
+    pushed = run_git(bare, "log", "-1", "--format=%s%n%an <%ae>%n%cn <%ce>", WORK_BRANCH)
     assert pushed.splitlines() == ["F0001-S0002: start", KUMPEL, KUMPEL]
     assert run_git(operator.checkout, "config", "--local", "user.name") == "Human\n"
     assert run_git(operator.checkout, "config", "--local", "user.email") == (

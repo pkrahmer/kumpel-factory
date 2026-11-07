@@ -20,7 +20,7 @@ from factory.pipeline.domain.events import Event
 from factory.pipeline.domain.tick_status import TickStatus
 from factory.shared.domain.errors import CannotHandle, HostingServiceError
 from factory.shared.domain.kill_points import InjectedKill, KillPoint, KillPoints
-from factory.shared.domain.paths import cost_records_path
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH, cost_records_path
 from factory.watching.domain.bills import bills_by_stage, cost_table
 from factory.watching.domain.cost_records import CostRecord
 from factory.work.domain.journal import HUMAN, JournalRecord
@@ -136,7 +136,7 @@ def _remote_state(boundaries: Boundaries, checkout: GitCli) -> WorkItemState:
 
 def _branch_commits(checkout: GitCli) -> list[CommitInfo]:
     checkout.fetch()
-    return checkout.log(f"origin/{BRANCH}", since="origin/main")
+    return checkout.log(f"origin/{BRANCH}", since=f"{REMOTE}/{WORK_BRANCH}")
 
 
 def _expected_post(records: list[CostRecord]) -> str:

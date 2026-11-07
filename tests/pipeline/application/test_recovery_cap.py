@@ -14,6 +14,7 @@ from factory.pipeline.application.dispatcher import Handler
 from factory.pipeline.domain.events import Event
 from factory.shared.adapters.clock import ManualClock
 from factory.shared.domain.errors import CannotHandle, HostingServiceError
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from factory.work.domain.journal import (
     FACTORY,
     JournalRecord,
@@ -273,15 +274,15 @@ def test_asking_on_its_own_from_main_records_the_new_pull_request_on_the_branch(
 ) -> None:
     work_item = _asking_without_pull_request(boundaries, human)
     definition = boundaries.pipeline_reader.parse(PIPELINE_YAML)
-    checkout.checkout("main", start_point="origin/main")
-    main = remote_commit(remote, "main")
+    checkout.checkout(WORK_BRANCH, start_point=f"{REMOTE}/{WORK_BRANCH}")
+    main = remote_commit(remote, WORK_BRANCH)
 
     handler(boundaries, definition, Rerun()).ask_crash_cap(work_item)
 
     [pull_request] = hosting.pull_requests()
     assert remote_state(boundaries).pull_request == pull_request.number
     assert len(boundaries.git.log(f"origin/{BRANCH}", since=work_item.branch_commit)) == 1
-    assert remote_commit(remote, "main") == main
+    assert remote_commit(remote, WORK_BRANCH) == main
     assert len(hosting.factory_posts(pull_request.number)) == 1
 
 

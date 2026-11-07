@@ -14,6 +14,7 @@ from factory.pipeline.domain.stop_table import STOP_TABLE, StopRow
 from factory.pipeline.domain.stops import RepositoryStop, RepositoryStopReason
 from factory.shared.adapters.clock import ManualClock
 from factory.shared.domain.identifiers import WorkItemId, branch_name
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.work.domain.journal import NewEntry, append_entry
 from factory.work.domain.work_item import WorkItemDocument, initial_state
 from support.proof_support import (
@@ -251,7 +252,9 @@ def test_rejected_push_is_a_counted_error_reported_once(
 
 def test_story_file_naming_a_later_stage_starts_at_intake_with_no_stop(world: World) -> None:
     front_matter = "---\nstage: doing\nround: 2\nattempts: 1\n---\n"
-    world.human.push_file("main", FIRST_BACKLOG_STORY, front_matter + STORY.format(title="Example"))
+    world.human.push_file(
+        WORK_BRANCH, FIRST_BACKLOG_STORY, front_matter + STORY.format(title="Example")
+    )
     world.human.start(FIRST_BACKLOG_STORY)
     work_item: WorkItemId = Path(FIRST_BACKLOG_STORY).name[: len("F0001-S0001")]
     world.agent_runtime.queue(completed("question", QUESTION))

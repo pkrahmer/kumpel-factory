@@ -11,6 +11,7 @@ from factory.pipeline.application.pipeline_loading import PipelineLoader
 from factory.pipeline.domain.stops import RepositoryStop
 from factory.shared.adapters.clock import ManualClock
 from factory.shared.domain.errors import AgentDefinitionInvalid, PipelineDefinitionInvalid
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from support.git_support import AGENT_FILE, COLOURED_AGENT_FILE, PIPELINE_YAML, install_agents
 from support.human_clone import HumanClone
 
@@ -33,7 +34,7 @@ def test_a_role_without_an_installed_agent_loads_with_the_project_agent_alone(
 ) -> None:
     (agent_home / "agents" / "coder.md").unlink()
     if project_file:
-        human.push_file("main", CODER_FILE, AGENT_FILE)
+        human.push_file(WORK_BRANCH, CODER_FILE, AGENT_FILE)
         project_boundaries.git.fetch()
         definition = project_boundaries.pipeline_reader.parse(PIPELINE_YAML)
 
@@ -48,7 +49,7 @@ def test_a_role_without_an_installed_agent_loads_with_the_project_agent_alone(
 def test_a_faulty_project_agent_stops_the_load_until_main_holds_a_valid_one(
     project_boundaries: Boundaries, human: HumanClone, clock: ManualClock
 ) -> None:
-    human.push_file("main", CODER_FILE, COLOURED_AGENT_FILE)
+    human.push_file(WORK_BRANCH, CODER_FILE, COLOURED_AGENT_FILE)
     project_boundaries.git.fetch()
     loader = PipelineLoader(project_boundaries)
 
@@ -60,13 +61,13 @@ def test_a_faulty_project_agent_stops_the_load_until_main_holds_a_valid_one(
             scope="repository",
             reason="agent_definition_invalid",
             detail=(
-                "coder: factory/agents/coder.md at origin/main: "
+                f"coder: factory/agents/coder.md at {REMOTE}/{WORK_BRANCH}: "
                 "key not applied by the agent runtime: colour"
             ),
             at=clock.now(),
         )
     ]
-    human.push_file("main", CODER_FILE, AGENT_FILE)
+    human.push_file(WORK_BRANCH, CODER_FILE, AGENT_FILE)
     project_boundaries.git.fetch()
 
     assert loader.load() == project_boundaries.pipeline_reader.parse(PIPELINE_YAML)

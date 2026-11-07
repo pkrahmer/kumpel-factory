@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 643
 comments_read: [6713530910]
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-07T21:56:59.412728Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -51,6 +47,12 @@ journal:
   kind: started
   at: '2026-11-07T21:56:59.412728Z'
   stage: tests
+- number: 8
+  speaker: tester
+  kind: result
+  at: '2026-11-07T22:01:12.915326Z'
+  stage: tests
+  run: e99d0a810e6b41ecbd065847e662f4b2
 ---
 
 # The tests name the working branch through one constant
@@ -115,3 +117,35 @@ Expect: `main`
    Route: `tests`, because the Interface changes code under `src/factory/` and tests.
    Story edit: criterion 2 reworded exactly as the human answered in journal entry 4.
 7. factory: started tests as vm.
+8. tester: Wrote the tests for the criteria and replaced the branch name written out in the earlier tests with the constant, as the human allowed on 2026-11-07.
+
+   Criteria → tests:
+   - criterion 1: tests/shared/domain/test_work_branch.py::test_the_working_branch_is_one_constant_named_work_branch
+   - criterion 2: tests/guards/test_work_branch_search.py::test_no_file_in_the_source_or_the_tests_writes_the_working_branch_by_name (the repository) and tests/guards/test_work_branch_search.py::test_the_search_finds_each_literal_branch_name_in_a_file_in_scope (a clean row, then one failing row each for `origin/main`, `heads/main`, `-b main` and `--initial-branch=main`, in a tree under tmp_path). The guard leaves out its own file and `__pycache__` folders.
+   - criterion 3: the earlier tests themselves, changed under the leave (below).
+   - criteria 4 and 5: no test (`make check`, docs).
+
+   Files created: tests/shared/domain/test_work_branch.py, tests/guards/test_work_branch_search.py.
+
+   Earlier tests changed under the leave: 163 modules under tests/ (`git diff --stat` on this branch lists them). The change in each:
+   - A string that names the branch now uses the constant: `"main"` becomes `WORK_BRANCH`; `"origin/main"` becomes `f"{REMOTE}/{WORK_BRANCH}"`; `refs/heads/main`, `--initial-branch=main` and `-b main` are built from `WORK_BRANCH`.
+   - Imports from `factory.shared.domain.paths` were added.
+   - `MAIN_BRANCH` is renamed `WORK_BRANCH` in tests/hosting/domain/test_hosting.py, tests/shared/domain/test_paths.py and tests/pipeline/application/test_acceptance_no_state_refusals.py.
+   - In docstrings and comments, `origin/main` reads `origin/<working branch>` or "the working branch". A few of those lines were reworded slightly to stay within 100 characters.
+   - `"main"` stays where it is not a branch: pytest ids, a parametrize argument name in tests/entry/test_entry_arguments.py (that file is unchanged), a commit message, and file contents such as `"main\n"`.
+
+   Changes that go beyond replacing the name:
+   - tests/hosting/adapters/test_git_cli_check_ignore.py: its own constant `WORK_BRANCH = "work"` (a work item branch) is renamed `ITEM_BRANCH`, so that it no longer shadows the paths constant.
+   - tests/shared/adapters/test_tmp_path_reopening.py: the child test text `INNER_TESTS` now writes `refs/heads/<branch>`, and `.replace("<branch>", WORK_BRANCH)` is applied to it, because the text is a plain string that a child pytest writes.
+   - tests/agent_files/test_claude_files.py: two `TEMPLATE_RULES_LINES` strings with `origin/main` are now f-strings built from `REMOTE` and `WORK_BRANCH`. They are split at a different place to stay within the line limit, so the joined text is unchanged. The word `main` in "every tracked file on `main` itself" stays, because the guard does not forbid it.
+   - tests/entry/test_watcher_main_ref.py: `UNRESOLVED` is split over two f-string lines.
+
+   Run: `uv run pytest -q tests/shared/domain/test_work_branch.py tests/guards/test_work_branch_search.py` fails during collection: tests/conftest.py → tests/support/acceptance_walk.py → `ImportError: cannot import name 'WORK_BRANCH' from 'factory.shared.domain.paths'`. Almost every test module now imports the constant, so the whole suite stays red until the coder renames it. This is the right reason.
+
+   I also ran the guard's search function by hand, outside pytest. On the repository it finds 12 files that still hold a literal, all under src/factory/ and none under tests/. Some of these do not import `MAIN_BRANCH` today: project_agents.py, entry/run.py, entry/watch.py, entry/wiring.py and opening.py. The coder must change them too. On written trees it finds each of the four strings and nothing in a clean file.
+
+   `make lint` is green. I did not run the type check, as the stage says.
+
+   Modules the test runner could not import: `factory.shared.domain.paths.WORK_BRANCH` (the name does not exist yet).
+
+   `lint`: lint: green (0.2 s)

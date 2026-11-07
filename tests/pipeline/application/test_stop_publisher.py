@@ -12,7 +12,7 @@ from factory.pipeline.application.stops import StopPublisher
 from factory.pipeline.domain.stops import StopRecord, stop_records_text
 from factory.shared.adapters.process import ProcessRequest, run_process
 from factory.shared.domain.errors import GitError, PushFailed
-from factory.shared.domain.paths import STOP_RECORDS_FILE
+from factory.shared.domain.paths import REMOTE, STOP_RECORDS_FILE, WORK_BRANCH
 from factory.watching.adapters.record_log_jsonl import JsonLinesRecordLog
 from support.git_support import clone, commit_all, remote_commit, run_git
 from support.human_clone import HumanClone
@@ -36,7 +36,7 @@ def _remote_file(remote: Path) -> str | None:
 
 
 def _subjects(remote: Path) -> list[str]:
-    return run_git(remote, "log", "--format=%s", "main").splitlines()
+    return run_git(remote, "log", "--format=%s", WORK_BRANCH).splitlines()
 
 
 @pytest.fixture
@@ -54,7 +54,7 @@ def _remove_factory_folder(remote: Path, tmp_path: Path) -> None:
     other = clone(remote, tmp_path / "other")
     run_git(other, "rm", "-r", "-q", "factory")
     commit_all(other, "remove the factory folder")
-    run_git(other, "push", "-q", "origin", "main")
+    run_git(other, "push", "-q", "origin", WORK_BRANCH)
 
 
 @pytest.mark.parametrize("without_factory_folder", [False, True], ids=["no-file", "no-folder"])
@@ -113,7 +113,7 @@ def test_only_the_missing_records_are_added_after_the_lines_main_holds(
     local: list[StopRecord],
     expected: list[StopRecord],
 ) -> None:
-    human.push_file("main", STOP_RECORDS_FILE, existing)
+    human.push_file(WORK_BRANCH, STOP_RECORDS_FILE, existing)
     checkout.fetch()
     _append(records, local)
 
@@ -142,16 +142,16 @@ def test_nothing_to_publish_makes_no_commit(
     on_main: list[StopRecord] | None,
 ) -> None:
     if on_main is not None:
-        human.push_file("main", STOP_RECORDS_FILE, stop_records_text(on_main))
+        human.push_file(WORK_BRANCH, STOP_RECORDS_FILE, stop_records_text(on_main))
         checkout.fetch()
     _append(records, local)
-    head = remote_commit(remote, "main")
+    head = remote_commit(remote, WORK_BRANCH)
     publisher = StopPublisher(replace(boundaries, stop_records=records))
 
     published = publisher.publish()
 
     assert published == []
-    assert remote_commit(remote, "main") == head
+    assert remote_commit(remote, WORK_BRANCH) == head
 
 
 def test_a_main_moved_on_after_the_fetch_refuses_the_push_and_the_next_call_publishes_once(
@@ -163,7 +163,7 @@ def test_a_main_moved_on_after_the_fetch_refuses_the_push_and_the_next_call_publ
     human: HumanClone,
 ) -> None:
     _append(records, [FIRST, SECOND])
-    human.push_file("main", "notes.txt", "pushed after the fetch\n")
+    human.push_file(WORK_BRANCH, "notes.txt", "pushed after the fetch\n")
     publisher = StopPublisher(publishing)
 
     with pytest.raises(PushFailed):
@@ -184,9 +184,9 @@ def test_a_main_that_does_not_resolve_raises_git_error_and_keeps_the_records(
     remote: Path,
 ) -> None:
     _append(records, [FIRST])
-    run_git(remote, "update-ref", "-d", "refs/heads/main")
+    run_git(remote, "update-ref", "-d", f"refs/heads/{WORK_BRANCH}")
     checkout.fetch()
-    assert checkout.resolve("origin/main") is None
+    assert checkout.resolve(f"{REMOTE}/{WORK_BRANCH}") is None
 
     with pytest.raises(GitError):
         StopPublisher(publishing).publish()

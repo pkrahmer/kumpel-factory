@@ -20,6 +20,7 @@ from factory.pipeline.domain.events import Event, EventKind
 from factory.pipeline.domain.stops import RepositoryStop
 from factory.shared.domain.errors import FetchFailed
 from factory.shared.domain.identifiers import branch_name
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from factory.shared.domain.settings import InstanceSettings
 from support.git_support import remote_commit
 from support.human_clone import HumanClone
@@ -51,7 +52,7 @@ class SeeingHandler(Handler):
         self._seen = seen
 
     def handle(self, event: Event) -> None:
-        main = self._git.resolve("origin/main")
+        main = self._git.resolve(f"{REMOTE}/{WORK_BRANCH}")
         branch = self._git.resolve(f"origin/{BRANCH}")
         self._seen.append(Seen(kind=event.kind, main=main, branch=branch))
 
@@ -144,7 +145,7 @@ def instance(
 @pytest.mark.parametrize(
     "branch",
     [
-        pytest.param("main", id="new-commit-on-main"),
+        pytest.param(WORK_BRANCH, id="new-commit-on-main"),
         pytest.param(BRANCH, id="new-commit-on-branch"),
     ],
 )
@@ -164,7 +165,7 @@ def test_an_iteration_fetches_once_and_its_tick_sees_what_that_fetch_brought(
     [new] = pushed
     assert new is not None
     last = iterations.seen[-1]
-    assert (last.main if branch == "main" else last.branch) == new
+    assert (last.main if branch == WORK_BRANCH else last.branch) == new
 
 
 def test_a_failed_fetch_in_an_iteration_stands_as_fetch_failed_and_the_next_passed_one_clears_it(

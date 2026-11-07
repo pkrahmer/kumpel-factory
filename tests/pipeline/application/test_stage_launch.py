@@ -18,6 +18,7 @@ from factory.pipeline.application.task import StoryFormChecker
 from factory.shared.adapters.clock import ManualClock
 from factory.shared.domain.errors import AgentDefinitionMissing, AgentRuntimeError, PushFailed
 from factory.shared.domain.identifiers import branch_name
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from factory.work.domain.journal import JournalRecord
 from factory.work.domain.work_item import WorkItemDocument, WorkItemState, initial_state
 from support.git_support import PIPELINE_YAML, install_agents, remote_commit
@@ -67,7 +68,7 @@ COMPLETED = AgentRunResult(
 
 def _start(human: HumanClone, checkout: GitCli, text: str = STORY) -> None:
     """Write the backlog story on `main`, start it and fetch."""
-    human.push_file("main", BACKLOG_PATH, text)
+    human.push_file(WORK_BRANCH, BACKLOG_PATH, text)
     human.start(BACKLOG_PATH)
     checkout.fetch()
 
@@ -224,7 +225,7 @@ def test_the_stage_start_commit_of_a_new_work_item_is_its_opening_commit(
         hosting=hosting,
     )
 
-    commits = checkout.log(f"origin/{BRANCH}", since="origin/main")
+    commits = checkout.log(f"origin/{BRANCH}", since=f"{REMOTE}/{WORK_BRANCH}")
     assert len(commits) == 1
     state = _state_at(boundaries, commits[0].commit)
     assert state.claim == launched.started.stage_start.claim

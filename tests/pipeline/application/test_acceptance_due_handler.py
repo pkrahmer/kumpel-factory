@@ -8,6 +8,7 @@ from factory.pipeline.application.boundaries import Boundaries
 from factory.pipeline.domain.events import Event
 from factory.pipeline.domain.pipeline_definition import PipelineDefinition
 from factory.shared.domain.errors import CannotHandle
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.work.application.acceptance import AcceptanceDueHandler
 from support.git_support import remote_commit, run_git
 from support.human_clone import HumanClone
@@ -36,8 +37,8 @@ def _run_event() -> Event:
 def test_an_acceptance_due_event_opens_its_feature(
     boundaries: Boundaries, definition: PipelineDefinition, human: HumanClone, remote: Path
 ) -> None:
-    human.push_file("main", f"{TODO}/feature.md", "# Todo service\n")
-    human.push_file("main", f"{TODO}/done/F0002-S0001-a.md", "# A\n")
+    human.push_file(WORK_BRANCH, f"{TODO}/feature.md", "# Todo service\n")
+    human.push_file(WORK_BRANCH, f"{TODO}/done/F0002-S0001-a.md", "# A\n")
     boundaries.git.fetch()
 
     AcceptanceDueHandler(boundaries, definition).handle(

@@ -6,7 +6,7 @@ import pytest
 
 from factory.pipeline.application.boundaries import Boundaries
 from factory.pipeline.application.claims import StageStart
-from factory.shared.domain.paths import cost_records_path
+from factory.shared.domain.paths import WORK_BRANCH, cost_records_path
 from support.git_support import run_git
 from support.human_clone import HumanClone
 from support.take_support import (
@@ -36,7 +36,7 @@ def _at_start(boundaries: Boundaries, start: StageStart, path: str) -> str:
 
 def _with_old(boundaries: Boundaries, human: HumanClone, write_paths: list[str]) -> StageStart:
     # `src/old.py` is on `main`, so the host holds it for the agent's deletion to remove.
-    human.push_file("main", OLD, OLD_TEXT)
+    human.push_file(WORK_BRANCH, OLD, OLD_TEXT)
     return start_stage(boundaries, human, write_paths=write_paths)
 
 

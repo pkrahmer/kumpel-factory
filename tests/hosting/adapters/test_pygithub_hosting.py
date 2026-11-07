@@ -13,6 +13,7 @@ from factory.hosting.application.hosting import HostingService
 from factory.hosting.domain.hosting import FACTORY_MARKER, PostKey, render_post
 from factory.shared.domain.errors import HostingServiceError
 from factory.shared.domain.kill_points import InjectedKill, KillPoint, KillPoints
+from factory.shared.domain.paths import WORK_BRANCH
 from support.pygithub_stand_ins import (
     Call,
     StandInComment,
@@ -55,7 +56,7 @@ def test_create_pull_request_opens_against_main_and_returns_the_view(draft: bool
         Call(
             "create_pull",
             kwargs={
-                "base": "main",
+                "base": WORK_BRANCH,
                 "head": BRANCH,
                 "title": "title",
                 "body": "body",

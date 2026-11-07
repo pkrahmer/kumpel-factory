@@ -18,6 +18,7 @@ from factory.machine.application.stage_environment import ContainerEnvironment
 from factory.machine.domain.containers import ContainerLaunch, ContainerResult, Mount
 from factory.pipeline.application.boundaries import Boundaries
 from factory.shared.domain.errors import ContainerError, SnapshotError
+from factory.shared.domain.paths import WORK_BRANCH
 from support.agent_run_support import COMPLETED, RecordingRun, run_request
 from support.container_support import (
     FIVE_MINUTES,
@@ -52,11 +53,11 @@ def main_commit(boundaries: Boundaries, human: HumanClone, agent_home: Path) -> 
 def test_prepare_syncs_the_dataset_to_the_commit_and_moves_the_base(
     dataset: Dataset, main_commit: CommitId, agent_home: Path
 ) -> None:
-    container_environment(dataset).prepare(main_commit, "main", sync_time_limit=FIVE_MINUTES)
+    container_environment(dataset).prepare(main_commit, WORK_BRANCH, sync_time_limit=FIVE_MINUTES)
 
     assert dataset_git(dataset, "rev-parse", "HEAD").strip() == main_commit
-    assert dataset_git(dataset, "symbolic-ref", "--short", "HEAD").strip() == "main"
-    assert {"main", BRANCH} <= set(local_branches(dataset))
+    assert dataset_git(dataset, "symbolic-ref", "--short", "HEAD").strip() == WORK_BRANCH
+    assert {WORK_BRANCH, BRANCH} <= set(local_branches(dataset))
     assert (dataset.workspace / "checkout" / SYNC_MARKER).is_file()
     copied = dataset.workspace / "home" / ".claude" / "agents" / f"{AGENT}.md"
     assert copied.read_text(encoding="utf-8") == (agent_home / "agents" / f"{AGENT}.md").read_text(
@@ -70,7 +71,7 @@ def test_the_sync_container_gets_container_paths_mounts_environment_and_limit(
 ) -> None:
     boundaries = dataset.boundaries
 
-    container_environment(dataset).prepare(main_commit, "main", sync_time_limit=FIVE_MINUTES)
+    container_environment(dataset).prepare(main_commit, WORK_BRANCH, sync_time_limit=FIVE_MINUTES)
 
     [call] = dataset.containers.calls
     assert call.command[:2] == ["/bin/sh", "-c"]
@@ -105,7 +106,7 @@ def test_a_second_prepare_reuses_the_repository_and_resets_everything_else(
     run_git(boundaries.checkout, "branch", GONE)
     write_agent(agent_home, "extra", AGENT_FILE)
     environment = container_environment(dataset)
-    environment.prepare(main_commit, "main", sync_time_limit=FIVE_MINUTES)
+    environment.prepare(main_commit, WORK_BRANCH, sync_time_limit=FIVE_MINUTES)
     assert GONE in local_branches(dataset)
     write_files(dataset.workspace / "checkout", {STRAY: "left\n"})
     write_files(dataset.workspace / "home", {STRAY: "left\n"})
@@ -231,7 +232,7 @@ def test_a_failed_prepare_raises_and_leaves_the_base(
 
     began = time.monotonic()
     with pytest.raises(fault.error) as raised:
-        environment.prepare(fault.commit or commit, "main", sync_time_limit=fault.time_limit)
+        environment.prepare(fault.commit or commit, WORK_BRANCH, sync_time_limit=fault.time_limit)
     elapsed = time.monotonic() - began
 
     error = raised.value
@@ -267,7 +268,7 @@ def test_the_timeouts_seconds_are_rounded_up(
     )
 
     with pytest.raises(ContainerError) as raised:
-        environment.prepare("a" * 40, "main", sync_time_limit=limit)
+        environment.prepare("a" * 40, WORK_BRANCH, sync_time_limit=limit)
 
     assert (raised.value.command, raised.value.detail) == ("sync", detail)
 
@@ -307,7 +308,10 @@ def test_run_agent_leaves_nested_repositories_ignored_files_and_the_home(
     home_file = agent_home / "left-by-the-agent.txt"
     agent_runtime.queue(
         ScriptedRun(
-            writes={"notes/.git/HEAD": "ref: refs/heads/main\n", "build/out.txt": "built\n"},
+            writes={
+                "notes/.git/HEAD": f"ref: refs/heads/{WORK_BRANCH}\n",
+                "build/out.txt": "built\n",
+            },
             result=COMPLETED,
         )
     )

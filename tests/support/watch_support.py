@@ -6,6 +6,7 @@ from factory.pipeline.application.boundaries import Boundaries
 from factory.pipeline.domain.pipeline_definition import PipelineDefinition
 from factory.shared.adapters.clock import ManualClock
 from factory.shared.domain.identifiers import branch_name
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.work.application.acceptance import AcceptanceService
 from factory.work.domain.acceptance import AcceptanceState
 from factory.work.domain.work_item import Claim, WorkItemDocument, initial_state
@@ -44,9 +45,9 @@ def push_story_claim(boundaries: Boundaries, human: HumanClone, claim: Claim) ->
 def push_complete(human: HumanClone, directory: str = "F0002-todo") -> None:
     """Push the feature in `directory` to `main`: its feature file and two archived stories."""
     feature = directory.split("-", maxsplit=1)[0]
-    human.push_file("main", f"{FEATURES}/{directory}/feature.md", "# Todo service\n")
-    human.push_file("main", f"{FEATURES}/{directory}/done/{feature}-S0001-a.md", "# A\n")
-    human.push_file("main", f"{FEATURES}/{directory}/done/{feature}-S0002-b.md", "# B\n")
+    human.push_file(WORK_BRANCH, f"{FEATURES}/{directory}/feature.md", "# Todo service\n")
+    human.push_file(WORK_BRANCH, f"{FEATURES}/{directory}/done/{feature}-S0001-a.md", "# A\n")
+    human.push_file(WORK_BRANCH, f"{FEATURES}/{directory}/done/{feature}-S0002-b.md", "# B\n")
 
 
 def open_acceptance(boundaries: Boundaries, definition: PipelineDefinition, feature: str) -> str:

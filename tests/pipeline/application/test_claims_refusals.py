@@ -8,6 +8,7 @@ from factory.hosting.domain.git import WorkTreeStatus
 from factory.pipeline.application.boundaries import Boundaries
 from factory.pipeline.application.claims import ClaimService
 from factory.pipeline.domain.pipeline_definition import PipelineDefinition
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from factory.work.domain.work_item import WorkItemDocument
 from support.git_support import remote_commit
 from support.work_item_support import checkout_text, created_state, put_work_item
@@ -137,7 +138,7 @@ def test_claim_refusal_names_its_cause_and_writes_nothing(
     message: str,
 ) -> None:
     if on_main:
-        boundaries.git.checkout("main", start_point="origin/main")
+        boundaries.git.checkout(WORK_BRANCH, start_point=f"{REMOTE}/{WORK_BRANCH}")
     before = _snapshot(boundaries, remote)
     service = ClaimService(boundaries, "factory-1", definition)
 

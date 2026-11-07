@@ -1,6 +1,7 @@
 """Helpers for tests that put a work item on its branch and read files in the checkout."""
 
 from factory.pipeline.application.boundaries import Boundaries
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from factory.work.domain.journal import JournalRecord
 from factory.work.domain.work_item import WorkItemDocument, WorkItemState, initial_state
 
@@ -20,10 +21,10 @@ def put_work_item(
     *,
     committed: bool = True,
 ) -> None:
-    """Check out `branch` from `origin/main`, write the work item, and commit and push it."""
+    """Check out `branch` from the working branch, write the work item, and commit and push it."""
     git = boundaries.git
     git.fetch()
-    git.checkout(branch, start_point="origin/main")
+    git.checkout(branch, start_point=f"{REMOTE}/{WORK_BRANCH}")
     target = boundaries.checkout / path
     target.parent.mkdir(parents=True, exist_ok=True)
     boundaries.work_item_writer.write(target, document)

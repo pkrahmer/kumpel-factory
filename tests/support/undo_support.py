@@ -5,6 +5,7 @@ import json
 from factory.pipeline.application.boundaries import Boundaries
 from factory.pipeline.application.claims import ClaimService, StageStart
 from factory.shared.domain.identifiers import branch_name
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from factory.work.domain.work_item import WorkItemDocument
 from support.git_support import PIPELINE_YAML, write_files
 from support.human_clone import HumanClone
@@ -45,10 +46,10 @@ def start_stage(
     """Push the definition, commit the work item and the base files on its branch, claim."""
     text = pipeline_text(write_paths)
     if text != PIPELINE_YAML:
-        human.push_file("main", PIPELINE_FILE, text)
+        human.push_file(WORK_BRANCH, PIPELINE_FILE, text)
     git = boundaries.git
     git.fetch()
-    git.checkout(BRANCH, start_point="origin/main")
+    git.checkout(BRANCH, start_point=f"{REMOTE}/{WORK_BRANCH}")
     write_files(boundaries.checkout, BASE_FILES)
     document = WorkItemDocument(state=created_state(stage), body=BODY)
     target = boundaries.checkout / PATH
@@ -61,8 +62,8 @@ def start_stage(
 
 
 def without_work_item(boundaries: Boundaries, start: StageStart) -> StageStart:
-    """The stage start moved to `origin/main`, where the work item is absent."""
-    commit = boundaries.git.resolve("origin/main")
+    """The stage start moved to `origin/<working branch>`, where the work item is absent."""
+    commit = boundaries.git.resolve(f"{REMOTE}/{WORK_BRANCH}")
     assert commit is not None
     return StageStart(commit=commit, claim=start.claim)
 

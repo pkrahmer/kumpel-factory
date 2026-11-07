@@ -6,6 +6,7 @@ from factory.hosting.adapters.git_cli import GitCli
 from factory.pipeline.application.boundaries import Boundaries
 from factory.shared.domain.errors import WorkItemFormatError
 from factory.shared.domain.identifiers import branch_name
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.work.adapters.work_item_markdown import FrontmatterWorkItemReader
 from factory.work.application.work_items import RemoteWorkItems
 from factory.work.domain.work_item import initial_state
@@ -32,7 +33,7 @@ def test_a_second_file_of_one_id_is_read_from_main_as_a_started_story(
 ) -> None:
     human.start(BACKLOG_PATH)
     human.push_file(BRANCH, FIRST_PATH, BRANCH_TEXT)
-    human.push_file("main", SECOND_PATH, SECOND_TEXT)
+    human.push_file(WORK_BRANCH, SECOND_PATH, SECOND_TEXT)
     items = _items(checkout)
     definition = boundaries.pipeline_reader.parse(PIPELINE_YAML)
 

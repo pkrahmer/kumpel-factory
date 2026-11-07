@@ -7,6 +7,7 @@ from pathlib import Path
 
 import pytest
 
+from factory.shared.domain.paths import WORK_BRANCH
 from support.git_support import clone, commit_all, run_git, write_files
 from support.operator_skill_support import (
     ACCESS_COMMAND,
@@ -478,8 +479,8 @@ def remote(operator: Operator) -> Path:
 def test_start_story_moves_the_story_and_pushes_it(operator: Operator, remote: Path) -> None:
     result = operator.run("start-story.sh", "F0001-S0003")
     assert result.exit_status == 0, result.stderr
-    assert run_git(remote, "log", "-1", "--format=%s", "main") == "F0001-S0003: start\n"
-    files = run_git(remote, "ls-tree", "-r", "--name-only", "main").splitlines()
+    assert run_git(remote, "log", "-1", "--format=%s", WORK_BRANCH) == "F0001-S0003: start\n"
+    files = run_git(remote, "ls-tree", "-r", "--name-only", WORK_BRANCH).splitlines()
     assert f"{FEATURE}/in-progress/F0001-S0003-third.md" in files
     assert f"{FEATURE}/backlog/F0001-S0003-third.md" not in files
 

@@ -7,6 +7,7 @@ import pytest
 from factory.hosting.adapters.git_cli import GitCli
 from factory.pipeline.application.boundaries import Boundaries
 from factory.pipeline.application.tick import IdleHandler, Tick
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from support.git_support import CHECKOUT, write_files
 from support.log_support import log_lines
 from support.stage_run_support import INSTANCE
@@ -27,8 +28,8 @@ def test_the_restore_discards_an_untracked_file_and_keeps_an_ignored_one(
     assert not (directory / "src" / "a.py").exists()
     assert (directory / ".venv" / "x").read_text(encoding="utf-8") == "kept\n"
     status = checkout.status()
-    assert status.branch == "main"
-    assert status.head == checkout.resolve("origin/main")
+    assert status.branch == WORK_BRANCH
+    assert status.head == checkout.resolve(f"{REMOTE}/{WORK_BRANCH}")
     assert any(
         line.endswith(" discarded uncommitted changes: src/a.py") for line in log_lines(tmp_path)
     )

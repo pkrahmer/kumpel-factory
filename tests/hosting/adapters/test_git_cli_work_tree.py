@@ -10,6 +10,7 @@ import pytest
 from factory.hosting.adapters.git_cli import GitCli
 from factory.hosting.domain.git import GitOptions
 from factory.shared.domain.errors import GitError
+from factory.shared.domain.paths import WORK_BRANCH
 from support.git_support import CHECKOUT, TEST_IDENTITY, run_git, write_files
 
 IdPair = tuple[str, str]
@@ -55,7 +56,7 @@ def _no_commit(git: GitCli, directory: Path) -> IdPair:
     del git
     fresh = directory.parent / "fresh"
     fresh.mkdir()
-    run_git(fresh, "init", "-q", "--initial-branch=main")
+    run_git(fresh, "init", "-q", f"--initial-branch={WORK_BRANCH}")
     write_files(fresh, {"a.txt": "a\n", "b/c.txt": "c\n"})
     git_fresh = GitCli(fresh, GitOptions(identity=TEST_IDENTITY))
     expected = git_fresh.work_tree_id()

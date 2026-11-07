@@ -12,6 +12,7 @@ from factory.hosting.application.git import Git
 from factory.hosting.domain.git import ChangedPath, CommitInfo
 from factory.shared.adapters.process import ProcessRequest, run_process
 from factory.shared.domain.errors import GitError
+from factory.shared.domain.paths import WORK_BRANCH
 from support.git_support import TEST_IDENTITY, commit_all, run_git, write_files
 
 
@@ -19,7 +20,7 @@ def _git(directory: Path) -> Git:
     return GitCli(directory)
 
 
-def _repository(tmp_path: Path, branch: str = "main") -> Path:
+def _repository(tmp_path: Path, branch: str = WORK_BRANCH) -> Path:
     run_git(tmp_path, "init", "-q", f"--initial-branch={branch}", "work")
     return tmp_path / "work"
 
@@ -104,12 +105,12 @@ def test_log_since_another_ref_returns_only_the_commits_not_reachable_from_it(
     run_git(work, "checkout", "-q", "-b", "feature")
     first = _commit(work, {"feature.txt": "1\n"}, "feature 1")
     second = _commit(work, {"feature.txt": "2\n"}, "feature 2")
-    run_git(work, "checkout", "-q", "main")
+    run_git(work, "checkout", "-q", WORK_BRANCH)
     _commit(work, {"main.txt": "main\n"}, "main only")
     git = _git(work)
 
-    assert _ids(git.log("feature", since="main")) == [second, first]
-    assert git.log("main", since="main") == []
+    assert _ids(git.log("feature", since=WORK_BRANCH)) == [second, first]
+    assert git.log(WORK_BRANCH, since=WORK_BRANCH) == []
 
 
 def test_log_for_a_path_returns_only_the_commits_that_changed_it(work: Path) -> None:
@@ -127,7 +128,7 @@ def test_log_puts_a_merge_commit_with_two_parents_before_both(work: Path) -> Non
     _commit(work, {"base.txt": "base\n"}, "base")
     run_git(work, "checkout", "-q", "-b", "side")
     side = _commit(work, {"side.txt": "side\n"}, "on side")
-    run_git(work, "checkout", "-q", "main")
+    run_git(work, "checkout", "-q", WORK_BRANCH)
     main = _commit(work, {"main.txt": "main\n"}, "on main")
     run_git(work, "merge", "-q", "--no-ff", "-m", "merge side", "side")
     merge = run_git(work, "rev-parse", "HEAD").strip()
@@ -256,7 +257,7 @@ def test_status_of_a_clean_checkout_names_the_branch_and_head(work: Path) -> Non
 
     status = _git(work).status()
 
-    assert status.branch == "main"
+    assert status.branch == WORK_BRANCH
     assert status.head == head
     assert status.changes == []
 
@@ -350,7 +351,7 @@ def test_status_lists_a_path_left_unmerged_by_a_conflicting_merge_once_as_modifi
     _commit(work, {"file.txt": "base\n"}, "base")
     run_git(work, "checkout", "-q", "-b", "other")
     _commit(work, {"file.txt": "other\n"}, "other")
-    run_git(work, "checkout", "-q", "main")
+    run_git(work, "checkout", "-q", WORK_BRANCH)
     _commit(work, {"file.txt": "main\n"}, "main")
     environment = {
         **os.environ,

@@ -4,6 +4,7 @@ from pathlib import Path
 
 from factory.machine.application.stage_environment import ContainerEnvironment, stage_environment_of
 from factory.pipeline.application.boundaries import Boundaries
+from factory.shared.domain.paths import WORK_BRANCH
 from support.container_support import FIVE_MINUTES, container_dataset, push_main, sync_makefile
 from support.git_support import install_agents
 from support.human_clone import HumanClone
@@ -20,7 +21,7 @@ def test_the_environment_of_the_boundaries_is_the_container_one(
     (dataset.workspace / STRAY).write_text("left by an earlier stage\n", encoding="utf-8")
     environment = stage_environment_of(boundaries)
 
-    environment.prepare(commit, "main", sync_time_limit=FIVE_MINUTES)
+    environment.prepare(commit, WORK_BRANCH, sync_time_limit=FIVE_MINUTES)
 
     assert isinstance(environment, ContainerEnvironment)
     assert not (dataset.workspace / STRAY).exists()

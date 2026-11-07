@@ -9,6 +9,7 @@ from factory.agents.adapters.fake_agent_runtime import FakeAgentRuntime, Scripte
 from factory.hosting.application.opening import WorkItemOpening
 from factory.pipeline.application.boundaries import Boundaries
 from factory.pipeline.application.stalls import StallContext, StallService
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.work.domain.decisions import StallReason
 from factory.work.domain.work_item import WorkItemState
 from support.git_support import PIPELINE_YAML
@@ -84,7 +85,7 @@ def test_a_stage_run_that_stalls_records_the_reason(
     )
     if conflict:
         human.push_file(BRANCH, NOTES, "branch\n")
-        human.push_file("main", NOTES, "main\n")
+        human.push_file(WORK_BRANCH, NOTES, "main\n")
         boundaries.git.fetch()
     else:
         agent_runtime.queue(ScriptedRun(result=completed("review")))

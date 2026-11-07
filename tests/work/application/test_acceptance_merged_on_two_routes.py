@@ -3,6 +3,7 @@
 import pytest
 
 from factory.pipeline.application.boundaries import Boundaries
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.watching.domain.bills import bill, cost_line
 from factory.work.domain.acceptance import AcceptanceState
 from support.acceptance_walk import FIRST, FIRST_RECORDS, AcceptanceWalk, last_entry
@@ -16,7 +17,7 @@ AT_APPROVAL = "done (pull request merged); cost: "
 @pytest.fixture
 def two_routes(walk: AcceptanceWalk, boundaries: Boundaries, human: HumanClone) -> AcceptanceWalk:
     """The walk with the two-route definition, in the shipped order, on main and in its watcher."""
-    human.push_file("main", "factory/pipeline.yml", TWO_ROUTES)
+    human.push_file(WORK_BRANCH, "factory/pipeline.yml", TWO_ROUTES)
     walk.definition = boundaries.pipeline_reader.parse(TWO_ROUTES)
     return walk
 

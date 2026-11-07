@@ -13,7 +13,7 @@ from factory.pipeline.application.claims import ClaimService, StageStart
 from factory.pipeline.domain.pipeline_definition import PipelineDefinition
 from factory.shared.domain.errors import CannotHandle, PushFailed, WorkItemFormatError
 from factory.shared.domain.kill_points import InjectedKill, KillPoint, KillPoints
-from factory.shared.domain.paths import cost_records_path
+from factory.shared.domain.paths import WORK_BRANCH, cost_records_path
 from factory.watching.application.costs import BillService
 from factory.watching.domain.bills import bill, cost_line
 from factory.work.adapters.work_item_markdown import FrontmatterWorkItemWriter
@@ -36,9 +36,9 @@ REPORT = f"{TODO}/in-progress/F0002-A0001-acceptance.md"
 
 def _push_todo(human: HumanClone, *, feature_text: str | None = "# Todo service\n") -> None:
     if feature_text is not None:
-        human.push_file("main", FEATURE_FILE, feature_text)
-    human.push_file("main", ARCHIVED_PATHS[0], "# A\n")
-    human.push_file("main", ARCHIVED_PATHS[1], "# B\n")
+        human.push_file(WORK_BRANCH, FEATURE_FILE, feature_text)
+    human.push_file(WORK_BRANCH, ARCHIVED_PATHS[0], "# A\n")
+    human.push_file(WORK_BRANCH, ARCHIVED_PATHS[1], "# B\n")
 
 
 def _service(boundaries: Boundaries, definition: PipelineDefinition) -> AcceptanceService:
@@ -112,12 +112,12 @@ def test_opening_adds_one_commit_with_only_the_report_and_no_pull_request(
 ) -> None:
     _push_todo(human)
     if in_progress_folder:
-        human.push_file("main", f"{TODO}/in-progress/.gitkeep", "")
+        human.push_file(WORK_BRANCH, f"{TODO}/in-progress/.gitkeep", "")
 
     _service(boundaries, definition).open("F0002")
 
     assert run_git(remote, "rev-list", f"main..{BRANCH}").split() == [remote_commit(remote, BRANCH)]
-    assert run_git(remote, "rev-parse", f"{BRANCH}^").strip() == remote_commit(remote, "main")
+    assert run_git(remote, "rev-parse", f"{BRANCH}^").strip() == remote_commit(remote, WORK_BRANCH)
     added = run_git(remote, "diff-tree", "--no-commit-id", "--name-status", "-r", BRANCH)
     assert added.splitlines() == [f"A\t{REPORT}"]
     assert hosting.pull_requests() == []
@@ -225,20 +225,20 @@ def test_the_cost_line_counts_the_records_of_the_archived_stories_only(
 ) -> None:
     _push_todo(human)
     archived = completed_records("F0002-S0001", 2)
-    human.push_file("main", cost_records_path(ARCHIVED_PATHS[0]), sidecar_text(archived))
+    human.push_file(WORK_BRANCH, cost_records_path(ARCHIVED_PATHS[0]), sidecar_text(archived))
     backlog = f"{TODO}/backlog/F0002-S0003-c.md"
-    human.push_file("main", backlog, "# C\n")
+    human.push_file(WORK_BRANCH, backlog, "# C\n")
     human.push_file(
         "main", cost_records_path(backlog), sidecar_text(completed_records("F0002-S0003", 3))
     )
     other = f"{FEATURES}/F0001-example/done/F0001-S0002-other.md"
-    human.push_file("main", other, "# Other\n")
+    human.push_file(WORK_BRANCH, other, "# Other\n")
     human.push_file(
         "main", cost_records_path(other), sidecar_text(completed_records("F0001-S0002", 4))
     )
     report = f"{TODO}/done/F0002-A0001-acceptance.md"
     state = AcceptanceState(stage="done", outcome="refused", stories=ARCHIVED)
-    human.push_file("main", report, _report_text(state))
+    human.push_file(WORK_BRANCH, report, _report_text(state))
     human.push_file(
         "main", cost_records_path(report), sidecar_text(completed_records(ACCEPTANCE, 5))
     )
@@ -303,7 +303,7 @@ def test_each_acceptance_has_its_own_cost_line(
     )
     first = f"{TODO}/done/F0002-A0001-acceptance.md"
     done = AcceptanceState(stage="done", outcome="refused", stories=ARCHIVED)
-    human.push_file("main", first, _report_text(done))
+    human.push_file(WORK_BRANCH, first, _report_text(done))
     human.push_file(
         "main", cost_records_path(first), sidecar_text(completed_records("F0002-A0001", 1))
     )

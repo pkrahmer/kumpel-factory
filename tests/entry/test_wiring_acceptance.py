@@ -16,6 +16,7 @@ from factory.pipeline.application.dispatcher import unhandled_kinds
 from factory.pipeline.application.tick import Tick
 from factory.pipeline.domain.events import Event, EventKind
 from factory.shared.domain.errors import CannotHandle
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from factory.work.application.acceptance import AcceptanceDueHandler, AcceptanceService
 from factory.work.domain.acceptance import AcceptanceState
 from factory.work.domain.journal import FACTORY, HUMAN, JournalRecord, NewEntry, append_entry
@@ -104,15 +105,15 @@ def test_a_merged_story_reaches_the_story_handler_and_is_archived(
         branch_commit=checkout.resolve(f"origin/{STORY_BRANCH}"),
         document=boundaries.work_item_reader.parse(text),
     )
-    main = remote_commit(remote, "main")
+    main = remote_commit(remote, WORK_BRANCH)
     assert main is not None
     handlers = build_handlers(boundaries, pipeline_definition(boundaries), INSTANCE, ENVIRONMENT)
 
     handlers["merged"].handle(Event(kind="merged", work_item=snapshot, remote_state=main))
 
     checkout.fetch()
-    assert checkout.show_file("origin/main", STORY_DONE) is not None
-    assert checkout.show_file("origin/main", STORY_PATH) is None
+    assert checkout.show_file(f"{REMOTE}/{WORK_BRANCH}", STORY_DONE) is not None
+    assert checkout.show_file(f"{REMOTE}/{WORK_BRANCH}", STORY_PATH) is None
 
 
 def test_a_run_of_an_acceptance_closed_while_due_is_booked_refused_by_the_gate(
@@ -124,9 +125,9 @@ def test_a_run_of_an_acceptance_closed_while_due_is_booked_refused_by_the_gate(
     agent_runtime: FakeAgentRuntime,
 ) -> None:
     definition = pipeline_definition(boundaries)
-    human.push_file("main", f"{TODO}/feature.md", "# Todo service\n")
-    human.push_file("main", f"{TODO}/done/F0002-S0001-a.md", "# A\n")
-    human.push_file("main", f"{TODO}/done/F0002-S0002-b.md", "# B\n")
+    human.push_file(WORK_BRANCH, f"{TODO}/feature.md", "# Todo service\n")
+    human.push_file(WORK_BRANCH, f"{TODO}/done/F0002-S0001-a.md", "# A\n")
+    human.push_file(WORK_BRANCH, f"{TODO}/done/F0002-S0002-b.md", "# B\n")
     boundaries.git.fetch()
     branch = AcceptanceService(boundaries, definition).open("F0002").branch
     title = f"{ACCEPTANCE}: acceptance"
@@ -158,12 +159,12 @@ def test_a_run_of_an_acceptance_closed_while_due_is_booked_refused_by_the_gate(
     handlers["run"].handle(Event(kind="run", work_item=snapshot, remote_state=branch_commit))
 
     checkout.fetch()
-    booked = checkout.show_file("origin/main", DONE_REPORT)
+    booked = checkout.show_file(f"{REMOTE}/{WORK_BRANCH}", DONE_REPORT)
     assert booked is not None
     booked_state = boundaries.work_item_reader.parse(booked).state
     assert isinstance(booked_state, AcceptanceState)
     assert (booked_state.stage, booked_state.outcome) == ("done", "refused")
-    assert checkout.show_file("origin/main", REPORT) is None
+    assert checkout.show_file(f"{REMOTE}/{WORK_BRANCH}", REPORT) is None
     assert agent_runtime.requests() == []
 
 
@@ -184,8 +185,8 @@ def test_without_an_acceptance_stage_the_handlers_build_refuse_and_a_story_still
 
     assert refused.value.reason == "no acceptance stage"
     install_agents(agent_home, pipeline_definition(boundaries).roles)
-    human.push_file("main", "factory/pipeline.yml", WITHOUT_STAGE)
-    human.push_file("main", BACKLOG_PATH, STORY)
+    human.push_file(WORK_BRANCH, "factory/pipeline.yml", WITHOUT_STAGE)
+    human.push_file(WORK_BRANCH, BACKLOG_PATH, STORY)
     human.start(BACKLOG_PATH)
     agent_runtime.queue(ScriptedRun(result=COMPLETED))
     tick = Tick(boundaries, INSTANCE, handler_factory(boundaries, INSTANCE, ENVIRONMENT))

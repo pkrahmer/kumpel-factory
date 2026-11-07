@@ -9,6 +9,7 @@ from factory.hosting.domain.hand_over import HAND_OVER_CLOSING
 from factory.hosting.domain.post_texts import send_back_entry_text
 from factory.pipeline.domain.pipeline_definition import PipelineDefinition
 from factory.shared.domain.identifiers import WorkItemId, branch_name
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from factory.work.domain.acceptance import is_before_approval
 from factory.work.domain.journal import entry_text
 from factory.work.domain.work_item import WorkItemDocument, WorkItemState
@@ -43,7 +44,7 @@ CLOSE_REASON = "The second paragraph is wrong."
 @pytest.fixture
 def two_routes(world: World) -> World:
     """The world with the two-route definition and a Makefile of every target on `main`."""
-    world.human.push_files("main", {"factory/pipeline.yml": TWO_ROUTES, "Makefile": MAKEFILE})
+    world.human.push_files(WORK_BRANCH, {"factory/pipeline.yml": TWO_ROUTES, "Makefile": MAKEFILE})
     return world
 
 
@@ -133,7 +134,7 @@ def test_a_merge_at_docs_approval_archives_the_story_to_done(
 ) -> None:
     _walk_docs_route(two_routes, story)
     two_routes.human.merge(branch_name(story), "merge")
-    main = remote_commit(two_routes.remote, "main")
+    main = remote_commit(two_routes.remote, WORK_BRANCH)
     assert main is not None
     two_routes.hosting.merge_by_human(pull_request_of(two_routes, story).number, main)
     for _ in range(3):
@@ -141,9 +142,12 @@ def test_a_merge_at_docs_approval_archives_the_story_to_done(
 
     git = two_routes.boundaries.git
     git.fetch()
-    done = [Path(path).name for path in git.list_files("origin/main", f"{FEATURE}/done")]
+    done = [
+        Path(path).name for path in git.list_files(f"{REMOTE}/{WORK_BRANCH}", f"{FEATURE}/done")
+    ]
     in_progress = [
-        Path(path).name for path in git.list_files("origin/main", f"{FEATURE}/in-progress")
+        Path(path).name
+        for path in git.list_files(f"{REMOTE}/{WORK_BRANCH}", f"{FEATURE}/in-progress")
     ]
     assert any(name.startswith(story) and name.endswith(".md") for name in done)
     assert not any(name.startswith(story) for name in in_progress)

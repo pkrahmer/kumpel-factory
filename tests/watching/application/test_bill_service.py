@@ -4,7 +4,7 @@ from pathlib import Path
 
 from factory.hosting.adapters.git_cli import GitCli
 from factory.shared.domain.identifiers import branch_name
-from factory.shared.domain.paths import cost_records_path
+from factory.shared.domain.paths import WORK_BRANCH, cost_records_path
 from factory.watching.adapters.cost_records_jsonl import JsonLinesCostRecordReader
 from factory.watching.application.costs import BillService
 from factory.watching.domain.bills import bill, bills_by_stage, cost_line, cost_table
@@ -27,7 +27,7 @@ def _service(git: GitCli) -> BillService:
 
 def _on_branch_with_records(human: HumanClone, count: int) -> None:
     human.start(BACKLOG_PATH)
-    human.push_file("main", SIDECAR, sidecar_text(completed_records(WORK_ITEM, 1)))
+    human.push_file(WORK_BRANCH, SIDECAR, sidecar_text(completed_records(WORK_ITEM, 1)))
     human.push_file(BRANCH, SIDECAR, sidecar_text(completed_records(WORK_ITEM, count)))
 
 
@@ -53,8 +53,8 @@ def test_an_archived_work_item_is_billed_from_its_sidecar_on_main(
     checkout: GitCli, human: HumanClone
 ) -> None:
     records = completed_records(ARCHIVED, 3)
-    human.push_file("main", ARCHIVED_PATH, "# Second story\n")
-    human.push_file("main", cost_records_path(ARCHIVED_PATH), sidecar_text(records))
+    human.push_file(WORK_BRANCH, ARCHIVED_PATH, "# Second story\n")
+    human.push_file(WORK_BRANCH, cost_records_path(ARCHIVED_PATH), sidecar_text(records))
     checkout.fetch()
 
     result = _service(checkout).for_work_item(ARCHIVED)

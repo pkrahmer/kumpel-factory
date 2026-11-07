@@ -8,12 +8,13 @@ import pytest
 from factory.hosting.adapters.git_cli import GitCli
 from factory.hosting.domain.git import GitOptions
 from factory.shared.domain.errors import GitError
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from support.git_support import write_executable
 from support.human_clone import HumanClone
 
 GITIGNORE = ".venv/\n*.log\n!keep.log\n"
 KEPT_LOG = "docs/kept.log"
-WORK_BRANCH = "work"
+ITEM_BRANCH = "work"
 
 STANDIN = """\
 import json
@@ -43,10 +44,10 @@ for path in paths:
 def ignoring(checkout: GitCli, human: HumanClone) -> GitCli:
     """The checkout on a branch of `main`, which holds the tracked `docs/kept.log`, then rules."""
     # The file goes first: `GitCli.commit` stages no file the rules already ignore.
-    human.push_file("main", KEPT_LOG, "kept\n")
-    human.push_file("main", ".gitignore", GITIGNORE)
+    human.push_file(WORK_BRANCH, KEPT_LOG, "kept\n")
+    human.push_file(WORK_BRANCH, ".gitignore", GITIGNORE)
     checkout.fetch()
-    checkout.checkout(WORK_BRANCH, start_point="origin/main")
+    checkout.checkout(ITEM_BRANCH, start_point=f"{REMOTE}/{WORK_BRANCH}")
     return checkout
 
 

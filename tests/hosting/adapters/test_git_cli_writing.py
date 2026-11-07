@@ -10,6 +10,7 @@ from factory.hosting.adapters.git_cli import GitCli
 from factory.hosting.domain.git import GitIdentity, GitOptions
 from factory.shared.domain.errors import GitError, NothingToCommit
 from factory.shared.domain.kill_points import InjectedKill, KillPoint, KillPoints
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from support.git_support import (
     CHECKOUT,
     REMOTE_FILES,
@@ -39,7 +40,7 @@ def _identities(directory: Path) -> list[str]:
 
 
 def _branch_with_commit(directory: Path, branch: str, files: dict[str, str]) -> str:
-    run_git(directory, "checkout", "-q", "-B", branch, "origin/main")
+    run_git(directory, "checkout", "-q", "-B", branch, f"{REMOTE}/{WORK_BRANCH}")
     write_files(directory, files)
     return commit_all(directory, f"on {branch}")
 
@@ -58,7 +59,7 @@ def test_clone_creates_a_missing_directory_and_its_missing_parent(
 
     for name, text in REMOTE_FILES.items():
         assert (directory / name).read_text(encoding="utf-8") == text
-    assert _current_branch(directory) == "main"
+    assert _current_branch(directory) == WORK_BRANCH
     assert run_git(directory, "remote", "get-url", "origin").strip() == str(remote)
 
 
@@ -75,7 +76,7 @@ def test_clone_works_into_an_empty_directory_and_refuses_one_with_a_file(
     with pytest.raises(GitError):
         GitCli(occupied).clone(str(remote))
 
-    assert _current_branch(empty) == "main"
+    assert _current_branch(empty) == WORK_BRANCH
     assert [path.name for path in occupied.iterdir()] == ["keep.txt"]
     assert (occupied / "keep.txt").read_text(encoding="utf-8") == "keep\n"
 
@@ -88,7 +89,7 @@ def test_clone_of_a_missing_url_raises(tmp_path: Path) -> None:
 def test_checkout_switches_to_an_existing_local_branch(tmp_path: Path, checkout: GitCli) -> None:
     directory = tmp_path / CHECKOUT
     commit = _branch_with_commit(directory, "other", {"other.txt": "other\n"})
-    run_git(directory, "checkout", "-q", "main")
+    run_git(directory, "checkout", "-q", WORK_BRANCH)
 
     checkout.checkout("other")
 
@@ -101,15 +102,15 @@ def test_checkout_with_a_start_point_creates_and_then_resets_the_branch(
     tmp_path: Path, checkout: GitCli
 ) -> None:
     directory = tmp_path / CHECKOUT
-    main = _head(directory, "origin/main")
+    main = _head(directory, f"{REMOTE}/{WORK_BRANCH}")
 
-    checkout.checkout(BRANCH, start_point="origin/main")
+    checkout.checkout(BRANCH, start_point=f"{REMOTE}/{WORK_BRANCH}")
     assert _current_branch(directory) == BRANCH
     assert _head(directory) == main
 
     write_files(directory, {"more.txt": "more\n"})
     commit_all(directory, "more")
-    checkout.checkout(BRANCH, start_point="origin/main")
+    checkout.checkout(BRANCH, start_point=f"{REMOTE}/{WORK_BRANCH}")
 
     assert _current_branch(directory) == BRANCH
     assert _head(directory, BRANCH) == main
@@ -143,7 +144,7 @@ def test_checkout_of_an_unknown_branch_or_start_point_raises_and_stays(
     with pytest.raises(GitError):
         checkout.checkout(branch, start_point=start_point)
 
-    assert _current_branch(directory) == "main"
+    assert _current_branch(directory) == WORK_BRANCH
 
 
 def test_checkout_blocked_by_an_uncommitted_edit_raises_and_keeps_the_edit(
@@ -151,13 +152,13 @@ def test_checkout_blocked_by_an_uncommitted_edit_raises_and_keeps_the_edit(
 ) -> None:
     directory = tmp_path / CHECKOUT
     _branch_with_commit(directory, "other", {FEATURE: "# Other feature\n"})
-    run_git(directory, "checkout", "-q", "main")
+    run_git(directory, "checkout", "-q", WORK_BRANCH)
     write_files(directory, {FEATURE: "# Edited feature\n"})
 
     with pytest.raises(GitError):
         checkout.checkout("other")
 
-    assert _current_branch(directory) == "main"
+    assert _current_branch(directory) == WORK_BRANCH
     assert (directory / FEATURE).read_text(encoding="utf-8") == "# Edited feature\n"
 
 

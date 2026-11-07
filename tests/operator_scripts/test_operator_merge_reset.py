@@ -9,6 +9,7 @@ from pathlib import Path
 import pytest
 
 from factory.shared.adapters.process import ProcessResult
+from factory.shared.domain.paths import WORK_BRANCH
 from support.git_support import write_executable
 from support.operator_skill_support import Request, recorded_requests
 from support.operator_support import CURL_STAND_IN, ROOT, hosting_env, run_script
@@ -354,7 +355,9 @@ def reset_answers(
         "GET /git/matching-refs/heads/work-item/": ok(
             [{"ref": f"refs/heads/{branch}", "object": {"sha": "b" * 40}} for branch in branches]
         ),
-        "PATCH /git/refs/heads/main": ok({"ref": "refs/heads/main", "object": {"sha": COMMIT}}),
+        f"PATCH /git/refs/heads/{WORK_BRANCH}": ok(
+            {"ref": f"refs/heads/{WORK_BRANCH}", "object": {"sha": COMMIT}}
+        ),
     }
     if annotated:
         answers[f"GET /git/ref/tags/{TAG}"] = ok(
@@ -380,7 +383,7 @@ def full_reset() -> list[Request]:
         Request("PATCH", "/pulls/7", {"state": "closed"}),
         Request("PATCH", "/pulls/8", {"state": "closed"}),
         *(Request("DELETE", f"/git/refs/heads/{branch}", None) for branch in BRANCHES),
-        Request("PATCH", "/git/refs/heads/main", {"sha": COMMIT, "force": True}),
+        Request("PATCH", f"/git/refs/heads/{WORK_BRANCH}", {"sha": COMMIT, "force": True}),
     ]
 
 
@@ -452,7 +455,7 @@ def test_the_tag_is_followed_to_its_commit(machine: Machine, annotated: bool) ->
     result = machine.run("reset-to-tag.sh", TAG, "--yes")
     assert result.exit_status == 0, result.stderr
     assert machine.changes()[-1] == Request(
-        "PATCH", "/git/refs/heads/main", {"sha": COMMIT, "force": True}
+        "PATCH", f"/git/refs/heads/{WORK_BRANCH}", {"sha": COMMIT, "force": True}
     )
 
 
@@ -489,9 +492,9 @@ def test_with_yes_the_reset_closes_deletes_and_moves_in_this_order(machine: Mach
             id="third-delete",
         ),
         pytest.param(
-            "PATCH /git/refs/heads/main",
+            f"PATCH /git/refs/heads/{WORK_BRANCH}",
             full_reset(),
-            f"hosting: PATCH {PREFIX}/git/refs/heads/main: 422 Validation Failed",
+            f"hosting: PATCH {PREFIX}/git/refs/heads/{WORK_BRANCH}: 422 Validation Failed",
             id="move-of-main",
         ),
     ],
@@ -513,7 +516,7 @@ def test_a_reset_with_nothing_to_close_or_delete_only_moves_main(machine: Machin
     result = machine.run("reset-to-tag.sh", TAG, "--yes")
     assert result.exit_status == 0, result.stderr
     assert machine.changes() == [
-        Request("PATCH", "/git/refs/heads/main", {"sha": COMMIT, "force": True})
+        Request("PATCH", f"/git/refs/heads/{WORK_BRANCH}", {"sha": COMMIT, "force": True})
     ]
     assert printed(result) == [f"moved main to {SHORT}"]
 
@@ -561,7 +564,7 @@ RUNS: list[Callable[[], Run]] = [
     lambda: Run(
         "reset-to-tag.sh", (TAG, "--yes"), failing(f"DELETE /git/refs/heads/{BRANCHES[2]}")
     ),
-    lambda: Run("reset-to-tag.sh", (TAG, "--yes"), failing("PATCH /git/refs/heads/main")),
+    lambda: Run("reset-to-tag.sh", (TAG, "--yes"), failing(f"PATCH /git/refs/heads/{WORK_BRANCH}")),
 ]
 # What a change may touch: a pull request, a work item's branch, `main`.
 ALLOWED_CHANGE = re.compile(r"^/pulls/\d+(/merge)?$|^/git/refs/heads/(work-item/.+|main)$")

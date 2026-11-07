@@ -17,6 +17,7 @@ from factory.pipeline.domain.known_results import ResultKey, ResultRecord, defin
 from factory.shared.adapters.clock import ManualClock
 from factory.shared.application.files import RecordLog
 from factory.shared.domain.errors import GitError, ProjectCommandError
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from factory.shared.domain.settings import InstanceSettings
 from support.human_clone import HumanClone
 from support.known_results_support import (
@@ -136,9 +137,9 @@ def _write(path: str) -> Callable[[Rig, HumanClone], None]:
 
 def _merged(path: str) -> Callable[[Rig, HumanClone], None]:
     def change(rig: Rig, human: HumanClone) -> None:
-        human.push_file("main", path, "news\n")
+        human.push_file(WORK_BRANCH, path, "news\n")
         rig.boundaries.git.fetch()
-        rig.boundaries.git.merge("origin/main")
+        rig.boundaries.git.merge(f"{REMOTE}/{WORK_BRANCH}")
 
     return change
 

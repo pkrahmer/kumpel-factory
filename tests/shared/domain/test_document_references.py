@@ -5,6 +5,7 @@ from typing import Literal
 import pytest
 
 from factory.shared.domain.documents import Reference, named_references
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 
 TOP_LEVEL = frozenset({"operator", "src", "tests", "docs", "README.md"})
 DOCUMENT = "README.md"
@@ -40,7 +41,7 @@ def _text(body: str) -> str:
         pytest.param("Every `tests/*.py` runs.", [], id="glob"),
         pytest.param("It lives in `/srv/factory` now.", [], id="absolute-srv"),
         pytest.param("It reads `/etc/factory/site.env` too.", [], id="absolute-etc"),
-        pytest.param("Compare with `origin/main` first.", [], id="git-ref"),
+        pytest.param(f"Compare with `{REMOTE}/{WORK_BRANCH}` first.", [], id="git-ref"),
         pytest.param("Python's `os.path` joins.", [], id="not-factory-module"),
         pytest.param("```\n`factory.a.b` and `operator/vm/setup.sh`\n```", [], id="fenced-block"),
         pytest.param("See [x](a.md#h) for it.", [(3, "a.md", "link")], id="link-with-fragment"),

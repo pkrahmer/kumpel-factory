@@ -13,6 +13,7 @@ from factory.pipeline.application.tick import IdleHandler, Tick, TickOutcome
 from factory.pipeline.domain.events import EventKind
 from factory.pipeline.domain.pipeline_definition import PipelineDefinition
 from factory.pipeline.domain.stops import RepositoryStop
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from factory.shared.domain.settings import InstanceSettings
 from support.disk_support import FakeDiskSpace
 from support.git_support import CHECKOUT, remote_commit
@@ -88,14 +89,14 @@ def test_a_short_work_directory_stops_the_tick_before_the_fetch(
     remote: Path,
     human: HumanClone,
 ) -> None:
-    human.push_file("main", "notes.txt", "pushed after the clone\n")
-    pushed = remote_commit(remote, "main")
+    human.push_file(WORK_BRANCH, "notes.txt", "pushed after the clone\n")
+    pushed = remote_commit(remote, WORK_BRANCH)
     disk = FakeDiskSpace(free={work: SHORT, state: ENOUGH})
 
     outcome = _tick(boundaries, disk, settings)
 
     assert outcome == TickOutcome(stopped="disk_low")
-    assert boundaries.git.resolve("origin/main") != pushed
+    assert boundaries.git.resolve(f"{REMOTE}/{WORK_BRANCH}") != pushed
 
 
 def test_the_low_disk_stop_reaches_the_health_status_and_the_factory_log(

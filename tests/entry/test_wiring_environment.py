@@ -12,6 +12,7 @@ from factory.agents.domain.agent_runs import AgentRunResult
 from factory.entry.wiring import handler_factory, production_environment
 from factory.pipeline.application.boundaries import Boundaries
 from factory.pipeline.application.tick import Tick
+from factory.shared.domain.paths import WORK_BRANCH
 from support.git_support import PIPELINE_YAML, install_agents
 from support.human_clone import HumanClone
 from support.stage_run_support import INSTANCE
@@ -92,7 +93,7 @@ def test_a_tick_in_the_production_environment_hands_the_agent_no_token(
     agent_runtime: FakeAgentRuntime,
 ) -> None:
     install_agents(agent_home, boundaries.pipeline_reader.parse(PIPELINE_YAML).roles)
-    human.push_file("main", BACKLOG_PATH, STORY)
+    human.push_file(WORK_BRANCH, BACKLOG_PATH, STORY)
     human.start(BACKLOG_PATH)
     agent_runtime.queue(ScriptedRun(result=COMPLETED))
     handlers = handler_factory(boundaries, INSTANCE, production_environment())

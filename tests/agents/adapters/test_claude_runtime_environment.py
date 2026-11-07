@@ -13,6 +13,7 @@ from factory.agents.domain.agent_runs import AgentDefinition, AgentRunRequest, s
 from factory.hosting.adapters.fake_hosting import FakeHostingService
 from factory.hosting.adapters.git_cli import GitCli
 from factory.hosting.domain.hosting import PostKey
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from support.claude_stand_in import Step, read_calls, write_stand_in
 from support.git_support import CHECKOUT, commit_all, run_git, write_files
 
@@ -79,7 +80,7 @@ def test_the_factory_still_pushes_and_posts_after_an_agent_run(
     monkeypatch.setenv("GH_TOKEN", "example-value")
     before = dict(os.environ)
     directory = tmp_path / CHECKOUT
-    run_git(directory, "checkout", "-q", "-B", BRANCH, "origin/main")
+    run_git(directory, "checkout", "-q", "-B", BRANCH, f"{REMOTE}/{WORK_BRANCH}")
     write_files(directory, {"new.txt": "new\n"})
     commit_all(directory, "work")
     pull = hosting.create_pull_request(BRANCH, "First story", "Text.", draft=True)

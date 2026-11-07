@@ -10,6 +10,7 @@ from pathlib import Path
 import pytest
 
 from factory.shared.adapters.process import ProcessRequest, run_process
+from factory.shared.domain.paths import WORK_BRANCH
 from support.tmp_path_support import file_mode, reopen
 
 TESTS = Path(__file__).parents[2]
@@ -32,7 +33,7 @@ def closing(tmp_path: Path) -> Iterator[Path]:
 def test_closes_its_tmp_path(tmp_path: Path) -> None:
     git = tmp_path / "checkout" / ".git"
     (git / "objects").mkdir(parents=True)
-    (git / "HEAD").write_text("ref: refs/heads/main\\n", encoding="utf-8")
+    (git / "HEAD").write_text("ref: refs/heads/<branch>\\n", encoding="utf-8")
     git.chmod(0o020)
     closed = tmp_path / "closed"
     (closed / "inner").mkdir(parents=True)
@@ -45,13 +46,13 @@ def test_closes_in_a_fixture(closing: Path) -> None:
 
 def test_uses_no_tmp_path() -> None:
     assert True
-"""
+""".replace("<branch>", WORK_BRANCH)
 
 
 def _sealed_git_folder(tree: Path) -> None:
     git = tree / "checkout" / ".git"
     git.mkdir(parents=True)
-    (git / "HEAD").write_text("ref: refs/heads/main\n", encoding="utf-8")
+    (git / "HEAD").write_text(f"ref: refs/heads/{WORK_BRANCH}\n", encoding="utf-8")
     (git / "HEAD").chmod(0o644)
     (tree / "checkout").chmod(0o755)
     git.chmod(0o020)

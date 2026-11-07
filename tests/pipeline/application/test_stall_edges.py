@@ -8,6 +8,7 @@ import pytest
 from factory.agents.adapters.fake_agent_runtime import FakeAgentRuntime
 from factory.hosting.adapters.fake_hosting import FakeHostingService
 from factory.pipeline.application.boundaries import Boundaries
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.work.domain.journal import entry_text
 from support.human_clone import HumanClone
 from support.stage_run_support import (
@@ -26,7 +27,7 @@ def _merge_conflict(
 ) -> Boundaries:
     open_story(boundaries, human, agent_home, main_files={NOTES: "base\n"})
     human.push_file(BRANCH, NOTES, "branch\n")
-    human.push_file("main", NOTES, "main\n")
+    human.push_file(WORK_BRANCH, NOTES, "main\n")
     boundaries.git.fetch()
     return boundaries
 

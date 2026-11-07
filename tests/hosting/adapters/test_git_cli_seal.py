@@ -7,6 +7,7 @@ import pytest
 from factory.hosting.adapters.git_cli import GitCli
 from factory.hosting.domain.git import GitOptions
 from factory.shared.domain.errors import GitError
+from factory.shared.domain.paths import WORK_BRANCH
 from support.git_support import CHECKOUT, run_git, write_files
 
 
@@ -23,7 +24,7 @@ def headless(tmp_path: Path) -> Path:
 @pytest.fixture
 def repository_above(tmp_path: Path) -> str:
     """Make the working copy's parent a repository whose `main` holds a commit; return it."""
-    run_git(tmp_path, "init", "-q", "--initial-branch=main")
+    run_git(tmp_path, "init", "-q", f"--initial-branch={WORK_BRANCH}")
     write_files(tmp_path, {"above.txt": "placed above the checkout\n"})
     run_git(tmp_path, "add", "above.txt")
     run_git(tmp_path, "commit", "-q", "-m", "above")

@@ -22,6 +22,7 @@ from factory.pipeline.application.stops import StopService
 from factory.pipeline.domain.checks import CheckResult
 from factory.pipeline.domain.stops import RepositoryStop
 from factory.shared.adapters.clock import ManualClock
+from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from factory.shared.domain.settings import InstanceSettings
 from support.git_support import CHECKOUT, install_agents, run_git
 from support.human_clone import HumanClone
@@ -103,19 +104,19 @@ class Rig:
         return [stop.reason for stop in self.stops()]
 
     def main(self) -> CommitId:
-        main = self.checkout.resolve("origin/main")
+        main = self.checkout.resolve(f"{REMOTE}/{WORK_BRANCH}")
         assert main is not None
         return main
 
     def push_main(self, path: str, text: str) -> None:
-        self.human.push_file("main", path, text)
+        self.human.push_file(WORK_BRANCH, path, text)
         self.checkout.fetch()
 
     def remove_from_main(self, path: str) -> None:
         human = self.directory / "human"
         run_git(human, "rm", "-q", path)
         run_git(human, "commit", "-q", "-m", f"remove {path}")
-        run_git(human, "push", "-q", "origin", "main")
+        run_git(human, "push", "-q", "origin", WORK_BRANCH)
         self.checkout.fetch()
 
     def raise_standing(self, stop: RepositoryStop) -> None:
@@ -133,7 +134,7 @@ def rig(
     agent_home: Path,
     clock: ManualClock,
 ) -> Rig:
-    """Return a ready machine whose `origin/main` carries a `lint` that passes."""
+    """Return a ready machine whose `origin/<working branch>` carries a `lint` that passes."""
     install_agents(agent_home, ROLES)
     settings = InstanceSettings.model_validate(
         {
@@ -161,7 +162,7 @@ def rig(
 
 @pytest.fixture
 def red_main(rig: Rig) -> Rig:
-    """Return the rig with a file `BROKEN` on `origin/main`, which makes its `lint` red."""
+    """Return the rig with a file `BROKEN` on the working branch, which makes its `lint` red."""
     rig.push_main("BROKEN", "red\n")
     return rig
 
