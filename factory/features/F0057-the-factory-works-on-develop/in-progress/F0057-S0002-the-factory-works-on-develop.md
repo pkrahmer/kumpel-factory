@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 644
 comments_read: [6713932106]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-07T22:35:42.206941Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -42,6 +46,11 @@ journal:
   at: '2026-11-07T22:35:37.297263Z'
   stage: intake
   run: c98cc6325c964b32992cb3debfb095ed
+- number: 7
+  speaker: factory
+  kind: started
+  at: '2026-11-07T22:35:42.206941Z'
+  stage: tests
 ---
 
 # The factory works on develop
@@ -108,3 +117,4 @@ Expect: `develop`
    - Architecture: a constant, text files and a finding that follows from the constant. No new layer or item.
    - Scope: within F0057 S0002. Nothing is in "Out of scope". `main_branch_failing` is untouched.
    Route: tests, because the Interface changes `src/` and `agents/`, which the documenter may not write.
+7. factory: started tests as vm.
