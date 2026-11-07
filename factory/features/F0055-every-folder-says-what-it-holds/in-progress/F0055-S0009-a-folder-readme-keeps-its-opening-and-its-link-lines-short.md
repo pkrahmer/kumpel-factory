@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 641
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-07T15:16:35.043846Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -89,6 +85,12 @@ journal:
   kind: started
   at: '2026-11-07T15:16:35.043846Z'
   stage: doing
+- number: 15
+  speaker: coder
+  kind: result
+  at: '2026-11-07T15:20:45.739022Z'
+  stage: doing
+  run: 6c803c1d776a4ea3b72d43efd729a86d
 ---
 
 # A folder README keeps its opening and its link lines short
@@ -240,3 +242,15 @@ Expect: `0`
 
     `lint`: lint: green (0.2 s)
 14. factory: started doing as vm.
+15. coder: Round 1: the tester added rows for the two criteria the reviewer added. They are `prose-in-the-paragraph-after-the-opening` (criterion 4) and `only-link-in-the-opening` (criterion 5) in `tests/shared/domain/test_folder_readmes.py`. Both pass against `src/factory/shared/domain/folder_readmes.py` as entry 7 left it. So this round has nothing to fix and no code changed: no file under `src/` and no test.
+
+    - Built: nothing new this round. The implementation is still the one entry 7 describes, in `src/factory/shared/domain/folder_readmes.py`.
+    - Main choice (unchanged): the opening ends at its first blank line, so a link inside it no longer ends it. I rejected keeping the old rule, where a link line ended the opening.
+    - Refactor: I left it alone. The diff is the same one the reviewer read in entry 9.
+    - Description: the journal changed nothing here beyond the reviewer's criteria 4 and 5, which the Description already holds, so I did not rewrite it.
+    - Noticed, not touched: as in entry 7, a subfolder line written right under the opening with no blank line between still ends the opening.
+
+    `make check`: green, run this round. The final lines were `test: green (102.6 s)` and `check: green`.
+
+    `check`: check: green
+    `duplicates`: duplicates: 6 new, 39 known, 4 gone
