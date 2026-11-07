@@ -248,3 +248,4 @@ Times are UTC. The plan: `night-plan.md`.
 - 22:49Z: F0057-S0002 PR #644 asked at doing (demo Makefile must follow the template). Answered (a); coder gets temporary write paths for the todo demo Makefile and CLAUDE.md, to be removed at the merge.
 - 22:58Z: F0057-S0002 PR #644 asked at doing round 1 (scheduler stop says "no main branch"; private names). Answered (a): widen, new criterion, tester leave for 4 tests, health.md in docs.
 - 23:06Z: F0057-S0002 PR #644: new test wrote --initial-branch=main, guard caught it. Answered (a): OTHER_BRANCH constant in the test.
+- 23:19Z: F0057-S0002 PR #644 doing round 2: visible texts still say main. Answered (a) plus finding 2; asked that further word-only leftovers become notes.
