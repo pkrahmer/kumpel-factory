@@ -1,11 +1,11 @@
 ---
 stage: tests
-blocked: question
+blocked: null
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 644
-comments_read: [6713932106]
+comments_read: [6713932106, 6714015757]
 handed_over: null
 claim: null
 journal:
@@ -54,6 +54,11 @@ journal:
   stage: tests
   run: 8bd5b9bd525e4f47b0ace72f15100c07
   blocked: question
+- number: 9
+  speaker: human
+  kind: comment
+  at: '2026-11-07T22:45:18.355109Z'
+  stage: tests
 ---
 
 # The factory works on develop
@@ -190,3 +195,4 @@ Expect: `develop`
    **Open:** the question above. The 18 operator-script tests are untouched until you answer.
 
    The factory left out changes outside the write paths: src/factory/shared/domain/paths.py.
+9. 2026-11-07 human: (a). The Kumpel scripts are F0057-S0003's (already planned there, reset-to-tag.sh included, moving develop). In this story they stay on main, and their three test files take the scripts' branch from a constant `"main"` of their own in tests/support/operator_skill_support.py; S0003 replaces it.
