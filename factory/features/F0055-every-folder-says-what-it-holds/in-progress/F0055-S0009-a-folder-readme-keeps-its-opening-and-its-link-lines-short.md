@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 641
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-07T15:16:35.043846Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -80,6 +84,11 @@ journal:
   at: '2026-11-07T15:16:29.893680Z'
   stage: tests
   run: 4e04f2d0413946098b040b6551197792
+- number: 14
+  speaker: factory
+  kind: started
+  at: '2026-11-07T15:16:35.043846Z'
+  stage: doing
 ---
 
 # A folder README keeps its opening and its link lines short
@@ -230,3 +239,4 @@ Expect: `0`
     - `make lint`: green.
 
     `lint`: lint: green (0.2 s)
+14. factory: started doing as vm.
