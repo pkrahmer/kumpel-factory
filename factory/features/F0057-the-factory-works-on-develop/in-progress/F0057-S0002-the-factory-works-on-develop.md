@@ -1,11 +1,11 @@
 ---
 stage: doing
-blocked: question
+blocked: null
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 644
-comments_read: [6713932106, 6714015757]
+comments_read: [6713932106, 6714015757, 6714081152]
 handed_over: null
 claim: null
 journal:
@@ -82,6 +82,11 @@ journal:
   stage: doing
   run: 5619743c38af4e23a3ec51066b212cc5
   blocked: question
+- number: 14
+  speaker: human
+  kind: comment
+  at: '2026-11-07T22:50:12.510452Z'
+  stage: doing
 ---
 
 # The factory works on develop
@@ -289,3 +294,4 @@ Expect: `develop`
     - `src/factory/machine/application/preflight.py:79`: the private names `_MAIN_REF` and `_NO_MAIN_TO_PREPARE` now hold `origin/develop`. The Interface says `src/factory/` is otherwise unchanged, so I left the names as they are. Renaming them would be a small refactor if you want it.
 
     The journal changed criterion 3 (entry 4) and settled the Kumpel scripts (entry 9). The Description already reflects both; I did not rewrite it.
+14. 2026-11-07 human: (a). The coder may now write demo/todo-service/project/Makefile and demo/todo-service/project/CLAUDE.md (factory/pipeline.yml on main, for this story only). Make your sed change in both files.
