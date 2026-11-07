@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 644
 comments_read: [6713932106, 6714015757, 6714081152, 6714164393]
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-07T23:01:06.274330Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -146,6 +142,12 @@ journal:
   kind: started
   at: '2026-11-07T23:01:06.274330Z'
   stage: tests
+- number: 25
+  speaker: tester
+  kind: result
+  at: '2026-11-07T23:02:01.527579Z'
+  stage: tests
+  run: db2d49bea1ad4f0e8b02fa0cb07edcba
 ---
 
 # The factory works on develop
@@ -485,3 +487,34 @@ Expect: `develop`
     **Noticed, not touched:**
     - The next row of `health.md`, "`origin/main` has no factory/pipeline.yml yet", probably follows the constant already. The documenter should check both rows together.
 24. factory: started tests as vm.
+25. tester: I made the test changes the human approved in entry 21, as the coder listed them in entry 23. I also wrote the test for the new criterion. All the new and changed tests are red for the right reason.
+
+    Criterion → test:
+    - criterion 4 (a remote with `main` and no `develop` gives a repository stop naming `develop`): `tests/pipeline/application/test_repository_waiter.py::test_a_remote_with_main_but_no_develop_is_a_stop_naming_develop`
+      - The remote is a bare repository whose only branch is `main`, and it holds `factory/pipeline.yml`.
+      - The test checks that `prepare()` returns False and that the only `repository_unavailable` detail is `the repository has no develop branch yet`.
+    - Criteria 1 to 3 keep the tests named in entries 8 and 11. Criteria 5 and 6 (`make check`, docs) have no test.
+
+    Earlier tests changed under the human's leave (entry 21). Each keeps its name and what it checks; only the expected text now follows `WORK_BRANCH`:
+    - `tests/pipeline/application/test_repository_waiter.py`: `NO_MAIN` is now `f"the repository has no {WORK_BRANCH} branch yet"`.
+    - `tests/entry/test_health.py`: the stop's detail and the printed line, lines 64 and 73. I added an import of `WORK_BRANCH`.
+    - `tests/entry/test_run_waiter.py`: the expected detail at line 40.
+
+    Work item: I rewrote `## Interface` and `## Acceptance criteria` to match entry 21, since the coder's edit of it was refused (entry 23).
+    - Interface: added the scheduler's message, which follows the constant, and the renames with no change in behaviour.
+    - Criteria: the new criterion is 4; `make check` and docs are now 5 and 6. The docs criterion also names `docs/operator-guide/health.md`'s row "the repository has no main branch yet".
+    - `## Description` is unchanged.
+    - If the take drops this edit, the next stage should carry it.
+
+    Run (`uv run pytest -q` on the three files):
+    - 4 tests fail: the new one, `test_a_remote_without_any_commit_is_a_stop_at_the_clocks_time` and `test_a_repeated_fault_is_reported_once_and_a_changed_fault_again` in the waiter file, and `test_run_instance_over_a_remote_without_commits_stops_and_pauses_thirty_seconds`. Each fails on a wrong result: today's code still says `main`.
+    - `test_health.py` passes. It reads a stop that the test writes itself, so it does not depend on the code.
+    - Every module imported; no import errors.
+
+    `make lint` is green.
+
+    Files created: none. Files changed: the three test files above and the work item.
+
+    The factory left out changes outside the write paths: factory/features/F0057-the-factory-works-on-develop/in-progress/F0057-S0002-the-factory-works-on-develop.md.
+
+    `lint`: lint: green (0.1 s)
