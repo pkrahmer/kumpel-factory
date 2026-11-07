@@ -212,7 +212,7 @@ def test_snapshots_of_two_features_come_in_work_item_order(
     human.push_file(WORK_BRANCH, f"{LATER}/feature.md", "# Later\n")
     human.push_file(WORK_BRANCH, f"{LATER}/done/F0003-S0001-a.md", "# A\n")
     human.push_file(
-        "main", f"{LATER}/in-progress/F0003-A0001-acceptance.md", _render(boundaries, later)
+        WORK_BRANCH, f"{LATER}/in-progress/F0003-A0001-acceptance.md", _render(boundaries, later)
     )
 
     snapshots = _snapshots(boundaries, definition)

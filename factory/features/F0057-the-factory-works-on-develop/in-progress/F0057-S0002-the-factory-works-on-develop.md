@@ -1,17 +1,13 @@
 ---
 stage: tests
-blocked: null
+blocked: question
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 644
 comments_read: [6713932106]
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-07T22:35:42.206941Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -51,6 +47,13 @@ journal:
   kind: started
   at: '2026-11-07T22:35:42.206941Z'
   stage: tests
+- number: 8
+  speaker: tester
+  kind: question
+  at: '2026-11-07T22:41:27.009826Z'
+  stage: tests
+  run: 8bd5b9bd525e4f47b0ace72f15100c07
+  blocked: question
 ---
 
 # The factory works on develop
@@ -118,3 +121,72 @@ Expect: `develop`
    - Scope: within F0057 S0002. Nothing is in "Out of scope". `main_branch_failing` is untouched.
    Route: tests, because the Interface changes `src/` and `agents/`, which the documenter may not write.
 7. factory: started tests as vm.
+8. tester: I wrote the tests for all criteria. I stopped short of `doing` because one case the story leaves open breaks earlier tests: the operator's Kumpel scripts.
+
+   **Question.** The scripts under `operator/skill/kumpel/scripts/` hard-code `main`:
+   - `start-story.sh` and `next-story.sh` run `git checkout -q main`.
+   - `approval.sh` diffs `origin/main...$branch`.
+   - `reset-to-tag.sh` moves `refs/heads/main`.
+   - `merge.sh` and `status.sh` say "the archive commit on main".
+
+   Their tests (`tests/operator_scripts/test_operator_skill_scripts.py`, `test_operator_skill_signature.py`, `test_operator_merge_reset.py`) build the remote and the expected refs from `WORK_BRANCH`. With `WORK_BRANCH = "develop"`, 18 of them fail ("pathspec 'main' did not match", "bad revision 'origin/main...'", "PATCH .../heads/main: 404"). The Interface does not name these scripts.
+
+   Options:
+   - (a) The scripts stay on `main` in this story. Under your leave ("an earlier test whose only failure is the new value of `WORK_BRANCH`"), I change those three test files to name the scripts' branch through a constant `"main"` of their own in `tests/support/operator_skill_support.py`, instead of `WORK_BRANCH`. A later story (S0004/S0005, or your own change, since the skill is yours) moves the scripts.
+   - (b) Widen the Interface. The scripts that start, pick, approve and archive (`start-story.sh`, `next-story.sh`, `approval.sh`, `merge.sh`, `status.sh`) work on `develop`, and the tests keep `WORK_BRANCH`. `reset-to-tag.sh` stays on `main` and its tests get the constant from (a).
+   - (c) Widen the Interface the same way, but `reset-to-tag.sh` moves to `develop` too.
+
+   I would choose (b). Once you move the factory over at the merge, a `start-story.sh` that pushes to `main` would start nothing, because the factory reads `develop`. Resetting `main` to a tag fits Kumpel's promotion line.
+
+   **Criteria → tests** (all red until the coder's change):
+   - criterion 1: `tests/shared/domain/test_work_branch.py::test_the_working_branch_is_one_constant_named_work_branch`. It is the earlier test, kept by name, its value changed to `"develop"`.
+   - criterion 2: `tests/machine/application/test_preflight_working_branch.py::test_a_remote_with_main_but_no_develop_gets_a_finding_naming_origin_develop`
+   - criterion 3: `tests/guards/test_working_branch_in_agent_texts.py::test_no_agent_or_template_file_names_main_as_the_working_branch`, with one row per form:
+     - `remote-ref` (origin/main)
+     - `three-dot-diff`
+     - `git-diff`
+     - `human-merge`
+     - `acceptance-report`
+     - `already-holds`
+     - `on-itself` (with or without backticks, for the template's `Makefile`)
+   - criterion 3, the side that stays ("the main choice"): `tests/guards/test_working_branch_in_agent_texts.py::test_main_as_an_ordinary_word_stays_in_the_agent_files`.
+   - criteria 4 and 5: no test. They are `make check` and docs.
+
+   **Placement.** I put criterion 3 in a new guard module rather than widening `tests/guards/test_work_branch_search.py`. That guard scans `src/factory` and `tests` for literals like `-b main`, which are not this criterion's forms. The new module builds the remote ref from `REMOTE`, so the S0001 guard does not flag it.
+
+   **Files created:**
+   - `tests/machine/application/test_preflight_working_branch.py`
+   - `tests/guards/test_working_branch_in_agent_texts.py`
+
+   **Earlier test files changed, under your leave of 2026-11-07.** Every test keeps its name and what it checks.
+   - Agent and template texts, only the branch's name:
+     - `tests/agent_files/test_claude_agent_texts.py`: the reviewer anchor "that `develop` already holds".
+     - `tests/agent_files/test_claude_agent_texts_docs_route.py`: `DOCS_DIFF` uses `develop...HEAD`.
+     - `tests/agent_files/test_claude_files.py`: "on `{WORK_BRANCH}` itself".
+     - `tests/agent_files/test_claude_agent_texts_review_groups.py`: the earlier-body CRC maps `develop` back to `main` before hashing.
+   - Only failure is the new value of `WORK_BRANCH`; I found these by running the suite once with the constant flipped by hand, then put the constant back. In each, a literal `"main"` became `WORK_BRANCH`:
+     - `tests/shared/domain/test_paths.py`
+     - `tests/hosting/domain/test_hosting.py`
+     - `tests/entry/test_wiring_run.py`
+     - `tests/guards/test_human_clone.py`
+     - `tests/agents/application/test_project_agents.py`
+     - `tests/machine/application/test_container_environment.py`
+     - `tests/pipeline/application/test_claims_refusals.py`
+     - `tests/pipeline/application/test_preflight_stops_commit.py`
+     - `tests/pipeline/application/test_stop_publisher.py`
+     - `tests/pipeline/application/test_tick_stop_records.py`
+     - `tests/work/application/test_acceptance_service.py`
+     - `tests/work/application/test_acceptance_snapshots.py`
+     - `tests/work/domain/test_stop_table.py`
+   - Two changes go beyond swapping the literal:
+     - `tests/hosting/adapters/test_git_cli_reading.py`: in the sorted remote-branch list, `develop` now sorts before `feature-b`.
+     - `tests/hosting/adapters/test_git_cli_branches.py`: git writes "Merge branch 'other' into develop", and leaves out " into …" only for `main`. This test is red until the constant changes.
+   - `tests/agent_files/test_template_makefile.py` needs no change: its secrets and mutants cases go green once the template `Makefile` says `origin/develop`.
+
+   **Runs.** One `uv run pytest` over the changed and new test files. The failures are the new tests and the texts not yet changed: the preflight finding and the guard rows. `make lint` is green.
+
+   **Modules not importable:** none. Every failure is a wrong result.
+
+   **Open:** the question above. The 18 operator-script tests are untouched until you answer.
+
+   The factory left out changes outside the write paths: src/factory/shared/domain/paths.py.

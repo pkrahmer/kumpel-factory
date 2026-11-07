@@ -54,7 +54,7 @@ def test_merge_brings_the_branch_into_main_by_the_method(
     is_ancestor = run_git(remote, "branch", "--contains", tip, "--list", WORK_BRANCH).strip() != ""
     assert is_ancestor is tip_on_main
     for name, text in (("one.txt", "one\n"), ("two.txt", "two\n"), ("main.txt", "main\n")):
-        assert run_git(remote, "show", f"main:{name}") == text
+        assert run_git(remote, "show", f"{WORK_BRANCH}:{name}") == text
 
 
 def test_start_moves_the_story_and_push_file_writes_the_branch(

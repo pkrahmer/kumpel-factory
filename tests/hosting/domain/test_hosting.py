@@ -56,7 +56,7 @@ def _view(**changes: Any) -> PullRequestView:
 
 
 def test_constants_have_their_values() -> None:
-    assert WORK_BRANCH == "main"
+    assert WORK_BRANCH == "develop"
     assert LABEL_PREFIX == "stage:"
     assert FACTORY_MARKER == "<!-- factory -->"
 

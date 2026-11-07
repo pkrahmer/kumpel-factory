@@ -116,7 +116,8 @@ def test_opening_adds_one_commit_with_only_the_report_and_no_pull_request(
 
     _service(boundaries, definition).open("F0002")
 
-    assert run_git(remote, "rev-list", f"main..{BRANCH}").split() == [remote_commit(remote, BRANCH)]
+    ahead = run_git(remote, "rev-list", f"{WORK_BRANCH}..{BRANCH}").split()
+    assert ahead == [remote_commit(remote, BRANCH)]
     assert run_git(remote, "rev-parse", f"{BRANCH}^").strip() == remote_commit(remote, WORK_BRANCH)
     added = run_git(remote, "diff-tree", "--no-commit-id", "--name-status", "-r", BRANCH)
     assert added.splitlines() == [f"A\t{REPORT}"]
@@ -187,7 +188,7 @@ def test_opening_again_after_a_kill_before_the_push_leaves_one_branch_with_one_c
 
     branches = run_git(remote, "for-each-ref", "--format=%(refname)", "refs/heads/work-item/")
     assert branches.split() == [f"refs/heads/{BRANCH}"]
-    assert len(run_git(remote, "rev-list", f"main..{BRANCH}").split()) == 1
+    assert len(run_git(remote, "rev-list", f"{WORK_BRANCH}..{BRANCH}").split()) == 1
 
 
 def test_opening_onto_a_branch_the_checkout_has_not_fetched_is_a_rejected_push(
@@ -229,18 +230,18 @@ def test_the_cost_line_counts_the_records_of_the_archived_stories_only(
     backlog = f"{TODO}/backlog/F0002-S0003-c.md"
     human.push_file(WORK_BRANCH, backlog, "# C\n")
     human.push_file(
-        "main", cost_records_path(backlog), sidecar_text(completed_records("F0002-S0003", 3))
+        WORK_BRANCH, cost_records_path(backlog), sidecar_text(completed_records("F0002-S0003", 3))
     )
     other = f"{FEATURES}/F0001-example/done/F0001-S0002-other.md"
     human.push_file(WORK_BRANCH, other, "# Other\n")
     human.push_file(
-        "main", cost_records_path(other), sidecar_text(completed_records("F0001-S0002", 4))
+        WORK_BRANCH, cost_records_path(other), sidecar_text(completed_records("F0001-S0002", 4))
     )
     report = f"{TODO}/done/F0002-A0001-acceptance.md"
     state = AcceptanceState(stage="done", outcome="refused", stories=ARCHIVED)
     human.push_file(WORK_BRANCH, report, _report_text(state))
     human.push_file(
-        "main", cost_records_path(report), sidecar_text(completed_records(ACCEPTANCE, 5))
+        WORK_BRANCH, cost_records_path(report), sidecar_text(completed_records(ACCEPTANCE, 5))
     )
 
     facts = _service(boundaries, definition).facts("F0002")
@@ -297,7 +298,7 @@ def test_each_acceptance_has_its_own_cost_line(
 ) -> None:
     _push_todo(human)
     human.push_file(
-        "main",
+        WORK_BRANCH,
         cost_records_path(ARCHIVED_PATHS[0]),
         sidecar_text(completed_records(ARCHIVED[0], 3)),
     )
@@ -305,7 +306,7 @@ def test_each_acceptance_has_its_own_cost_line(
     done = AcceptanceState(stage="done", outcome="refused", stories=ARCHIVED)
     human.push_file(WORK_BRANCH, first, _report_text(done))
     human.push_file(
-        "main", cost_records_path(first), sidecar_text(completed_records("F0002-A0001", 1))
+        WORK_BRANCH, cost_records_path(first), sidecar_text(completed_records("F0002-A0001", 1))
     )
     second = f"{TODO}/in-progress/F0002-A0002-acceptance.md"
     running = AcceptanceState(stage="acceptance", stories=ARCHIVED)

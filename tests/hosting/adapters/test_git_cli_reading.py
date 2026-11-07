@@ -235,8 +235,8 @@ def test_remote_branches_lists_the_remote_tracking_branches_sorted(
 
     assert checkout.remote_branches() == [
         RemoteBranch(name="Zeta", commit=upper),
-        RemoteBranch(name="feature-b", commit=lower),
         RemoteBranch(name=WORK_BRANCH, commit=main),
+        RemoteBranch(name="feature-b", commit=lower),
         RemoteBranch(name="work-item/F0001-S0001", commit=item),
     ]
 

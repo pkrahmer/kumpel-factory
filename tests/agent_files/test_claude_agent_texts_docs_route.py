@@ -10,7 +10,7 @@ ROUTING_RULE = (
     "has no tests stage and no doing stage, so its criteria are about documents only."
 )
 
-DOCS_DIFF = "`git diff main...HEAD -- README.md docs operator/README.md`"
+DOCS_DIFF = "`git diff develop...HEAD -- README.md docs operator/README.md`"
 
 
 def _stage_subsection(name: str, stage: str) -> str:

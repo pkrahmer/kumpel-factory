@@ -61,8 +61,11 @@ def test_the_rest_of_the_reviewer_body_is_unchanged() -> None:
         "the architecture, security or anything under `src/` is still a finding and sends it "
         "back with `doing`."
     )
-    earlier = body.replace(_ALL_GROUPS, _STOP_AT_THE_FIRST).replace(
-        untested_side_is_a_note, untested_side_is_a_finding
+    # The earlier body named the working branch `main`, before it became `develop`.
+    earlier = (
+        body.replace(_ALL_GROUPS, _STOP_AT_THE_FIRST)
+        .replace(untested_side_is_a_note, untested_side_is_a_finding)
+        .replace("develop", "main")
     )
 
     assert zlib.crc32(earlier.encode()) == _EARLIER_BODY_CRC32

@@ -112,7 +112,7 @@ def test_service_refusal_of_an_instance_name_quotes_the_name(
             "doing",
             "doing",
             True,
-            f"the checkout is on main, not on {BRANCH}",
+            f"the checkout is on {WORK_BRANCH}, not on {BRANCH}",
         ),
     ],
     ids=[
