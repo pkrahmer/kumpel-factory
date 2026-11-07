@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 641
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: docs
+  started_at: '2026-11-07T15:21:44.956647Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -102,6 +106,11 @@ journal:
   at: '2026-11-07T15:21:39.668134Z'
   stage: review
   run: 7177beae61604b6db9eb360df3470bc2
+- number: 18
+  speaker: factory
+  kind: started
+  at: '2026-11-07T15:21:44.956647Z'
+  stage: docs
 ---
 
 # A folder README keeps its opening and its link lines short
@@ -304,3 +313,4 @@ Expect: `0`
 
     Notes:
     - `tests/shared/domain/test_folder_readmes.py`: the string `f"{FOLDER}: line 9 is a long link line"` is written out in two rows, while line 5 has the constant `LONG_LINK_LINE_5`. This is a naming point and does not send the work item back.
+18. factory: started docs as vm.
