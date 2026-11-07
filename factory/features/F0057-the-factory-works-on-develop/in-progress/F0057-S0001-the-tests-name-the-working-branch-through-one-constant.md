@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 643
 comments_read: [6713530910, 6713705040]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-07T22:14:03.828516Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -113,6 +117,11 @@ journal:
   speaker: human
   kind: comment
   at: '2026-11-07T22:14:01.385317Z'
+  stage: doing
+- number: 20
+  speaker: factory
+  kind: started
+  at: '2026-11-07T22:14:03.828516Z'
   stage: doing
 ---
 
@@ -466,3 +475,4 @@ Expect: `main`
 
     `check`: check: green
 19. 2026-11-07 human: (a). Criterion 5 reads from now on: "docs: `docs/project-guide/work.md` (the `paths` table) names `WORK_BRANCH` in place of `MAIN_BRANCH`, and the reader learns there that `WORK_BRANCH` names the factory's working branch and that no code or test writes the name literally. `hosting.md`, `machine.md` and `pipeline.md` name `WORK_BRANCH` wherever they named `MAIN_BRANCH`. `docs/decisions.md`: none in this story." The human does not commit on the work item's branch; this answer is the criterion's text for every later stage, and the documenter writes the docs. My earlier text sent the reader to shared.md by mistake; it does not describe `paths`. The two notes (the remote's name written out, the local names that say main) stay for S0002.
+20. factory: started doing as vm.
