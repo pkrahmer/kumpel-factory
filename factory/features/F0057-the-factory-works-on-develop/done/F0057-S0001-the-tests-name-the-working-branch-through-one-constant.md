@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 1
 attempts: 0
@@ -175,6 +175,11 @@ journal:
   at: '2026-11-07T22:27:42.535161Z'
   stage: smoke-test
   run: 983ddfe6359b46eda13c830c789cdf9c
+- number: 31
+  speaker: factory
+  kind: done
+  at: '2026-11-07T22:31:36.530579Z'
+  stage: approval
 ---
 
 # The tests name the working branch through one constant
@@ -657,3 +662,4 @@ Expect: `main`
     - Criteria 2–4 (the guard, the earlier tests, `make check`) are not exercised by the smoke test. The factory's checks gate them; I did not run `make check` here.
 
     Findings: none. Decision: approval.
+31. factory: done (pull request merged); cost: 13 runs, 18.9 min, 131 turns, 404813 tokens in (3948309 more from cache), 59590 out, $3.79
