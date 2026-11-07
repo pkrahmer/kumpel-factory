@@ -7,7 +7,11 @@ crashes: 1
 pull_request: null
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: acceptance
+  started_at: '2026-11-07T15:33:14.141297Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: factory
@@ -19,6 +23,11 @@ journal:
   kind: crash
   at: '2026-11-07T15:33:12.524162Z'
   stage: acceptance
+- number: 3
+  speaker: factory
+  kind: started
+  at: '2026-11-07T15:33:14.141297Z'
+  stage: acceptance
 stories: [F0055-S0001, F0055-S0002, F0055-S0003, F0055-S0004, F0055-S0005, F0055-S0006, F0055-S0007, F0055-S0008, F0055-S0009]
 outcome: null
 ---
@@ -29,3 +38,4 @@ outcome: null
 
 1. factory: started acceptance as vm.
 2. factory: crash 1: the run of stage acceptance ended without a result. Its work is discarded back to commit 06ac7902f94be1ba673cd99e48fea05afb1f0dce.
+3. factory: started acceptance as vm.
