@@ -37,6 +37,8 @@ FOLDER_READMES: Final[tuple[str, ...]] = (
 OPENING_SENTENCES: Final = 2
 SUBFOLDER_LINE_SENTENCES: Final = 1
 SUBFOLDER_LINE_WORDS: Final = 25
+LINK_LINE_SENTENCES: Final = 1
+LINK_LINE_WORDS: Final = 25
 BASE_LINES: Final = 10
 
 _HEADING = re.compile(r"#+ ")
@@ -52,6 +54,7 @@ class _Reading:
     long_lines: list[str] = field(default_factory=list)
     opening: list[str] = field(default_factory=list)
     free_lines: list[int] = field(default_factory=list)
+    long_link_lines: list[int] = field(default_factory=list)
     has_section: bool = False
     has_code_block: bool = False
     has_link: bool = False
@@ -62,33 +65,43 @@ def _sentences(text: str) -> int:
     return len(_SENTENCE_END.findall(text))
 
 
+def _is_longer_than(text: str, sentences: int, words: int) -> bool:
+    return _sentences(text) > sentences or len(text.split()) > words
+
+
 def _read_subfolder_line(reading: _Reading, name: str, rest: str) -> None:
     reading.past_opening = True
     sentence = rest.strip()
     if not rest.startswith(" ") or not sentence.endswith("."):
         return
     reading.named.append(name)
-    too_many_sentences = _sentences(sentence) > SUBFOLDER_LINE_SENTENCES
-    if too_many_sentences or len(sentence.split()) > SUBFOLDER_LINE_WORDS:
+    if _is_longer_than(sentence, SUBFOLDER_LINE_SENTENCES, SUBFOLDER_LINE_WORDS):
         reading.long_lines.append(name)
+
+
+def _read_line_past_opening(reading: _Reading, number: int, line: str, has_link: bool) -> None:
+    if not has_link:
+        reading.free_lines.append(number)
+    elif _is_longer_than(line, LINK_LINE_SENTENCES, LINK_LINE_WORDS):
+        reading.long_link_lines.append(number)
 
 
 def _read_line(reading: _Reading, number: int, line: str) -> None:
     if not line.strip():
+        # The opening is one paragraph: the first blank line after it ends it.
+        if reading.opening:
+            reading.past_opening = True
         return
     if _HEADING.match(line):
         reading.has_section = True
         return
+    has_link = bool(relative_link_targets(line))
+    reading.has_link = reading.has_link or has_link
     subfolder = _SUBFOLDER_LINE.fullmatch(line)
-    if relative_link_targets(line):
-        reading.has_link = True
-        if subfolder is None:
-            reading.past_opening = True
-            return
     if subfolder is not None:
         _read_subfolder_line(reading, subfolder["name"], subfolder["rest"])
     elif reading.past_opening:
-        reading.free_lines.append(number)
+        _read_line_past_opening(reading, number, line, has_link)
     else:
         reading.opening.append(line)
 
@@ -113,6 +126,7 @@ def _subfolder_problems(folder: str, named: Sequence[str], subfolders: Sequence[
 def _form_problems(folder: str, readme: str, reading: _Reading, subfolders: int) -> list[str]:
     problems = [f"{folder}: {name}/ has a long line" for name in reading.long_lines]
     problems += [f"{folder}: line {number} is no part of the form" for number in reading.free_lines]
+    problems += [f"{folder}: line {n} is a long link line" for n in reading.long_link_lines]
     if reading.has_section:
         problems.append(f"{folder}: has a section")
     if reading.has_code_block:

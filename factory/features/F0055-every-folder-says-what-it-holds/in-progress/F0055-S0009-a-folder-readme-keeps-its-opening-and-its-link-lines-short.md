@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 641
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-07T15:07:38.705306Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -45,6 +41,12 @@ journal:
   kind: started
   at: '2026-11-07T15:07:38.705306Z'
   stage: doing
+- number: 7
+  speaker: coder
+  kind: result
+  at: '2026-11-07T15:14:05.770029Z'
+  stage: doing
+  run: 135c25bb765449199275e7124de72eaf
 ---
 
 # A folder README keeps its opening and its link lines short
@@ -124,3 +126,25 @@ Expect: `0`
 
    `lint`: lint: green (0.1 s)
 6. factory: started doing as vm.
+7. coder: Built: `src/factory/shared/domain/folder_readmes.py`. No other file changed, and no test changed.
+
+   - New constants `LINK_LINE_SENTENCES` (1) and `LINK_LINE_WORDS` (25).
+   - The opening is now one paragraph: the first blank line after an opening line ends it (`past_opening`). A line in the opening that carries a relative link stays in the opening, so its sentences are counted. The link still counts as the README's link to a guide.
+   - `_read_line_past_opening` sorts each line after the opening that is no subfolder line. A line without a relative link still gives `line <n> is no part of the form`. A line with one is checked against the new limits and gives `line <n> is a long link line`, `<n>` the 1-based line number.
+   - `_form_problems` adds the new finding.
+
+   Main choice: the opening ends at its blank line, which follows the Interface's "first paragraph". I rejected the other option, keeping the old rule where a link line ends the opening. Under that rule an opening of three sentences with a link on its first line would still slip past the limit.
+
+   Refactor: the subfolder check and the new link-line check were the same sentence-and-word test. I merged them into one helper, `_is_longer_than(text, sentences, words)`. Behaviour is unchanged.
+
+   Checks:
+   - `make check` is green.
+   - The tests in `tests/shared/domain/test_folder_readmes.py` and `tests/guards/test_folder_readmes.py` pass, so all 22 real READMEs keep to the new rules.
+   - The first two smoke commands print the expected lines.
+
+   The journal did not change the meaning of the task, so I left `## Description` as it was.
+
+   Noticed, not touched: a subfolder line written right under the opening with no blank line between still ends the opening, as before.
+
+   `check`: check: green
+   `duplicates`: duplicates: 6 new, 39 known, 4 gone
