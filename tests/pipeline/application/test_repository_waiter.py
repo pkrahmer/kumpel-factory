@@ -31,6 +31,7 @@ from support.settings_support import AGENT_HOME
 
 NO_MAIN = f"the repository has no {WORK_BRANCH} branch yet"
 NO_PIPELINE = f"{REMOTE}/{WORK_BRANCH} has no factory/pipeline.yml yet"
+OTHER_BRANCH = "main"
 
 
 class RecordingLog(FactoryLog):
@@ -172,12 +173,12 @@ def test_a_remote_with_main_but_no_develop_is_a_stop_naming_develop(
 ) -> None:
     root = tmp_path / "only-main"
     root.mkdir()
-    run_git(root, "init", "-q", "--bare", "--initial-branch=main", "remote.git")
+    run_git(root, "init", "-q", "--bare", f"--initial-branch={OTHER_BRANCH}", "remote.git")
     remote = root / "remote.git"
-    run_git(root, "init", "-q", "--initial-branch=main", "seed")
+    run_git(root, "init", "-q", f"--initial-branch={OTHER_BRANCH}", "seed")
     write_files(root / "seed", {"factory/pipeline.yml": PIPELINE_YAML})
     commit_all(root / "seed", "seed")
-    run_git(root / "seed", "push", "-q", str(remote), "main")
+    run_git(root / "seed", "push", "-q", str(remote), OTHER_BRANCH)
     waiting = instance(str(remote))
 
     prepared = waiting.waiter.prepare()

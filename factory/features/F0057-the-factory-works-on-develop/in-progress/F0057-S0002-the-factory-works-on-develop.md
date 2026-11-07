@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 644
 comments_read: [6713932106, 6714015757, 6714081152, 6714164393, 6714248996]
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-07T23:08:18.958394Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -185,6 +181,12 @@ journal:
   kind: started
   at: '2026-11-07T23:08:18.958394Z'
   stage: tests
+- number: 32
+  speaker: tester
+  kind: result
+  at: '2026-11-07T23:08:56.826312Z'
+  stage: tests
+  run: ffd0f489bd5041c3b440bc48883f6f16
 ---
 
 # The factory works on develop
@@ -612,3 +614,24 @@ Expect: `develop`
 
     The tester may write the work item, so it can carry that rewrite in the same round.
 31. factory: started tests as vm.
+32. tester: Round 1. I made the test change the human approved: (a) in entry 28, named by the coder in entry 30.
+
+    **What changed.** In `tests/pipeline/application/test_repository_waiter.py`, the test `test_a_remote_with_main_but_no_develop_is_a_stop_naming_develop` now names the other branch through a new module constant, `OTHER_BRANCH = "main"` (line 34). This follows the pattern of `tests/machine/application/test_preflight_working_branch.py:14`.
+    - Line 176 (the bare init) uses `f"--initial-branch={OTHER_BRANCH}"`.
+    - Line 178 (the seed init) uses the same.
+    - The push on line 181 uses `OTHER_BRANCH`.
+
+    The test keeps its name and what it checks. It writes no other line.
+
+    **Why.** The literal `--initial-branch=main` broke S0001's guard, `tests/guards/test_work_branch_search.py::test_no_file_in_the_source_or_the_tests_writes_the_working_branch_by_name`. That was the only red in the coder's `make check`.
+
+    **Runs:**
+    - `uv run pytest -q` on the changed file: 8 passed.
+    - The guard file: 6 passed. I ran it as a second run, beyond the one the stage asks for, to confirm that its failure is gone.
+    - `make lint` is green.
+
+    **Files:** none created; one changed, `tests/pipeline/application/test_repository_waiter.py`. Every module imported.
+
+    **Still open:** the work item's `## Interface` and `## Acceptance criteria` still list only criteria 1 to 5. They lack the repository-stop criterion (a remote with `main` and no `develop` gives a stop naming `develop`) and the `docs/operator-guide/health.md` item of the docs criterion, both from entries 21 and 25. My rewrite in entry 25 was dropped from the take as outside the write paths, so I did not try again. A stage, or the human, that may write the work item's Description should carry it.
+
+    `lint`: lint: green (0.1 s)
