@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 644
 comments_read: [6713932106, 6714015757, 6714081152]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: review
+  started_at: '2026-11-07T22:54:37.685909Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -98,6 +102,11 @@ journal:
   at: '2026-11-07T22:54:32.458092Z'
   stage: doing
   run: 9a1c7ee26b3248b393ce2425800b17f9
+- number: 17
+  speaker: factory
+  kind: started
+  at: '2026-11-07T22:54:37.685909Z'
+  stage: review
 ---
 
 # The factory works on develop
@@ -331,3 +340,4 @@ Expect: `develop`
 
     `check`: check: green
     `duplicates`: duplicates: 6 new, 39 known, 4 gone
+17. factory: started review as vm.
