@@ -1,5 +1,5 @@
 ---
-stage: docs
+stage: smoke-test
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 641
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: docs
-  started_at: '2026-11-07T15:21:44.956647Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -111,6 +107,12 @@ journal:
   kind: started
   at: '2026-11-07T15:21:44.956647Z'
   stage: docs
+- number: 19
+  speaker: documenter
+  kind: result
+  at: '2026-11-07T15:26:11.936282Z'
+  stage: docs
+  run: 7629bc6bb47740fb84a6746c72629510
 ---
 
 # A folder README keeps its opening and its link lines short
@@ -314,3 +316,26 @@ Expect: `0`
     Notes:
     - `tests/shared/domain/test_folder_readmes.py`: the string `f"{FOLDER}: line 9 is a long link line"` is written out in two rows, while line 5 has the constant `LONG_LINK_LINE_5`. This is a naming point and does not send the work item back.
 18. factory: started docs as vm.
+19. documenter: Docs for the new `readme_problems` rules. I read `src/factory/shared/domain/folder_readmes.py` on the branch before writing, and `make documents` ended with `documents ok (61.4 s)`. I did not run `make check`, because I changed only documents.
+
+    Files changed:
+    - `docs/project-guide/style.md`, *Folder READMEs*:
+      - The opening is the first paragraph after the title, up to the first blank line.
+      - Its sentences are counted with or without a link, and a link in it counts as the link to a guide.
+      - A line outside the opening that carries a relative link and is no subfolder line is one sentence of at most 25 words, the link's markdown counted as written.
+    - `docs/project-guide/shared.md`, *The folder READMEs*: a new bullet on `readme_problems`.
+      - It gives the opening's limit.
+      - It gives `line <n> is no part of the form` for a line with no relative link.
+      - It gives the new `line <n> is a long link line` for a link line past `LINK_LINE_SENTENCES` (1) or `LINK_LINE_WORDS` (25).
+      - `<n>` is the 1-based line number in the whole README.
+
+    Cross-read and found current:
+    - The `tests/guards/test_folder_readmes.py` description in `docs/project-guide/README.md` line 66.
+    - The rest of `style.md` and `shared.md`.
+    - `docs/decisions.md`: it has no entry on folder READMEs or `readme_problems`, so I wrote nothing there.
+
+    Stale text I noticed: none. No finding for the coder: the code matches the Interface.
+
+    `check`: check: green
+    `secrets`: secrets: green (0.5 s)
+    `documents`: documents ok (61.0 s)

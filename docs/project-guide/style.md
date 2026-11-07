@@ -137,10 +137,10 @@ A folder a reader would ask about has a short `README.md` that points to the gui
 The form, in this order:
 
 - The title, `# <title>`, as the first line.
-- An opening of at most two sentences: what the folder holds.
+- An opening of at most two sentences: what the folder holds. The opening is the first paragraph after the title, up to the first blank line, and its sentences are counted whether or not it carries a link. A link in it counts as the README's link to a guide.
 - At least one relative link to a guide page, and a line `- ` and the subfolder's name in backticks ending in `/`, then one sentence of at most 25 words, for every subfolder.
 
-A folder README has no other heading, no code block and no other prose. It has at most 10 lines plus one per subfolder, blank lines left out. Whatever needs explaining goes into the guide page the README links to, never into the README. A subfolder missing from the list, or listed and gone, is a finding of the guard.
+A line outside the opening that carries a relative link and is no subfolder line is one sentence of at most 25 words, the link's markdown counted as written. A folder README has no other heading, no code block and no other prose. It has at most 10 lines plus one per subfolder, blank lines left out. Whatever needs explaining goes into the guide page the README links to, never into the README. A subfolder missing from the list, or listed and gone, is a finding of the guard.
 
 ## The README
 
