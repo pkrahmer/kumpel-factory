@@ -1,17 +1,13 @@
 ---
 stage: doing
-blocked: null
+blocked: question
 round: 1
 attempts: 0
 crashes: 0
 pull_request: 644
 comments_read: [6713932106, 6714015757, 6714081152, 6714164393]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-07T23:02:06.715177Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -157,6 +153,13 @@ journal:
   kind: started
   at: '2026-11-07T23:02:06.715177Z'
   stage: doing
+- number: 27
+  speaker: coder
+  kind: question
+  at: '2026-11-07T23:05:55.163206Z'
+  stage: doing
+  run: f0300b8c51ae44989114f78f826cbdfb
+  blocked: question
 ---
 
 # The factory works on develop
@@ -528,3 +531,40 @@ Expect: `develop`
 
     `lint`: lint: green (0.1 s)
 26. factory: started doing as vm.
+27. coder: **Question (round 1).** I made the change you approved in entry 21. `make check` is still red, and the only failure comes from two tests disagreeing. I can't fix it without changing a test.
+
+    The new criterion-4 test `tests/pipeline/application/test_repository_waiter.py::test_a_remote_with_main_but_no_develop_is_a_stop_naming_develop` (lines 175 and 177) writes the literal `--initial-branch=main`. The guard from F0057-S0001, `tests/guards/test_work_branch_search.py::test_no_file_in_the_source_or_the_tests_writes_the_working_branch_by_name`, forbids that literal everywhere under `tests/`. From the failed `make test` run:
+    ```
+    E   AssertionError: assert ['tests/pipel...-branch=main'] == []
+    E     Left contains one more item: 'tests/pipeline/application/test_repository_waiter.py: --initial-branch=main'
+    tests/guards/test_work_branch_search.py:28: AssertionError
+    ```
+    Every other test passes, the criterion-4 test included. Every other target is green: lint, types, layers, sast, secrets and licenses. Coverage is 99 %.
+
+    Options:
+    - (a) The tester names the other branch through a module constant, `OTHER_BRANCH = "main"`, and uses `f"--initial-branch={OTHER_BRANCH}"` on lines 175 and 177 (and in the push on line 180). `tests/machine/application/test_preflight_working_branch.py:14` already does this for criterion 2. The test keeps its name and what it checks. I would then end the next round with `tests` naming exactly this change.
+    - (b) The guard allows this literal in that one file. That weakens S0001's guard, so I reject it.
+
+    I would choose (a).
+
+    **What I built this round** (left in the working tree, no behaviour change other than the one message):
+    - `src/factory/pipeline/application/scheduler.py`:
+      - The repository stop's detail is now `f"the repository has no {WORK_BRANCH} branch yet"`.
+      - `_ORIGIN_MAIN` is renamed `_WORK_REF` and `_main_fault` is renamed `_work_branch_fault`.
+    - `src/factory/machine/application/preflight.py`:
+      - `_MAIN_REF` is renamed `_WORK_REF` and `_NO_MAIN_TO_PREPARE` is renamed `_NO_WORK_BRANCH_TO_PREPARE`.
+      - The module docstring, the class docstring and four comments now say the working branch.
+    - `src/factory/pipeline/application/tick.py`: `_MAIN_REF` is renamed `_WORK_REF`, and the two comments are reworded.
+    - `src/factory/pipeline/application/stops.py`:
+      - `_require_commit_beyond_main` is renamed `_require_commit_beyond_work_branch`. Its message now names `{WORK_BRANCH}`; no test pins it.
+      - The `StopPublisher` docstrings are reworded.
+    - `handlers/merged.py`, `handlers/reject.py` and `handlers/closed.py`: the docstrings and the comment now say the working branch.
+
+    **Main choice.** I renamed the names in each module to `_WORK_REF`, matching the name each module already used for itself. I rejected adding one shared `WORK_REF` constant to `factory.shared.domain.paths`, because that goes beyond the listed rewording.
+
+    **Refactor.** I read the diff once. I only reworded one comment in `closed.py` that had become ambiguous ("the branch").
+
+    **Noticed, not touched:**
+    - The preflight's `main_branch_failing` details still say "on main at …" (`preflight.py:474`, `:559`, `:572`–`575`). Tests pin them (`test_preflight_run.py`, `test_preflight_run_environment.py`, `test_preflight_stale_main_stop.py`), and they are outside the list you approved. The local variables named `main` and the stamp fields `main_failed`/`main_probed` are also unchanged.
+    - Other modules still have their own `_MAIN_REF`/`_ORIGIN_MAIN` for `origin/develop`, which is outside the approved list: `work/application/work_items.py:37`, `work/application/acceptance.py:69`, `work/application/acceptance_reading.py:41`, `watching/application/watcher.py:18` and `entry/wiring.py:184`.
+    - The tester's rewrite of `## Interface` and the criteria (entry 25) was left out of the take, so the work item still lists only criteria 1–5. My write paths do not include the work item either. Criterion 4 (a remote with `main` and no `develop` gives a repository stop naming `develop`) and the `health.md:187` item of the docs criterion still need to be written in by a stage that may write it.

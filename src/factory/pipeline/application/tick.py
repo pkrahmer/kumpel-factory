@@ -32,7 +32,7 @@ from factory.work.application.work_items import RemoteWorkItems
 
 HandlerFactory = Callable[[PipelineDefinition], Mapping[EventKind, Handler]]
 
-_MAIN_REF = f"{REMOTE}/{WORK_BRANCH}"
+_WORK_REF = f"{REMOTE}/{WORK_BRANCH}"
 
 
 class TickOutcome(BaseModel):
@@ -118,8 +118,8 @@ class Tick:
         except _Stopped as stopped:
             return TickOutcome(stopped=stopped.reason)
         if self._boundaries.stop_requested():
-            # The stop may have cut off the probe of main: a main without a verdict is no
-            # ground to claim work while the factory shuts down.
+            # The stop may have cut off the probe of the working branch: a tip without a verdict
+            # is no ground to claim work while the factory shuts down.
             return TickOutcome()
         delete_stale_branches(self._boundaries)
         event = Watcher(self._boundaries, self._instance).evaluate(definition)
@@ -192,9 +192,9 @@ class Tick:
         changes = [change.path for change in git.status().changes]
         if changes:
             self._boundaries.log.line(f"discarded uncommitted changes: {', '.join(changes)}")
-        # Cleaning in place first, so that the switch to main never meets a local change.
+        # Cleaning in place first, so that the switch to the working branch meets no local change.
         git.reset_to("HEAD")
-        git.checkout(WORK_BRANCH, start_point=_MAIN_REF)
+        git.checkout(WORK_BRANCH, start_point=_WORK_REF)
         # A local branch of a work item may hold a rejected push; the next stage starts
         # from the remote's branch instead.
         for work_item in self._work_items_with_branches():

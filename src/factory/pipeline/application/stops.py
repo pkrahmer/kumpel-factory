@@ -108,11 +108,11 @@ class StopService:
         found = hosting.find_open_pull_request(stop.branch)
         if found is not None:
             return found.number
-        self._require_commit_beyond_main(stop.branch)
+        self._require_commit_beyond_work_branch(stop.branch)
         description = opened_for_stop_description(stop.key.work_item)
         return hosting.create_pull_request(stop.branch, stop.title, description, draft=True).number
 
-    def _require_commit_beyond_main(self, branch: str) -> None:
+    def _require_commit_beyond_work_branch(self, branch: str) -> None:
         # The hosting service refuses a pull request without such a commit; refusing it here
         # makes the fake and the production service fail alike.
         git = self._boundaries.git
@@ -120,19 +120,19 @@ class StopService:
         if tip is None or git.is_ancestor(tip, f"{REMOTE}/{WORK_BRANCH}"):
             raise HostingServiceError(
                 "create_pull_request",
-                f"branch {branch} is not on the remote with a commit beyond main",
+                f"branch {branch} is not on the remote with a commit beyond {WORK_BRANCH}",
             )
 
 
 class StopPublisher:
-    """Pushes the stop records the remote's main does not hold yet to its stop records file."""
+    """Pushes the stop records the remote's working branch lacks to its stop records file."""
 
     def __init__(self, boundaries: Boundaries) -> None:
         """Read the stop records of `boundaries` and publish them through its git."""
         self._boundaries = boundaries
 
     def publish(self) -> list[StopRecord]:
-        """Push the missing records to `STOP_RECORDS_FILE` on main; return them.
+        """Push the missing records to `STOP_RECORDS_FILE` on the working branch; return them.
 
         Raises `GitError`, `PushFailed`, and `OSError` when the file cannot be written.
         """

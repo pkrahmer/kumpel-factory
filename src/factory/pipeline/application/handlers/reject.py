@@ -35,7 +35,7 @@ def _no_state() -> CannotHandle:
 
 
 class RejectHandler(Handler):
-    """Puts an illegal stage change back on the work item's branch, never touching main."""
+    """Puts an illegal stage change back on the work item's branch, never the working branch."""
 
     def __init__(self, boundaries: Boundaries) -> None:
         """Read, record and post through the boundaries."""
