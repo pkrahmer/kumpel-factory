@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 645
 comments_read: [6714658360]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: intake
+  started_at: '2026-11-07T23:49:07.129161Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -30,6 +34,11 @@ journal:
   speaker: human
   kind: comment
   at: '2026-11-07T23:49:04.769765Z'
+  stage: intake
+- number: 5
+  speaker: factory
+  kind: started
+  at: '2026-11-07T23:49:07.129161Z'
   stage: intake
 ---
 
@@ -93,3 +102,4 @@ Expect: `off`
    6. Yes: `set promote on` then `get promote` prints `on`; another value is refused the way the other switches refuse one today.
    7. `operator/skill/kumpel/scripts/kumpel-commit.sh`, sourced by the scripts that commit (the skill stays self-contained).
    8. The coder writes these files (`operator/skill/*`, `operator/claude/*`, `operator/opencode/*` are its paths). A criterion: the commands list `promote` among the switches, and `standing-orders.md` says never push to `main` and that a fix goes to `develop`.
+5. factory: started intake as vm.
