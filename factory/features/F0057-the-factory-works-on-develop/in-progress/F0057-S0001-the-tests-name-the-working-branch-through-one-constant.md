@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 643
 comments_read: [6713530910, 6713705040, 6713791298]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: docs
+  started_at: '2026-11-07T22:22:42.967750Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -153,6 +157,11 @@ journal:
   at: '2026-11-07T22:22:37.811631Z'
   stage: review
   run: a7c7950216f848d39af3b7bed63c2602
+- number: 27
+  speaker: factory
+  kind: started
+  at: '2026-11-07T22:22:42.967750Z'
+  stage: docs
 ---
 
 # The tests name the working branch through one constant
@@ -595,3 +604,4 @@ Expect: `main`
     - `tests/entry/test_watcher_main_ref.py`, including the docstring fix of entry 16
     - `tests/hosting/adapters/test_git_cli_check_ignore.py`
     - `tests/shared/adapters/test_tmp_path_reopening.py`
+27. factory: started docs as vm.
