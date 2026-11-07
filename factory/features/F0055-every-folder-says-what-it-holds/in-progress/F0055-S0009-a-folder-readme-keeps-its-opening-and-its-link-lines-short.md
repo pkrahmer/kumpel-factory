@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 641
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: review
+  started_at: '2026-11-07T15:20:50.915746Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -91,6 +95,11 @@ journal:
   at: '2026-11-07T15:20:45.739022Z'
   stage: doing
   run: 6c803c1d776a4ea3b72d43efd729a86d
+- number: 16
+  speaker: factory
+  kind: started
+  at: '2026-11-07T15:20:50.915746Z'
+  stage: review
 ---
 
 # A folder README keeps its opening and its link lines short
@@ -254,3 +263,4 @@ Expect: `0`
 
     `check`: check: green
     `duplicates`: duplicates: 6 new, 39 known, 4 gone
+16. factory: started review as vm.
