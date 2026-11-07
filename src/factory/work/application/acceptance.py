@@ -66,7 +66,7 @@ from factory.work.domain.work_item import (
     require_state,
 )
 
-_MAIN_REF = f"{REMOTE}/{WORK_BRANCH}"
+_WORK_REF = f"{REMOTE}/{WORK_BRANCH}"
 _KIND = "acceptance_due"
 _HAND_OVER = "hand_over"
 _MERGED = "merged"
@@ -93,7 +93,7 @@ class OpenedAcceptance(BaseModel):
 
 
 class AcceptanceService:
-    """Opens a due acceptance on its own branch and reads its reviewer's facts from main."""
+    """Opens a due acceptance on its branch; reads its reviewer's facts from the working branch."""
 
     def __init__(self, boundaries: Boundaries, definition: PipelineDefinition) -> None:
         """Work through `boundaries`; `ValueError` when `definition` has no acceptance stage."""
@@ -122,7 +122,7 @@ class AcceptanceService:
         branch = branch_name(work_item)
         path = work_item_path(acceptance.directory, "in-progress", acceptance_file_name(work_item))
         git = self._boundaries.git
-        git.checkout(branch, start_point=_MAIN_REF)
+        git.checkout(branch, start_point=_WORK_REF)
         report = self._boundaries.checkout / path
         report.parent.mkdir(parents=True, exist_ok=True)
         self._boundaries.work_item_writer.write(report, head)
@@ -167,13 +167,13 @@ class AcceptanceService:
         for acceptance in self._reader.read():
             if acceptance.feature == feature:
                 return acceptance
-        raise ValueError(f"feature {feature} has no directory on {_MAIN_REF}")
+        raise ValueError(f"feature {feature} has no directory on {_WORK_REF}")
 
     def _feature_title(self, directory: str) -> str:
         path = feature_file_path(directory)
         text = read_feature_file(self._boundaries.git, directory)
         if text is None:
-            raise WorkItemFormatError(f"missing on {_MAIN_REF}", path)
+            raise WorkItemFormatError(f"missing on {_WORK_REF}", path)
         feature_title = title(text)
         if feature_title is None:
             raise WorkItemFormatError("the feature file has no title line", path)
@@ -182,7 +182,7 @@ class AcceptanceService:
     def _waits(self, story_path: str) -> list[HumanWait]:
         # One damaged archived story must not stop the acceptance of the whole feature.
         try:
-            document = self._reader.document(_MAIN_REF, story_path)
+            document = self._reader.document(_WORK_REF, story_path)
         except WorkItemFormatError:
             return []
         return [] if document.state is None else human_waits(document.state.journal)
@@ -190,7 +190,7 @@ class AcceptanceService:
     def _records(self, story_path: str) -> list[CostRecord]:
         sidecar = cost_records_path(story_path)
         boundaries = self._boundaries
-        return read_cost_records(boundaries.git, boundaries.cost_reader, _MAIN_REF, sidecar)
+        return read_cost_records(boundaries.git, boundaries.cost_reader, _WORK_REF, sidecar)
 
 
 class AcceptanceDueHandler(Handler):
@@ -275,7 +275,7 @@ class AcceptanceHandOver(Handler):
 
 
 class AcceptanceMerged(Handler):
-    """Books a merged acceptance `accepted` under `done/` on main, then deletes its branch."""
+    """Books a merged acceptance `accepted` in `done/` on the working branch; deletes its branch."""
 
     def __init__(self, boundaries: Boundaries, definition: PipelineDefinition) -> None:
         """Keep `boundaries` and `definition`; the acceptance stage is checked per event."""
@@ -283,7 +283,7 @@ class AcceptanceMerged(Handler):
         self._definition = definition
 
     def handle(self, event: Event) -> None:
-        """Book the merged acceptance on main unless it is booked already, then delete its branch.
+        """Book the merged acceptance on the working branch unless booked; delete its branch.
 
         The merge decides the outcome, whatever the reviewer recommended.
         """
@@ -295,7 +295,7 @@ class AcceptanceMerged(Handler):
         if git.show_file("HEAD", snapshot.path) is not None:
             self._book(recorder, snapshot)
         elif git.show_file("HEAD", destination_path(snapshot.path, "done")) is None:
-            raise CannotHandle(kind=event.kind, reason="no report on the main branch")
+            raise CannotHandle(kind=event.kind, reason=f"no report on the {WORK_BRANCH} branch")
         recorder.delete_branch(snapshot.branch)
 
     def _require_bookable(self, event: Event) -> None:
@@ -311,12 +311,13 @@ class AcceptanceMerged(Handler):
     def _book(self, recorder: WorkItemRecorder, snapshot: WorkItemSnapshot) -> None:
         boundaries = self._boundaries
         document = recorder.read(snapshot.path)
-        # `HEAD` is the merged main, so the records are the acceptance's own and nothing else.
+        # `HEAD` is the merged working branch, so the records are the acceptance's own and no other.
         sidecar = cost_records_path(snapshot.path)
         records = read_cost_records(boundaries.git, boundaries.cost_reader, "HEAD", sidecar)
         # The move comes first: `git mv` refuses a destination that already exists.
         destination = move_with_cost_records(boundaries.git, snapshot.path, "done")
-        no_state = CannotHandle(kind=_MERGED, reason="the report on the main branch has no state")
+        no_state_reason = f"the report on the {WORK_BRANCH} branch has no state"
+        no_state = CannotHandle(kind=_MERGED, reason=no_state_reason)
         stage = require_state(document, no_state).stage
         before_approval = is_before_approval(self._definition, stage)
         booked = book_merge(
@@ -330,7 +331,7 @@ class AcceptanceMerged(Handler):
 
 
 class AcceptanceClosed(Handler):
-    """Books a closed acceptance `refused` under `done/` on main, then deletes its branch."""
+    """Books a closed acceptance `refused` in `done/` on the working branch; deletes its branch."""
 
     def __init__(self, boundaries: Boundaries, definition: PipelineDefinition) -> None:
         """Keep `boundaries` and `definition`; the acceptance stage is checked per event."""
@@ -338,7 +339,7 @@ class AcceptanceClosed(Handler):
         self._definition = definition
 
     def handle(self, event: Event) -> None:
-        """Record the close on the branch, book the refusal on main, then delete the branch.
+        """Record the close on the branch, book the refusal on the working branch, drop the branch.
 
         Each step finds its own effect when run again, so a rerun after a kill books nothing twice.
         """
@@ -347,9 +348,9 @@ class AcceptanceClosed(Handler):
         git = self._boundaries.git
         branch_ref = f"{REMOTE}/{snapshot.branch}"
         if git.resolve(branch_ref) is None:
-            if git.show_file(_MAIN_REF, destination_path(snapshot.path, "done")) is None:
+            if git.show_file(_WORK_REF, destination_path(snapshot.path, "done")) is None:
                 raise CannotHandle(
-                    kind=event.kind, reason="no report on the branch or the main branch"
+                    kind=event.kind, reason=f"no report on the branch or the {WORK_BRANCH} branch"
                 )
         else:
             recorder = WorkItemRecorder(self._boundaries)

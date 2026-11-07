@@ -2,6 +2,7 @@
 
 import pytest
 
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.work.domain.acceptance import (
     ACCEPTANCE_CLOSING,
     FINDINGS_IN_SHORT,
@@ -25,7 +26,8 @@ REPORT_SECTIONS = (
 CLOSING = (
     "Merge to accept the report and take the proposed stories into the feature's backlog, "
     "where you refine them before starting any. "
-    "Close, with a comment saying why, to refuse: the report stays on the main branch as refused "
+    f"Close, with a comment saying why, to refuse: the report stays on the {WORK_BRANCH} branch "
+    "as refused "
     "with your comment, the proposed stories are discarded, and the feature counts as not "
     "accepted until another story is archived and a new acceptance runs. "
     "Nobody answers comments while the acceptance waits here; they go into the report's journal."

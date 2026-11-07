@@ -82,7 +82,7 @@ def test_the_sync_container_gets_container_paths_mounts_environment_and_limit(
         "/work/home",
         "/upstream",
         "/etc/factory/agents",
-        "main",
+        WORK_BRANCH,
         main_commit,
     ]
     for path in ("/work", "/upstream", "/etc/factory"):

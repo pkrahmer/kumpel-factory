@@ -64,7 +64,8 @@ class ClosedHandler(Handler):
     def _discard(self, snapshot: WorkItemSnapshot) -> None:
         recorder = WorkItemRecorder(self._boundaries)
         recorder.check_out(WORK_BRANCH)
-        # Moved, not rewritten: main holds the human's text, the branch the factory's.
+        # Moved, not rewritten: the working branch keeps the human's text, the story branch
+        # the factory's.
         self._boundaries.git.move(snapshot.path, destination_path(snapshot.path, "backlog"))
         subject = commit_subject(snapshot.id, "closed before the approval, back in the backlog")
         recorder.publish(WORK_BRANCH, subject)

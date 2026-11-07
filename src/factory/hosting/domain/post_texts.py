@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING
 
 from factory.hosting.domain.git import CommitId
 from factory.shared.domain.identifiers import WorkItemId
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.watching.domain.bills import Bill, cost_line
 
 if TYPE_CHECKING:
@@ -33,7 +34,7 @@ _STALL_SENTENCES: dict[StallReason, str] = {
     "decision_not_allowed": "the agent's decision is not an allowed one",
     "form_invalid": "the work item's form broke during the stage",
     "check_red": "a check is red after the stage",
-    "merge_conflict": "merging the main branch conflicts and the merge was aborted",
+    "merge_conflict": f"merging the {WORK_BRANCH} branch conflicts and the merge was aborted",
     "provider_limit": "the provider's spend limit lasted past the waiting ceiling",
 }
 

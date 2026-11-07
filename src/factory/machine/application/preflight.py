@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-"""The preflight: the machine's checks, keyed to the image, and the probe of the main branch."""
+"""The preflight: the machine's checks, keyed to the image, and the probe of the working branch."""
 
 import os
 import re
@@ -58,7 +58,7 @@ PROBE_COMMAND = "lint"
 # A constant, the default of every project command: the preflight needs no pipeline definition.
 PROBE_TIME_LIMIT = timedelta(minutes=10)
 
-_MAIN_REF = f"{REMOTE}/{WORK_BRANCH}"
+_WORK_REF = f"{REMOTE}/{WORK_BRANCH}"
 _SHORT_COMMIT = 12
 _MAIN_FAILING: RepositoryStopReason = "main_branch_failing"
 _PREFLIGHT_FAILED: RepositoryStopReason = "preflight_failed"
@@ -76,7 +76,7 @@ _METADATA_ITEM = "metadata-block"
 # curl writes `000` as the HTTP code when it got no answer: refused, unreachable or timed out.
 _NOT_CONNECTED = "000"
 _HTTP_CODE = re.compile(r"[0-9]{3}")
-_NO_MAIN_TO_PREPARE = f"no {_MAIN_REF} to prepare the stage environment from"
+_NO_WORK_BRANCH_TO_PREPARE = f"no {_WORK_REF} to prepare the stage environment from"
 
 PROBE_AGENT = "coder"
 PROBE_PROMPT = "Probe: end with the decision question and the entry probe."
@@ -275,9 +275,9 @@ def agent_run_probe_item(
 ) -> PreflightItem:
     """Run the agent runtime once with a stage's flags; it passes when the run completes."""
     # A flag the pinned runtime rejects would end every real run `died` without saying why.
-    main = boundaries.git.resolve(_MAIN_REF)
+    main = boundaries.git.resolve(_WORK_REF)
     if main is None:
-        return PreflightItem(name=_PROBE_ITEM, passed=False, detail=_NO_MAIN_TO_PREPARE)
+        return PreflightItem(name=_PROBE_ITEM, passed=False, detail=_NO_WORK_BRANCH_TO_PREPARE)
     try:
         installed = boundaries.agent_definitions.read(PROBE_AGENT)
         agent = installed.model_copy(update={"budget_usd": PROBE_BUDGET_USD})
@@ -444,7 +444,7 @@ class PreflightStampStore(ABC):
 
 
 class Preflight:
-    """Runs the machine's checks once per image build and probes `main` once per commit."""
+    """Runs the machine's checks once per image build and probes each working-branch commit."""
 
     def __init__(
         self,
@@ -471,7 +471,8 @@ class Preflight:
         try:
             reason = self._probe(stamp)
         except (GitError, ProjectCommandError, SnapshotError, ContainerError) as error:
-            self._raise("machine", _PREFLIGHT_FAILED, f"the probe on main could not run: {error}")
+            detail = f"the probe on {WORK_BRANCH} could not run: {error}"
+            self._raise("machine", _PREFLIGHT_FAILED, detail)
             return _PREFLIGHT_FAILED
         # The machine's items have passed or been skipped, so no machine stop may stand.
         self._stops.clear_stop(_PREFLIGHT_FAILED)
@@ -500,19 +501,20 @@ class Preflight:
 
     def _clear_stale_failing_stop(self, stamp: PreflightStamp | None) -> None:
         # The machine cannot run the probe, but a stop naming a commit that is no longer
-        # main is stale; the new main is probed once the machine's items pass again.
+        # the working branch's tip is stale; the new tip is probed once the machine's items
+        # pass again.
         if stamp is None or stamp.main_failed is None:
             return
         try:
-            main = self._boundaries.git.resolve(_MAIN_REF)
+            main = self._boundaries.git.resolve(_WORK_REF)
         except GitError:
             return
         if main != stamp.main_failed and not self._changes_only_stop_records(stamp.main_failed):
             self._stops.clear_stop(_MAIN_FAILING)
 
     def _changes_only_stop_records(self, since: CommitId) -> bool:
-        # Publishing the stops commits to main without fixing it; a commit the clone
-        # cannot compare is treated as a fix, so a stop never outlives an unknown main.
+        # Publishing the stops commits to the working branch without fixing it; a commit the
+        # clone cannot compare is treated as a fix, so a stop never outlives an unknown tip.
         try:
             paths = self._boundaries.git.changed_paths(since)
         except GitError:
@@ -520,7 +522,7 @@ class Preflight:
         return changes_only_stop_records(paths)
 
     def _probe(self, stamp: PreflightStamp) -> RepositoryStopReason | None:
-        main = self._boundaries.git.resolve(_MAIN_REF)
+        main = self._boundaries.git.resolve(_WORK_REF)
         if main is None:
             return None
         if stamp.main_failed == main:
@@ -532,16 +534,17 @@ class Preflight:
         return None
 
     def _run_probe(self, stamp: PreflightStamp, main: CommitId) -> RepositoryStopReason | None:
-        # On main only: a work item's red branch is its own concern, not the machine's.
+        # The working branch only: a work item's red branch is its own concern, not the machine's.
         git = self._boundaries.git
-        git.checkout(WORK_BRANCH, start_point=_MAIN_REF)
-        git.reset_to(_MAIN_REF)
+        git.checkout(WORK_BRANCH, start_point=_WORK_REF)
+        git.reset_to(_WORK_REF)
         stage_environment_of(self._boundaries).prepare(
             main, WORK_BRANCH, sync_time_limit=PROBE_TIME_LIMIT
         )
         result = self._boundaries.project_commands.run(PROBE_COMMAND, time_limit=PROBE_TIME_LIMIT)
         if self._boundaries.stop_requested():
-            # Cut off by the factory's own shutdown: no verdict on main; the next start probes it.
+            # Cut off by the factory's own shutdown: no verdict on this tip; the next start
+            # probes it.
             return None
         if result.passed:
             self._stops.clear_stop(_MAIN_FAILING)
@@ -556,7 +559,8 @@ class Preflight:
         status = self._boundaries.health.read()
         if any(stop.reason == _MAIN_FAILING for stop in status.stops):
             return
-        detail = f"{PROBE_COMMAND} is red on main at {main[:_SHORT_COMMIT]} (probed earlier)"
+        commit = main[:_SHORT_COMMIT]
+        detail = f"{PROBE_COMMAND} is red on {WORK_BRANCH} at {commit} (probed earlier)"
         self._raise("repository", _MAIN_FAILING, detail)
 
     def _raise(self, scope: StopScope, reason: RepositoryStopReason, detail: str) -> None:
@@ -569,10 +573,10 @@ class Preflight:
 def _failing_detail(result: CheckResult, main: CommitId) -> str:
     commit = main[:_SHORT_COMMIT]
     if result.status == "time_limit":
-        return f"{PROBE_COMMAND} reached its time_limit on main at {commit}"
+        return f"{PROBE_COMMAND} reached its time_limit on {WORK_BRANCH} at {commit}"
     if not result.last_line.strip():
-        return f"{PROBE_COMMAND} {_ended(result)} and printed nothing on main at {commit}"
-    return f"{PROBE_COMMAND} is red on main at {commit}: {result.last_line}"
+        return f"{PROBE_COMMAND} {_ended(result)} and printed nothing on {WORK_BRANCH} at {commit}"
+    return f"{PROBE_COMMAND} is red on {WORK_BRANCH} at {commit}: {result.last_line}"
 
 
 def _ended(result: CheckResult) -> str:

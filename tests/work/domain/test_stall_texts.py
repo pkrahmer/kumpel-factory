@@ -3,6 +3,7 @@
 import pytest
 
 from factory.hosting.domain.post_texts import stall_cause, stall_note
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.work.domain.decisions import StallReason
 
 CAP_REACHED = "The attempts cap is reached; the factory asks you next."
@@ -14,7 +15,7 @@ SENTENCES: list[tuple[StallReason, str]] = [
     ("decision_not_allowed", "the agent's decision is not an allowed one"),
     ("form_invalid", "the work item's form broke during the stage"),
     ("check_red", "a check is red after the stage"),
-    ("merge_conflict", "merging the main branch conflicts and the merge was aborted"),
+    ("merge_conflict", f"merging the {WORK_BRANCH} branch conflicts and the merge was aborted"),
 ]
 
 

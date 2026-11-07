@@ -15,7 +15,7 @@ from factory.work.application.work_items import RemoteWorkItems
 from factory.work.domain.move_rule import IllegalChange, is_legal_change
 from factory.work.domain.work_item import WorkItemSnapshot
 
-_MAIN_REF = f"{REMOTE}/{WORK_BRANCH}"
+_WORK_REF = f"{REMOTE}/{WORK_BRANCH}"
 
 
 class Watcher:
@@ -51,9 +51,9 @@ class Watcher:
         return evaluate(facts, self._lookup, status_of)
 
     def _main_commit(self) -> CommitId:
-        commit = self._boundaries.git.resolve(_MAIN_REF)
+        commit = self._boundaries.git.resolve(_WORK_REF)
         if commit is None:
-            raise GitError(f"resolve {_MAIN_REF}", None, f"{_MAIN_REF} does not resolve")
+            raise GitError(f"resolve {_WORK_REF}", None, f"{_WORK_REF} does not resolve")
         return commit
 
     def _lookup(self, number: int) -> PullRequestObservation:

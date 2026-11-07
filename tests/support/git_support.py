@@ -135,16 +135,19 @@ def clone(remote: Path, target: Path) -> Path:
     return target
 
 
-def make_remote(root: Path) -> Path:
-    """Create the bare remote `root/remote.git` whose `main` holds `REMOTE_FILES`."""
+def make_remote(root: Path, files: dict[str, str] | None = None, branch: str = WORK_BRANCH) -> Path:
+    """Create the bare remote `root/remote.git` whose one branch `branch` holds `files`.
+
+    The seed that pushed it is `root/seed`; `files` defaults to `REMOTE_FILES`.
+    """
     root.mkdir(parents=True, exist_ok=True)
-    run_git(root, "init", "-q", f"--initial-branch={WORK_BRANCH}", "seed")
+    run_git(root, "init", "-q", f"--initial-branch={branch}", "seed")
     seed = root / "seed"
-    write_files(seed, REMOTE_FILES)
+    write_files(seed, REMOTE_FILES if files is None else files)
     commit_all(seed, "seed")
-    run_git(root, "init", "-q", "--bare", f"--initial-branch={WORK_BRANCH}", "remote.git")
+    run_git(root, "init", "-q", "--bare", f"--initial-branch={branch}", "remote.git")
     remote = root / "remote.git"
-    run_git(seed, "push", "-q", str(remote), WORK_BRANCH)
+    run_git(seed, "push", "-q", str(remote), branch)
     return remote
 
 

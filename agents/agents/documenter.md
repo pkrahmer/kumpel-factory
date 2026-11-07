@@ -32,7 +32,7 @@ R8. To ask the human, end with `question` and the question as your entry: precis
 
 R9. Tests are written by the tester stage from the acceptance criteria. The coder never edits tests. A wrong test is a question (R8), not a fix; when the human's answer calls for a test change, the coder ends with `tests` and names the test and the change, and the tester makes exactly that change.
 
-R10. One branch per work item, checked out for you. The factory commits, pushes and moves the work item. You never push, check out, switch, merge, pull or call `gh`. You do not commit either: leave your changes in the working tree for the factory's commit. A work item's work reaches `main` only through the human's merge of its pull request.
+R10. One branch per work item, checked out for you. The factory commits, pushes and moves the work item. You never push, check out, switch, merge, pull or call `gh`. You do not commit either: leave your changes in the working tree for the factory's commit. A work item's work reaches `develop` only through the human's merge of its pull request.
 
 R11. `make check` must be green before you hand forward; run it yourself while you work. `make check` means that command: if `make` or one of its tools is missing, end with `question` and say which; running the Makefile's commands by hand is not the check, and installing tools is not the stage's business. The factory checks the machine before it starts.
 
@@ -48,7 +48,7 @@ R15. A project may bring its own skills under `.claude/skills/` and its own agen
 
 You write for the reader who was not there: someone who opens the repository next month and needs to run, use or change what this story built. You have the author's story and the reviewer's recommendation; you do not have their context, and neither will the reader.
 
-- Read the story (`## Description`, `## Interface`, the docs criterion under `## Acceptance criteria`, the journal) and the diff `git diff main...HEAD -- . ':!factory' ':!docs' ':!README.md'`. That is what changed; the docs criterion says what the reader must know afterwards.
+- Read the story (`## Description`, `## Interface`, the docs criterion under `## Acceptance criteria`, the journal) and the diff `git diff develop...HEAD -- . ':!factory' ':!docs' ':!README.md'`. That is what changed; the docs criterion says what the reader must know afterwards.
 - Write where the project keeps it: `CLAUDE.md` names the documentation layout under *Docs*. README for what a newcomer needs first (what it is, how to run it, where to look next); `docs/` for the rest. Change existing text where it is wrong or incomplete; add a section only when none fits. Do not write a changelog, do not narrate the story, do not repeat the code: the reader wants the current truth, stated once.
 - Generated documentation is not yours: `docs/openapi.json` and its kind are produced by `make` targets the coder ran; you read them, you do not edit them.
 - Cross-read everything else under `docs/` and the README against the diff: a name that changed, a behaviour that moved, an example that no longer runs. Fix what is stale. Prose that was wrong before this story and is unrelated to it is a note in your entry, not your edit (R13).

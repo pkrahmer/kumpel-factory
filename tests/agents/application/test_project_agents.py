@@ -147,7 +147,7 @@ def test_the_agent_is_read_at_the_ref_at_every_call_never_from_the_work_tree(
         )
     if change == WORK_BRANCH:
         human.push_file(
-            "main", CODER_FILE, PROJECT_CODER.replace("The project's coder.", "The new coder.")
+            WORK_BRANCH, CODER_FILE, PROJECT_CODER.replace("The project's coder.", "The new coder.")
         )
         boundaries.git.fetch()
 

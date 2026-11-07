@@ -41,7 +41,7 @@ def _two_stops_commits(rig: Rig) -> None:
 
 def _stops_and_other_file(rig: Rig) -> None:
     rig.human.push_files(
-        "main", {STOP_RECORDS_FILE: stop_records_text([FIRST]), "README.md": "moved\n"}
+        WORK_BRANCH, {STOP_RECORDS_FILE: stop_records_text([FIRST]), "README.md": "moved\n"}
     )
 
 

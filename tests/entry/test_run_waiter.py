@@ -37,6 +37,6 @@ def test_run_instance_over_a_remote_without_commits_stops_and_pauses_thirty_seco
 
     stops = health_store(state).read().stops
     assert [(stop.reason, stop.detail) for stop in stops] == [
-        ("repository_unavailable", "the repository has no main branch yet")
+        ("repository_unavailable", f"the repository has no {WORK_BRANCH} branch yet")
     ]
     assert sleeps == [30.0]

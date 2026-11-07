@@ -61,11 +61,11 @@ sast:
 	uv run bandit -q -r $(SOURCE)
 	$(green)
 
-# Secrets beyond the reviewed baseline, in the files changed against origin/main (committed,
-# staged, unstaged or new); every tracked file on main itself or without origin/main.
+# Secrets beyond the reviewed baseline, in the files changed against origin/develop (committed,
+# staged, unstaged or new); every tracked file on develop itself or without origin/develop.
 secrets:
 	$(start)
-	if [ "$$(git rev-parse HEAD)" != "$$(git rev-parse --verify --quiet origin/main || true)" ] && base=$$(git merge-base HEAD origin/main 2>/dev/null); then
+	if [ "$$(git rev-parse HEAD)" != "$$(git rev-parse --verify --quiet origin/develop || true)" ] && base=$$(git merge-base HEAD origin/develop 2>/dev/null); then
 	  files=$$( { git diff --name-only --diff-filter=d "$$base"; git ls-files --others --exclude-standard; } | sort -u)
 	else
 	  files=$$(git ls-files)
@@ -111,7 +111,7 @@ duplicates:
 # and on an acceptance's branch (work-item/<feature id>-A<number>) FEATURE is that feature. A story's
 # commits are those whose subject starts `work item <id>:`, or `<id>:` after a squash merge.
 FEATURE ?= $(shell git rev-parse --abbrev-ref HEAD 2>/dev/null | sed -n 's|^work-item/\(F[0-9]\{4\}\)-A[0-9]\{4\}$$|\1|p')
-MUTATED = $(wildcard $(shell git log --format= --name-only -E --grep='^(work item )?$(FEATURE)-S[0-9]{4}([: ]|$$)' origin/main -- '$(SOURCE)/*.py' 2>/dev/null | sort -u))
+MUTATED = $(wildcard $(shell git log --format= --name-only -E --grep='^(work item )?$(FEATURE)-S[0-9]{4}([: ]|$$)' origin/develop -- '$(SOURCE)/*.py' 2>/dev/null | sort -u))
 mutants:
 	$(start)
 	if [ -z "$(FEATURE)" ]; then echo "mutants: set FEATURE, as in make mutants FEATURE=F0001"; exit 2; fi

@@ -80,7 +80,7 @@ def _closed(walk: AcceptanceWalk, number: int) -> None:
             _merged,
             AcceptanceMerged,
             "merged",
-            "the report on the main branch has no state",
+            f"the report on the {WORK_BRANCH} branch has no state",
             WORK_BRANCH,
             id="merged",
         ),

@@ -218,7 +218,8 @@ def test_merge_of_a_diverged_branch_makes_a_merge_commit_with_both_parents(
     assert _parents(directory) == [main, other]
     assert (directory / "other.txt").read_text(encoding="utf-8") == "other\n"
     assert (directory / "main.txt").read_text(encoding="utf-8") == "main\n"
-    assert run_git(directory, "log", "-1", "--format=%s").strip() == "Merge branch 'other'"
+    merge_subject = f"Merge branch 'other' into {WORK_BRANCH}"
+    assert run_git(directory, "log", "-1", "--format=%s").strip() == merge_subject
     assert _status(directory) == ""
 
 

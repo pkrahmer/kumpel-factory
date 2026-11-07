@@ -181,7 +181,7 @@ _RESULT_RECORDS_PATH = Path("records", "known-results.jsonl")
 _MISSING = "missing"
 _USER_SLICES = Path("/sys/fs/cgroup/user.slice")
 _MEMINFO = Path("/proc/meminfo")
-_ORIGIN_MAIN = f"{REMOTE}/{WORK_BRANCH}"
+_WORK_REF = f"{REMOTE}/{WORK_BRANCH}"
 _STAGE_IMAGE_FAILED: RepositoryStopReason = "stage_image_failed"
 _SHORT_COMMIT_LENGTH = 12
 # Room for curl's own five seconds and the container's start.
@@ -428,15 +428,15 @@ def stage_image_report(git: Git, log: FactoryLog, clock: Clock) -> StageImageRep
 
     `GitError` when `origin/<working branch>` does not exist.
     """
-    commit = git.resolve(_ORIGIN_MAIN)
+    commit = git.resolve(_WORK_REF)
     if commit is None:
-        raise GitError(f"resolve {_ORIGIN_MAIN}", None, "no such ref")
+        raise GitError(f"resolve {_WORK_REF}", None, "no such ref")
     return StageImageReport(log=log, clock=clock, commit=commit[:_SHORT_COMMIT_LENGTH])
 
 
 def stage_file_on_main(git: Git) -> str | None:
     """Return the text of the stage file on `origin/<working branch>`, or `None` without one."""
-    return git.show_file(_ORIGIN_MAIN, STAGE_FILE)
+    return git.show_file(_WORK_REF, STAGE_FILE)
 
 
 @dataclass(frozen=True)
@@ -458,7 +458,7 @@ def project_image_settings(
     *,
     report: StageImageReport | None = None,
 ) -> InstanceSettings | None:
-    """Return the settings of the image every container runs in, from the stage file on main.
+    """Return the settings of every container's image, from the stage file on the working branch.
 
     Without a stage file they are `settings`; with one that builds, they name the project image
     and the layer's identity. A file that breaks the rule or does not build stands as the stop

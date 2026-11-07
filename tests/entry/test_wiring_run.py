@@ -106,7 +106,7 @@ def test_build_tick_runs_one_stage_in_the_production_environment_under_its_insta
     branch = branch_name(WORK_ITEM)
     assert remote_commit(remote, branch) is not None
     # The completed stage released its claim at the tip; the claim commit comes first after main.
-    claim_commit = run_git(remote, "rev-list", "--reverse", f"main..{branch}").split()[0]
+    claim_commit = run_git(remote, "rev-list", "--reverse", f"{WORK_BRANCH}..{branch}").split()[0]
     text = boundaries.git.show_file(claim_commit, PATH)
     assert text is not None
     state = boundaries.work_item_reader.parse(text).state

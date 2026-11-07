@@ -129,4 +129,4 @@ def test_the_moved_main_is_probed_once_when_the_machine_passes_again(
         assert details == []
     else:
         assert len(details) == 1
-        assert details[0].startswith(f"lint is red on main at {failed_once.main()[:12]}")
+        assert details[0].startswith(f"lint is red on {WORK_BRANCH} at {failed_once.main()[:12]}")

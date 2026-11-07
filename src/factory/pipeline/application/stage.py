@@ -159,7 +159,8 @@ class StageLauncher:
 
     def _launchable_stage(self, prepared: PreparedWorkItem) -> str:
         if prepared.merge_conflict:
-            raise ValueError(f"{prepared.branch} has a merge conflict with the main branch")
+            conflict = f"{prepared.branch} has a merge conflict with the {WORK_BRANCH} branch"
+            raise ValueError(conflict)
         error = ValueError(f"the work item {prepared.work_item} has no state")
         return require_state(prepared.document, error).stage
 

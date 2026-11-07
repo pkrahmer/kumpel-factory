@@ -38,7 +38,7 @@ class PreflightReport(BaseModel):
 
 
 class PreflightStamp(BaseModel):
-    """What the last preflight passed on: the image build, and the commit of main it probed."""
+    """What the last preflight passed on: the image build, and the working branch commit probed."""
 
     model_config = ConfigDict(frozen=True, extra="forbid")
 

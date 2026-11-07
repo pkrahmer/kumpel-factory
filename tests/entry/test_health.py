@@ -16,6 +16,7 @@ from factory.pipeline.domain.stops import (
     StopScope,
 )
 from factory.shared.adapters.process import ProcessRequest, run_process
+from factory.shared.domain.paths import WORK_BRANCH
 from factory.watching.adapters.health_file import JsonHealthStatusFile
 
 AT = datetime(2026, 10, 12, 12, 0, tzinfo=UTC)
@@ -61,7 +62,7 @@ def test_a_given_store_is_read_and_each_stop_prints_one_line_in_order(
     unavailable = RepositoryStop(
         scope="repository",
         reason="repository_unavailable",
-        detail="the repository has no main branch yet",
+        detail=f"the repository has no {WORK_BRANCH} branch yet",
         at=later,
     )
     store = JsonHealthStatusFile(tmp_path / "elsewhere" / "status.json")
@@ -70,7 +71,7 @@ def test_a_given_store_is_read_and_each_stop_prints_one_line_in_order(
     status = main([], store=store)
 
     assert capsys.readouterr().out.splitlines() == [
-        "repository_unavailable (repository): the repository has no main branch yet"
+        f"repository_unavailable (repository): the repository has no {WORK_BRANCH} branch yet"
         " (since 2026-10-13T08:30:05Z)",
         "preflight_failed (machine): tool:make: make is not on the PATH"
         " (since 2026-10-12T12:00:00Z)",

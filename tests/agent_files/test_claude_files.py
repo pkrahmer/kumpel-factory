@@ -108,7 +108,7 @@ TEMPLATE_RULES_LINES = [
     "and format check), `make types` (`mypy --strict`), `make layers` (<the layers command>), "
     "`make sast` (semgrep with the rules in `security/semgrep`, and bandit over <the package "
     "folder>), `make secrets` (detect-secrets against `.secrets.baseline`, over the files changed "
-    f"against `{REMOTE}/{WORK_BRANCH}`, every tracked file on `main` itself), "
+    f"against `{REMOTE}/{WORK_BRANCH}`, every tracked file on `{WORK_BRANCH}` itself), "
     "`make licenses` (pip-licenses "
     "against an allow list for the production dependencies) and `make test` (pytest on every "
     "core with pytest-xdist, coverage as `pyproject.toml` sets it, a JUnit report in "

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-"""The work items read from main's lifecycle folders and their branches on the remote."""
+"""The work items in the working branch's lifecycle folders and their branches on the remote."""
 
 from collections.abc import Callable
 from pathlib import PurePosixPath
@@ -34,7 +34,7 @@ from factory.work.domain.work_item import (
     initial_state,
 )
 
-_MAIN_REF = f"{REMOTE}/{WORK_BRANCH}"
+_WORK_REF = f"{REMOTE}/{WORK_BRANCH}"
 
 
 class RemoteWorkItems:
@@ -46,11 +46,11 @@ class RemoteWorkItems:
         self._reader = reader
 
     def list_stories(self, folder: LifecycleFolder) -> list[StoryFile]:
-        """The story files in `folder` on the remote's main, in work item order, then path."""
+        """The story files in `folder` on the working branch, in work item order, then path."""
         stories = [
             story
             for story in (
-                _story_file(path) for path in self._git.list_files(_MAIN_REF, FEATURES_DIRECTORY)
+                _story_file(path) for path in self._git.list_files(_WORK_REF, FEATURES_DIRECTORY)
             )
             if story is not None and story.folder == folder
         ]
@@ -78,12 +78,13 @@ class RemoteWorkItems:
         """
         if snapshot.branch_commit is None:
             return None
-        commits = self._git.log(f"{REMOTE}/{snapshot.branch}", since=_MAIN_REF, path=snapshot.path)
+        commits = self._git.log(f"{REMOTE}/{snapshot.branch}", since=_WORK_REF, path=snapshot.path)
         if not commits or len(commits[0].parents) != 1:
             return None
         commit, parent = commits[0].commit, commits[0].parents[0]
-        # The opening commit's parent is the text the human started on main, not a stage change.
-        if self._git.is_ancestor(parent, _MAIN_REF):
+        # The opening commit's parent is the text the human started on the working branch,
+        # not a stage change.
+        if self._git.is_ancestor(parent, _WORK_REF):
             return None
         before = self._state_at(parent, snapshot.path)
         after = self._state_at(commit, snapshot.path)
@@ -105,8 +106,8 @@ class RemoteWorkItems:
     def _snapshot(self, story: StoryFile, first_stage: str, *, duplicate: bool) -> WorkItemSnapshot:
         branch = branch_name(story.id)
         branch_commit = self._git.resolve(f"{REMOTE}/{branch}")
-        # The branch of an id holds only its first file; a later file of that id is read from
-        # main, so the duplicate reaches the dispatcher instead of failing the whole read.
+        # The branch of an id holds only its first file; a later file of that id is read from the
+        # working branch, so the duplicate reaches the dispatcher instead of failing the whole read.
         if branch_commit is None or duplicate:
             document = self._started_document(story, first_stage)
         else:
@@ -121,7 +122,7 @@ class RemoteWorkItems:
         )
 
     def _branch_document(self, story: StoryFile, branch: str) -> WorkItemDocument:
-        # A branch already merged into main is still read: its tip holds the latest state.
+        # A branch already merged into the working branch is still read: its tip is the latest.
         text = self._git.show_file(f"{REMOTE}/{branch}", story.path)
         if text is None:
             raise WorkItemFormatError(f"missing on branch {branch}", story.path)
@@ -129,9 +130,9 @@ class RemoteWorkItems:
 
     def _started_document(self, story: StoryFile, first_stage: str) -> WorkItemDocument:
         # The human starts a story by moving it into in-progress; any state its file claims is void.
-        text = self._git.show_file(_MAIN_REF, story.path)
+        text = self._git.show_file(_WORK_REF, story.path)
         if text is None:
-            raise WorkItemFormatError(f"missing on {_MAIN_REF}", story.path)
+            raise WorkItemFormatError(f"missing on {_WORK_REF}", story.path)
         specification = parse_at(self._reader.parse_specification, text, story.path)
         return WorkItemDocument(
             state=initial_state(first_stage),
@@ -146,8 +147,8 @@ def _is_correction(before: WorkItemState, after: WorkItemState) -> bool:
 
 
 def read_feature_file(git: Git, feature_directory: str) -> str | None:
-    """The text of the feature file of `feature_directory` on main, or `None` when it is missing."""
-    return git.show_file(_MAIN_REF, feature_file_path(feature_directory))
+    """The feature file of `feature_directory` on the working branch, or `None` when missing."""
+    return git.show_file(_WORK_REF, feature_file_path(feature_directory))
 
 
 def parse_at(parse: Callable[[str], WorkItemDocument], text: str, path: str) -> WorkItemDocument:

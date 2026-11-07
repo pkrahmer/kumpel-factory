@@ -34,7 +34,7 @@ def test_path_constants_have_their_stated_values() -> None:
     assert COST_RECORDS_SUFFIX == ".costs.jsonl"
     assert BRANCH_PREFIX == "work-item/"
     assert REMOTE == "origin"
-    assert WORK_BRANCH == "main"
+    assert WORK_BRANCH == "develop"
     assert LABEL_PREFIX == "stage:"
 
 

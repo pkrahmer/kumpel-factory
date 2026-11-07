@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-"""The merged handler: a merged story is archived on main with its bill, then its branch goes."""
+"""The merged handler: a merged story is archived on the working branch, then its branch goes."""
 
 from factory.hosting.domain.post_texts import done_entry_text
 from factory.pipeline.application.boundaries import Boundaries
@@ -19,14 +19,14 @@ from factory.work.domain.work_item import WorkItemDocument, require_state
 
 
 class MergedHandler(Handler):
-    """Archives a merged story under `done/` on main, then deletes its branch; posts nothing."""
+    """Archives a merged story in `done/` on the working branch, drops its branch; posts nothing."""
 
     def __init__(self, boundaries: Boundaries) -> None:
         """Record through the boundaries' git, work item and cost record readers and writers."""
         self._boundaries = boundaries
 
     def handle(self, event: Event) -> None:
-        """Archive the story with its bill on main, push it, then delete its branch."""
+        """Archive the story with its bill on the working branch, push it, delete its branch."""
         snapshot = target_of(event).snapshot
         recorder = WorkItemRecorder(self._boundaries)
         recorder.check_out(WORK_BRANCH)

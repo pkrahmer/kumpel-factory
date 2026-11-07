@@ -73,7 +73,7 @@ def _handlers(_definition: PipelineDefinition) -> Mapping[EventKind, Handler]:
 
 def _remote_file(remote: Path) -> str | None:
     result = run_process(
-        ProcessRequest(argv=["git", "show", f"main:{STOP_RECORDS_FILE}"], cwd=remote)
+        ProcessRequest(argv=["git", "show", f"{WORK_BRANCH}:{STOP_RECORDS_FILE}"], cwd=remote)
     )
     return result.stdout if result.exit_status == 0 else None
 

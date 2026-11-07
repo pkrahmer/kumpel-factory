@@ -26,7 +26,7 @@ class PullRequestObservation(BaseModel):
 
 
 class EvaluationInput(BaseModel):
-    """The facts one evaluation judges: the definition, the work items in id order, main's head.
+    """The facts one evaluation judges: the definition, work items by id, the working branch's head.
 
     `illegal_changes` holds the stage changes made outside the pipeline, as the watcher found them;
     `due` the features whose acceptance is due.

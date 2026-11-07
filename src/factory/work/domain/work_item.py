@@ -84,7 +84,7 @@ class WorkItemDocument(BaseModel):
 
 
 class WorkItemSnapshot(BaseModel):
-    """One work item as the remote shows it: its file on main and the state from its branch."""
+    """One work item on the remote: its file on the working branch, its state on its own."""
 
     model_config = ConfigDict(frozen=True, extra="forbid")
 
@@ -97,7 +97,7 @@ class WorkItemSnapshot(BaseModel):
 
 
 class StoryFile(BaseModel):
-    """One story file listed on main, with the parts its path names."""
+    """One story file listed on the working branch, with the parts its path names."""
 
     model_config = ConfigDict(frozen=True, extra="forbid")
 

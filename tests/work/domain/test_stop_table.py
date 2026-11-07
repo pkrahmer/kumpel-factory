@@ -124,7 +124,7 @@ def test_production_code_names_every_reason_of_a_repository_stop(reason: str) ->
 def test_duplicate_is_a_counted_error_reported_once_on_the_pull_request(world: World) -> None:
     work_item = _question_tick(world)
     world.human.push_file(
-        "main", f"{FEATURE}/in-progress/{work_item}-other.md", STORY.format(title="Other")
+        WORK_BRANCH, f"{FEATURE}/in-progress/{work_item}-other.md", STORY.format(title="Other")
     )
 
     run_ticks(world, 2)

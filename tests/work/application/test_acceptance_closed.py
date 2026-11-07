@@ -390,7 +390,7 @@ def test_a_gone_branch_without_a_report_in_done_raises_and_changes_nothing(
 
     assert (raised.value.kind, raised.value.reason) == (
         "closed",
-        "no report on the branch or the main branch",
+        f"no report on the branch or the {WORK_BRANCH} branch",
     )
     assert _main(remote) == before
     assert remote_commit(remote, BRANCH) is None

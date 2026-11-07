@@ -17,7 +17,7 @@ class HostingService(ABC):
     def create_pull_request(
         self, branch: str, title: str, body: str, *, draft: bool
     ) -> PullRequestView:
-        """Open a pull request from `branch` to the main branch, as draft or ready."""
+        """Open a pull request from `branch` to the working branch, as draft or ready."""
 
     @abstractmethod
     def find_open_pull_request(self, branch: str) -> PullRequestView | None:

@@ -84,7 +84,7 @@ class PyGithubHostingService(HostingService):
     def create_pull_request(
         self, branch: str, title: str, body: str, *, draft: bool
     ) -> PullRequestView:
-        """Open a pull request from `branch` to the main branch, as draft or ready."""
+        """Open a pull request from `branch` to the working branch, as draft or ready."""
         with _failing_as("create_pull_request"):
             pull = self._repository.create_pull(
                 base=WORK_BRANCH, head=branch, title=title, body=body, draft=draft

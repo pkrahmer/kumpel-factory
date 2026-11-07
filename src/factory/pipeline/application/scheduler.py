@@ -15,7 +15,7 @@ from factory.shared.domain.settings import InstanceSettings
 from factory.watching.application.machine import FactoryLog
 
 _UNAVAILABLE: RepositoryStopReason = "repository_unavailable"
-_ORIGIN_MAIN = f"{REMOTE}/{WORK_BRANCH}"
+_WORK_REF = f"{REMOTE}/{WORK_BRANCH}"
 
 FIRST_IDLE_PAUSE = timedelta(seconds=30)
 MAX_PAUSE = timedelta(seconds=120)
@@ -114,7 +114,7 @@ class RepositoryWaiter:
         except GitError as error:
             return self._unavailable(f"cannot prepare the checkout: {error}")
         # A ready checkout is left as it is; only one that is not ready yet fetches.
-        fault = self._main_fault()
+        fault = self._work_branch_fault()
         if fault is not None:
             fault = self._fault_after_fetch()
         if fault is not None:
@@ -127,14 +127,14 @@ class RepositoryWaiter:
             self._boundaries.git.fetch()
         except GitError as error:
             return f"cannot fetch: {error}"
-        return self._main_fault()
+        return self._work_branch_fault()
 
-    def _main_fault(self) -> str | None:
+    def _work_branch_fault(self) -> str | None:
         git = self._boundaries.git
-        if git.resolve(_ORIGIN_MAIN) is None:
-            return "the repository has no main branch yet"
-        if git.show_file(_ORIGIN_MAIN, PIPELINE_DEFINITION_FILE) is None:
-            return f"{_ORIGIN_MAIN} has no {PIPELINE_DEFINITION_FILE} yet"
+        if git.resolve(_WORK_REF) is None:
+            return f"the repository has no {WORK_BRANCH} branch yet"
+        if git.show_file(_WORK_REF, PIPELINE_DEFINITION_FILE) is None:
+            return f"{_WORK_REF} has no {PIPELINE_DEFINITION_FILE} yet"
         return None
 
     def _unavailable(self, detail: str) -> bool:

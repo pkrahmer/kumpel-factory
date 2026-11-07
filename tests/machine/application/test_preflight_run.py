@@ -76,7 +76,14 @@ def test_a_red_main_is_one_repository_stop_naming_the_commit_and_the_last_line(
     assert len(stops) == 1
     assert stops[0].scope == "repository"
     assert stops[0].reason == "main_branch_failing"
-    assert stops[0].detail == f"lint is red on main at {red_main.main()[:12]}: {last_line}"
+    assert stops[0].detail == f"lint is red on {WORK_BRANCH} at {red_main.main()[:12]}: {last_line}"
+
+
+def test_the_stop_of_a_red_probe_names_the_develop_branch(red_main: Rig) -> None:
+    red_main.preflight().run()
+
+    [stop] = red_main.stops()
+    assert stop.detail.startswith(f"lint is red on develop at {red_main.main()[:12]}: ")
 
 
 def test_a_fix_pushed_to_main_clears_the_stop_of_the_red_main(red_main: Rig) -> None:
@@ -114,7 +121,7 @@ def test_a_probe_that_cannot_start_is_a_machine_stop_and_leaves_the_stamp(rig: R
     assert stops[0].scope == "machine"
     assert stops[0].reason == "preflight_failed"
     assert stops[0].detail == (
-        "the probe on main could not run: project command lint failed: make not found"
+        f"the probe on {WORK_BRANCH} could not run: project command lint failed: make not found"
     )
     assert rig.stamps.read() == before
 
@@ -135,7 +142,7 @@ def test_a_probe_that_reaches_its_time_limit_is_the_stop_of_a_failing_main(rig: 
     assert reason == "main_branch_failing"
     stops = [stop for stop in rig.stops() if stop.reason == "main_branch_failing"]
     assert len(stops) == 1
-    assert stops[0].detail == f"lint reached its time_limit on main at {rig.main()[:12]}"
+    assert stops[0].detail == f"lint reached its time_limit on {WORK_BRANCH} at {rig.main()[:12]}"
 
 
 def test_an_unchanged_image_runs_the_machine_items_once_however_much_time_passes(
@@ -215,7 +222,9 @@ def test_a_lost_stop_of_a_red_main_is_raised_again_without_probing(
     assert len(red_main.commands.calls) == 1
     stops = red_main.stops()
     assert [stop.reason for stop in stops] == ["main_branch_failing"]
-    assert stops[0].detail == (f"lint is red on main at {red_main.main()[:12]} (probed earlier)")
+    assert stops[0].detail == (
+        f"lint is red on {WORK_BRANCH} at {red_main.main()[:12]} (probed earlier)"
+    )
 
 
 def test_a_valid_stamp_clears_a_standing_preflight_stop(rig: Rig) -> None:
@@ -260,7 +269,7 @@ def test_a_git_error_while_probing_is_a_machine_stop_and_leaves_the_stamp(
     assert len(stops) == 1
     assert stops[0].scope == "machine"
     assert stops[0].reason == "preflight_failed"
-    assert stops[0].detail.startswith("the probe on main could not run")
+    assert stops[0].detail.startswith(f"the probe on {WORK_BRANCH} could not run")
     assert rig.stamps.read() == before
 
 
