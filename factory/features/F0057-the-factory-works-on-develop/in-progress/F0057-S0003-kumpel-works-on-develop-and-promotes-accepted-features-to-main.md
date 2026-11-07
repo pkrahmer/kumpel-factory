@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 645
 comments_read: [6714658360]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-07T23:49:25.889667Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -42,6 +46,11 @@ journal:
   at: '2026-11-07T23:49:21.012473Z'
   stage: intake
   run: d6714e2db4cf48e08789a38090a89ad6
+- number: 7
+  speaker: factory
+  kind: started
+  at: '2026-11-07T23:49:25.889667Z'
+  stage: tests
 ---
 
 # Kumpel works on develop and promotes accepted features to main
@@ -112,3 +121,4 @@ Expect: `off`
    - Docs criterion: names what the reader must know (the switch, the two new scripts in the file table, that Kumpel never pushes to `main`) and dictates no sentences.
    - Architecture: the change sits in `operator/skill/kumpel/scripts/`, `operator/skill/*`, `operator/claude/*` and `operator/opencode/*`, which are the coder's paths, with tests under `tests/operator_scripts/`. This matches the layout in CLAUDE.md.
    - Scope: within F0057's scope (S0003 line) and not in its out-of-scope list. Earlier tests change only as far as the human's 2026-11-07 leave allows. Route: tests.
+7. factory: started tests as vm.
