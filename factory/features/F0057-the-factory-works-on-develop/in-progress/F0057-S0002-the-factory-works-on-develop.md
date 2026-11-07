@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: tests
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 644
 comments_read: [6713932106, 6714015757, 6714081152, 6714164393]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-07T23:00:10.052206Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -135,6 +131,12 @@ journal:
   kind: started
   at: '2026-11-07T23:00:10.052206Z'
   stage: doing
+- number: 23
+  speaker: coder
+  kind: result
+  at: '2026-11-07T23:01:00.993861Z'
+  stage: doing
+  run: a2af38650a854b71ae65fe104243b0f7
 ---
 
 # The factory works on develop
@@ -447,3 +449,29 @@ Expect: `develop`
     **State.** The working tree is as entry 16 left it, and `make check` was green there.
 21. 2026-11-07 human: (a), as you describe it: the scheduler's message follows WORK_BRANCH, the private names, comments and docstrings that mean the working branch are reworded without behaviour change, a new criterion (a remote with main and no develop: the repository stop names develop), and the tester has my leave to make the four pinned tests follow the constant. health.md:187 goes into this story's docs criterion.
 22. factory: started doing as vm.
+23. coder: Round 1, after the human's answer (a) in entry 21. No code changed this round. The working tree is still as entry 16 left it, and `make check` was green there. The new criterion needs its test before the code can change, so this goes to the tester first.
+
+    **For the tester (the human's answer in entry 21):**
+    - **New criterion, placed before `make check` and docs:** on a fake remote that has `main` but no `develop`, the repository stop (`repository_unavailable`) names `develop`. Its detail is `the repository has no develop branch yet`. The test should be red against today's literal in `src/factory/pipeline/application/scheduler.py:135`.
+    - **The human's leave to change earlier tests:** the four places that pin the old text `the repository has no main branch yet` follow `WORK_BRANCH`, for example `f"the repository has no {WORK_BRANCH} branch yet"`. Each test keeps its name and what it checks:
+      - `tests/pipeline/application/test_repository_waiter.py:32` (`NO_MAIN`)
+      - `tests/entry/test_health.py:64` and `:73`
+      - `tests/entry/test_run_waiter.py:40`
+
+    **What I will do once those tests are red:**
+    - The scheduler's message follows `WORK_BRANCH`.
+    - I will reword the private names, comments and docstrings that mean the working branch, with no change in behaviour:
+      - `_MAIN_REF` and `_NO_MAIN_TO_PREPARE` in `machine/application/preflight.py`
+      - `_ORIGIN_MAIN` and `_main_fault` in `pipeline/application/scheduler.py`
+      - `_MAIN_REF` in `pipeline/application/tick.py`
+      - `_require_commit_beyond_main` and its message in `pipeline/application/stops.py`
+      - the docstrings and comments in `handlers/merged.py`, `handlers/reject.py`, `handlers/closed.py` and `tick.py`
+    - Before renaming the message in `stops.py`, I will check whether a test pins it. If one does, I will ask.
+
+    **The Description is not rewritten yet; it needs a hand.** I tried to rewrite `## Description`, `## Interface` and the criteria to match entry 21, and the edit was refused. These are the changes it should carry, for the stage that may write it:
+    - Interface: the scheduler's line and the renames, as listed above.
+    - A new criterion 4, with the text above. `make check` and docs become 5 and 6.
+    - The docs criterion gains one more item. `docs/operator-guide/health.md:187` (the row "the repository has no main branch yet") names `develop`.
+
+    **Noticed, not touched:**
+    - The next row of `health.md`, "`origin/main` has no factory/pipeline.yml yet", probably follows the constant already. The documenter should check both rows together.
