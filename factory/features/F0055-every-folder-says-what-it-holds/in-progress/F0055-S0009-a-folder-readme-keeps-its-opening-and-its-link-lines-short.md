@@ -1,5 +1,5 @@
 ---
-stage: smoke-test
+stage: approval
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 641
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: smoke-test
-  started_at: '2026-11-07T15:26:16.950242Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -122,6 +118,12 @@ journal:
   kind: started
   at: '2026-11-07T15:26:16.950242Z'
   stage: smoke-test
+- number: 21
+  speaker: smoke-tester
+  kind: result
+  at: '2026-11-07T15:26:38.165319Z'
+  stage: smoke-test
+  run: cef5ccc6efea4fafb5c538c305ddf9a6
 ---
 
 # A folder README keeps its opening and its link lines short
@@ -349,3 +351,29 @@ Expect: `0`
     `secrets`: secrets: green (0.5 s)
     `documents`: documents ok (61.0 s)
 20. factory: started smoke-test as vm.
+21. smoke-tester: Ran the three `## Smoke test` commands as written, in order, from the repository root. All three gave the output their `Expect:` line names. The smoke test contradicts no acceptance criterion, so there are no findings.
+
+    1. Opening of three sentences carrying a link:
+    ```
+    ['w: the opening is longer than two sentences']
+    ```
+    Met `Expect: ['w: the opening is longer than two sentences']`. This agrees with criterion 1: an opening that carries a link still has its sentences counted. Exit 0. uv's line `Bytecode compiled 4164 files in 56ms` came before the output and is left out here.
+
+    2. Link line of two sentences after the subfolder list:
+    ```
+    ['w: line 7 is a long link line']
+    ```
+    Met `Expect: ['w: line 7 is a long link line']`. This agrees with criterion 2: a link line of two sentences after the list gives the finding, and its line number is 1-based with blank lines counted, as the Interface says. Exit 0. The uv bytecode line is left out here too.
+
+    3. Guard over the real folder READMEs:
+    ```
+    0
+    ```
+    Met `Expect: 0`. The command's exit status was 1, because `grep -c` exits 1 when it counts nothing. That is what the command is built to do when nothing fails, so it is not an error. I ran the pytest part again on its own to see the summary line: `31 passed in 0.03s`. So every real README still keeps to the new rules, as the Description says.
+
+    Criteria read once more:
+    - Criteria 1 and 2 are pinned directly by commands 1 and 2. Command 2 also exercises criterion 4's rule that the opening ends at the first blank line: `More here…` on line 7 is not counted as part of the opening.
+    - Criteria 3 to 5 are rows of the unit test, which the smoke test does not run. None of its output contradicts them.
+    - Criteria 6 and 7 (`make check`, docs) are outside what these commands touch. The factory's gate after the docs stage was green (journal 19).
+
+    Findings: none. I fixed nothing and changed no file.
