@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 641
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-07T15:15:35.398669Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -58,6 +62,11 @@ journal:
   at: '2026-11-07T15:15:30.312823Z'
   stage: review
   run: cf32733647be4e6cba3840f08cefb1af
+- number: 10
+  speaker: factory
+  kind: started
+  at: '2026-11-07T15:15:35.398669Z'
+  stage: doing
 ---
 
 # A folder README keeps its opening and its link lines short
@@ -176,3 +185,4 @@ Expect: `0`
 
    Earlier tests:
    - `tests/shared/domain/test_folder_readmes.py` (written by F0055-S0001): changed under the human's leave named in the Interface (2026-11-07). It only adds rows, plus the module-level `GUIDE_LINK`, `LONG_LINK_LINE_5` and `_link_line` that they use. No existing test or row changed.
+10. factory: started doing as vm.
