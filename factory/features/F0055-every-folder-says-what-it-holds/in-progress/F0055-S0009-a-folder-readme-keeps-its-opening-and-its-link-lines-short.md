@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 641
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-07T15:15:59.509728Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -69,6 +73,11 @@ journal:
   at: '2026-11-07T15:15:54.564907Z'
   stage: doing
   run: cc10a00b7fa2466eb9a9eb90808346de
+- number: 12
+  speaker: factory
+  kind: started
+  at: '2026-11-07T15:15:59.509728Z'
+  stage: tests
 ---
 
 # A folder README keeps its opening and its link lines short
@@ -198,3 +207,4 @@ Expect: `0`
     - `'# W\n\nWhat it holds, see [g](../docs/README.md).\n\n- \`a/\` One sentence.\n'` gives `[]`.
 
     So the new rows should pass without a code change. What the journal changed: the reviewer added criteria 4 and 5 and renumbered the closing ones. The Description already says this, so I did not rewrite it.
+12. factory: started tests as vm.
