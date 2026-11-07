@@ -1,11 +1,11 @@
 ---
 stage: intake
-blocked: question
+blocked: null
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 644
-comments_read: []
+comments_read: [6713932106]
 handed_over: null
 claim: null
 journal:
@@ -26,6 +26,11 @@ journal:
   stage: intake
   run: c1b8954b7ca34ff28866b36deca13c21
   blocked: question
+- number: 4
+  speaker: human
+  kind: comment
+  at: '2026-11-07T22:35:18.009384Z'
+  stage: intake
 ---
 
 # The factory works on develop
@@ -82,3 +87,4 @@ Expect: `develop`
       - The docs criterion names what the reader must know and dictates no sentences.
       - Scope and architecture fit feature.md (S0002: constant, agent files, template, preflight).
       - The preflight's rule (a missing working branch is a finding) is covered by criterion 2.
+4. 2026-11-07 human: Widen criterion 3 as you propose, one row per form. All the prose mentions you list are the working branch and say `develop`, R10 included: the human's merge lands on `develop`; `main` is reached only by Kumpel's promotion, which no agent file needs to name. "the main choice" and the like stay.
