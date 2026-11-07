@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 644
 comments_read: [6713932106, 6714015757, 6714081152]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-07T22:50:14.896936Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -86,6 +90,11 @@ journal:
   speaker: human
   kind: comment
   at: '2026-11-07T22:50:12.510452Z'
+  stage: doing
+- number: 15
+  speaker: factory
+  kind: started
+  at: '2026-11-07T22:50:14.896936Z'
   stage: doing
 ---
 
@@ -295,3 +304,4 @@ Expect: `develop`
 
     The journal changed criterion 3 (entry 4) and settled the Kumpel scripts (entry 9). The Description already reflects both; I did not rewrite it.
 14. 2026-11-07 human: (a). The coder may now write demo/todo-service/project/Makefile and demo/todo-service/project/CLAUDE.md (factory/pipeline.yml on main, for this story only). Make your sed change in both files.
+15. factory: started doing as vm.
