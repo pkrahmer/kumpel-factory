@@ -1,11 +1,11 @@
 ---
 stage: doing
-blocked: question
+blocked: null
 round: 1
 attempts: 0
 crashes: 0
 pull_request: 644
-comments_read: [6713932106, 6714015757, 6714081152, 6714164393]
+comments_read: [6713932106, 6714015757, 6714081152, 6714164393, 6714248996]
 handed_over: null
 claim: null
 journal:
@@ -160,6 +160,11 @@ journal:
   stage: doing
   run: f0300b8c51ae44989114f78f826cbdfb
   blocked: question
+- number: 28
+  speaker: human
+  kind: comment
+  at: '2026-11-07T23:07:44.223466Z'
+  stage: doing
 ---
 
 # The factory works on develop
@@ -568,3 +573,4 @@ Expect: `develop`
     - The preflight's `main_branch_failing` details still say "on main at …" (`preflight.py:474`, `:559`, `:572`–`575`). Tests pin them (`test_preflight_run.py`, `test_preflight_run_environment.py`, `test_preflight_stale_main_stop.py`), and they are outside the list you approved. The local variables named `main` and the stamp fields `main_failed`/`main_probed` are also unchanged.
     - Other modules still have their own `_MAIN_REF`/`_ORIGIN_MAIN` for `origin/develop`, which is outside the approved list: `work/application/work_items.py:37`, `work/application/acceptance.py:69`, `work/application/acceptance_reading.py:41`, `watching/application/watcher.py:18` and `entry/wiring.py:184`.
     - The tester's rewrite of `## Interface` and the criteria (entry 25) was left out of the take, so the work item still lists only criteria 1–5. My write paths do not include the work item either. Criterion 4 (a remote with `main` and no `develop` gives a repository stop naming `develop`) and the `health.md:187` item of the docs criterion still need to be written in by a stage that may write it.
+28. 2026-11-07 human: (a).
