@@ -1,17 +1,13 @@
 ---
-stage: review
+stage: doing
 blocked: null
-round: 1
+round: 2
 attempts: 0
 crashes: 0
 pull_request: 644
 comments_read: [6713932106, 6714015757, 6714081152, 6714164393, 6714248996]
 handed_over: null
-claim:
-  instance: vm
-  stage: review
-  started_at: '2026-11-07T23:13:45.904327Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -207,6 +203,12 @@ journal:
   kind: started
   at: '2026-11-07T23:13:45.904327Z'
   stage: review
+- number: 36
+  speaker: reviewer
+  kind: result
+  at: '2026-11-07T23:16:01.449739Z'
+  stage: review
+  run: c1cc10b2d3ef4dafa3362bc5f479916f
 ---
 
 # The factory works on develop
@@ -221,6 +223,8 @@ journal:
 - `agents/agents/*.md`: every mention of the factory's working branch (`origin/main`, `main...HEAD`, "on `main`") names `develop`, about 13 lines. The human's leave (2026-11-07): the tester changes the earlier tests that pin these agent texts only so far as the branch's name requires, and any other earlier test whose only failure is the new value of `WORK_BRANCH`; every changed test keeps its name and what it checks, and the entry names each.
 - `operator/template/CLAUDE.md` and `operator/template/Makefile`: every `origin/main` and every mention of the working branch says `develop`, so that a project made from the template works on `develop` as the factory does.
 - `factory.machine.application.preflight`: the finding for a remote without the working branch (today `no origin/main to prepare the stage environment from`) names `origin/develop`, as it follows from the constant; no new item.
+- `factory.pipeline.application.scheduler`: the repository stop for a remote without the working branch says `the repository has no {WORK_BRANCH} branch yet`, so `the repository has no develop branch yet` (the human, journal entry 21).
+- The private names, comments and docstrings that mean the working branch are reworded, with no change in behaviour: `_MAIN_REF` and `_NO_MAIN_TO_PREPARE` in `machine/application/preflight.py`, `_ORIGIN_MAIN` and `_main_fault` in `pipeline/application/scheduler.py`, `_MAIN_REF` in `pipeline/application/tick.py`, `_require_commit_beyond_main` and its message in `pipeline/application/stops.py`, and the docstrings and comments in `pipeline/application/handlers/merged.py`, `reject.py`, `closed.py` and `tick.py` (the human, journal entry 21). The tester has the human's leave to make the earlier tests that pin `the repository has no main branch yet` follow the constant (`tests/pipeline/application/test_repository_waiter.py`, `tests/entry/test_health.py`, `tests/entry/test_run_waiter.py`).
 - `src/factory/` otherwise unchanged: every other use follows the constant.
 
 ## Acceptance criteria
@@ -228,8 +232,9 @@ journal:
 1. `WORK_BRANCH` is `"develop"` (one test).
 2. On a fake remote that has `main` but no `develop`, the preflight's finding names `origin/develop` (one test).
 3. No file under `agents/agents/` or `operator/template/` holds any of these forms, one row each (rows of the guard of F0057-S0001, widened to these two folders): `origin/main`; `main...HEAD`; `git diff main`; the working-branch prose uses of `main` (R10's "reaches `main` only through the human's merge", the acceptance reviewer's "writes your report to `main`", "that `main` already holds", "on `main` itself" in the template's `CLAUDE.md` and `Makefile`), which say `develop`. Phrases like "the main choice" stay.
-4. `make check` stays green.
-5. docs: `docs/decisions.md`: one entry for F0057's decisions 1 to 7, with the rejected options. The other documents follow in S0004 and S0005.
+4. On a fake remote that has `main` but no `develop`, the repository stop (`repository_unavailable`) names `develop`: its detail is `the repository has no develop branch yet` (one test).
+5. `make check` stays green.
+6. docs: `docs/decisions.md`: one entry for F0057's decisions 1 to 7, with the rejected options; `docs/operator-guide/health.md`: the `repository_unavailable` row "the repository has no main branch yet" names `develop`. The other documents follow in S0004 and S0005.
 
 ## Smoke test
 
@@ -690,3 +695,63 @@ Expect: `develop`
     `check`: check: green
     `duplicates`: duplicates: 6 new, 39 known, 4 gone
 35. factory: started review as vm.
+36. reviewer: Review, round 1. I read the work item and `git diff main...HEAD -- . ':!factory'`: `src/`, the agent files, the template and the demo files, the new tests and every earlier test the diff changes. Then I grepped `src/factory` for `main` that is still left where it means the working branch.
+
+    Checked and fine:
+    - Criteria 1 to 3 and the new criterion 4 each have a test that checks what it is named after:
+      - criterion 1: `tests/shared/domain/test_work_branch.py`
+      - criterion 2: `tests/machine/application/test_preflight_working_branch.py`
+      - criterion 3: `tests/guards/test_working_branch_in_agent_texts.py`, one row per form, plus the "the main choice" side
+      - criterion 4: `tests/pipeline/application/test_repository_waiter.py::test_a_remote_with_main_but_no_develop_is_a_stop_naming_develop`
+    - `make check` was green after the coder (entry 34).
+    - The scheduler's message and the renames match what the human approved in entry 21.
+    - No `main` that means the working branch is left in `agents/agents/`, `operator/template/` or the demo files.
+    - No suppression markers, no secrets and no shell built from strings. The import layers are unchanged.
+
+    Findings:
+    1. Several texts under `src/factory` still say `main` where they mean the working branch. That makes the Interface's line "every other use follows the constant" false, and some of these texts reach the human or the operator. I should have named these in round 0.
+       - `src/factory/work/domain/acceptance.py:53` (`ACCEPTANCE_CLOSING`, posted on the acceptance's pull request) tells the human the refused report "stays on the main branch". It is now booked on `develop`, and `agents/agents/acceptance-reviewer.md` already says so.
+       - `src/factory/machine/application/preflight.py:474`, `:561`, `:574`, `:576` and `:577` give stop details that say "on main" (for example `lint is red on main at <commit>`), but the probe now runs on `origin/develop`.
+       - `src/factory/pipeline/application/stage.py:162` says "merge conflict with the main branch".
+       - `src/factory/work/application/acceptance.py:298`, `:319` and `:352` have `CannotHandle` reasons that say "the main branch".
+       - Docstrings: `work/application/work_items.py:2`, `:49` and `:149`; `work/application/acceptance.py:96`, `:278` and `:333`; `work/domain/work_item.py:87`; `machine/domain/preflight.py:41`.
+       - Fix: these texts follow `WORK_BRANCH` or say "the working branch". This is beyond the list the human approved in entry 21, and earlier tests pin these texts: `tests/work/domain/test_acceptance_description.py`, `tests/work/application/test_acceptance_closed.py`, `tests/machine/application/test_preflight_run.py`, `test_preflight_run_environment.py`, `tests/hosting/application/test_preflight_stale_main_stop.py`, `tests/pipeline/application/test_preflight_stop_detail.py`, `test_acceptance_merged.py`, `test_acceptance_no_state_refusals.py` and possibly others (grep `tests` for `main branch|on main at|probe on main`). So the coder asks the human with `question`, in one go: widen the Interface to these texts and give leave for the pinned tests, or name a later story for them.
+    2. `tests/pipeline/application/test_repository_waiter.py:174-181` copies the remote setup of the helper `make_remote` (`tests/support/git_support.py:138`), which `make_bare_remote` (`tests/support/operator_skill_support.py:144`) also copies. The only differences are the branch and the files.
+       - Fix: the tester gives `make_remote` a `branch` parameter (and the files), defaulting to today's behaviour, and uses it here and in `tests/machine/application/test_preflight_working_branch.py:19-26`. The standing leave covers this.
+       - While there, the tester corrects `make_remote`'s docstring, which still says "whose `main` holds".
+
+    description corrected: Interface "`src/factory/` otherwise unchanged" (and nothing else) -> it now also lists, above that line, the scheduler's message `the repository has no {WORK_BRANCH} branch yet`, the renames and rewordings the human approved, and the human's leave for the three tests that pin that message (entry 21). The take had dropped the tester's rewrite (entries 25 and 32).
+    description corrected: criteria 1 to 5 -> a new criterion 4 (a remote with `main` and no `develop` gives a repository stop naming `develop`; its test already exists), so `make check` and docs are now 5 and 6 (entry 21).
+    description corrected: docs criterion "`docs/decisions.md` ..." -> it also names `docs/operator-guide/health.md`'s `repository_unavailable` row "the repository has no main branch yet", which must name `develop` (entry 21).
+
+    Earlier tests (item 6):
+    - Changed under the human's leave in the Interface (2026-11-07; entries 8 and 11), only so far as the branch's name or the new `WORK_BRANCH` requires:
+      - `tests/agent_files/test_claude_agent_texts.py`
+      - `tests/agent_files/test_claude_agent_texts_docs_route.py`
+      - `tests/agent_files/test_claude_agent_texts_review_groups.py`
+      - `tests/agent_files/test_claude_files.py`
+      - `tests/agents/application/test_project_agents.py`
+      - `tests/entry/test_wiring_run.py`
+      - `tests/guards/test_human_clone.py`
+      - `tests/hosting/adapters/test_git_cli_branches.py`
+      - `tests/hosting/adapters/test_git_cli_reading.py`
+      - `tests/hosting/domain/test_hosting.py`
+      - `tests/machine/application/test_container_environment.py`
+      - `tests/pipeline/application/test_claims_refusals.py`
+      - `tests/pipeline/application/test_preflight_stops_commit.py`
+      - `tests/pipeline/application/test_stop_publisher.py`
+      - `tests/pipeline/application/test_tick_stop_records.py`
+      - `tests/shared/domain/test_paths.py`
+      - `tests/shared/domain/test_work_branch.py`
+      - `tests/work/application/test_acceptance_service.py`
+      - `tests/work/application/test_acceptance_snapshots.py`
+      - `tests/work/domain/test_stop_table.py`
+    - Changed under the human's answer in entry 9 (`SCRIPTS_BRANCH = "main"`):
+      - `tests/support/operator_skill_support.py`
+      - `tests/operator_scripts/test_operator_merge_reset.py`
+      - `tests/operator_scripts/test_operator_skill_scripts.py`
+      - `tests/operator_scripts/test_operator_skill_signature.py`
+    - Changed under the human's answer in entry 21 (the message follows `WORK_BRANCH`):
+      - `tests/entry/test_health.py`
+      - `tests/entry/test_run_waiter.py`
+    - `tests/pipeline/application/test_repository_waiter.py`: under entry 21 (the message follows `WORK_BRANCH`, and the new criterion's test) and entry 28 (`OTHER_BRANCH`).
