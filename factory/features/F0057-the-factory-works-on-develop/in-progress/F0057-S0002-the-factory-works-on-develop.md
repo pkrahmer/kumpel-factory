@@ -1,5 +1,5 @@
 ---
-stage: smoke-test
+stage: approval
 blocked: null
 round: 2
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 644
 comments_read: [6713932106, 6714015757, 6714081152, 6714164393, 6714248996, 6714373146, 6714554190]
 handed_over: null
-claim:
-  instance: vm
-  stage: smoke-test
-  started_at: '2026-11-07T23:42:40.794309Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -307,6 +303,12 @@ journal:
   kind: started
   at: '2026-11-07T23:42:40.794309Z'
   stage: smoke-test
+- number: 54
+  speaker: smoke-tester
+  kind: result
+  at: '2026-11-07T23:43:00.220114Z'
+  stage: smoke-test
+  run: 27983bcaafb6422abfc2e780999d38eb
 ---
 
 # The factory works on develop
@@ -1170,3 +1172,17 @@ Expect: `develop`
     `secrets`: secrets: green (3.2 s)
     `documents`: documents ok (57.4 s)
 53. factory: started smoke-test as vm.
+54. smoke-tester: Round 2 smoke test. I ran the one command under `## Smoke test` from the repository root, as written.
+
+    Command 1: `uv run python -c "from factory.shared.domain.paths import WORK_BRANCH; print(WORK_BRANCH)"`
+
+    ```
+    Bytecode compiled 4164 files in 50ms
+    develop
+    ```
+
+    Exit status 0. It meets its `Expect:` line (`develop`). The `Bytecode compiled` line comes from uv on stderr and is not part of the program's output.
+
+    I read the acceptance criteria again. The output matches criterion 1 (`WORK_BRANCH` is `"develop"`) and contradicts none of the others. Criteria 2 to 5 (the preflight finding, the agent and template texts, the repository stop and the probe detail) and criterion 7 (docs) are outside what this command covers, so the smoke test neither confirms nor contradicts them. Criterion 6 (`make check`) is the factory's gate after this stage.
+
+    Findings: none. I fixed nothing and changed no files.
