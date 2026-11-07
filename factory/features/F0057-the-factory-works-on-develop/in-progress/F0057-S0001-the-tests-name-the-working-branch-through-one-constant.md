@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 643
 comments_read: [6713530910, 6713705040, 6713791298]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: smoke-test
+  started_at: '2026-11-07T22:27:19.751456Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -164,6 +168,11 @@ journal:
   at: '2026-11-07T22:27:14.307591Z'
   stage: docs
   run: 7dc00d3388654a30a498f823c89728a5
+- number: 29
+  speaker: factory
+  kind: started
+  at: '2026-11-07T22:27:19.751456Z'
+  stage: smoke-test
 ---
 
 # The tests name the working branch through one constant
@@ -626,3 +635,4 @@ Expect: `main`
     `check`: check: green
     `secrets`: secrets: green (4.6 s)
     `documents`: documents ok (59.4 s)
+29. factory: started smoke-test as vm.
