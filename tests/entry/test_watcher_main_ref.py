@@ -1,4 +1,4 @@
-"""A watch on a clone without an the working branch ends with the git error the operator reads."""
+"""A watch on a clone without the working branch ends with the git error the operator reads."""
 
 import io
 from dataclasses import replace

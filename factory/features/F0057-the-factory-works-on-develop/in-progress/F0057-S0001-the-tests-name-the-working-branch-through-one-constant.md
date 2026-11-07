@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 643
 comments_read: [6713530910]
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-07T22:09:26.561624Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -95,6 +91,12 @@ journal:
   kind: started
   at: '2026-11-07T22:09:26.561624Z'
   stage: tests
+- number: 16
+  speaker: tester
+  kind: result
+  at: '2026-11-07T22:09:47.701402Z'
+  stage: tests
+  run: 6540cd4040ff4fbe83327a2345400331
 ---
 
 # The tests name the working branch through one constant
@@ -416,3 +418,12 @@ Expect: `main`
 
     The factory left out changes outside the write paths: factory/features/F0057-the-factory-works-on-develop/in-progress/F0057-S0001-the-tests-name-the-working-branch-through-one-constant.md.
 15. factory: started tests as vm.
+16. tester: Approved test change (finding 1 from entry 12, passed on in the coder's entry 14, covered by the human's leave of 2026-11-07). I fixed the module docstring on the first line of `tests/entry/test_watcher_main_ref.py`. It now reads "A watch on a clone without the working branch ends with the git error the operator reads." The stray "an" is gone.
+
+    Nothing else changed: no test function, assertion or other file. No criterion's mapping changes, and I created no files. The test runner imported every module.
+
+    Checks run after the change:
+    - `uv run pytest -q tests/entry/test_watcher_main_ref.py` passed (2 tests).
+    - `make lint` is green.
+
+    `lint`: lint: green (0.2 s)
