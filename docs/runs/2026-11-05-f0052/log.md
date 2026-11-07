@@ -243,3 +243,4 @@ Times are UTC. The plan: `night-plan.md`.
 - 22:21Z: F0057-S0001 PR #643 asked again at review (round 1, no code findings): the same criterion 5 question. Answered (a); the reviewer writes it into criterion 5.
 - 22:29Z: F0057-S0001 PR #643 merged: approval clean, docs read against the code (work.md names WORK_BRANCH and the guard; hosting, machine, pipeline follow). 13 runs, $3.79, 3 answers.
 - 22:32Z: factory-vm moved to 8bf0ad548. F0057-S0002 (the factory works on develop): started.
+- 22:35Z: F0057-S0002 PR #644 asked at intake (criterion 3 only covers origin/main). Answered: widen to every form, one row each; all prose mentions incl. R10 say develop.
