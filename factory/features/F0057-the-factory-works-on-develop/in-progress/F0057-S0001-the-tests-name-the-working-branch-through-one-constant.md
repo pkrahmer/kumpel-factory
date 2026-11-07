@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 643
 comments_read: [6713530910, 6713705040]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-07T22:14:03.828516Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -123,6 +119,12 @@ journal:
   kind: started
   at: '2026-11-07T22:14:03.828516Z'
   stage: doing
+- number: 21
+  speaker: coder
+  kind: result
+  at: '2026-11-07T22:18:32.309072Z'
+  stage: doing
+  run: 778771c663a240ed983c79bb7aed3112
 ---
 
 # The tests name the working branch through one constant
@@ -476,3 +478,21 @@ Expect: `main`
     `check`: check: green
 19. 2026-11-07 human: (a). Criterion 5 reads from now on: "docs: `docs/project-guide/work.md` (the `paths` table) names `WORK_BRANCH` in place of `MAIN_BRANCH`, and the reader learns there that `WORK_BRANCH` names the factory's working branch and that no code or test writes the name literally. `hosting.md`, `machine.md` and `pipeline.md` name `WORK_BRANCH` wherever they named `MAIN_BRANCH`. `docs/decisions.md`: none in this story." The human does not commit on the work item's branch; this answer is the criterion's text for every later stage, and the documenter writes the docs. My earlier text sent the reader to shared.md by mistake; it does not describe `paths`. The two notes (the remote's name written out, the local names that say main) stay for S0002.
 20. factory: started doing as vm.
+21. coder: Round 1, after the human's answer in entry 19. I changed no code and no tests in this run.
+
+    What the journal changed: the human chose option (a). Criterion 5 now reads: "docs: `docs/project-guide/work.md` (the `paths` table) names `WORK_BRANCH` in place of `MAIN_BRANCH`, and the reader learns there that `WORK_BRANCH` names the factory's working branch and that no code or test writes the name literally. `hosting.md`, `machine.md` and `pipeline.md` name `WORK_BRANCH` wherever they named `MAIN_BRANCH`. `docs/decisions.md`: none in this story." I did not rewrite `## Description`, because the work item is outside the coder's write paths. Entry 19 holds the criterion's text for every later stage, and the documenter writes the docs. The stale `MAIN_BRANCH` names in the guide are listed in entry 18: `hosting.md:23`, `work.md:394`, `machine.md:400`, `pipeline.md:624/640/641/773`.
+
+    Both findings from entry 12 are now settled:
+    - Finding 1: the tester fixed the docstring (entry 16).
+    - Finding 2: settled by the human's answer above.
+
+    The code is as entry 10 describes it. Nothing to refactor.
+
+    Noticed but not touched; the human left both for S0002 (entry 19):
+    - `hand_over.py` and `stage.py` write the remote's name out in `f"origin/{WORK_BRANCH}"` instead of building it from `REMOTE`.
+    - The local names `_MAIN_REF`, `_ORIGIN_MAIN`, `_MAIN` and `_NO_MAIN_TO_PREPARE` still say "main".
+
+    `make check`: `check: green`, coverage 99.22 %.
+
+    `check`: check: green
+    `duplicates`: duplicates: 6 new, 39 known, 4 gone
