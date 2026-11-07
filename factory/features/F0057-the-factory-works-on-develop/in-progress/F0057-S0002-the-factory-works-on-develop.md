@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 644
 comments_read: [6713932106, 6714015757, 6714081152, 6714164393, 6714248996, 6714373146]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-07T23:25:01.146480Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -237,6 +241,11 @@ journal:
   at: '2026-11-07T23:24:55.867538Z'
   stage: doing
   run: c6a94fcb7bcd4f4a98961616159519f0
+- number: 42
+  speaker: factory
+  kind: started
+  at: '2026-11-07T23:25:01.146480Z'
+  stage: tests
 ---
 
 # The factory works on develop
@@ -897,3 +906,4 @@ Expect: `develop`
     - The stamp fields `main_failed`/`main_probed`, `EvaluationInput.main_commit`, and the local variables named `main` in `preflight.py` and `evaluation.py`.
     - The `"main"` at `entry/run.py:51`.
     - The comment at `entry/check_story.py:68`.
+42. factory: started tests as vm.
