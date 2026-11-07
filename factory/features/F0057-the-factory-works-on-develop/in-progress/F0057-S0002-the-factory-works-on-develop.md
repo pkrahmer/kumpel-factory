@@ -1,17 +1,13 @@
 ---
 stage: intake
-blocked: null
+blocked: question
 round: 0
 attempts: 0
 crashes: 0
-pull_request: null
+pull_request: 644
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: intake
-  started_at: '2026-11-07T22:33:05.202549Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -23,6 +19,13 @@ journal:
   kind: started
   at: '2026-11-07T22:33:05.202549Z'
   stage: intake
+- number: 3
+  speaker: intake
+  kind: question
+  at: '2026-11-07T22:33:28.704130Z'
+  stage: intake
+  run: c1b8954b7ca34ff28866b36deca13c21
+  blocked: question
 ---
 
 # The factory works on develop
@@ -58,3 +61,24 @@ Expect: `develop`
 
 1. 2026-11-07 human: created.
 2. factory: started intake as vm.
+3. intake: Format check passed. I found one gap that blocks the story, so I am asking.
+
+   1. **Criterion 3 does not cover most of the behaviour the Interface states.**
+      - The Interface says every mention of the working branch in `agents/agents/*.md` names `develop`: `origin/main`, `main...HEAD`, and "on `main`". It also says every mention in `operator/template/CLAUDE.md` and `operator/template/Makefile` does.
+      - Criterion 3 tests only the string `origin/main`. A grep of those folders shows the other forms are the bulk of the mentions:
+        - `git diff main...HEAD` in the documenter and reviewer files.
+        - `git diff main -- ...` in the coder file.
+        - "every test file that `main` already holds" and `git diff --name-status main...HEAD` in the reviewer file.
+        - "reaches `main` only through the human's merge" (R10) in every agent file.
+        - "writes your report to `main`" in the acceptance-reviewer file.
+        - "every tracked file on `main` itself" in the template `CLAUDE.md` and `Makefile`.
+      - A coder could change only `origin/main` and pass every criterion. The agents would then still diff against `main`.
+      - I would choose to widen criterion 3 to name the forms, with one row each: `origin/main`, `main...HEAD`, `git diff main`, and the working-branch uses of `main` in the prose (R10, the acceptance reviewer's report, the template's "on main itself").
+      - **The one thing I need from you:** are the R10 sentence ("reaches `main` only through the human's merge") and the acceptance-reviewer's "writes your report to `main`" working-branch mentions that must say `develop`? The first is arguably correct as `main`, since a promotion is a merge. I would choose `develop` for the report sentence and `main` for none of the prose.
+      - A guard that matches the word `main` would also hit "the main choice" and "the main design decision" in `coder.md`, so the criterion must name the exact forms.
+
+   2. **Not a finding, noted for the record.**
+      - Criterion 2 and the smoke test are testable as written.
+      - The docs criterion names what the reader must know and dictates no sentences.
+      - Scope and architecture fit feature.md (S0002: constant, agent files, template, preflight).
+      - The preflight's rule (a missing working branch is a finding) is covered by criterion 2.
