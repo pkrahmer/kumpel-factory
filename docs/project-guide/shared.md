@@ -204,7 +204,7 @@ A finding reads `<document>:<line>: <heading> is no heading of <target>` and blo
 
 ### The folder READMEs
 
-`FOLDER_READMES` in [folder_readmes.py](../../src/factory/shared/domain/folder_readmes.py), the module `factory.shared.domain.folder_readmes`, lists the path of every folder README of the repository, 22 in all. Each is a short pointer from a folder to the guide pages that explain it. `operator/template/` carries none, because an operator copies that folder into a new project. Its form and limits are in *Folder READMEs* in [style.md](style.md).
+`FOLDER_READMES` in [folder_readmes.py](../../src/factory/shared/domain/folder_readmes.py), the module `factory.shared.domain.folder_readmes`, lists the 22 folder READMEs that the guard and the document check read. The human's READMEs of `factory/`, `factory/features/`, `docs/runs/` and `planning/`, and `demo/README.md` and `operator/README.md`, each keep their own form outside the list; the human keeps theirs off it because `factory/features/` holds feature folders that come and go. Each is a short pointer from a folder to the guide pages that explain it. `operator/template/` carries none, because an operator copies that folder into a new project. Its form and limits are in *Folder READMEs* in [style.md](style.md).
 
     readme_problems(folder: str, readme: str | None, subfolders: Sequence[str]) -> list[str]
 

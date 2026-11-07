@@ -43,7 +43,7 @@ F0054 (the documents are rewritten for their readers) is merged, so the style pa
 ## The human's changes
 
 - **At S0001's merge:** `factory/pipeline.yml`, the documenter's `write_paths` gain the 23 README paths of S0001's list, one exact path per entry, as `operator/README.md` stands there today (for example `"src/factory/agents/README.md"`). No folder pattern such as `src/*` or `*/README.md`: the documenter may write these READMEs and nothing else in their folders, so it can never change code, a test or a script on the docs route. Check the new entries against the write-path rules before pushing.
-- **After S0005's merge:** the human writes `factory/README.md`, `factory/features/README.md` and `docs/runs/README.md` in the same form and adds them to the list and the checked list.
+- **After S0005's merge:** the human writes `factory/README.md`, `factory/features/README.md` and `docs/runs/README.md` in the same form. Done on 2026-11-07, but kept off the list and the checked list: adding them needs a code change, and `factory/features/` holds feature folders that come and go, which its README names by kind (the human, second acceptance, option a).
 
 - **Before S0007:** done on 2026-11-07: `LICENSE` holds the Apache License 2.0 text from apache.org, `NOTICE` names the product and its copyright, and `pyproject.toml` has `license = "Apache-2.0"` and `license-files = ["LICENSE", "NOTICE"]`.
 

@@ -132,7 +132,7 @@ See also: *The take's rule* in [pipeline.md](pipeline.md).
 
 ## Folder READMEs
 
-A folder a reader would ask about has a short `README.md` that points to the guides. The folders are listed in `FOLDER_READMES` of `factory.shared.domain.folder_readmes`, and the guard `tests/guards/test_folder_readmes.py` checks each one that exists with `readme_problems`. The documenter may write them.
+A folder a reader would ask about has a short `README.md` that points to the guides. The folders are listed in `FOLDER_READMES` of `factory.shared.domain.folder_readmes`, and the guard `tests/guards/test_folder_readmes.py` checks each one with `readme_problems`; a listed README with no file is a finding. The documenter may write them.
 
 The form, in this order:
 
