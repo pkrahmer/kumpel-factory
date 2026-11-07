@@ -1,5 +1,5 @@
 ---
-stage: intake
+stage: tests
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 645
 comments_read: [6714658360]
 handed_over: null
-claim:
-  instance: vm
-  stage: intake
-  started_at: '2026-11-07T23:49:07.129161Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -40,6 +36,12 @@ journal:
   kind: started
   at: '2026-11-07T23:49:07.129161Z'
   stage: intake
+- number: 6
+  speaker: intake
+  kind: result
+  at: '2026-11-07T23:49:21.012473Z'
+  stage: intake
+  run: d6714e2db4cf48e08789a38090a89ad6
 ---
 
 # Kumpel works on develop and promotes accepted features to main
@@ -103,3 +105,10 @@ Expect: `off`
    7. `operator/skill/kumpel/scripts/kumpel-commit.sh`, sourced by the scripts that commit (the skill stays self-contained).
    8. The coder writes these files (`operator/skill/*`, `operator/claude/*`, `operator/opencode/*` are its paths). A criterion: the commands list `promote` among the switches, and `standing-orders.md` says never push to `main` and that a fix goes to `develop`.
 5. factory: started intake as vm.
+6. intake: accepted
+   - Interface: names concrete paths and scripts (the Kumpel scripts, `kumpel-commit.sh` as the one commit function, `archive-feature.sh <id>`, `promote.sh <id>`, `settings.sh set promote on|off`). The human's answer fixed the file for the shared function (journal 4, item 7).
+   - Criteria: the human's answer in journal 4 (items 1 to 8) gives the criteria I asked for, but they are not yet written into the story. I did not edit the story. The coder and tester are to read journal 4 together with the numbered criteria: criterion 2 gains the missing-or-unfinished-acceptance row and the subject/remote check; criterion 3 gains the body, `merge_method: merge` and printed-number rows; there are new criteria for `next-story.sh`, `approval.sh` and `status.sh`, for `reset-to-tag.sh`, for `settings.sh set promote on|off` (another value refused as today), and for the command and `standing-orders.md` texts. Each is one test with rows, and each rule has its failing side. Risk: someone reading only the numbered list will miss them.
+   - Smoke test: runnable (`settings.sh init`, then `get promote`), no pytest in it, and `Expect: off` can be checked against the output.
+   - Docs criterion: names what the reader must know (the switch, the two new scripts in the file table, that Kumpel never pushes to `main`) and dictates no sentences.
+   - Architecture: the change sits in `operator/skill/kumpel/scripts/`, `operator/skill/*`, `operator/claude/*` and `operator/opencode/*`, which are the coder's paths, with tests under `tests/operator_scripts/`. This matches the layout in CLAUDE.md.
+   - Scope: within F0057's scope (S0003 line) and not in its out-of-scope list. Earlier tests change only as far as the human's 2026-11-07 leave allows. Route: tests.
