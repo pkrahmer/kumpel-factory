@@ -1,3 +1,30 @@
+---
+stage: intake
+blocked: null
+round: 0
+attempts: 0
+crashes: 0
+pull_request: null
+comments_read: []
+handed_over: null
+claim:
+  instance: vm
+  stage: intake
+  started_at: '2026-11-07T21:54:26.908741Z'
+  lease_duration: 60
+journal:
+- number: 1
+  speaker: human
+  kind: created
+  at: '2026-11-07T21:54:26.901648Z'
+  stage: intake
+- number: 2
+  speaker: factory
+  kind: started
+  at: '2026-11-07T21:54:26.908741Z'
+  stage: intake
+---
+
 # The tests name the working branch through one constant
 
 ## Description
@@ -28,3 +55,6 @@ uv run python -c "from factory.shared.domain.paths import WORK_BRANCH; print(WOR
 Expect: `main`
 
 ## Journal
+
+1. 2026-11-07 human: created.
+2. factory: started intake as vm.
