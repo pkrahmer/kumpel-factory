@@ -246,3 +246,4 @@ Times are UTC. The plan: `night-plan.md`.
 - 22:35Z: F0057-S0002 PR #644 asked at intake (criterion 3 only covers origin/main). Answered: widen to every form, one row each; all prose mentions incl. R10 say develop.
 - 22:43Z: F0057-S0002 PR #644 asked at tests (18 Kumpel script tests fail with develop). Answered (a): scripts stay on main here with their own test constant; S0003 moves them.
 - 22:49Z: F0057-S0002 PR #644 asked at doing (demo Makefile must follow the template). Answered (a); coder gets temporary write paths for the todo demo Makefile and CLAUDE.md, to be removed at the merge.
+- 22:58Z: F0057-S0002 PR #644 asked at doing round 1 (scheduler stop says "no main branch"; private names). Answered (a): widen, new criterion, tester leave for 4 tests, health.md in docs.
