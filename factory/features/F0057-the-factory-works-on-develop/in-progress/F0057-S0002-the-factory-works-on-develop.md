@@ -1,17 +1,13 @@
 ---
 stage: docs
-blocked: null
+blocked: question
 round: 2
 attempts: 0
 crashes: 0
 pull_request: 644
 comments_read: [6713932106, 6714015757, 6714081152, 6714164393, 6714248996, 6714373146]
 handed_over: null
-claim:
-  instance: vm
-  stage: docs
-  started_at: '2026-11-07T23:35:21.824619Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -279,6 +275,13 @@ journal:
   kind: started
   at: '2026-11-07T23:35:21.824619Z'
   stage: docs
+- number: 49
+  speaker: documenter
+  kind: question
+  at: '2026-11-07T23:37:12.810107Z'
+  stage: docs
+  run: 77b8c4e13278447498e247bb9abf18f7
+  blocked: question
 ---
 
 # The factory works on develop
@@ -1093,3 +1096,24 @@ Expect: `develop`
       - tests/work/domain/test_acceptance_description.py
       - tests/work/domain/test_stall_texts.py
 48. factory: started docs as vm.
+49. documenter: I wrote half of the docs criterion and stopped on the other half. `make documents` ends with `documents ok (62.2 s)`. I ran no `make check`, because I changed only a document.
+
+    **Changed**
+    - `docs/operator-guide/health.md`: the texts this story changes now say `develop`. They are the three `repository_unavailable` and probe rows, `no origin/develop to prepare the stage environment from`, `the repository has no develop branch yet` and `origin/develop has no factory/pipeline.yml yet`, with their fixes. The quoted details `the probe on develop could not run: ...`, `lint is red on develop at ...`, `... printed nothing on develop at ...` and `lint reached its time_limit on develop at ...` changed too. I read the quoted strings against `scheduler.py:135-137`, `preflight.py:79` and the preflight tests.
+
+    **The open half of criterion 7: the `docs/decisions.md` entry for F0057's decisions 1 to 7**
+    - Decisions 1 to 7 are written only in `feature.md`, and my instructions forbid reading it.
+    - The story's Description names decision 1 only: the factory moves its work to `develop`, and `main` becomes the protected line of accepted features. Its journal gives no rejected option for the decisions.
+    - A "Why" or a "Rejected" line from my own reading would be invented, so I wrote no entry.
+
+    **Question.** Which do you choose?
+    - (a) You paste decisions 1 to 7 with their rejected options into a journal comment, and I write the entry from them. This is the one I would choose.
+    - (b) You allow me to read `feature.md` for the decisions section, and I write from it.
+    - (c) You accept an entry for decision 1 alone, with no "Rejected" line, and the rest follows in S0003 to S0005.
+
+    **Cross-read, found current against the diff:** `docs/operator-guide/stops.md`, `docs/project-guide/README.md` and `README.md` hold no reference to this story's changed texts.
+
+    **Stale text I did not touch (S0004 and S0005 cover it)**
+    - `health.md` still says `main` in its prose about the probe: line 121 `origin/main` for the agents, lines 126 and 161 to 171, 177 and 224. Line 167 still says "A red `main` is probed once".
+    - The same prose names the stop kind `main_branch_failing` and the stamp's fields. Those keep their names (coder, entry 45).
+    - The notes the reviewer listed in the source (`stage_file_on_main`, `_main_report_paths`, `_main_commit`, the `NO_MAIN` constant in a test) are for a later story.

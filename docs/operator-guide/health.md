@@ -112,7 +112,7 @@ Each row of the table names what an item needs and what to do when it fails. The
 
 The items read the instance's settings. Check three variables first: `FACTORY_CLAUDE_HOME`, `FACTORY_CLAUDE` and `FACTORY_CLAUDE_VERSION`. Under opencode check `FACTORY_OPENCODE`, `FACTORY_OPENCODE_VERSION` and `FACTORY_OPENCODE_MODELS`. The commit identity is not an item.
 
-The detail of `preflight_failed` also takes one form that is no item. `the probe on main could not run: <message>` means the probe of the main branch (see "The stamp and the probe of the main branch") itself failed, because git or `make` could not run or the checkout is gone. Fix the machine, not `main`. The message may also be a snapshot or container command that failed while the dataset was prepared for `main`, for example `the probe on main could not run: container command sync failed: boom` or `the probe on main could not run: snapshot command reset failed: no base at <path>`.
+The detail of `preflight_failed` also takes one form that is no item. `the probe on develop could not run: <message>` means the probe of the main branch (see "The stamp and the probe of the main branch") itself failed, because git or `make` could not run or the checkout is gone. Fix the machine, not `main`. The message may also be a snapshot or container command that failed while the dataset was prepared for `develop`, for example `the probe on develop could not run: container command sync failed: boom` or `the probe on develop could not run: snapshot command reset failed: no base at <path>`.
 
 #### The probe of the agent run
 
@@ -129,7 +129,7 @@ If the probe fails, its detail starts with one of these. Read it, then use the c
 
 | What you see | What it means | What you do |
 |---|---|---|
-| `no origin/main to prepare the stage environment from` | The clone has no `main`. Nothing was run. | Push `main` to the repository. |
+| `no origin/develop to prepare the stage environment from` | The clone has no `develop`. Nothing was run. | Push `develop` to the repository. |
 | `snapshot command zfs rollback -r <dataset>@base failed: cannot open '<dataset>@base': dataset does not exist` | With ZFS: the dataset has no base. | `operator/vm/setup.sh` makes the first one. For a dataset made by hand run `zfs snapshot <dataset>@base`. |
 | `snapshot command reset failed: no base at <path>` | With `FACTORY_SNAPSHOTS=copy`: the base directory is missing. | Make it empty with `mkdir`. |
 | `container command sync failed: <last output line>` | `make sync` failed in the sync container. | Read the output line; fix the image or the repository's `sync` target. |
@@ -164,8 +164,8 @@ Deleting `preflight-stamp.json` is safe. A missing or damaged stamp reads as no 
 
 - **The machine's items** run when the stamp's image differs from the instance's image identity, when there is no stamp, and on every call when the instance has no image identity. While the image build is unchanged they are skipped, however much time passes. A failed report writes no stamp, so the items run again at the next call.
 - **The probe** runs the project's `lint` command with a `time_limit` of 10 minutes, on the main branch only. It puts the checkout on `main` at `origin/main` first, and prepares the dataset for that commit before `lint` runs in a check container. A red `lint` on a work item's branch never fails the preflight. The probe runs only when `origin/main` is a commit the stamp has not seen, and after a new image build (a new build forgets what was probed). The preflight does not fetch; the [tick](../project-guide/glossary.md) that calls it does.
-- **A red `lint` is a stop.** The probe raises `main_branch_failing` with the detail `lint is red on main at <12 characters of the commit>: <last line of the output>`. When `lint` printed nothing, the last line is replaced by how it ended: `lint ended with exit status <n> and printed nothing on main at <commit>`, or `ended by signal <n>`. When `lint` ran out of its time the detail is `lint reached its time_limit on main at <commit>`.
-- **A red `main` is probed once.** The failing commit is remembered, so an idle tick runs no project command while the stop stands. If `health.json` loses the stop meanwhile, the next call raises it again with the detail `lint is red on main at <commit> (probed earlier)`, without running `lint`.
+- **A red `lint` is a stop.** The probe raises `main_branch_failing` with the detail `lint is red on develop at <12 characters of the commit>: <last line of the output>`. When `lint` printed nothing, the last line is replaced by how it ended: `lint ended with exit status <n> and printed nothing on develop at <commit>`, or `ended by signal <n>`. When `lint` ran out of its time the detail is `lint reached its time_limit on develop at <commit>`.
+- **A red `main` is probed once.** The failing commit is remembered, so an idle tick runs no project command while the stop stands. If `health.json` loses the stop meanwhile, the next call raises it again with the detail `lint is red on develop at <commit> (probed earlier)`, without running `lint`.
 - **A probe cut off by the factory's own stop is not judged.** When `factory-run` is asked to stop (SIGTERM from `systemctl stop` or `restart`) while the probe's `lint` runs, the probe raises no stop, writes no stamp and records nothing as failed. Its tick ends without claiming or dispatching any work, and the next start probes `main` again. A `lint` ended by signal 15 while the factory is not stopping (an out-of-memory kill, for example) is judged: it raises `main_branch_failing` with the detail above. Only the probe of `main` follows this rule. A stage's checks cut off by a stop end in a [crash](../project-guide/glossary.md) and a rerun.
 - **A fix clears it.** When you push a new commit to `main`, the next call probes it. When `lint` passes, the stop `main_branch_failing` is cleared. A call that ends without a probe error also clears a standing `preflight_failed` stop.
 - **A failed machine clears a stale stop.** While the machine's items fail, the probe cannot run. So a `main_branch_failing` is cleared when the stamp's failing commit is no longer `origin/main` (a fix was pushed, or `main` is gone) and the call still returns `preflight_failed`. The new `main` is probed when the machine's items pass again, and a red one raises the stop anew. A stop whose commit is still `main` stays, and so does a stop when git cannot resolve `origin/main`. If git cannot compare the two (the failing commit is not in the clone), the stop is cleared. The stamp is not rewritten.
@@ -184,8 +184,8 @@ The detail says which fault it is:
 |---|---|---|
 | `cannot prepare the checkout: <git's message>` | The clone failed. | Check `FACTORY_REPOSITORY_URL` and the credentials. |
 | `cannot fetch: <git's message>` | The fetch failed. | Read git's message. |
-| `the repository has no main branch yet` | The repository has no commit on `main`. | Push one. |
-| `origin/main has no factory/pipeline.yml yet` | `main` has no pipeline definition. | Push `factory/pipeline.yml` to `main`. |
+| `the repository has no develop branch yet` | The repository has no commit on `develop`. | Push one. |
+| `origin/develop has no factory/pipeline.yml yet` | `develop` has no pipeline definition. | Push `factory/pipeline.yml` to `develop`. |
 
 ## The factory log and the health status file
 
