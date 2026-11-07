@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 2
 attempts: 0
@@ -309,6 +309,11 @@ journal:
   at: '2026-11-07T23:43:00.220114Z'
   stage: smoke-test
   run: 27983bcaafb6422abfc2e780999d38eb
+- number: 55
+  speaker: factory
+  kind: done
+  at: '2026-11-07T23:44:52.235257Z'
+  stage: approval
 ---
 
 # The factory works on develop
@@ -1186,3 +1191,4 @@ Expect: `develop`
     I read the acceptance criteria again. The output matches criterion 1 (`WORK_BRANCH` is `"develop"`) and contradicts none of the others. Criteria 2 to 5 (the preflight finding, the agent and template texts, the repository stop and the probe detail) and criterion 7 (docs) are outside what this command covers, so the smoke test neither confirms nor contradicts them. Criterion 6 (`make check`) is the factory's gate after this stage.
 
     Findings: none. I fixed nothing and changed no files.
+55. factory: done (pull request merged); cost: 23 runs, 41.0 min, 274 turns, 845858 tokens in (9003333 more from cache), 119322 out, $8.06
