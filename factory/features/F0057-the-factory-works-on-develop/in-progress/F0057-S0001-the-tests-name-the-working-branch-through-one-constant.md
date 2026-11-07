@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: tests
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 643
 comments_read: [6713530910]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-07T22:08:51.194414Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -84,6 +80,12 @@ journal:
   kind: started
   at: '2026-11-07T22:08:51.194414Z'
   stage: doing
+- number: 14
+  speaker: coder
+  kind: result
+  at: '2026-11-07T22:09:20.796744Z'
+  stage: doing
+  run: d01515587b7d4c94b6c1bfd4e0b77941
 ---
 
 # The tests name the working branch through one constant
@@ -383,3 +385,24 @@ Expect: `main`
     - `tests/work/application/test_work_items_duplicate.py`
     - `tests/work/domain/test_stop_table.py`
 13. factory: started doing as vm.
+14. coder: Round 1: I worked on the reviewer's two findings from entry 12 and changed no code under `src/factory/`.
+
+    Test change for the tester (finding 1): in `tests/entry/test_watcher_main_ref.py`, the first line, the module docstring, should read "A watch on a clone without the working branch ends with the git error the operator reads." The stray "an" goes. The human's leave of 2026-11-07 covers this change. Under R9 I do not edit tests, so the tester makes it.
+
+    Finding 2 (criterion 5): I rewrote criterion 5 in this work item as the reviewer proposed, because the old text sent the documenter to `docs/project-guide/shared.md`, and that file does not describe `paths`. Before rewriting it I checked the guide. It still names `MAIN_BRANCH` in these places:
+    - `docs/project-guide/hosting.md:23`
+    - `docs/project-guide/work.md:394` (the table of constants in `paths`)
+    - `docs/project-guide/machine.md:400`
+    - `docs/project-guide/pipeline.md:624`, `:640`, `:641` and `:773`
+
+    The new criterion 5 names those files. It asks for `MAIN_BRANCH` to become `WORK_BRANCH` in each. It puts the sentence about `WORK_BRANCH` naming the working branch, with no code or test writing it literally, where the constant is already described: `work.md`'s table or `hosting.md`. The meaning of the task is otherwise unchanged. If my write paths do not include the work item, this edit is dropped and the criterion needs the human.
+
+    Main choice: I sent finding 1 to the tester with the `tests` decision. I rejected asking the human, because the leave already covers this kind of change.
+
+    Not run: `make check`. Since the green run in entry 10, nothing that `make check` reads has changed; the only change is the work item.
+
+    Noticed but not touched (same as entry 10):
+    - `hand_over.py` and `stage.py` build `f"origin/{WORK_BRANCH}"` with the remote's name written out instead of `REMOTE`.
+    - Some local names still say "main": `_MAIN_REF`, `_ORIGIN_MAIN`, `_MAIN` and `_NO_MAIN_TO_PREPARE`.
+
+    The factory left out changes outside the write paths: factory/features/F0057-the-factory-works-on-develop/in-progress/F0057-S0001-the-tests-name-the-working-branch-through-one-constant.md.
