@@ -1,17 +1,13 @@
 ---
-stage: review
+stage: doing
 blocked: null
-round: 0
+round: 1
 attempts: 0
 crashes: 0
 pull_request: 643
 comments_read: [6713530910]
 handed_over: null
-claim:
-  instance: vm
-  stage: review
-  started_at: '2026-11-07T22:06:20.282543Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -73,6 +69,12 @@ journal:
   kind: started
   at: '2026-11-07T22:06:20.282543Z'
   stage: review
+- number: 12
+  speaker: reviewer
+  kind: result
+  at: '2026-11-07T22:08:46.226771Z'
+  stage: review
+  run: bf4b923c43204665b828a5657a96e13c
 ---
 
 # The tests name the working branch through one constant
@@ -191,3 +193,183 @@ Expect: `main`
     `check`: check: green
     `duplicates`: duplicates: 6 new, 39 known, 4 gone
 11. factory: started review as vm.
+12. reviewer: Findings:
+
+    1. `tests/entry/test_watcher_main_ref.py:1`: the reworded module docstring reads "A watch on a clone without an the working branch ends with ...". The replacement of `origin/main` left the article "an" behind, so the sentence is broken. Fix: "A watch on a clone without the working branch ends with the git error the operator reads." This is a test file, so the change is the tester's, under the human's leave of 2026-11-07.
+    2. Work item, criterion 5 (docs): the criterion sends the documenter to `docs/project-guide/shared.md`, "where `paths` is described". That file does not describe `paths.py` at all: it names neither `REMOTE` nor `MAIN_BRANCH`. Meanwhile the guide still names `MAIN_BRANCH`, which this story removes, in `docs/project-guide/hosting.md:23`, `docs/project-guide/work.md:394` (the table row `REMOTE`, `MAIN_BRANCH`), `docs/project-guide/machine.md:400` and `docs/project-guide/pipeline.md:624`, `:640`, `:641` and `:773`. A documenter who follows the criterion would leave all of these stale. Fix: rewrite criterion 5 so that it names these files, says `MAIN_BRANCH` is now `WORK_BRANCH` in each, and puts the sentence "`WORK_BRANCH` names the working branch; no code or test writes the name literally" where the constant is already described (`hosting.md:23` or `work.md:394`), not in `shared.md`.
+
+    What I checked and found sound:
+    - Criterion 1: `tests/shared/domain/test_work_branch.py` checks that `WORK_BRANCH == "main"` and that `paths` has no `MAIN_BRANCH`. Both sides are in one test.
+    - Criterion 2: `tests/guards/test_work_branch_search.py` has a test that the repository passes, and one parametrized test with a clean row and one failing row for each of the four strings. The search skips its own file, as the Interface allows.
+    - Criterion 3: the coder's `make check` was green (journal entry 10). No `def test_` line is removed or renamed in the diff. In the test changes that are not a plain replacement, the code checks the same things: formatter reflows, `ITEM_BRANCH`, `INNER_TESTS` and `UNRESOLVED`. The tester named each of these in entry 8.
+    - `src/`: every `MAIN_BRANCH` is now `WORK_BRANCH`. The derived refs (`_MAIN_REF`, `_ORIGIN_MAIN`, `PIPELINE_REF`, `FORM_REF`, `_MAIN` in `opening.py`) are built from the constant. Every docstring and comment that wrote `origin/main` now names the working branch. No other branch literal is left.
+    - Architecture: no new imports between layers; the constant stays in `shared.domain`.
+    - Security: no suppression markers and no strings built for a shell.
+    - Duplicates: `make duplicates` reports 6 new findings. All 6 are in code this diff does not change (`claude_runtime`/`opencode_runtime`, `folder_readmes.py`, `cost_records.py`), or they are a known pair listed in the other order (`hand_over`/`acceptance`). None comes from this story.
+    - Left out of scope on purpose, not findings: the prose messages that still say "main" (`src/factory/pipeline/application/scheduler.py:135`, `stops.py:123`, `stage.py:162`). The Interface covers only `origin/main` in docstrings and comments, and changing a message would change behaviour.
+
+    Earlier tests (all 163 are status M; no tests were renamed or deleted):
+    - `tests/agent_files/test_claude_files.py`: the human's leave (Interface, 2026-11-07). Beyond the replacement: two `TEMPLATE_RULES_LINES` strings are now f-strings and split at a different place; the joined text is unchanged (named in entry 8).
+    - `tests/entry/test_watcher_main_ref.py`: the human's leave. `UNRESOLVED` is split over two f-string lines (named in entry 8); the docstring slip is finding 1.
+    - `tests/hosting/adapters/test_git_cli_check_ignore.py`: the human's leave. Beyond the replacement: its local `WORK_BRANCH = "work"` is renamed `ITEM_BRANCH` so it does not shadow the constant (named in entry 8).
+    - `tests/shared/adapters/test_tmp_path_reopening.py`: the human's leave. Beyond the replacement: `INNER_TESTS` writes `<branch>`, which is filled in with `.replace` (named in entry 8).
+    - Each of the following: the human's leave (Interface, 2026-11-07); a literal branch name is replaced by `WORK_BRANCH`/`REMOTE`, or `MAIN_BRANCH` by `WORK_BRANCH`:
+    - `tests/agent_files/test_template_makefile.py`
+    - `tests/agents/adapters/test_claude_runtime_environment.py`
+    - `tests/agents/application/test_agent_run_probe.py`
+    - `tests/agents/application/test_agent_run_probe_project_agent.py`
+    - `tests/agents/application/test_project_agents.py`
+    - `tests/entry/test_board_reader_acceptance.py`
+    - `tests/entry/test_git_hooks.py`
+    - `tests/entry/test_run.py`
+    - `tests/entry/test_run_fetch_before_tick.py`
+    - `tests/entry/test_run_image_sizes.py`
+    - `tests/entry/test_run_one_fetch.py`
+    - `tests/entry/test_run_project_image_rebuild.py`
+    - `tests/entry/test_run_waiter.py`
+    - `tests/entry/test_tick_agent_definition.py`
+    - `tests/entry/test_tick_project_agent.py`
+    - `tests/entry/test_tick_shipped_agent_file.py`
+    - `tests/entry/test_watch.py`
+    - `tests/entry/test_watch_acceptance.py`
+    - `tests/entry/test_watch_main.py`
+    - `tests/entry/test_wiring_acceptance.py`
+    - `tests/entry/test_wiring_container_extra.py`
+    - `tests/entry/test_wiring_environment.py`
+    - `tests/entry/test_wiring_extras.py`
+    - `tests/entry/test_wiring_handlers.py`
+    - `tests/entry/test_wiring_human_handlers.py`
+    - `tests/entry/test_wiring_image_path.py`
+    - `tests/entry/test_wiring_preflight.py`
+    - `tests/entry/test_wiring_project_agents.py`
+    - `tests/entry/test_wiring_project_image.py`
+    - `tests/entry/test_wiring_run.py`
+    - `tests/entry/test_wiring_stage_image_sizes.py`
+    - `tests/guards/test_git_support.py`
+    - `tests/guards/test_human_clone.py`
+    - `tests/guards/test_proof_support.py`
+    - `tests/guards/test_suite_fixtures.py`
+    - `tests/hosting/adapters/test_git_cli_arguments.py`
+    - `tests/hosting/adapters/test_git_cli_branches.py`
+    - `tests/hosting/adapters/test_git_cli_history.py`
+    - `tests/hosting/adapters/test_git_cli_reading.py`
+    - `tests/hosting/adapters/test_git_cli_restoring.py`
+    - `tests/hosting/adapters/test_git_cli_seal.py`
+    - `tests/hosting/adapters/test_git_cli_work_tree.py`
+    - `tests/hosting/adapters/test_git_cli_writing.py`
+    - `tests/hosting/adapters/test_pygithub_hosting.py`
+    - `tests/hosting/application/test_acceptance_ticks_repeated.py`
+    - `tests/hosting/application/test_agent_run_probe_environment.py`
+    - `tests/hosting/application/test_checkout_preparer.py`
+    - `tests/hosting/application/test_costs.py`
+    - `tests/hosting/application/test_hosting_failure_releases_claim.py`
+    - `tests/hosting/application/test_opening.py`
+    - `tests/hosting/application/test_preflight_stale_main_stop.py`
+    - `tests/hosting/application/test_watcher.py`
+    - `tests/hosting/domain/test_git.py`
+    - `tests/hosting/domain/test_hosting.py`
+    - `tests/machine/application/test_container_environment.py`
+    - `tests/machine/application/test_preflight_login_line.py`
+    - `tests/machine/application/test_preflight_run.py`
+    - `tests/operator_scripts/test_operator_merge_reset.py`
+    - `tests/operator_scripts/test_operator_skill_scripts.py`
+    - `tests/operator_scripts/test_operator_skill_signature.py`
+    - `tests/pipeline/application/handlers/test_closed.py`
+    - `tests/pipeline/application/handlers/test_hand_over.py`
+    - `tests/pipeline/application/handlers/test_handler_subjects.py`
+    - `tests/pipeline/application/handlers/test_lookups.py`
+    - `tests/pipeline/application/handlers/test_merged.py`
+    - `tests/pipeline/application/handlers/test_reject.py`
+    - `tests/pipeline/application/handlers/test_run.py`
+    - `tests/pipeline/application/handlers/test_run_gate.py`
+    - `tests/pipeline/application/test_acceptance_due_handler.py`
+    - `tests/pipeline/application/test_acceptance_hand_over.py`
+    - `tests/pipeline/application/test_acceptance_merged.py`
+    - `tests/pipeline/application/test_acceptance_no_state_refusals.py`
+    - `tests/pipeline/application/test_after_agent.py`
+    - `tests/pipeline/application/test_claims.py`
+    - `tests/pipeline/application/test_claims_refusals.py`
+    - `tests/pipeline/application/test_container_environment_take.py`
+    - `tests/pipeline/application/test_container_sync_origin.py`
+    - `tests/pipeline/application/test_docs_route.py`
+    - `tests/pipeline/application/test_human_line_posts.py`
+    - `tests/pipeline/application/test_known_results.py`
+    - `tests/pipeline/application/test_no_state_refusals.py`
+    - `tests/pipeline/application/test_opening_journal_edges.py`
+    - `tests/pipeline/application/test_pipeline_loading.py`
+    - `tests/pipeline/application/test_pipeline_loading_agents.py`
+    - `tests/pipeline/application/test_pipeline_loading_project_agents.py`
+    - `tests/pipeline/application/test_pipeline_loading_rules.py`
+    - `tests/pipeline/application/test_pipeline_loading_stage_moves.py`
+    - `tests/pipeline/application/test_pipeline_loading_strict_values.py`
+    - `tests/pipeline/application/test_pipeline_loading_yaml_fault.py`
+    - `tests/pipeline/application/test_preflight_stops_commit.py`
+    - `tests/pipeline/application/test_probe_nested_repository.py`
+    - `tests/pipeline/application/test_recovery_cap.py`
+    - `tests/pipeline/application/test_recovery_crash.py`
+    - `tests/pipeline/application/test_repository_waiter.py`
+    - `tests/pipeline/application/test_scheduler.py`
+    - `tests/pipeline/application/test_stage_changes.py`
+    - `tests/pipeline/application/test_stage_environment_of.py`
+    - `tests/pipeline/application/test_stage_finish.py`
+    - `tests/pipeline/application/test_stage_known_results.py`
+    - `tests/pipeline/application/test_stage_launch.py`
+    - `tests/pipeline/application/test_stage_nested_repository.py`
+    - `tests/pipeline/application/test_stage_run.py`
+    - `tests/pipeline/application/test_stage_run_acceptance.py`
+    - `tests/pipeline/application/test_stale_branches.py`
+    - `tests/pipeline/application/test_stall_edges.py`
+    - `tests/pipeline/application/test_stall_labels.py`
+    - `tests/pipeline/application/test_stall_reasons_recorded.py`
+    - `tests/pipeline/application/test_stop_posting.py`
+    - `tests/pipeline/application/test_stop_publisher.py`
+    - `tests/pipeline/application/test_take.py`
+    - `tests/pipeline/application/test_take_edges.py`
+    - `tests/pipeline/application/test_task.py`
+    - `tests/pipeline/application/test_task_acceptance.py`
+    - `tests/pipeline/application/test_tick.py`
+    - `tests/pipeline/application/test_tick_disk.py`
+    - `tests/pipeline/application/test_tick_preflight.py`
+    - `tests/pipeline/application/test_tick_restore_ignored.py`
+    - `tests/pipeline/application/test_tick_stale_branch.py`
+    - `tests/pipeline/application/test_tick_stop_records.py`
+    - `tests/pipeline/application/test_watcher_acceptance.py`
+    - `tests/shared/application/test_acceptance_reviewer_role.py`
+    - `tests/shared/domain/test_approval_description.py`
+    - `tests/shared/domain/test_document_references.py`
+    - `tests/shared/domain/test_fault_paths_7_to_13.py`
+    - `tests/shared/domain/test_identifiers.py`
+    - `tests/shared/domain/test_paths.py`
+    - `tests/support/acceptance_walk.py`
+    - `tests/support/container_extra_support.py`
+    - `tests/support/container_support.py`
+    - `tests/support/cost_image_support.py`
+    - `tests/support/crash_support.py`
+    - `tests/support/git_support.py`
+    - `tests/support/human_clone.py`
+    - `tests/support/operator_skill_support.py`
+    - `tests/support/preflight_support.py`
+    - `tests/support/proof_support.py`
+    - `tests/support/stage_run_support.py`
+    - `tests/support/stall_support.py`
+    - `tests/support/undo_support.py`
+    - `tests/support/watch_support.py`
+    - `tests/support/work_item_support.py`
+    - `tests/support/write_path_support.py`
+    - `tests/watching/application/test_acceptance_ticks_merged.py`
+    - `tests/watching/application/test_bill_service.py`
+    - `tests/watching/application/test_board_in_progress.py`
+    - `tests/work/application/test_acceptance_closed.py`
+    - `tests/work/application/test_acceptance_facts_human.py`
+    - `tests/work/application/test_acceptance_merged_before_approval.py`
+    - `tests/work/application/test_acceptance_merged_on_two_routes.py`
+    - `tests/work/application/test_acceptance_reading.py`
+    - `tests/work/application/test_acceptance_refusals.py`
+    - `tests/work/application/test_acceptance_repeated.py`
+    - `tests/work/application/test_acceptance_service.py`
+    - `tests/work/application/test_acceptance_snapshots.py`
+    - `tests/work/application/test_board_reader.py`
+    - `tests/work/application/test_watcher_move_rule.py`
+    - `tests/work/application/test_work_items.py`
+    - `tests/work/application/test_work_items_duplicate.py`
+    - `tests/work/domain/test_stop_table.py`
