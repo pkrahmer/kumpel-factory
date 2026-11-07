@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 644
 comments_read: [6713932106, 6714015757, 6714081152, 6714164393, 6714248996, 6714373146]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-07T23:28:39.113512Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -248,6 +252,11 @@ journal:
   at: '2026-11-07T23:28:34.156111Z'
   stage: tests
   run: a262ee0008be465180c0e0c9bee40859
+- number: 44
+  speaker: factory
+  kind: started
+  at: '2026-11-07T23:28:39.113512Z'
+  stage: doing
 ---
 
 # The factory works on develop
@@ -958,3 +967,4 @@ Expect: `develop`
     The factory left out changes outside the write paths: factory/features/F0057-the-factory-works-on-develop/in-progress/F0057-S0002-the-factory-works-on-develop.md.
 
     `lint`: lint: green (0.2 s)
+44. factory: started doing as vm.
