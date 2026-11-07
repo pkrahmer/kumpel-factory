@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 2
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 644
 comments_read: [6713932106, 6714015757, 6714081152, 6714164393, 6714248996, 6714373146]
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-07T23:25:01.146480Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -246,6 +242,12 @@ journal:
   kind: started
   at: '2026-11-07T23:25:01.146480Z'
   stage: tests
+- number: 43
+  speaker: tester
+  kind: result
+  at: '2026-11-07T23:28:34.156111Z'
+  stage: tests
+  run: a262ee0008be465180c0e0c9bee40859
 ---
 
 # The factory works on develop
@@ -907,3 +909,52 @@ Expect: `develop`
     - The `"main"` at `entry/run.py:51`.
     - The comment at `entry/check_story.py:68`.
 42. factory: started tests as vm.
+43. tester: Round 2: I made the test changes the coder named in entry 41, under the human's answer in entry 39 and the standing leave in `CLAUDE.md`.
+
+    **Criteria → tests:**
+    - criterion 1: tests/shared/domain/…::(unchanged from round 1)
+    - criterion 2: tests/machine/application/test_preflight_working_branch.py::test_a_remote_with_main_but_no_develop_gets_a_finding_naming_origin_develop (unchanged; it now uses `make_remote`)
+    - criterion 3: the S0001 guard rows (unchanged from round 1)
+    - criterion 4: tests/pipeline/application/test_repository_waiter.py::test_a_remote_with_main_but_no_develop_is_a_stop_naming_develop (unchanged; it now uses `make_remote`)
+    - criterion 5 (new, from entry 39): tests/machine/application/test_preflight_run.py::test_the_stop_of_a_red_probe_names_the_develop_branch
+
+    **Work item:** I added criterion 5 before `make check` and docs, which are now 6 and 7. I also added the entry-39 widening to the Interface, above "`src/factory/` otherwise unchanged": the visible texts, the `_WORK_REF` renames and docstrings, and the tester's leave.
+
+    **Earlier tests changed under the human's leave (entry 39):** in each, only the expected text changed, from a literal `main` to `{WORK_BRANCH}`, adding the `WORK_BRANCH` import where it was missing. Each test keeps its name and what it checks.
+    - tests/machine/application/test_preflight_run.py (5 details)
+    - tests/machine/application/test_preflight_run_environment.py
+    - tests/hosting/application/test_preflight_stale_main_stop.py
+    - tests/pipeline/application/test_preflight_stop_detail.py
+    - tests/pipeline/application/test_acceptance_merged.py
+    - tests/pipeline/application/test_acceptance_no_state_refusals.py
+    - tests/pipeline/application/test_stall_edges.py
+    - tests/work/application/test_acceptance_closed.py
+    - tests/work/domain/test_acceptance_description.py (`CLOSING`)
+    - tests/work/domain/test_stall_texts.py
+
+    One file from the coder's list, tests/pipeline/application/test_preflight_stops_commit.py, holds "main" only in a comment and pins no text, so I left it alone. No test pins the stage.py:162 merge-conflict error, so that text has no test.
+
+    **Reviewer's finding 2 (standing leave to move a shared helper):**
+    - `make_remote` (tests/support/git_support.py) now takes `files` (default `REMOTE_FILES`) and `branch` (default `WORK_BRANCH`). It behaves the same with the defaults, and its docstring no longer says "main".
+    - These now use it instead of their copies:
+      - tests/pipeline/application/test_repository_waiter.py
+      - tests/machine/application/test_preflight_working_branch.py
+      - `make_bare_remote` in tests/support/operator_skill_support.py. It fits: it calls `make_remote` and then adds `origin` to the seed and fetches it, so the seed ends up with the same remote-tracking ref as before.
+
+    **Run:** I ran the changed test files once, plus tests/operator_scripts because of the helper move. Red as intended:
+    - the new test
+    - the changed text pins in test_preflight_run.py and the other files above, which fail on the old literals:
+      - test_acceptance_description's three `CLOSING` cases
+      - test_stall_texts `merge_conflict`
+      - test_acceptance_closed's "no report on the branch or the main branch"
+      - and the others
+      
+    The rest of that run passed. A separate run of the three files the helper move touched (test_repository_waiter, test_preflight_working_branch, tests/operator_scripts) was all green. No module was missing at import. `make lint` is green.
+
+    **Files created:** none. **Modules the run could not import:** none.
+
+    **Open (a note for a later story, as entry 39 asks):** the docstring of test_preflight_run.py and other test docstrings and comments still say "main" in prose. The human's leave covers only what the tests pin, so I left them unchanged.
+
+    The factory left out changes outside the write paths: factory/features/F0057-the-factory-works-on-develop/in-progress/F0057-S0002-the-factory-works-on-develop.md.
+
+    `lint`: lint: green (0.2 s)

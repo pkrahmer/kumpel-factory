@@ -11,6 +11,7 @@ from factory.machine.adapters.preflight_stamp_file import JsonPreflightStampFile
 from factory.machine.application.preflight import MachineChecks, Preflight
 from factory.pipeline.application.boundaries import Boundaries
 from factory.pipeline.application.stops import StopService
+from factory.shared.domain.paths import WORK_BRANCH
 from support.container_support import (
     Dataset,
     container_dataset,
@@ -90,5 +91,5 @@ def test_the_lint_probe_runs_in_a_check_container_after_the_environment_is_prepa
         return
     assert reason == "preflight_failed"
     [stop] = [stop for stop in boundaries.health.read().stops if stop.reason == reason]
-    assert stop.detail == f"the probe on main could not run: {detail(dataset)}"
+    assert stop.detail == f"the probe on {WORK_BRANCH} could not run: {detail(dataset)}"
     assert checked == []

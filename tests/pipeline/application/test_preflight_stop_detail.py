@@ -14,6 +14,7 @@ from factory.pipeline.application.tick import IdleHandler, Tick, TickOutcome
 from factory.pipeline.domain.checks import CheckResult, status_of
 from factory.pipeline.domain.events import EventKind
 from factory.pipeline.domain.pipeline_definition import PipelineDefinition
+from factory.shared.domain.paths import WORK_BRANCH
 from support import preflight_support
 from support.preflight_support import RecordingCommands, Rig
 from support.stage_run_support import INSTANCE
@@ -58,7 +59,9 @@ def test_a_failed_probe_that_printed_nothing_names_the_command_and_its_ending(
     stops = [stop for stop in rig.stops() if stop.reason == "main_branch_failing"]
     assert len(stops) == 1
     assert "lint" in stops[0].detail
-    assert stops[0].detail.endswith(f"{ending} and printed nothing on main at {rig.main()[:12]}")
+    assert stops[0].detail.endswith(
+        f"{ending} and printed nothing on {WORK_BRANCH} at {rig.main()[:12]}"
+    )
 
 
 def test_a_probe_cut_off_by_the_factorys_stop_is_not_judged_and_runs_again(rig: Rig) -> None:

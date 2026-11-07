@@ -22,6 +22,7 @@ from support.git_support import (
     TEST_IDENTITY,
     clone,
     commit_all,
+    make_remote,
     remote_commit,
     run_git,
     write_files,
@@ -171,14 +172,9 @@ def test_a_remote_without_any_commit_is_a_stop_at_the_clocks_time(
 def test_a_remote_with_main_but_no_develop_is_a_stop_naming_develop(
     tmp_path: Path, instance: InstanceFactory
 ) -> None:
-    root = tmp_path / "only-main"
-    root.mkdir()
-    run_git(root, "init", "-q", "--bare", f"--initial-branch={OTHER_BRANCH}", "remote.git")
-    remote = root / "remote.git"
-    run_git(root, "init", "-q", f"--initial-branch={OTHER_BRANCH}", "seed")
-    write_files(root / "seed", {"factory/pipeline.yml": PIPELINE_YAML})
-    commit_all(root / "seed", "seed")
-    run_git(root / "seed", "push", "-q", str(remote), OTHER_BRANCH)
+    remote = make_remote(
+        tmp_path / "only-main", {"factory/pipeline.yml": PIPELINE_YAML}, branch=OTHER_BRANCH
+    )
     waiting = instance(str(remote))
 
     prepared = waiting.waiter.prepare()

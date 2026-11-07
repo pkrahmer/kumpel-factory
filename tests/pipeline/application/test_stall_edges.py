@@ -37,10 +37,10 @@ def _merge_conflict(
     [
         pytest.param(
             _merge_conflict,
-            "Stalled (attempt 1 of 2): merging the main branch conflicts and the merge was"
-            " aborted. Retrying on the next tick.",
-            "Stage tests stalled (attempt 1 of 2): merging the main branch conflicts and the"
-            " merge was aborted",
+            f"Stalled (attempt 1 of 2): merging the {WORK_BRANCH} branch conflicts and the merge"
+            " was aborted. Retrying on the next tick.",
+            f"Stage tests stalled (attempt 1 of 2): merging the {WORK_BRANCH} branch conflicts and"
+            " the merge was aborted",
             id="merge-conflict",
         ),
     ],

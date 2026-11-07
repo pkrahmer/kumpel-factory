@@ -267,7 +267,7 @@ def _story_snapshot() -> WorkItemSnapshot:
         ("merged", False, False, None, "no acceptance stage"),
         ("merged", False, True, None, "pull request is not merged"),
         ("merged", False, True, "open", "pull request is not merged"),
-        ("merged", False, True, "merged", "no report on the main branch"),
+        ("merged", False, True, "merged", f"no report on the {WORK_BRANCH} branch"),
     ],
     ids=[
         "another-kind",
