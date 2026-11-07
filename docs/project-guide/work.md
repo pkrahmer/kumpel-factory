@@ -391,8 +391,9 @@ All spellings are constants in `factory.shared.domain.paths`:
 | `COST_RECORDS_SUFFIX` | `.costs.jsonl` |
 | `BRANCH_PREFIX` | `work-item/` |
 | `LABEL_PREFIX` | `stage:` |
-| `REMOTE`, `MAIN_BRANCH` | `origin`, `main` |
+| `REMOTE`, `WORK_BRANCH` | `origin`, `main` |
 
+- `WORK_BRANCH` names the factory's working branch, the one the work items start from and merge into. No code under `src/factory/` and no test writes the name literally: both build `origin/<branch>` and the like from `REMOTE` and `WORK_BRANCH`, and `tests/guards/test_work_branch_search.py` fails on `origin/main`, `heads/main`, `-b main` and `--initial-branch=main`.
 - `FEATURE_ID`, `STORY_ID` and `ACCEPTANCE_ID` in `identifiers` are the unanchored regular expressions of the ids.
 - `PROJECT_AGENTS_DIRECTORY` in `paths` is where a project keeps its own agents: the folder `<project>/factory/agents/`. The constant and `project_agent_file(name)` hold paths relative to the project's root, and the function gives the file `<name>.md` in that folder. `AGENT_SUFFIX` is the `.md`.
 - `parse_work_item_file_name` returns a `WorkItemFileName` and `parse_feature_directory_name` a `FeatureDirectoryName`. Both are frozen, with `id` and `slug`, the slug `None` when absent.

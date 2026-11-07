@@ -1,5 +1,5 @@
 ---
-stage: docs
+stage: smoke-test
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 643
 comments_read: [6713530910, 6713705040, 6713791298]
 handed_over: null
-claim:
-  instance: vm
-  stage: docs
-  started_at: '2026-11-07T22:22:42.967750Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -162,6 +158,12 @@ journal:
   kind: started
   at: '2026-11-07T22:22:42.967750Z'
   stage: docs
+- number: 28
+  speaker: documenter
+  kind: result
+  at: '2026-11-07T22:27:14.307591Z'
+  stage: docs
+  run: 7dc00d3388654a30a498f823c89728a5
 ---
 
 # The tests name the working branch through one constant
@@ -605,3 +607,22 @@ Expect: `main`
     - `tests/hosting/adapters/test_git_cli_check_ignore.py`
     - `tests/shared/adapters/test_tmp_path_reopening.py`
 27. factory: started docs as vm.
+28. documenter: Docs stage, round 1, for the docs criterion (criterion 5). I read the story, the diff outside `factory/`, `docs/` and `README.md`, and the guide. `make documents` ended with `documents ok (58.2 s)`. I did not run `make check`, because I changed only documents.
+
+    Files changed:
+    - `docs/project-guide/work.md`: the `paths` table row now reads `REMOTE`, `WORK_BRANCH`. I added one bullet saying that `WORK_BRANCH` names the factory's working branch. The bullet also says no code under `src/factory/` and no test writes the name literally, and that `tests/guards/test_work_branch_search.py` fails on `origin/main`, `heads/main`, `-b main` and `--initial-branch=main`.
+    - `docs/project-guide/hosting.md` (line 23), `machine.md` (line 400) and `pipeline.md` (lines 624, 640, 641, 773): `MAIN_BRANCH` renamed to `WORK_BRANCH`, the same seven places the reviewer listed. No `MAIN_BRANCH` is left in `README.md` or `docs/`, outside `docs/runs/`, which is the human's.
+
+    Cross-read and found current:
+    - `docs/project-guide/watching.md`, `docs/project-guide/shared.md`, the rest of `machine.md` and `docs/operator-guide/` write `origin/main` as the branch's value. That is still true, because the value is still `main`, so I left it. S0002 will have to revisit those passages when it changes the value.
+    - `README.md`.
+
+    I read `src/factory/shared/domain/paths.py`: `WORK_BRANCH = "main"`.
+
+    `docs/decisions.md` has no change, as the criterion says.
+
+    Findings for the coder: none. Nothing stale and unrelated to this story stood out.
+
+    `check`: check: green
+    `secrets`: secrets: green (4.6 s)
+    `documents`: documents ok (59.4 s)

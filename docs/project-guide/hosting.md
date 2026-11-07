@@ -20,7 +20,7 @@ The factory reaches the hosting service, meaning pull requests and their comment
 - Nothing else may call the hosting service.
 - Build a comment from the service's data with `PullRequestComment.from_body`, so that `by_factory` and `key` always agree with the body.
 - Labels are a projection of the [stage](glossary.md): they are written and never read back. No operation returns them and `PullRequestView` has no label field.
-- `LABEL_PREFIX` (`"stage:"`) in [paths.py](../../src/factory/shared/domain/paths.py) is the prefix of those labels, and `MAIN_BRANCH` there is `"main"`.
+- `LABEL_PREFIX` (`"stage:"`) in [paths.py](../../src/factory/shared/domain/paths.py) is the prefix of those labels, and `WORK_BRANCH` there is `"main"`.
 - `post_comment` returns `"already_posted"` when the key is already on the pull request.
 
 See also: *The marker and the post key* below, and *Asking the human* in [pipeline.md](pipeline.md).
