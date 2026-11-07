@@ -250,3 +250,4 @@ Times are UTC. The plan: `night-plan.md`.
 - 23:06Z: F0057-S0002 PR #644: new test wrote --initial-branch=main, guard caught it. Answered (a): OTHER_BRANCH constant in the test.
 - 23:19Z: F0057-S0002 PR #644 doing round 2: visible texts still say main. Answered (a) plus finding 2; asked that further word-only leftovers become notes.
 - 23:37Z: F0057-S0002 PR #644 asked at docs (decisions only in feature.md). Answered (a): pasted decisions 1-7. Lesson again: decisions a story must write go into the story.
+- 23:46Z: F0057-S0002 PR #644 merged (23 runs, $8.06). Cut-over: archive 227774b18 on main; Makefile and CLAUDE.md to origin/develop and the coder's demo write paths removed (b8e321ee6, on main); develop created at b8e321ee6; my move_vm.sh and approval.sh point at develop; factory-vm moved to origin/develop, active, no stops. Ruleset on main: waits for the human's yes.
