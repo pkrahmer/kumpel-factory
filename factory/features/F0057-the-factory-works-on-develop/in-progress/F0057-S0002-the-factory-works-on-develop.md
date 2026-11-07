@@ -1,17 +1,13 @@
 ---
-stage: review
+stage: doing
 blocked: null
-round: 0
+round: 1
 attempts: 0
 crashes: 0
 pull_request: 644
 comments_read: [6713932106, 6714015757, 6714081152]
 handed_over: null
-claim:
-  instance: vm
-  stage: review
-  started_at: '2026-11-07T22:54:37.685909Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -107,13 +103,19 @@ journal:
   kind: started
   at: '2026-11-07T22:54:37.685909Z'
   stage: review
+- number: 18
+  speaker: reviewer
+  kind: result
+  at: '2026-11-07T22:55:50.091052Z'
+  stage: review
+  run: 1db7e5caa92a4e14b1e3529efe9333de
 ---
 
 # The factory works on develop
 
 ## Description
 
-`main` is to become the protected line of accepted features, so the factory moves its work to `develop`: the archive after a merge, the closes, the acceptance's booking, the stop records, the claims' base and every read of `origin/<working branch>` (F0057, decision 1). With F0057-S0001 merged, this is one value: `WORK_BRANCH` becomes `"develop"`. The agent files and the project template name the branch too, so they follow. A remote without `develop` must be clear at once, so the preflight's existing finding for a missing working branch names it. The human creates `develop` and moves the factory over at this story's merge (feature, *The human's changes*).
+`main` is to become the protected line of accepted features, so the factory moves its work to `develop`: the archive after a merge, the closes, the acceptance's booking, the stop records, the claims' base and every read of `origin/<working branch>` (F0057, decision 1). With F0057-S0001 merged, this is one value: `WORK_BRANCH` becomes `"develop"`. The agent files, the project template and the todo demo's project made from it (`demo/todo-service/project/Makefile` and `CLAUDE.md`) name the branch too, so they follow. A remote without `develop` must be clear at once, so the preflight's existing finding for a missing working branch names it. The human creates `develop` and moves the factory over at this story's merge (feature, *The human's changes*).
 
 ## Interface
 
@@ -341,3 +343,52 @@ Expect: `develop`
     `check`: check: green
     `duplicates`: duplicates: 6 new, 39 known, 4 gone
 17. factory: started review as vm.
+18. reviewer: Review, round 0. I read the work item and `git diff main...HEAD -- . ':!factory'`, then grepped `agents/agents`, `operator/template`, the demo and `src/factory` for the `main` that remains.
+
+    Checked and fine:
+    - Criteria 1–3 each have a test that checks what it is named after: `test_work_branch.py`, `test_preflight_working_branch.py`, and the guard `test_working_branch_in_agent_texts.py` with one row per form plus the "the main choice" side.
+    - The forms are gone from `agents/agents/` and `operator/template/`. The only `main` left there is the ordinary word (coder.md:9 and 65, reviewer.md:59).
+    - `make check` was green after the coder (entry 16).
+    - No new suppression markers, secrets or string-built shell.
+
+    Findings:
+    1. `src/factory/pipeline/application/scheduler.py:135`: the problem is a remote that has `main` but no `develop`, which is the very case the Description says "must be clear at once". On such a remote, `_main_fault` now reports `repository_unavailable: the repository has no main branch yet`. That literal does not follow the constant, so the Interface's line "every other use follows the constant" is false here. No criterion covers this message.
+       - Fix: write it as `f"the repository has no {WORK_BRANCH} branch yet"`.
+       - That needs the human to widen the Interface. `src/` is "otherwise unchanged" today, so the coder should ask with `question`. The human would also add a criterion with a test: a remote with `main` and no `develop` gives a stop naming `develop`.
+       - The tests that pin the old text need the human's leave too: `tests/pipeline/application/test_repository_waiter.py:32` (`NO_MAIN`), `tests/entry/test_health.py:64` and `:73`, and `tests/entry/test_run_waiter.py:40`.
+       - `docs/operator-guide/health.md:187` should follow, in S0004 or in this story's docs.
+    2. `src/factory` names and comments now say `main` where they mean the working branch, which is now `develop`. A reader of the code will be misled.
+       - Names: `_MAIN_REF` and `_NO_MAIN_TO_PREPARE` (`machine/application/preflight.py:79`), `_ORIGIN_MAIN` and `_main_fault` (`pipeline/application/scheduler.py:18`, `:132`), `_MAIN_REF` (`pipeline/application/tick.py:35`), `_require_commit_beyond_main` and its message (`pipeline/application/stops.py:111` to `135`).
+       - Docstrings and comments: `handlers/merged.py:2`, `:22`, `:29`; `handlers/reject.py:38`; `handlers/closed.py:67`; `tick.py:121`, `:195`.
+       - No later F0057 story covers these: S0003 is Kumpel, S0004 and S0005 are documents.
+       - Fix: rename them to the working branch (for example `_WORK_REF`, "on the working branch") with the same widened Interface as finding 1. The coder already noted the preflight names twice (entries 13 and 16); asking about them together with finding 1 costs no extra round.
+
+    description corrected: "The agent files and the project template name the branch too, so they follow." -> "The agent files, the project template and the todo demo's project made from it (`demo/todo-service/project/Makefile` and `CLAUDE.md`) name the branch too, so they follow." This follows the human's answer in entry 14.
+
+    Earlier tests (item 6):
+    - These test files were changed only to follow the new `WORK_BRANCH` or the agent and template texts, under the human's leave in the Interface (2026-11-07; tester's entries 8 and 11):
+      - `tests/agent_files/test_claude_agent_texts.py`
+      - `tests/agent_files/test_claude_agent_texts_docs_route.py`
+      - `tests/agent_files/test_claude_agent_texts_review_groups.py`
+      - `tests/agent_files/test_claude_files.py`
+      - `tests/agents/application/test_project_agents.py`
+      - `tests/entry/test_wiring_run.py`
+      - `tests/guards/test_human_clone.py`
+      - `tests/hosting/adapters/test_git_cli_branches.py`
+      - `tests/hosting/adapters/test_git_cli_reading.py`
+      - `tests/hosting/domain/test_hosting.py`
+      - `tests/machine/application/test_container_environment.py`
+      - `tests/pipeline/application/test_claims_refusals.py`
+      - `tests/pipeline/application/test_preflight_stops_commit.py`
+      - `tests/pipeline/application/test_stop_publisher.py`
+      - `tests/pipeline/application/test_tick_stop_records.py`
+      - `tests/shared/domain/test_paths.py`
+      - `tests/shared/domain/test_work_branch.py`
+      - `tests/work/application/test_acceptance_service.py`
+      - `tests/work/application/test_acceptance_snapshots.py`
+      - `tests/work/domain/test_stop_table.py`
+    - These were changed under the human's answer in journal entry 9 (`SCRIPTS_BRANCH = "main"`):
+      - `tests/support/operator_skill_support.py`
+      - `tests/operator_scripts/test_operator_merge_reset.py`
+      - `tests/operator_scripts/test_operator_skill_scripts.py`
+      - `tests/operator_scripts/test_operator_skill_signature.py`
