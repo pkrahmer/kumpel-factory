@@ -1,11 +1,11 @@
 ---
 stage: docs
-blocked: question
+blocked: null
 round: 2
 attempts: 0
 crashes: 0
 pull_request: 644
-comments_read: [6713932106, 6714015757, 6714081152, 6714164393, 6714248996, 6714373146]
+comments_read: [6713932106, 6714015757, 6714081152, 6714164393, 6714248996, 6714373146, 6714554190]
 handed_over: null
 claim: null
 journal:
@@ -282,6 +282,11 @@ journal:
   stage: docs
   run: 77b8c4e13278447498e247bb9abf18f7
   blocked: question
+- number: 50
+  speaker: human
+  kind: comment
+  at: '2026-11-07T23:37:57.817227Z'
+  stage: docs
 ---
 
 # The factory works on develop
@@ -1117,3 +1122,12 @@ Expect: `develop`
     - `health.md` still says `main` in its prose about the probe: line 121 `origin/main` for the agents, lines 126 and 161 to 171, 177 and 224. Line 167 still says "A red `main` is probed once".
     - The same prose names the stop kind `main_branch_failing` and the stamp's fields. Those keep their names (coder, entry 45).
     - The notes the reviewer listed in the source (`stage_file_on_main`, `_main_report_paths`, `_main_commit`, the `NO_MAIN` constant in a test) are for a later story.
+50. 2026-11-07 human: (a). F0057's decisions 1 to 7, as the human decided them; write one docs/decisions.md entry from them:
+
+    1. **`develop` is the working branch, `main` the line of accepted features** (the human, 2026-11-07). Rejected: a protected `stable` with `main` as the working branch, which needed no code; a setting for the branch's name; every factory write as its own pull request; a bypass for a separate identity.
+    2. **The constant is named `WORK_BRANCH`** (in `factory.shared.domain.paths`, today `MAIN_BRANCH`), since `main` keeps a meaning of its own after this feature.
+    3. **Kumpel promotes, behind a switch `promote`, off by default** (the human, 2026-11-07). With it off, Kumpel opens the promotion pull request and the human merges it.
+    4. **A promotion carries `develop`'s tip** (the human, 2026-11-07). Rejected: the feature's archive commit through a short branch, which keeps a next feature already started out of `main`. A promotion therefore runs best before the next feature starts.
+    5. **A promotion is a merge commit, never a squash or a rebase.** `make mutants` finds a feature's code by its story commits (`work item <id>: ...`), and a squash would make the next promotion conflict. `main` is never fixed directly: a fix goes to `develop` and reaches `main` with the next promotion.
+    6. **The stop reason `main_branch_failing` keeps its name**, for the records contract and the history of `factory/stops.jsonl`.
+    7. **Every commit Kumpel makes names Kumpel** (`Kumpel <kumpel@noreply.invalid>`) as its author, not only the start (the human, 2026-11-07).
