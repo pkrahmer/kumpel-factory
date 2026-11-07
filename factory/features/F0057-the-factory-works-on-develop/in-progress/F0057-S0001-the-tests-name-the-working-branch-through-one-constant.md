@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 643
 comments_read: [6713530910]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-07T22:01:18.200585Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -53,6 +57,11 @@ journal:
   at: '2026-11-07T22:01:12.915326Z'
   stage: tests
   run: e99d0a810e6b41ecbd065847e662f4b2
+- number: 9
+  speaker: factory
+  kind: started
+  at: '2026-11-07T22:01:18.200585Z'
+  stage: doing
 ---
 
 # The tests name the working branch through one constant
@@ -149,3 +158,4 @@ Expect: `main`
    Modules the test runner could not import: `factory.shared.domain.paths.WORK_BRANCH` (the name does not exist yet).
 
    `lint`: lint: green (0.2 s)
+9. factory: started doing as vm.
