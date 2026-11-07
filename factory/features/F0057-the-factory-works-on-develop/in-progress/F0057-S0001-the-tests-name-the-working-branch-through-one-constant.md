@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 643
 comments_read: [6713530910]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-07T22:09:52.679855Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -97,6 +101,11 @@ journal:
   at: '2026-11-07T22:09:47.701402Z'
   stage: tests
   run: 6540cd4040ff4fbe83327a2345400331
+- number: 17
+  speaker: factory
+  kind: started
+  at: '2026-11-07T22:09:52.679855Z'
+  stage: doing
 ---
 
 # The tests name the working branch through one constant
@@ -427,3 +436,4 @@ Expect: `main`
     - `make lint` is green.
 
     `lint`: lint: green (0.2 s)
+17. factory: started doing as vm.
