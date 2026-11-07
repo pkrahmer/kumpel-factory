@@ -1,17 +1,13 @@
 ---
 stage: review
-blocked: null
+blocked: question
 round: 1
 attempts: 0
 crashes: 0
 pull_request: 643
 comments_read: [6713530910, 6713705040]
 handed_over: null
-claim:
-  instance: vm
-  stage: review
-  started_at: '2026-11-07T22:18:37.733429Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -134,6 +130,13 @@ journal:
   kind: started
   at: '2026-11-07T22:18:37.733429Z'
   stage: review
+- number: 23
+  speaker: reviewer
+  kind: question
+  at: '2026-11-07T22:19:59.292074Z'
+  stage: review
+  run: c945bbe1e0934ad78c44854139498bd2
+  blocked: question
 ---
 
 # The tests name the working branch through one constant
@@ -506,3 +509,53 @@ Expect: `main`
     `check`: check: green
     `duplicates`: duplicates: 6 new, 39 known, 4 gone
 22. factory: started review as vm.
+23. reviewer: Round 1 review. The code and tests have no findings. One problem is still open, and no stage can fix it: finding 2 from entry 12, against criterion 5 (the docs criterion). So I am asking instead of sending the work item back to `doing`.
+
+    Question: criterion 5 still sends the documenter to `docs/project-guide/shared.md`, "where `paths` is described". That file does not describe `paths`. The constants of `paths` are described in `docs/project-guide/work.md:7` and in its table at `work.md:394` (`REMOTE`, `MAIN_BRANCH`). The guide also still names the removed `MAIN_BRANCH` in four more files: `docs/project-guide/hosting.md:23`, `docs/project-guide/machine.md:400`, and `docs/project-guide/pipeline.md:624`, `:640`, `:641` and `:773`. The coder rewrote the criterion in entry 14, but the factory dropped the edit because the work item is outside the coder's write paths. My own leave covers only the Description and new criteria, not the rewording of a criterion. How should criterion 5 read?
+    - (a) This is my choice. "docs: `docs/project-guide/work.md` (the `paths` table) names `WORK_BRANCH` in place of `MAIN_BRANCH`, and the reader learns there that `WORK_BRANCH` names the factory's working branch and that no code or test writes the name literally; `hosting.md`, `machine.md` and `pipeline.md` name `WORK_BRANCH` wherever they named `MAIN_BRANCH`. `docs/decisions.md`: none in this story." Answer "(a)", and the next review run writes it into criterion 5 and passes with `docs`. You can also commit it on the branch yourself.
+    - (b) Keep criterion 5 as it is. The risk: a documenter who follows it literally adds a `paths` section to `shared.md`, and four guide files keep naming a constant that no longer exists.
+    - (c) Leave the stale names for S0002, which changes the same lines anyway. The guide would be wrong in the meantime.
+
+    Checked in this round, no findings:
+    - Criterion 1: `tests/shared/domain/test_work_branch.py` checks in one test that `WORK_BRANCH == "main"` and that `MAIN_BRANCH` no longer exists.
+    - Criterion 2: `tests/guards/test_work_branch_search.py` has two tests.
+      - One checks that the repository passes.
+      - The other is one parametrized test with a clean row and one failing row each for `origin/main`, `heads/main`, `-b main` and `--initial-branch=main`.
+      - The search skips only its own file and `__pycache__`.
+      - `grep` finds `MAIN_BRANCH` nowhere under `src/` or `tests/` except the criterion 1 test.
+    - Criterion 3: no `def test_` line is removed or renamed in the diff. The coder's `make check` after the merge of `origin/main` was green (entry 18).
+    - The tester fixed round 0's finding 1 (the stray "an" in the `tests/entry/test_watcher_main_ref.py` docstring) in entry 16.
+    - `src/`, read in full:
+      - every `MAIN_BRANCH` is now `WORK_BRANCH`;
+      - `_MAIN_REF`, `_ORIGIN_MAIN`, `PIPELINE_REF`, `FORM_REF` and `_MAIN` in `opening.py` are built from the constant;
+      - the messages in `opening.py` and `preflight.py` are built from those refs, with their text unchanged;
+      - docstrings and comments now say `origin/<working branch>` or "the working branch".
+    - Architecture: no new imports between layers.
+    - Security: no markers, no shell strings.
+    - Out of scope, not findings:
+      - `hand_over.py` and `stage.py` still write the remote as `"origin/"`, which was already so on `main`;
+      - local names still say "main" (`_MAIN_REF`, `_ORIGIN_MAIN`, `_MAIN`, `_NO_MAIN_TO_PREPARE`), which the Interface keeps.
+
+    Earlier tests: all 163 have status M; none was renamed or deleted. Each was changed under the human's leave in the Interface (2026-11-07).
+    - Changes that go beyond the replacement, all named in entry 8:
+      - `tests/agent_files/test_claude_files.py`: two `TEMPLATE_RULES_LINES` f-strings are split at a new place; the joined text is unchanged.
+      - `tests/entry/test_watcher_main_ref.py`: `UNRESOLVED` is split over two f-string lines, and the docstring is fixed (entry 16).
+      - `tests/hosting/adapters/test_git_cli_check_ignore.py`: its local `WORK_BRANCH` is renamed `ITEM_BRANCH`.
+      - `tests/shared/adapters/test_tmp_path_reopening.py`: `INNER_TESTS` holds a `<branch>` placeholder that `.replace` fills in.
+    - In every other file, a literal branch name became `WORK_BRANCH`/`REMOTE`, or `MAIN_BRANCH` became `WORK_BRANCH`. By folder:
+      - `tests/agent_files/`: test_template_makefile.py
+      - `tests/agents/`: adapters/test_claude_runtime_environment.py, application/test_agent_run_probe.py, application/test_agent_run_probe_project_agent.py, application/test_project_agents.py
+      - `tests/entry/`: test_board_reader_acceptance.py, test_git_hooks.py, test_run.py, test_run_fetch_before_tick.py, test_run_image_sizes.py, test_run_one_fetch.py, test_run_project_image_rebuild.py, test_run_waiter.py, test_tick_agent_definition.py, test_tick_project_agent.py, test_tick_shipped_agent_file.py, test_watch.py, test_watch_acceptance.py, test_watch_main.py, test_wiring_acceptance.py, test_wiring_container_extra.py, test_wiring_environment.py, test_wiring_extras.py, test_wiring_handlers.py, test_wiring_human_handlers.py, test_wiring_image_path.py, test_wiring_preflight.py, test_wiring_project_agents.py, test_wiring_project_image.py, test_wiring_run.py, test_wiring_stage_image_sizes.py
+      - `tests/guards/`: test_git_support.py, test_human_clone.py, test_proof_support.py, test_suite_fixtures.py
+      - `tests/hosting/adapters/`: test_git_cli_arguments.py, test_git_cli_branches.py, test_git_cli_history.py, test_git_cli_reading.py, test_git_cli_restoring.py, test_git_cli_seal.py, test_git_cli_work_tree.py, test_git_cli_writing.py, test_pygithub_hosting.py
+      - `tests/hosting/application/`: test_acceptance_ticks_repeated.py, test_agent_run_probe_environment.py, test_checkout_preparer.py, test_costs.py, test_hosting_failure_releases_claim.py, test_opening.py, test_preflight_stale_main_stop.py, test_watcher.py
+      - `tests/hosting/domain/`: test_git.py, test_hosting.py
+      - `tests/machine/application/`: test_container_environment.py, test_preflight_login_line.py, test_preflight_run.py
+      - `tests/operator_scripts/`: test_operator_merge_reset.py, test_operator_skill_scripts.py, test_operator_skill_signature.py
+      - `tests/pipeline/application/handlers/`: test_closed.py, test_hand_over.py, test_handler_subjects.py, test_lookups.py, test_merged.py, test_reject.py, test_run.py, test_run_gate.py
+      - `tests/pipeline/application/`: test_acceptance_due_handler.py, test_acceptance_hand_over.py, test_acceptance_merged.py, test_acceptance_no_state_refusals.py, test_after_agent.py, test_claims.py, test_claims_refusals.py, test_container_environment_take.py, test_container_sync_origin.py, test_docs_route.py, test_human_line_posts.py, test_known_results.py, test_no_state_refusals.py, test_opening_journal_edges.py, test_pipeline_loading.py, test_pipeline_loading_agents.py, test_pipeline_loading_project_agents.py, test_pipeline_loading_rules.py, test_pipeline_loading_stage_moves.py, test_pipeline_loading_strict_values.py, test_pipeline_loading_yaml_fault.py, test_preflight_stops_commit.py, test_probe_nested_repository.py, test_recovery_cap.py, test_recovery_crash.py, test_repository_waiter.py, test_scheduler.py, test_stage_changes.py, test_stage_environment_of.py, test_stage_finish.py, test_stage_known_results.py, test_stage_launch.py, test_stage_nested_repository.py, test_stage_run.py, test_stage_run_acceptance.py, test_stale_branches.py, test_stall_edges.py, test_stall_labels.py, test_stall_reasons_recorded.py, test_stop_posting.py, test_stop_publisher.py, test_take.py, test_take_edges.py, test_task.py, test_task_acceptance.py, test_tick.py, test_tick_disk.py, test_tick_preflight.py, test_tick_restore_ignored.py, test_tick_stale_branch.py, test_tick_stop_records.py, test_watcher_acceptance.py
+      - `tests/shared/`: application/test_acceptance_reviewer_role.py, domain/test_approval_description.py, domain/test_document_references.py, domain/test_fault_paths_7_to_13.py, domain/test_identifiers.py, domain/test_paths.py
+      - `tests/support/`: acceptance_walk.py, container_extra_support.py, container_support.py, cost_image_support.py, crash_support.py, git_support.py, human_clone.py, operator_skill_support.py, preflight_support.py, proof_support.py, stage_run_support.py, stall_support.py, undo_support.py, watch_support.py, work_item_support.py, write_path_support.py
+      - `tests/watching/application/`: test_acceptance_ticks_merged.py, test_bill_service.py, test_board_in_progress.py
+      - `tests/work/application/`: test_acceptance_closed.py, test_acceptance_facts_human.py, test_acceptance_merged_before_approval.py, test_acceptance_merged_on_two_routes.py, test_acceptance_reading.py, test_acceptance_refusals.py, test_acceptance_repeated.py, test_acceptance_service.py, test_acceptance_snapshots.py, test_board_reader.py, test_watcher_move_rule.py, test_work_items.py, test_work_items_duplicate.py
+      - `tests/work/domain/`: test_stop_table.py
