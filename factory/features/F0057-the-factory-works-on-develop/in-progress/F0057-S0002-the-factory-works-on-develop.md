@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 644
 comments_read: [6713932106, 6714015757, 6714081152, 6714164393, 6714248996]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-07T23:08:18.958394Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -176,6 +180,11 @@ journal:
   at: '2026-11-07T23:08:14.027158Z'
   stage: doing
   run: 324a3ecc33484c8a937b197e3790b9b2
+- number: 31
+  speaker: factory
+  kind: started
+  at: '2026-11-07T23:08:18.958394Z'
+  stage: tests
 ---
 
 # The factory works on develop
@@ -602,3 +611,4 @@ Expect: `develop`
     - the `health.md:187` item in the docs criterion.
 
     The tester may write the work item, so it can carry that rewrite in the same round.
+31. factory: started tests as vm.
