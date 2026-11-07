@@ -1,17 +1,13 @@
 ---
 stage: doing
-blocked: null
+blocked: question
 round: 1
 attempts: 0
 crashes: 0
 pull_request: 643
 comments_read: [6713530910]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-07T22:09:52.679855Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -106,6 +102,13 @@ journal:
   kind: started
   at: '2026-11-07T22:09:52.679855Z'
   stage: doing
+- number: 18
+  speaker: coder
+  kind: question
+  at: '2026-11-07T22:12:12.483831Z'
+  stage: doing
+  run: 4946c6d986a943848914638d44902e62
+  blocked: question
 ---
 
 # The tests name the working branch through one constant
@@ -437,3 +440,23 @@ Expect: `main`
 
     `lint`: lint: green (0.2 s)
 17. factory: started doing as vm.
+18. coder: Round 1, after the tester's fix. Finding 1 from entry 12 is done: the tester fixed the docstring in `tests/entry/test_watcher_main_ref.py` (entry 16). `make check` is green on this branch (`check: green`, coverage 99.22 %). I did not change any code under `src/factory/` in this round. The code is as described in entry 10.
+
+    Finding 2 from entry 12 is still open, and I cannot close it. The finding asks for criterion 5 (docs) to be rewritten. My rewrite in entry 14 was dropped, because the work item is outside the coder's write paths (R14). Criterion 5 still sends the documenter to `docs/project-guide/shared.md`, "where `paths` is described". That file does not describe `paths`. The guide still names the removed `MAIN_BRANCH` in these places:
+    - `docs/project-guide/hosting.md:23`
+    - `docs/project-guide/work.md:394` (the `paths` constants table)
+    - `docs/project-guide/machine.md:400`
+    - `docs/project-guide/pipeline.md:624`, `:640`, `:641` and `:773`
+
+    Question: how should criterion 5 read?
+    - (a) I would choose this one. Replace it with: "docs: `docs/project-guide/work.md` (the `paths` table) names `WORK_BRANCH` in place of `MAIN_BRANCH`, and the reader learns there that `WORK_BRANCH` names the factory's working branch and that no code or test writes the name literally. `hosting.md`, `machine.md` and `pipeline.md` name `WORK_BRANCH` wherever they named `MAIN_BRANCH`. `docs/decisions.md`: none in this story." Please commit it on the branch, or tell me which stage may write it.
+    - (b) Keep criterion 5 as it is, and let the documenter also fix the stale `MAIN_BRANCH` names it finds. The risk is that the documenter follows the text literally and adds a `paths` section to `shared.md` while the stale names stay.
+    - (c) Leave the stale names for S0002, which changes the same lines again.
+
+    Once the criterion is settled, there is nothing left for the coder. The next decision would be `review`.
+
+    Noticed but not touched (as in entry 10):
+    - `hand_over.py` and `stage.py` build `f"origin/{WORK_BRANCH}"` with the remote's name written out, not from `REMOTE`.
+    - The local names `_MAIN_REF`, `_ORIGIN_MAIN`, `_MAIN` and `_NO_MAIN_TO_PREPARE` still say "main".
+
+    `check`: check: green
