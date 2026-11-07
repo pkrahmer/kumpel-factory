@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 643
 comments_read: [6713530910]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-07T21:56:59.412728Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -42,6 +46,11 @@ journal:
   at: '2026-11-07T21:56:54.843162Z'
   stage: intake
   run: e615b12c2bf443eb9e6613fd14b8eb20
+- number: 7
+  speaker: factory
+  kind: started
+  at: '2026-11-07T21:56:59.412728Z'
+  stage: tests
 ---
 
 # The tests name the working branch through one constant
@@ -105,3 +114,4 @@ Expect: `main`
    - Scope: matches F0057 S0001 and decision 9, with the value unchanged and no behaviour change. The leave to change earlier tests is stated in the Interface (human, 2026-11-07).
    Route: `tests`, because the Interface changes code under `src/factory/` and tests.
    Story edit: criterion 2 reworded exactly as the human answered in journal entry 4.
+7. factory: started tests as vm.
