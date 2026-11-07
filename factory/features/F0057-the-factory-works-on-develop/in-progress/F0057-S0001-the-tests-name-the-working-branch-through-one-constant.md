@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 643
 comments_read: [6713530910, 6713705040]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: review
+  started_at: '2026-11-07T22:18:37.733429Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -125,6 +129,11 @@ journal:
   at: '2026-11-07T22:18:32.309072Z'
   stage: doing
   run: 778771c663a240ed983c79bb7aed3112
+- number: 22
+  speaker: factory
+  kind: started
+  at: '2026-11-07T22:18:37.733429Z'
+  stage: review
 ---
 
 # The tests name the working branch through one constant
@@ -496,3 +505,4 @@ Expect: `main`
 
     `check`: check: green
     `duplicates`: duplicates: 6 new, 39 known, 4 gone
+22. factory: started review as vm.
