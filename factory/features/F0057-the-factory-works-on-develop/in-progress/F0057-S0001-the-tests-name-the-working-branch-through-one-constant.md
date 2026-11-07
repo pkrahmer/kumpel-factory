@@ -1,5 +1,5 @@
 ---
-stage: review
+stage: docs
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 643
 comments_read: [6713530910, 6713705040, 6713791298]
 handed_over: null
-claim:
-  instance: vm
-  stage: review
-  started_at: '2026-11-07T22:21:50.831777Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -151,6 +147,12 @@ journal:
   kind: started
   at: '2026-11-07T22:21:50.831777Z'
   stage: review
+- number: 26
+  speaker: reviewer
+  kind: result
+  at: '2026-11-07T22:22:37.811631Z'
+  stage: review
+  run: a7c7950216f848d39af3b7bed63c2602
 ---
 
 # The tests name the working branch through one constant
@@ -173,7 +175,7 @@ The factory's working branch is named by the constant `MAIN_BRANCH` in `factory.
 2. The guard of the Interface passes on the repository, passes on a clean file inside its scope that holds none of the four strings, and fails on a file the test writes that holds `origin/main`, `heads/main`, `-b main` or `--initial-branch=main`, one row for each string (rows of one test). This test is also the only test of the Interface's docstring and comment clause.
 3. Every earlier test passes unchanged in what it checks; the entry names the modules changed under the leave.
 4. `make check` stays green.
-5. docs: `docs/project-guide/shared.md`, where `paths` is described: the reader learns that `WORK_BRANCH` names the factory's working branch and that no code or test writes the name literally. `docs/decisions.md`: none in this story.
+5. docs: `docs/project-guide/work.md` (the `paths` table) names `WORK_BRANCH` in place of `MAIN_BRANCH`, and the reader learns there that `WORK_BRANCH` names the factory's working branch and that no code or test writes the name literally. `hosting.md`, `machine.md` and `pipeline.md` name `WORK_BRANCH` wherever they named `MAIN_BRANCH`. `docs/decisions.md`: none in this story.
 
 ## Smoke test
 
@@ -575,3 +577,21 @@ Expect: `main`
       - `tests/work/domain/`: test_stop_table.py
 24. 2026-11-07 human: (a). Write it into criterion 5 as you proposed, the same text I gave the coder above.
 25. factory: started review as vm.
+26. reviewer: Round 1 review, after the human's answer in entry 24. No findings.
+
+    Criterion 5 written as the human asked in entry 24 (the text the human gave in entry 19). It said: "docs: `docs/project-guide/shared.md`, where `paths` is described: the reader learns that `WORK_BRANCH` names the factory's working branch and that no code or test writes the name literally. `docs/decisions.md`: none in this story." It now says: "docs: `docs/project-guide/work.md` (the `paths` table) names `WORK_BRANCH` in place of `MAIN_BRANCH`, and the reader learns there that `WORK_BRANCH` names the factory's working branch and that no code or test writes the name literally. `hosting.md`, `machine.md` and `pipeline.md` name `WORK_BRANCH` wherever they named `MAIN_BRANCH`. `docs/decisions.md`: none in this story." I changed nothing else in the work item. This closes finding 2 from entry 12. Finding 1 was closed by the tester in entry 16.
+
+    Checked in this run:
+    - Since the review in entry 23, the only change outside `factory/` is `docs/runs/2026-11-05-f0052/log.md`. It came in with the merge of `origin/main` (aaf537e26). It is the human's file and not under review.
+    - `MAIN_BRANCH` is now named under `src/` and `tests/` only in the criterion 1 test (`tests/shared/domain/test_work_branch.py:9`).
+    - No `.py` file under `src/` or `tests/` holds `origin/main`, `heads/main`, `-b main` or `--initial-branch=main`, apart from the guard itself.
+    - The rest of the review in entry 23 still holds: criteria 1 to 3, `src/`, architecture and security, with no findings. The coder's `make check` was green (entry 21).
+    - The Description still matches what was built. I did not run `make check`, as the stage says.
+
+    For the documenter, the stale `MAIN_BRANCH` names in the guide: `docs/project-guide/hosting.md:23`, `work.md:394`, `machine.md:400`, `pipeline.md:624`, `:640`, `:641` and `:773`.
+
+    Earlier tests: all 163 have status M; none was renamed or deleted. Each was changed under the human's leave in the Interface (2026-11-07). Entry 23 lists them one by one. Four changes go beyond the plain replacement, all named in entry 8 and all within the leave:
+    - `tests/agent_files/test_claude_files.py`
+    - `tests/entry/test_watcher_main_ref.py`, including the docstring fix of entry 16
+    - `tests/hosting/adapters/test_git_cli_check_ignore.py`
+    - `tests/shared/adapters/test_tmp_path_reopening.py`
