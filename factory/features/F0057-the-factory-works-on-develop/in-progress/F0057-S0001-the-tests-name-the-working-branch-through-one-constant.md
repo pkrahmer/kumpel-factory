@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 643
 comments_read: [6713530910]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-07T22:09:26.561624Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -86,6 +90,11 @@ journal:
   at: '2026-11-07T22:09:20.796744Z'
   stage: doing
   run: d01515587b7d4c94b6c1bfd4e0b77941
+- number: 15
+  speaker: factory
+  kind: started
+  at: '2026-11-07T22:09:26.561624Z'
+  stage: tests
 ---
 
 # The tests name the working branch through one constant
@@ -406,3 +415,4 @@ Expect: `main`
     - Some local names still say "main": `_MAIN_REF`, `_ORIGIN_MAIN`, `_MAIN` and `_NO_MAIN_TO_PREPARE`.
 
     The factory left out changes outside the write paths: factory/features/F0057-the-factory-works-on-develop/in-progress/F0057-S0001-the-tests-name-the-working-branch-through-one-constant.md.
+15. factory: started tests as vm.
