@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 643
 comments_read: [6713530910]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-07T22:08:51.194414Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -75,6 +79,11 @@ journal:
   at: '2026-11-07T22:08:46.226771Z'
   stage: review
   run: bf4b923c43204665b828a5657a96e13c
+- number: 13
+  speaker: factory
+  kind: started
+  at: '2026-11-07T22:08:51.194414Z'
+  stage: doing
 ---
 
 # The tests name the working branch through one constant
@@ -373,3 +382,4 @@ Expect: `main`
     - `tests/work/application/test_work_items.py`
     - `tests/work/application/test_work_items_duplicate.py`
     - `tests/work/domain/test_stop_table.py`
+13. factory: started doing as vm.
