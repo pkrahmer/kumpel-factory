@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 678
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: review
+  started_at: '2026-11-08T20:06:52.410837Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -113,6 +117,11 @@ journal:
   at: '2026-11-08T20:06:47.229654Z'
   stage: doing
   run: 5bc162de88dd4c1c9c5b1a74a4aebc7d
+- number: 20
+  speaker: factory
+  kind: started
+  at: '2026-11-08T20:06:52.410837Z'
+  stage: review
 ---
 
 # The rules every role shares stand in the system prompt
@@ -373,3 +382,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     Noticed, not touched: `docs/operator-guide/agent-runtime.md` and `docs/project-guide/agents.md` still say that every agent file holds `## Rules`. Criterion 9 leaves those changes to the documenter.
 
     `duplicates`: duplicates: 7 new, 39 known, 4 gone
+20. factory: started review as vm.
