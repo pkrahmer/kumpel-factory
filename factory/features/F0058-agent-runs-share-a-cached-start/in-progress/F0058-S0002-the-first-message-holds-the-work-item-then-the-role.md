@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 660
 comments_read: [6720878077, 6720941885, 6720981420, 6721183670, 6721345876]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T12:14:05.964119Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -186,6 +190,11 @@ journal:
   speaker: human
   kind: comment
   at: '2026-11-08T12:14:03.242743Z'
+  stage: doing
+- number: 33
+  speaker: factory
+  kind: started
+  at: '2026-11-08T12:14:05.964119Z'
   stage: doing
 ---
 
@@ -636,3 +645,4 @@ Expect: the docstring names the order: the work item's body, the role's instruct
 
     **Noticed, not touched:** the common text exists twice, in `SYSTEM_PROMPT` and in `agents/system-prompt.md`. The new criterion 12 test now catches any drift between the two.
 32. 2026-11-08 human: (b): this answer adds to criterion 14 (docs): the operator guide's "The agent files" (`docs/operator-guide/agent-runtime.md`) names `system-prompt.md` among what the agent home ships, and says that a missing one makes the run fall back to the built-in common system prompt.
+33. factory: started doing as vm.
