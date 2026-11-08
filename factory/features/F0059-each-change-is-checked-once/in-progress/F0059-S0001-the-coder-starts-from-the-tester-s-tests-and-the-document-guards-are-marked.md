@@ -1,17 +1,13 @@
 ---
-stage: review
+stage: doing
 blocked: null
-round: 0
+round: 1
 attempts: 0
 crashes: 0
 pull_request: 672
 comments_read: [6723592271, 6723685612]
 handed_over: null
-claim:
-  instance: vm
-  stage: review
-  started_at: '2026-11-08T16:04:09.348911Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -90,6 +86,12 @@ journal:
   kind: started
   at: '2026-11-08T16:04:09.348911Z'
   stage: review
+- number: 15
+  speaker: reviewer
+  kind: result
+  at: '2026-11-08T16:05:25.021639Z'
+  stage: review
+  run: bf3c316599b649109e471e4a1722b3d1
 ---
 
 # The coder starts from the tester's tests, and the guards that read the documents are marked
@@ -230,3 +232,30 @@ Expect: a line `<n> tests collected`, `<n>` greater than 0.
     `check`: check: green
     `duplicates`: duplicates: 7 new, 39 known, 4 gone
 14. factory: started review as vm.
+15. reviewer: Findings:
+
+    1. `tests/guards/test_mount_program_search.py:14` (criterion 3, the Interface's "every test module that reads a file under the documenter's write paths"): `SOURCE_ROOT` is `src/`, and `rglob("*")` reads the text of every file under it. That includes `src/factory/README.md` and the area READMEs (`src/factory/<area>/README.md`), which are all in `roles.documenter.write_paths`. The module has no marker, and the tester's search in entries 8 and 11 missed it, although it marked `test_work_branch_search.py` for the same reason. Fix: the tester adds `pytestmark = pytest.mark.documents` to the module. It sits under `tests/guards/`, so the Interface's leave covers the change. Then the tester names the module in the final list.
+    2. `tests/shared/domain/test_document_settings.py:178` (`test_todays_install_guide_gives_no_settings_finding`, same criterion and Interface rule): it reads `ROOT / OPERATOR_INSTALL`, which is `docs/operator-guide/install.md` on the real checkout. The module has no marker. Fix: the module needs `pytestmark = pytest.mark.documents`. It sits outside `tests/guards/`, so the leave does not cover it. As in entry 8, this needs the human's word first (mark the whole module, or move the one test). Then the tester makes the change and names the module in the final list.
+
+    My search, beside the tester's:
+    - a grep over `tests/**/test_*.py` without the marker for `rglob`, `glob`, `iterdir`, `walk` and `ls-files` on repository paths, and for the documenter path names;
+    - a read of each hit that opens real files (`SRC`, `SKILL`, `ROOT`, `operator_support.ROOT`).
+
+    Results:
+    - `operator/skill/kumpel` (`SKILL`) does not hold `operator/skill/README.md`.
+    - `test_working_branch_in_agent_texts.py` reads only `agents/agents` and `operator/template`.
+    - `test_left_branch_removed.py` reads only `*.py` and `*.json`.
+    - `test_tests_layout.py` and `test_old_layer_packages_removed.py` read only directory names.
+    - I found no other gap.
+
+    Groups 2 to 5: no findings.
+    - The coder's text in `agents/agents/coder.md` (role bullet and step 1) matches the Interface. It is project-neutral, and `make check` stays at the end.
+    - The criterion 1, 2 and 4 tests check what they are named after.
+    - The factory's `make check` after the coder was green (entry 13).
+    - The diff adds no marker that silences a check, and no secret.
+    - The Description matches what was built.
+
+    Earlier tests changed (any status but `A`):
+    - `tests/conftest.py`: the Interface's leave (marker registration only).
+    - `tests/guards/test_agent_folder_names.py`, `test_area_guides.py`, `test_folder_readmes.py`, `test_license_headers.py`, `test_operator_guide_files.py`, `test_operator_guide_pointers_search.py`, `test_project_guide_files.py`, `test_root_operator_folders_removed.py`, `test_test_folder_readmes.py`, `test_work_branch_search.py`: the Interface's leave (marker line and `pytest` import only).
+    - `tests/operator_scripts/test_operator_site_check.py`: the human's answer, entry 9 (marker line only).
