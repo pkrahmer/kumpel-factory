@@ -4,21 +4,21 @@ import re
 
 import pytest
 
+from factory.shared.domain.sections import section_text
 from support.operator_skill_support import SKILL
 
 APPROVING = SKILL / "references" / "approving.md"
-SECTION = "## After a feature's acceptance"
+SECTION = "After a feature's acceptance"
 STEP = re.compile(r"(\d+)\. ")
 
 
 def section_steps() -> dict[str, str]:
     """The numbered steps under the section, each with its continuation lines, by number."""
-    lines = APPROVING.read_text(encoding="utf-8").splitlines()
-    rest = lines[lines.index(SECTION) + 1 :]
-    end = next((i for i, line in enumerate(rest) if line.startswith("## ")), len(rest))
+    text = section_text(APPROVING.read_text(encoding="utf-8"), SECTION)
+    assert text is not None, f"{APPROVING} has no section {SECTION!r}"
     steps: dict[str, list[str]] = {}
     current: list[str] | None = None
-    for line in rest[:end]:
+    for line in text.splitlines():
         match = STEP.match(line)
         if match:
             current = steps.setdefault(match.group(1), [])

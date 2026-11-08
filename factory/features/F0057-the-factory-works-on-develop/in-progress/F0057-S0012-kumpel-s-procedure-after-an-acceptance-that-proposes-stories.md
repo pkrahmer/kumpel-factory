@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 654
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-08T07:14:10.556131Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -78,6 +74,12 @@ journal:
   kind: started
   at: '2026-11-08T07:14:10.556131Z'
   stage: tests
+- number: 13
+  speaker: tester
+  kind: result
+  at: '2026-11-08T07:14:36.580773Z'
+  stage: tests
+  run: 85e795127956455a905a7ccb95af2610
 ---
 
 # Kumpel's procedure after an acceptance that proposes stories
@@ -176,3 +178,29 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
 
     Noticed, not touched: `tests/operator_scripts/test_operator_archive_outcome.py:121-124` still finds the section with its own inline lines. Changing that test would need the human's leave or the standing leave to move a shared helper, and this story says no earlier test changes.
 12. factory: started tests as vm.
+13. tester: Mode: the test change the coder's entry 11 names, which carries out the reviewer's finding in entry 9 item 1. It is a change to this story's own test only. No earlier test file changed.
+
+    Changed `tests/operator_scripts/test_operator_approving_after_acceptance.py`, `section_steps`:
+    - It no longer finds the section itself. The `lines.index(...)` and `startswith("## ")` lines are gone.
+    - It now gets the section from `factory.shared.domain.sections.section_text(APPROVING.read_text(encoding="utf-8"), "After a feature's acceptance")`.
+    - It asserts that the result is not `None`, with a message naming the file and the heading, which handles `str | None` for mypy.
+    - It keeps only the code that splits the text into numbered steps with their continuation lines.
+
+    The test's name and its three rows are unchanged.
+
+    One departure from entry 11: the coder asked for the `SECTION` constant to be removed. I kept it, now holding only the heading name (`After a feature's acceptance`, without `## `), because it is used twice: in the call and in the assertion message. It no longer feeds a heading search of the test's own.
+
+    Mapping, unchanged:
+    - criterion 1: tests/operator_scripts/test_operator_approving_after_acceptance.py::test_steps_after_an_acceptance_name_the_waits_of_the_scripts
+    - criterion 2 (`make check` green): no test, the factory's check.
+    - criterion 3 (docs): no test, the documenter's.
+
+    Files created: none this round. Changed: the file above.
+
+    Modules the test run could not import: none.
+
+    Run: `uv run pytest -q tests/operator_scripts/test_operator_approving_after_acceptance.py` passed all three rows. That is expected, because the coder's skill text from entry 7 is already on the branch.
+
+    `make lint`: lint: green (0.1 s).
+
+    `lint`: lint: green (0.2 s)
