@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 660
 comments_read: [6720878077, 6720941885, 6720981420, 6721183670]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T12:08:04.464565Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -148,6 +152,11 @@ journal:
   at: '2026-11-08T12:07:58.969972Z'
   stage: review
   run: 4f4dc2407dbe4429b75b2a955432d391
+- number: 26
+  speaker: factory
+  kind: started
+  at: '2026-11-08T12:08:04.464565Z'
+  stage: doing
 ---
 
 # The first message holds the work item, then the role
@@ -512,3 +521,4 @@ Expect: the docstring names the order: the work item's body, the role's instruct
     - `tests/support/opencode_stand_in.py`: human's leave named in the Interface, and entry 9.
 
     Each changed test keeps its name and checks otherwise the same thing.
+26. factory: started doing as vm.
