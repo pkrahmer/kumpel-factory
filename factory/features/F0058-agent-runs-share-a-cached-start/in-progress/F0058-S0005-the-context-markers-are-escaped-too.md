@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: tests
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 664
 comments_read: [6722586434]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T14:17:21.917900Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -62,6 +58,12 @@ journal:
   kind: started
   at: '2026-11-08T14:17:21.917900Z'
   stage: doing
+- number: 10
+  speaker: coder
+  kind: result
+  at: '2026-11-08T14:17:37.809169Z'
+  stage: doing
+  run: c617e1bf6f8f48199b4d9591ec29fa11
 ---
 
 # The context markers are escaped too
@@ -142,3 +144,6 @@ Expect: `1`
    Noticed, not touched: I did not refactor anything; the change is the two added tuple entries.
 8. 2026-11-08 human: Answer from the human: A. Keep the Interface: `<context` is escaped as a prefix, like the other markers. Leave for the tester to replace `<context-free>` in the `near` row of `tests/agents/domain/test_prompts_context_markers.py` with a text that holds no marker (such as `context-free`), and nothing else.
 9. factory: started doing as vm.
+10. coder: The human's answer (entry 8, option A) calls for one test change. In the `near` row of `test_a_text_without_a_marker_reaches_the_message_byte_for_byte` in `tests/agents/domain/test_prompts_context_markers.py`, replace `<context-free>` with a text that holds no marker, such as `context-free`, and change nothing else. The tester makes this change.
+
+    The code is already on the branch from the last run (commit bae1a49ee). `_MARKER_TEXTS` in `src/factory/agents/domain/prompts.py:42` now also holds `"<context"` and `CONTEXT_CLOSE`. I changed no code this run, and the Description stays as it is: the answer keeps the Interface as written, with `<context` escaped as a prefix like the other markers. After the tester's change the work item comes back to doing. Then I run `make check` and do the refactor step.
