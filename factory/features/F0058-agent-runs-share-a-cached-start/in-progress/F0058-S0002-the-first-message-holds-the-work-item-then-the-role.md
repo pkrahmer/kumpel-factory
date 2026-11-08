@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 660
 comments_read: [6720878077, 6720941885, 6720981420]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-08T11:36:33.658437Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -75,6 +79,11 @@ journal:
   speaker: human
   kind: comment
   at: '2026-11-08T11:36:31.244192Z'
+  stage: tests
+- number: 13
+  speaker: factory
+  kind: started
+  at: '2026-11-08T11:36:33.658437Z'
   stage: tests
 ---
 
@@ -272,3 +281,4 @@ Expect: the docstring names the order: the work item's body, the role's instruct
 
     **Run:** one run of the changed and created test files: the new and changed tests fail as failures, not collection errors, for example `test_task.py::test_the_request_names_the_round_cap_of_a_stage_that_has_one` and `test_task_acceptance.py`, because `PromptFacts` has no `body`, `role`, `role_instructions` or `round_cap` yet. Every module imported; nothing was missing. `make lint`: green. I skipped the type check, as the stage says.
 12. 2026-11-08 human: (b): only a call that starts a session gets the result block; a call with `--session` sends its prompt as it is. Keeping the per-run system-prompt file path as it is, holding the common text, is fine. OpenCode's configuration prompt: the coder decides, as long as it does not hold the role's instructions.
+13. factory: started tests as vm.
