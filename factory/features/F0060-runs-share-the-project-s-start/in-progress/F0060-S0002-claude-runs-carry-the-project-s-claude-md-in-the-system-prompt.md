@@ -1,5 +1,5 @@
 ---
-stage: review
+stage: docs
 blocked: null
 round: 2
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 679
 comments_read: [6727152793, 6727304331]
 handed_over: null
-claim:
-  instance: vm
-  stage: review
-  started_at: '2026-11-08T21:23:36.707945Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -178,13 +174,19 @@ journal:
   kind: started
   at: '2026-11-08T21:23:36.707945Z'
   stage: review
+- number: 31
+  speaker: reviewer
+  kind: result
+  at: '2026-11-08T21:24:07.910628Z'
+  stage: review
+  run: 8c70b24f35854c40afb5e477febbca19
 ---
 
 # Claude runs carry the project's CLAUDE.md in the system prompt
 
 ## Description
 
-Claude Code loads the project's `CLAUDE.md` itself and puts it at the start of the run's first message, so every run writes it into the prompt cache anew and no later run reads it back (about 7,300 tokens in kumpel-factory). After this story the Claude runtime writes the project's root `CLAUDE.md`, as the run's checkout holds it when the run starts, into the run's instructions file after the system prompt, inside a `<project-instructions>` block introduced by one sentence, and starts Claude Code with `CLAUDE_CODE_DISABLE_CLAUDE_MDS=1`, so that it no longer loads the file itself. The runtime also starts Claude Code with `CLAUDE_CODE_PROMPT_CACHE_TTL=5m`, so every cache write is a five-minute one, the factory's own setting from now on instead of an instance's trial. A checkout without a root `CLAUDE.md` gets the system prompt alone, as today. A resumed call (after a budget stop) uses the same instructions file. The opencode runtime does not change: it reads the project's instructions itself.
+Claude Code loads the project's `CLAUDE.md` itself and puts it at the start of the run's first message, so every run writes it into the prompt cache anew and no later run reads it back (about 7,300 tokens in kumpel-factory). After this story the Claude runtime writes the project's root `CLAUDE.md`, as the run's checkout holds it when the run starts, into the run's instructions file after the system prompt, inside a `<project-instructions>` block introduced by one sentence, and starts Claude Code with `CLAUDE_CODE_DISABLE_CLAUDE_MDS=1`, so that it no longer loads the file itself. The runtime also starts Claude Code with `CLAUDE_CODE_PROMPT_CACHE_TTL=5m`, so every cache write is a five-minute one, the factory's own setting from now on instead of an instance's trial. A checkout whose root `CLAUDE.md` is absent or not a regular file (a directory, or a symbolic link, which is not followed) gets the system prompt alone, as today. A resumed call (after a budget stop) uses the same instructions file. The opencode runtime does not change: it reads the project's instructions itself.
 
 ## Interface
 
@@ -206,7 +208,7 @@ Claude Code loads the project's `CLAUDE.md` itself and puts it at the start of t
 6. A `CLAUDE.md` changed on the work item's branch reaches the next run in its changed text.
 7. An opencode run's agent `prompt` holds no `<project-instructions>` block.
 8. `make check` stays green.
-9. docs: the operator guide (`docs/operator-guide/agent-runtime.md`) says that under Claude Code the run's system prompt carries the project's root `CLAUDE.md` and Claude Code does not load it itself, that `CLAUDE.md` files below the root, `CLAUDE.local.md` and `.claude/CLAUDE.md` are therefore not read, that every cache write is a five-minute one, and why (later runs read the system prompt from the cache; the one-hour cache costs more than it saves); `docs/decisions.md` records the decision with the measurement of 2026-11-08 (`docs/runs/2026-11-05-f0052/log.md`).
+9. docs: the operator guide (`docs/operator-guide/agent-runtime.md`) says that under Claude Code the run's system prompt carries the project's root `CLAUDE.md` and Claude Code does not load it itself, that `CLAUDE.md` files below the root, `CLAUDE.local.md` and `.claude/CLAUDE.md` are therefore not read, that every cache write is a five-minute one, and why (later runs read the system prompt from the cache; the one-hour cache costs more than it saves); that a root `CLAUDE.md` that is a symbolic link, or not a regular file, is not read either, so such a project runs without its instructions, because the file is read on the host and following a link could put a host file into the prompt; and that a project keeps its root `CLAUDE.md` as a regular file (not, for example, a link to `AGENTS.md`); `docs/decisions.md` records the decision with the measurement of 2026-11-08 (`docs/runs/2026-11-05-f0052/log.md`).
 
 ## Smoke test
 
@@ -427,3 +429,23 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     `duplicates`: duplicates: 7 new, 39 known, 4 gone
 30. factory: started review as vm.
+31. reviewer: no findings
+
+    Following the human's answer in entry 27, I added the coder's text from entry 26 to the operator-guide part of criterion 9. It comes after "...the one-hour cache costs more than it saves)" and says three things: a root `CLAUDE.md` that is a symbolic link, or not a regular file, is not read, so such a project runs without its instructions; the reason is that the file is read on the host, and following a link could put a host file into the prompt; and a project keeps its root `CLAUDE.md` as a regular file (not, for example, a link to `AGENTS.md`). Nothing else in the criteria changed.
+
+    description corrected: "A checkout without a root `CLAUDE.md` gets the system prompt alone, as today." -> "A checkout whose root `CLAUDE.md` is absent or not a regular file (a directory, or a symbolic link, which is not followed) gets the system prompt alone, as today." The Interface ("a regular file") and the human's entry 27 settle this.
+
+    Checked and found sound:
+    - The code under review is the same as in entry 24's review. `_project_instructions` checks the file with `lstat` and `S_ISREG`. A file that is absent, or vanishes before the read, adds nothing. Any other `OSError`, or a `UnicodeDecodeError`, raises `AgentRuntimeError` naming the path.
+    - `_instructions_text` puts the parts in the order the Interface gives. The block is built with the shared `prompts.block`, and `_write_files` writes it once per run, so a resumed call reuses it.
+    - `SWITCHES` holds both new switches, with a comment that gives the reason for each.
+    - Criteria 1 to 7 each have a test that checks what the criterion says. Criterion 2 is one parametrized test (`absent`, `directory`, `link`), and so is criterion 4 (`host`, `container`). Criterion 3 tests the failing side of the UTF-8 rule.
+    - Entry 22 reports `make check` green; I did not run it in this review.
+    - Architecture: the change stays inside the Claude adapter, plus one domain helper made public, which an adapter may import. `opencode_runtime.py` is unchanged. There is no new dependency, no contract model and no marker or secret.
+    - Criterion 9 now says everything the documenter must write, the link case included.
+
+    Notes:
+    - `tests/agents/adapters/test_claude_runtime_project_instructions.py:121-136`: `_on_the_host` and `_in_a_container` build the stand-in runtime again instead of using the module's `_runtime` helper. Entry 24 already raised this.
+
+    Earlier tests:
+    - `tests/agents/adapters/test_claude_runtime.py`: changed under the human's leave in entry 8. Only the two switches were added to its local `SWITCHES` dict, and the test keeps its name.
