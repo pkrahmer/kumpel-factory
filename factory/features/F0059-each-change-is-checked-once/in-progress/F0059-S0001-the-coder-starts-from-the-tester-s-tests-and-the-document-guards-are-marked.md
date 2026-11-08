@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 672
 comments_read: [6723592271, 6723685612, 6723780619]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-08T16:08:00.854134Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -120,6 +124,11 @@ journal:
   at: '2026-11-08T16:07:55.298029Z'
   stage: doing
   run: 72dacb57882c410bb5150c2fa43fb399
+- number: 21
+  speaker: factory
+  kind: started
+  at: '2026-11-08T16:08:00.854134Z'
+  stage: tests
 ---
 
 # The coder starts from the tester's tests, and the guards that read the documents are marked
@@ -318,3 +327,4 @@ Expect: a line `<n> tests collected`, `<n>` greater than 0.
     Main choice: I end with `tests` instead of `review`, because both findings are test changes and the tester makes them. The alternative was to wait for the tester's change and then ask again. I rejected it because the human's answer already settles what the change is.
 
     Noticed but not touched: nothing new. As noted in entry 13, `CLAUDE.md` does not yet name, in the coder's own words, the command for single test files. That change is the human's.
+21. factory: started tests as vm.
