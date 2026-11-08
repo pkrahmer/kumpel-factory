@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 682
 comments_read: [6727864627]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T22:19:35.173410Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -62,6 +58,12 @@ journal:
   kind: started
   at: '2026-11-08T22:19:35.173410Z'
   stage: doing
+- number: 10
+  speaker: coder
+  kind: result
+  at: '2026-11-08T22:22:05.332147Z'
+  stage: doing
+  run: 5c40ce28840d4a56a610ca62f4f7cf5d
 ---
 
 # The reviewer's role names its route to the tester
@@ -171,3 +173,21 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
    `lint`: lint: green (0.1 s)
 9. factory: started doing as vm.
+10. coder: Changed the two sentences in `## Role` of `agents/agents/reviewer.md` to the exact wording the Interface quotes. No other file changed.
+
+    - The recommendation sentence now reads "… `doing` sends the work item back, and `tests` sends it to the tester when step 4 of the Stage allows it." The "Never both, …" sentence after it is unchanged.
+    - In the notes paragraph, "sends it back with `doing`." now reads "sends it back, with `doing` or, by step 4 of the Stage, with `tests`."
+
+    Test results:
+    - First run, before the change: the tester's new test file, `test_claude_agent_texts_review_leave.py` and `test_shared_rules_system_prompt.py[reviewer]` failed on the old text, as the tester's entry expected.
+    - After the change: all of `tests/agent_files` passes, and `make check` is green (`check: green`).
+
+    Main choice: I replaced the two strings word for word and checked first that each old string occurred exactly once. I rejected rewording or merging the paragraph around them, because the tests and the Interface fix the text word for word, and step 4 and `### docs-review` have to stay as they are.
+
+    Refactor: there is nothing to refactor, since the diff is two lines of agent text.
+
+    The journal changed no meaning of the task, so the Description stays as it is.
+
+    Not touched: the docs criterion (`docs/operator-guide/agent-runtime.md`, `docs/operator-guide/pipeline.md`, `docs/decisions.md`). That is the documenter's work.
+
+    `duplicates`: duplicates: 7 new, 39 known, 4 gone
