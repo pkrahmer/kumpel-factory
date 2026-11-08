@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 0
 attempts: 0
@@ -20,8 +20,13 @@ journal:
   at: '2026-11-08T15:21:39.456773Z'
   stage: acceptance
   run: 5b3e683bb67a47688e456f0c479fdb11
+- number: 3
+  speaker: factory
+  kind: done
+  at: '2026-11-08T15:22:31.019088Z'
+  stage: done
 stories: [F0058-S0001, F0058-S0002, F0058-S0003, F0058-S0004, F0058-S0005, F0058-S0006, F0058-S0007]
-outcome: null
+outcome: accepted
 ---
 
 # Acceptance of Agent runs share a cached start
@@ -225,3 +230,4 @@ This is the feature's third acceptance (about $1.50 each, per `planning/later-to
    8. Cost: 84 runs, 140.8 min, $27.20, about 89 % read from the cache. S0002 still stands out ($9.03). S0007 cost $1.29 for 5 runs: one rework round for two real findings, 78 % hit. 13 questions answered (12 `question`, 1 `attempts_cap`), 0.5 h waited. S0002 needed the human most (5), and S0007 needed none.
 
    `make check` was green as found. Files written: the report, and `backlog/F0058-S0008-the-reviewer-starts-from-its-start-facts.md`, which passes `factory-check-story`.
+3. factory: done (pull request merged); cost: 1 runs, 6.2 min, 35 turns, 103744 tokens in (2263474 more from cache), 26993 out, $1.82
