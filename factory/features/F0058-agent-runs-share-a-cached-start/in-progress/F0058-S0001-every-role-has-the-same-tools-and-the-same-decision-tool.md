@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 659
 comments_read: [6720500729]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-08T10:46:29.787251Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -42,6 +46,11 @@ journal:
   at: '2026-11-08T10:46:24.851541Z'
   stage: intake
   run: 734c7f7de2b54a51aaefde992fbd6480
+- number: 7
+  speaker: factory
+  kind: started
+  at: '2026-11-08T10:46:29.787251Z'
+  stage: tests
 ---
 
 # Every role has the same tools and the same decision tool
@@ -114,3 +123,4 @@ Expect: exactly one line, `model: opus`
    - Docs criterion: it names what the reader must know (same tools and decision tool for every role, and why) and the one decisions entry. It dictates no sentences.
    - Architecture: only the `agents` adapters and the agent files change. The write paths stay in the factory.
    - Scope: this matches S0001 in `feature.md` and decisions 1 to 3. Route: `tests`, because the Interface changes code.
+7. factory: started tests as vm.
