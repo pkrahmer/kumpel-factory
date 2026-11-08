@@ -1,6 +1,6 @@
 ---
 stage: docs-only
-blocked: null
+blocked: attempts_cap
 round: 1
 attempts: 2
 crashes: 0
@@ -71,6 +71,12 @@ journal:
   stage: docs-only
   run: 319d1ac044eb42479a54462464c21d1c
   reason: died
+- number: 12
+  speaker: factory
+  kind: question
+  at: '2026-11-08T14:46:46.883453Z'
+  stage: docs-only
+  blocked: attempts_cap
 ---
 
 # The operator guide says what keeps the cached start
@@ -145,3 +151,6 @@ Expect: at least one line in the section *A project's own agents*.
 9. factory: Stage docs-only stalled (attempt 1 of 2): the agent run died without a result
 10. factory: started docs-only as vm.
 11. factory: Stage docs-only stalled (attempt 2 of 2): the agent run died without a result
+12. factory: Stage docs-only stalled 2 times. The last time: Stage docs-only stalled (attempt 2 of 2): the agent run died without a result
+
+    Comment anything to retry: the attempts go back to 0 and the stage runs again. Close the pull request to discard the story instead: it goes back to the backlog as you wrote it, and its branch and bill are deleted.
