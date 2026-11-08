@@ -1,5 +1,5 @@
 ---
-stage: smoke-test
+stage: approval
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 656
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: smoke-test
-  started_at: '2026-11-08T07:51:32.237920Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -78,6 +74,12 @@ journal:
   kind: started
   at: '2026-11-08T07:51:32.237920Z'
   stage: smoke-test
+- number: 13
+  speaker: smoke-tester
+  kind: result
+  at: '2026-11-08T07:51:52.444809Z'
+  stage: smoke-test
+  run: 9357af28d91b41e0ae94e414f6b83496
 ---
 
 # The working branch's remote ref is one constant
@@ -224,3 +226,27 @@ Expect: `origin/develop`
     `secrets`: secrets: green (0.8 s)
     `documents`: documents ok (58.6 s)
 12. factory: started smoke-test as vm.
+13. smoke-tester: Smoke test: no findings.
+
+    I ran both commands from the repository root, exactly as written and in order.
+
+    Command 1: `grep -rn '{REMOTE}/{WORK_BRANCH}' src/factory --include=*.py | wc -l`
+    ```
+    1
+    ```
+    Expected `1`. Met.
+
+    Command 2: `uv run python -c "from factory.shared.domain.paths import WORK_REF; print(WORK_REF)"`
+    ```
+    Bytecode compiled 4164 files in 48ms
+    origin/develop
+    ```
+    Expected `origin/develop`. Met. The first line is uv's own message on stderr; the program printed `origin/develop`.
+
+    Checked against the acceptance criteria again:
+    - Criteria 1 and 2: command 1 confirms that the spelling is in one file only. Command 2 confirms the value of `WORK_REF`. Nothing in the output contradicts either criterion.
+    - Criteria 3 and 4: the smoke test does not touch them, and nothing in it contradicts them. The coder and the factory report `make check` green (entries 7 and 11).
+    - Criterion 5: `docs/project-guide/work.md:395` names `WORK_REF` in the `paths` table. Line 398 says the code builds the ref only through it.
+    - A grep of `src/factory` finds no `_WORK_REF` left.
+
+    Nothing is open.
