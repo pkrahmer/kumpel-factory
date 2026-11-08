@@ -1,17 +1,13 @@
 ---
-stage: intake
+stage: tests
 blocked: null
 round: 0
 attempts: 0
 crashes: 0
-pull_request: null
+pull_request: 679
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: intake
-  started_at: '2026-11-08T21:02:18.572472Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -23,6 +19,12 @@ journal:
   kind: started
   at: '2026-11-08T21:02:18.572472Z'
   stage: intake
+- number: 3
+  speaker: intake
+  kind: result
+  at: '2026-11-08T21:02:41.665536Z'
+  stage: intake
+  run: 3ee7cd9924634453b2aeb50bcc2fb6bf
 ---
 
 # Claude runs carry the project's CLAUDE.md in the system prompt
@@ -69,3 +71,11 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
 1. 2026-11-08 human: created.
 2. factory: started intake as vm.
+3. intake: accepted
+   - Interface: names concrete places: `SWITCHES` in `src/factory/agents/adapters/claude_runtime.py` (today three switches at line 85) gains two exact key/value pairs and a why-comment. The instructions file is written in `_write_files` (line 461) from `system_prompt_text`, so the exact layout of the root `CLAUDE.md` block fits there: blank line, the introducing sentence, the `<project-instructions>` lines, the file's text as it is. The UTF-8 rule and the `AgentRuntimeError` that names the path follow the existing system-prompt error path. `opencode_runtime.py` stays unchanged.
+   - Criteria: each one can be tested by a single test function. The layout and its order (1). Absent and directory are rows of one test (2). The failing side of the UTF-8 read is criterion 3, so the rule has both sides. Both switches, with and without the container environment, are rows of one test (4). The resumed call reuses the same file (5). A changed `CLAUDE.md` reaches the next run (6). Opencode is unchanged (7). Existing tests compare the environment with the `SWITCHES` name, not a written-out dict (`test_claude_runtime_environment.py:70`), so they keep passing with no change to tests another story wrote.
+   - Smoke test: both commands can run. The pytest command passes no `-q`, which is right because `addopts` already sets `-q`, so pytest still prints the summary line. Both `Expect:` lines can be checked: the exact output `1 5m`, and a summary line with only `passed`.
+   - Docs criterion: it names what the reader must know: the root `CLAUDE.md` is carried in the system prompt, nested files, `CLAUDE.local.md` and `.claude/CLAUDE.md` are not read, every cache write is a five-minute one, and why. It also names the decision-log record and its measurement source. It dictates no sentences.
+   - Architecture: the change stays inside the Claude runtime's adapter (R12 wrapper). It adds no new module, dependency or interface, and touches no DTO in the contract.
+   - Scope: this is S0002 of `feature.md` (the root `CLAUDE.md` in the system prompt, the switch-off, the five-minute cache). It matches decisions 3 and 4, and it stays clear of "Out of scope": OpenCode handling, nested files and the story text are untouched.
+   Route: `tests`, because the Interface changes `src/`.
