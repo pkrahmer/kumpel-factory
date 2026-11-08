@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 678
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-08T20:03:39.008330Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -91,6 +95,11 @@ journal:
   at: '2026-11-08T20:03:33.758330Z'
   stage: doing
   run: fea8230c66e1478186a5f93d03736523
+- number: 16
+  speaker: factory
+  kind: started
+  at: '2026-11-08T20:03:39.008330Z'
+  stage: tests
 ---
 
 # The rules every role shares stand in the system prompt
@@ -307,3 +316,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     What the journal changed: nothing in the task's meaning, so `## Description` stays.
 
     Noticed, not touched: the docs for criterion 9 are still the documenter's.
+16. factory: started tests as vm.
