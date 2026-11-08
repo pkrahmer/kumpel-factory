@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 680
 comments_read: [6727432579, 6727512748, 6727549619]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T21:52:04.393259Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -162,6 +158,12 @@ journal:
   kind: started
   at: '2026-11-08T21:52:04.393259Z'
   stage: doing
+- number: 28
+  speaker: coder
+  kind: result
+  at: '2026-11-08T21:54:34.225224Z'
+  stage: doing
+  run: 331194a9dab4452c950625e809c434a5
 ---
 
 # A review whose findings need only tests goes to the tester
@@ -427,3 +429,25 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     `lint`: lint: green (0.1 s)
 27. factory: started doing as vm.
+28. coder: Rework round 1 is finished. The tester made the test changes from entry 24 in entry 26, and I changed no code in this run. All three findings from entry 22 are now dealt with.
+
+    - Finding 1: fixed in my last run. In `agents/agents/reviewer.md` `### docs-review`, the subsection now replaces "steps 1 to 4 above", so in `docs-review` step 4 no longer sends findings to `doing`.
+    - Finding 2: the tester changed `tests/agent_files/test_review_to_tests_agent_files.py::test_the_tester_answers_the_reviewers_test_findings_and_hands_to_the_coder`. It now has the condition row `after-review`, and every fragment is checked against the one sentence that starts with that condition.
+    - Finding 3: the tester dropped the duplicate test. The second half of criterion 4 is checked by the existing test in `tests/agents/adapters/test_claude_runtime_system_prompt.py`.
+
+    What this story built, all committed in earlier runs:
+    - `agents/agents/reviewer.md`: step 4 of `## Stage`, and the docs-review fix above.
+    - `agents/agents/tester.md`: the new case in step 0 of `## Stage`.
+    - `agents/system-prompt.md` and `src/factory/agents/domain/prompts.py` (`SYSTEM_PROMPT`): R12 now lists `review → tests` right after `review → doing`.
+
+    Test run: the four test files the tester's latest entry names pass with `uv run pytest -q`. `make check` is green (`check: green`, coverage 99.21 %), and so is `make guides` (`guides: green`).
+
+    Main choice: the finding-1 fix is the smallest one, adding step 4 to the steps `docs-review` replaces. Rejected: writing into step 4 that it does not apply in `docs-review`, because that would say the same thing twice.
+
+    Refactor: I read my diff again and found nothing to change.
+
+    Description: unchanged, because the findings do not change the meaning of the task.
+
+    Noticed, not touched: the Role's sentence "`docs` passes, `doing` sends the work item back" does not name `tests`. The Interface limits the change to `## Stage`. Docs criterion 7 is the documenter's.
+
+    `duplicates`: duplicates: 7 new, 39 known, 4 gone
