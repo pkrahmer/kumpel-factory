@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 679
 comments_read: [6727152793]
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-08T21:17:06.040245Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -117,6 +113,12 @@ journal:
   kind: started
   at: '2026-11-08T21:17:06.040245Z'
   stage: tests
+- number: 20
+  speaker: tester
+  kind: result
+  at: '2026-11-08T21:17:28.417590Z'
+  stage: tests
+  run: f68d3ef5413442f1a9837a258ac2d0fb
 ---
 
 # Claude runs carry the project's CLAUDE.md in the system prompt
@@ -284,3 +286,12 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     Not touched: the docs criterion (9) belongs to the documenter.
 19. factory: started tests as vm.
+20. tester: Made the one test change that the coder's entry 18 names after the reviewer's finding 1 (entry 16), and nothing else.
+    - Changed `tests/agents/adapters/test_claude_runtime_project_instructions.py`, which this story's tester wrote. `test_a_checkout_without_a_root_claude_md_file_gets_the_system_prompt_alone` gains a `link` row. In it the root `CLAUDE.md` is a symbolic link to a regular file outside the checkout (`<tmp_path>/outside.md`, beside the `work` checkout), and the test expects an instructions file that is the system prompt alone. The rows are now `absent`, `directory` and `link`. The criterion mapping is the same as in entry 5, and criterion 2 now has three rows.
+    - I created no files and changed no other test. Every module imported.
+
+    Run: `uv run pytest -q tests/agents/adapters/test_claude_runtime_project_instructions.py` gave 10 passed and no failures. The new row passes at once against the coder's `lstat` check, as entry 18 expected.
+
+    `lint`: lint: green (0.2 s)
+
+    `lint`: lint: green (0.2 s)

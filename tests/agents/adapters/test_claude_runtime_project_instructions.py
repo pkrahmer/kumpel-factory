@@ -79,11 +79,18 @@ def _a_directory(work: Path) -> None:
     (work / "CLAUDE.md" / "notes.md").write_text(PROJECT_TEXT, encoding="utf-8")
 
 
+def _a_link_out_of_the_checkout(work: Path) -> None:
+    outside = work.parent / "outside.md"
+    outside.write_text(PROJECT_TEXT, encoding="utf-8")
+    (work / "CLAUDE.md").symlink_to(outside)
+
+
 @pytest.mark.parametrize(
     "prepare",
     [
         pytest.param(_no_file, id="absent"),
         pytest.param(_a_directory, id="directory"),
+        pytest.param(_a_link_out_of_the_checkout, id="link"),
     ],
 )
 def test_a_checkout_without_a_root_claude_md_file_gets_the_system_prompt_alone(
