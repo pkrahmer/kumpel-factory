@@ -1,17 +1,13 @@
 ---
-stage: review
+stage: doing
 blocked: null
-round: 1
+round: 2
 attempts: 0
 crashes: 0
 pull_request: 679
 comments_read: [6727152793]
 handed_over: null
-claim:
-  instance: vm
-  stage: review
-  started_at: '2026-11-08T21:20:13.545227Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -139,6 +135,12 @@ journal:
   kind: started
   at: '2026-11-08T21:20:13.545227Z'
   stage: review
+- number: 24
+  speaker: reviewer
+  kind: result
+  at: '2026-11-08T21:20:59.896842Z'
+  stage: review
+  run: c839b759c0ea41009299ffc98db5bba9
 ---
 
 # Claude runs carry the project's CLAUDE.md in the system prompt
@@ -339,3 +341,24 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     `duplicates`: duplicates: 7 new, 39 known, 4 gone
 23. factory: started review as vm.
+24. reviewer: Findings:
+
+    1. Work item, `## Acceptance criteria` criterion 9 (the docs criterion). It is now incomplete. Since the fix for entry 16's finding 1, `src/factory/agents/adapters/claude_runtime.py:337-339` (`_project_instructions`, `lstat` with `S_ISREG`) skips a root `CLAUDE.md` that is a symbolic link. `CLAUDE_CODE_DISABLE_CLAUDE_MDS=1` also stops Claude Code from loading the file itself. So a project whose `CLAUDE.md` is a link (for example `CLAUDE.md -> AGENTS.md`, a common layout) now runs with none of its instructions, and nothing tells the operator. The operator must know this, and the documenter writes only what criterion 9 asks for. Fix: the coder extends criterion 9. The operator guide (`docs/operator-guide/agent-runtime.md`) should also say that a root `CLAUDE.md` which is a symbolic link (or not a regular file) is not read, and why: the file is read on the host, so following a link could put a host file into the prompt. It should also say what a project does instead: keep `CLAUDE.md` as a regular file.
+
+    Checked and found sound:
+    - Criteria 1 to 7 each have a test that checks what the criterion says. Criterion 2 is one parametrized test with the rows `absent`, `directory` and `link`. Criterion 4 is one parametrized test with the rows `host` and `container`. Criterion 3 tests the failing side of the UTF-8 rule, and `detail` names the path. Entry 22 reports `make check` green.
+    - Entry 16's findings 2 and 3 are fixed:
+      - `_ended_line` is gone, and the block is built with `factory.agents.domain.prompts.block`. An adapter importing the domain is allowed. Its callers in `prompts.py` are only renamed. `prompts.py` has no `__all__` that would need the new name.
+      - The private functions carry no docstrings, and the remaining comment gives a reason.
+    - `_instructions_text` writes the system prompt (one trailing newline removed), a blank line, the introducing sentence and the block, as the Interface states. The system prompt alone is returned unchanged.
+    - A file that vanishes between `lstat` and the read adds nothing, and every other `OSError` or `UnicodeDecodeError` is `AgentRuntimeError`.
+    - `_write_files` runs inside `run`'s `try`, so the run's files are still removed when the read fails.
+    - The instructions file is written once per run, so a resumed call reuses it.
+    - Architecture: the change stays inside the Claude adapter, plus one domain helper made public. No new dependency, no contract model, and `opencode_runtime.py` is unchanged. Security: no marker, no secret, and the path in the error is the checkout's own.
+    - The Description matches what was built, and entries 7 and 18 record the main choices and what was rejected.
+
+    Notes:
+    - `tests/agents/adapters/test_claude_runtime_project_instructions.py:121-136`: `_on_the_host` and `_in_a_container` build the stand-in runtime again instead of using the module's own `_runtime` helper.
+
+    Earlier tests:
+    - `tests/agents/adapters/test_claude_runtime.py`: changed under the human's leave in entry 8. Only the two switches were added to its local `SWITCHES` dict, and the test keeps its name.
