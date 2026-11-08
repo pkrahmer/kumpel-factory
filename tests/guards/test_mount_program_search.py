@@ -6,6 +6,8 @@ from support.source_search import SRC
 
 SOURCE_ROOT = SRC.parent
 
+pytestmark = pytest.mark.documents
+
 
 @pytest.mark.parametrize("name", ["fuse-overlayfs", "mount_program"])
 def test_no_source_file_names_the_overlay_mount_program(name: str) -> None:

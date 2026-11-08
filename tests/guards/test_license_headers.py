@@ -8,6 +8,8 @@ import pytest
 from factory.shared.adapters.process import ProcessRequest, run_process
 from support.git_support import run_git
 
+pytestmark = pytest.mark.documents
+
 ROOT = Path(__file__).parents[2]
 HEADER = "# SPDX-License-Identifier: Apache-2.0"
 SHEBANG = "#!"

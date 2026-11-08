@@ -6,6 +6,8 @@ import pytest
 
 from factory.shared.domain.folder_readmes import FOLDER_READMES, readme_problems
 
+pytestmark = pytest.mark.documents
+
 ROOT = Path(__file__).parents[2]
 README_NAME = "README.md"
 SUFFIX = f"/{README_NAME}"
