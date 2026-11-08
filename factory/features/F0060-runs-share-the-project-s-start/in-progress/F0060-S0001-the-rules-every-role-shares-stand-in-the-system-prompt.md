@@ -2,16 +2,12 @@
 stage: docs
 blocked: null
 round: 1
-attempts: 1
+attempts: 2
 crashes: 0
 pull_request: 678
 comments_read: [6726852112]
 handed_over: null
-claim:
-  instance: vm
-  stage: docs
-  started_at: '2026-11-08T20:42:22.042825Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -168,6 +164,19 @@ journal:
   kind: started
   at: '2026-11-08T20:42:22.042825Z'
   stage: docs
+- number: 29
+  speaker: documenter
+  kind: result
+  at: '2026-11-08T20:48:18.072540Z'
+  stage: docs
+  run: fa48475be9ab499b83e11e83c4e4b432
+- number: 30
+  speaker: factory
+  kind: stall
+  at: '2026-11-08T20:48:18.524514Z'
+  stage: docs
+  run: fa48475be9ab499b83e11e83c4e4b432
+  reason: check_red
 ---
 
 # The rules every role shares stand in the system prompt
@@ -516,3 +525,24 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     Stale text noticed, not mine: none.
 27. 2026-11-08 human: (a) Retry. The cause is the package index's speed, not the documents: a cold `uv run` in a fresh copy took 99 s at one moment and 7 s a few minutes later on the VM. The fix (the examples share the check's uv cache) is F0061, kept in the backlog for later.
 28. factory: started docs as vm.
+29. documenter: Round 1 docs, third run, after the human's answer in entry 27 to retry. I changed no files in this run. The docs from entry 23 already meet criterion 9, and I checked them again on the branch:
+    - `docs/operator-guide/agent-runtime.md:328,334,359`: the shared rules stand once in the agent home's `system-prompt.md`, an agent file holds only its role's own instructions, and a project agent copied from an earlier shipped file may drop its `## Rules` section.
+    - `docs/project-guide/agents.md:30,284,289,356`: the shared rules stand in the system prompt and in no agent file, and `SYSTEM_PROMPT` equals the shipped file byte for byte.
+    - `docs/decisions.md`: the introduction only, as in entry 23 (no new entry, no "Why" or "Rejected" line).
+
+    `make documents` is still red. I ran it twice in this run. Both runs failed on the same line and nothing else: `docs/project-guide/README.md:401: the example did not end in 60 s`. The earlier runs (entries 23 and 26) timed out on other examples. This story changed none of them. The cause is the one the human named in entry 27: a cold `uv` cache in each example's fresh copy has to download packages, and the download speed varies (F0061 holds the fix). Following the human's choice (a), I end forward and leave the decision to the factory's own run of `make documents` after this stage.
+
+    I did not run `make check`, because this run changed no files and the earlier runs changed only documents.
+
+    Cross-read and found current: the rest of `docs/operator-guide/agent-runtime.md` and of `docs/project-guide/agents.md`, `docs/project-guide/style.md`, `README.md`.
+
+    Stale text I noticed that is not mine to fix: none.
+
+    Findings: none.
+
+    `guides`: guides: green (9.7 s)
+    `secrets`: secrets: green (2.1 s)
+30. factory: Stage docs stalled (attempt 2 of 2): a check is red after the stage: `documents`
+    Bytecode compiled 4164 files in 88ms
+    sync: green (0.1 s)
+    Bytecode compiled 4164 files in 50ms
