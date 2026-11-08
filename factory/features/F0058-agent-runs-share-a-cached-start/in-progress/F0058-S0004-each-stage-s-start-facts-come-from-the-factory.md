@@ -1,5 +1,5 @@
 ---
-stage: intake
+stage: tests
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 662
 comments_read: [6721852631]
 handed_over: null
-claim:
-  instance: vm
-  stage: intake
-  started_at: '2026-11-08T13:06:39.837783Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -40,6 +36,12 @@ journal:
   kind: started
   at: '2026-11-08T13:06:39.837783Z'
   stage: intake
+- number: 6
+  speaker: intake
+  kind: result
+  at: '2026-11-08T13:07:07.805443Z'
+  stage: intake
+  run: 2e29510f597e4db3aea3d7f8d758ec58
 ---
 
 # Each stage's start facts come from the factory
@@ -67,9 +69,10 @@ The commands are project commands, so the project decides what they show; the fa
 - An output longer than 60,000 characters is cut to its first 60,000, followed by a line saying how many characters were cut and that the agent can run the command itself.
 - A command that fails or runs out of time gives a block holding the line `failed: <reason>`; the run goes ahead. A start fact is a help, not a gate.
 - The marker texts of S0002 are escaped inside a context block, as inside the work item.
-- The common system prompt says that the `<context>` blocks are facts the factory gathered at the start, which the agent need not gather again.
+- The common system prompt says that the `<context>` blocks are facts the factory gathered at the start, which the agent need not gather again, in the shipped agent files and the operator template alike.
+- The `context` commands count toward the lease: loading refuses a stage whose role's `time_limit` plus the `time_limit`s of its `checks`, `reports` and `context` exceed its `lease_duration`.
 - A stage without `context` gets a message as before.
-- The pipeline definition's version rule applies to the new key (`docs/decisions.md`).
+- The pipeline definition's version rule applies to the new key (`docs/decisions.md`): the pipeline definition's contract rises to 1.1, and the generated schema with it. A definition with `contract: "1.0"` and one with `"1.1"` both load, and both may carry `context`. This story does not change `factory/pipeline.yml`; the human raises it to 1.1, with its `context` lines, after this story.
 
 The human's leave for earlier tests: this story may change these earlier tests where they pin the first message, the stage keys, the loading of the pipeline definition, or what runs in the check container before the agent, and only there:
 - `tests/agents/domain/test_prompts.py`, `tests/support/first_message_support.py`
@@ -89,8 +92,11 @@ The human's leave for earlier tests: this story may change these earlier tests w
 5. A marker text inside a command's output reaches the message escaped.
 6. A stage without `context` gets the same message as without this story.
 7. The commands run in the check container on the stage's base, never on the host.
-8. `make check` stays green.
-9. docs: the project guide's description of the pipeline definition names `context`, what the factory does with it, the size limit and the failure line; the operator's guide shows one example. `docs/decisions.md`: one entry, a stage's start facts come from project commands the factory runs before the agent, to save the agent's first turns.
+8. The common system prompt names the `<context>` blocks as start facts the agent need not gather again, in the shipped agent files and the operator template alike.
+9. Loading refuses a stage whose `context` time limits push the role's `time_limit` plus its checks', reports' and context's `time_limit`s past its `lease_duration`, and accepts one that fits (rows of one test).
+10. A definition with `contract: "1.0"` and one with `contract: "1.1"` both load, each with a stage carrying `context` (rows of one test).
+11. `make check` stays green.
+12. docs: the project guide's description of the pipeline definition names `context`, what the factory does with it, the size limit and the failure line; the operator's guide shows one example. `docs/decisions.md`: one entry, a stage's start facts come from project commands the factory runs before the agent, to save the agent's first turns.
 
 ## Smoke test
 
@@ -132,3 +138,10 @@ Expect: `True`
    2. (a). The `context` commands count toward the lease. Add the Interface line and a criterion with both rows: a stage whose `context` time limits push the total past `lease_duration` is refused, and one that fits is accepted.
    3. (a). The pipeline definition's contract rises to 1.1. Add a criterion that a definition with `contract: "1.0"` and one with `"1.1"` both load, and that both may carry `context`. The human raises `factory/pipeline.yml` itself to 1.1 after this story, together with its `context` lines; this story does not change `factory/` beyond the work item.
 5. factory: started intake as vm.
+6. intake: accepted. I added the human's answers from journal entry 4 to the story. Interface: the system prompt line now covers the shipped agent files and the operator template alike. A new line says that the `context` commands count toward the lease. The version line now says the contract rises to 1.1 with its generated schema (`PipelineDefinition` is in `CONTRACT`, `src/factory/shared/domain/contract.py:42`), that definitions at 1.0 and 1.1 both load and may carry `context`, and that `factory/pipeline.yml` stays the human's. Criteria: new criteria 8 (system prompt), 9 (lease, both rows) and 10 (1.0 and 1.1 both load with `context`) go before the two closing ones, now 11 and 12. The Description's meaning did not change, so I did not rewrite it.
+   - Interface: names the key `context` in `StageDefinition` (`src/factory/pipeline/domain/pipeline_definition.py`), the block format, its order and place, the 60,000-character limit with its cut line, the failure line, escaping, the lease rule and the contract value. Each is concrete.
+   - Criteria: each is testable by one test. Every rule has both sides: an unknown `context` name refused and a known one accepted; 60,000 characters whole and 60,001 cut; a failed command and a timed-out one; lease exceeded and lease fitting; contract 1.0 and 1.1; a stage without `context` unchanged; the system prompt sentence; commands running in the check container.
+   - Smoke test: runnable with `uv run python -c`, and `Expect: True` can be checked against its output.
+   - Docs criterion: names what the reader must know (the key, what the factory does with it, the size limit, the failure line, one operator example, one decision entry) and dictates no sentences.
+   - Architecture: the stage key and the lease rule belong in pipeline/domain. The commands run through the existing project-commands interface in the check container, as checks do. The blocks are built in agents/domain prompts. No tool is called outside its wrapper. The contract schema is regenerated with `factory.entry.contract`.
+   - Scope: within F0058, whose decision 6 matches this story, and not in its Out of scope. The human's leave names every earlier test the story may change. Route `tests`, because the Interface changes `src/`.
