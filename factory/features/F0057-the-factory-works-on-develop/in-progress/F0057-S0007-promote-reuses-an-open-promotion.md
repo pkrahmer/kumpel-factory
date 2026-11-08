@@ -1,17 +1,13 @@
 ---
 stage: intake
-blocked: null
+blocked: question
 round: 0
 attempts: 0
 crashes: 0
-pull_request: null
+pull_request: 650
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: intake
-  started_at: '2026-11-08T02:16:31.520234Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -23,6 +19,13 @@ journal:
   kind: started
   at: '2026-11-08T02:16:31.520234Z'
   stage: intake
+- number: 3
+  speaker: intake
+  kind: question
+  at: '2026-11-08T02:16:48.532578Z'
+  stage: intake
+  run: 40a8811e5a60492ab15f3efd03e88684
+  blocked: question
 ---
 
 # promote.sh reuses an open promotion
@@ -67,3 +70,10 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
 
 1. 2026-11-08 human: created.
 2. factory: started intake as vm.
+3. intake: Questions before this story can be accepted. The format check passed.
+
+   1. The Interface changes a test another story wrote: `tests/operator_scripts/test_operator_develop.py::test_promote_opens_the_promotion_and_merges_it_only_with_the_switch_on` must answer the new `GET` route with an empty list. The line says the leave is "to be given when refining", and the journal holds no answer from the human. Do you give the leave for exactly that change (the test keeps its name and what it checks)? I would choose yes. Without your word the tester cannot touch that test, and the old test would fail on the new `GET`.
+
+   2. The Interface fixes the `GET` request: `state=open&base=main&head=<owner>:develop&per_page=1`, with `<owner>` taken from `SITE_REPOSITORY`. No criterion tests it. Criteria 1 to 4 would also pass if a coder queried a different base or head, or took the wrong owner. Please add a criterion that the stand-in sees the `GET` with those query parameters and the owner from `SITE_REPOSITORY`. I would add it to criterion 1's test.
+
+   3. The Interface says "The title stays" on reuse, and no criterion tests it. Criterion 2 only checks the `PATCH` body. Please add that the `PATCH` sends no `title`, or that it sends the open title unchanged. I would choose "no `title` in the `PATCH`". Add it to criterion 2.
