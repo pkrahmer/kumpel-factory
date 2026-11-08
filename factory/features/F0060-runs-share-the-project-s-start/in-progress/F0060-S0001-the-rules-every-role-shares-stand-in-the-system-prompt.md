@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 678
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: docs
+  started_at: '2026-11-08T20:22:16.174925Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -142,6 +146,11 @@ journal:
   stage: docs
   run: 7e245a97bda343f0afe6f22a1e899d9d
   reason: check_red
+- number: 25
+  speaker: factory
+  kind: started
+  at: '2026-11-08T20:22:16.174925Z'
+  stage: docs
 ---
 
 # The rules every role shares stand in the system prompt
@@ -464,3 +473,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     Bytecode compiled 4164 files in 85ms
     sync: green (0.1 s)
     Bytecode compiled 4164 files in 60ms
+25. factory: started docs as vm.
