@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 680
 comments_read: [6727432579, 6727512748, 6727549619]
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-08T21:46:32.943978Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -107,6 +103,12 @@ journal:
   kind: started
   at: '2026-11-08T21:46:32.943978Z'
   stage: tests
+- number: 18
+  speaker: tester
+  kind: result
+  at: '2026-11-08T21:47:01.555317Z'
+  stage: tests
+  run: 4828c96f0b9d429ea27e55629a0699cc
 ---
 
 # A review whose findings need only tests goes to the tester
@@ -268,3 +270,16 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     Files changed: `tests/agent_files/test_claude_agent_texts_review_groups.py`, `tests/support/shared_rules_support.py`.
 16. 2026-11-08 human: (a). Leave granted for that `.replace`. Beyond it, for the rest of this story: any earlier test whose only failure is this story's change of R12, the reviewer's `## Stage` or the tester's `## Stage` may be updated the same way (a mapping back to the earlier text, or the new checksum of the new text), each keeping its name and checking the same thing; name each in your entry.
 17. factory: started tests as vm.
+18. tester: Made the test change the human allowed in entry 16, (a). The changes from entry 11 were already committed and I left them as they were.
+
+    - `tests/agent_files/test_claude_agent_texts_review_groups.py::test_the_rest_of_the_reviewer_body_is_unchanged`: added `review_to_tests_rework = "review → doing, review → tests, "` with a comment saying why. Added one more `.replace(review_to_tests_rework, "review → doing, ")` in `earlier`, right after the step-4 `.replace` and before `develop` → `main`. It maps the new R12 list in the rebuilt `## Rules` section back to the earlier list. The test keeps its name and still checks the earlier body's CRC32 `_EARLIER_BODY_CRC32`.
+
+    No other earlier test needed a change under the wider leave in entry 16. When the coder ran `make test` (entry 10), the only failures were the three tests the leaves in entries 11 and 16 now cover.
+
+    Test run, following CLAUDE.md (`uv run pytest -q` on `test_claude_agent_texts_review_groups.py`, `test_shared_rules_system_prompt.py`, `test_review_to_tests_agent_files.py` and `test_claude_agent_texts_docs_slip.py`): all pass, and no module failed to import. `make lint`: lint: green (0.1 s).
+
+    Earlier test file changed, under the human's leave in entries 11 and 16: `tests/agent_files/test_claude_agent_texts_review_groups.py`. No files created in this run.
+
+    The criteria still map to their tests as entry 8 lists them. The coder's `make check` comes next. The coder still has the refactor step to do.
+
+    `lint`: lint: green (0.1 s)
