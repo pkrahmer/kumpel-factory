@@ -21,7 +21,7 @@ The scripts are small and each has one job. The loader, [site.sh](../../operator
 - `site.env.example` holds every key of the site file, each with a comment and a made-up value. `site init` copies it.
 - `operator/vm/` sets up and runs an instance on a VM: [setup.sh](../../operator/vm/setup.sh), [job-start.sh](../../operator/vm/job-start.sh), [factory.service](../../operator/vm/factory.service) and [git-credential-factory](../../operator/vm/git-credential-factory). Its [Dockerfile](../../operator/vm/Dockerfile) is the base image's.
 - `operator/template/` is what the operator copies into a new project: [CLAUDE.md](../../operator/template/CLAUDE.md), [Makefile](../../operator/template/Makefile) and `factory/`.
-- The skill ([SKILL.md](../../operator/skill/kumpel/SKILL.md)) has `references/` that hold the standing orders and how to answer, approve and shape. Its `scripts/` are [settings.sh](../../operator/skill/kumpel/scripts/settings.sh), [status.sh](../../operator/skill/kumpel/scripts/status.sh), [wait.sh](../../operator/skill/kumpel/scripts/wait.sh), [approval.sh](../../operator/skill/kumpel/scripts/approval.sh), [next-story.sh](../../operator/skill/kumpel/scripts/next-story.sh), [start-story.sh](../../operator/skill/kumpel/scripts/start-story.sh), [comment.sh](../../operator/skill/kumpel/scripts/comment.sh), [merge.sh](../../operator/skill/kumpel/scripts/merge.sh) and [reset-to-tag.sh](../../operator/skill/kumpel/scripts/reset-to-tag.sh).
+- The skill ([SKILL.md](../../operator/skill/kumpel/SKILL.md)) has `references/` that hold the standing orders and how to answer, approve and shape. Its `scripts/` are [settings.sh](../../operator/skill/kumpel/scripts/settings.sh), [status.sh](../../operator/skill/kumpel/scripts/status.sh), [wait.sh](../../operator/skill/kumpel/scripts/wait.sh), [approval.sh](../../operator/skill/kumpel/scripts/approval.sh), [next-story.sh](../../operator/skill/kumpel/scripts/next-story.sh), [start-story.sh](../../operator/skill/kumpel/scripts/start-story.sh), [comment.sh](../../operator/skill/kumpel/scripts/comment.sh), [merge.sh](../../operator/skill/kumpel/scripts/merge.sh), [reset-to-tag.sh](../../operator/skill/kumpel/scripts/reset-to-tag.sh), [archive-feature.sh](../../operator/skill/kumpel/scripts/archive-feature.sh), [promote.sh](../../operator/skill/kumpel/scripts/promote.sh) and the sourced helper [kumpel-commit.sh](../../operator/skill/kumpel/scripts/kumpel-commit.sh).
 - The two `kumpel.md` files are the `/kumpel` command, one for each tool: [for opencode](../../operator/opencode/command/kumpel.md) and [for Claude](../../operator/claude/commands/kumpel.md).
 
 See also: *The skill's scripts* below, and *Setting up an operator's machine* in site.md.
@@ -123,6 +123,8 @@ The skill is `operator/skill/kumpel/`. Its scripts run from a project checkout w
 
     scripts/comment.sh <pr> <file>
     scripts/reset-to-tag.sh <tag> [--yes]
+    scripts/archive-feature.sh <feature id>
+    scripts/promote.sh <feature id>
 
 - Every `python3` starts with `-I`, as its first option, for `-c` and for a program on standard input alike. It keeps a planted `json.py` out of the import path ([decisions.md](../decisions.md)).
 - [test_operator_python_isolation.py](../../tests/operator_scripts/test_operator_python_isolation.py) pins that rule.
@@ -133,6 +135,13 @@ The skill is `operator/skill/kumpel/`. Its scripts run from a project checkout w
 - `reset-to-tag.sh` closes the open [work item](glossary.md) pull requests, deletes the `work-item/` branches and moves `develop` to the tag's commit by force; `main` is left alone, since only a promotion reaches it. Each step stops at its first failure.
 - Without `--yes` it only prints the plan, because the move cannot be undone.
 - It works only on the repository that is both `SITE_REPOSITORY` and `SITE_RESET_REPOSITORY`.
+- `archive-feature.sh <feature id>` checks out and pulls `develop` in the checkout, then moves `factory/features/<id>-.../` to `factory/archive/`. It commits `<id>: archived`, pulls again and pushes `develop`.
+- It refuses an unfinished feature with exit 1 and `archive-feature.sh: <id> is not finished: <why>`. The four reasons are a story file `<id>-S*.md` left in the feature's `backlog/` or `in-progress/`, no acceptance, a last acceptance not in `done/`, and a last acceptance whose front matter lacks `outcome: accepted`. The last acceptance is the highest `<id>-A*.md` among all folders. The `outcome` check exists because the factory books a refused acceptance in `done/` too.
+- It also exits 1 for an unknown feature and 2 without exactly one argument.
+- `promote.sh <feature id>` needs the feature in `factory/archive/` on `develop` and exits 1 otherwise. It then opens a pull request from `develop` to `main` titled `<id>: promoted to main`, whose body lists the feature's stories (id and title). When a promotion is already open, it does not open a second one: it adds the list to that body, or keeps it when the list is already there.
+- With the switch `promote` on, read through `settings.sh`, it merges with a merge commit, never a squash or a rebase, and prints `promoted #<n>`. With the switch off it prints `promotion opened: #<n>, for the human to merge` and merges nothing; a reused promotion prints `open` in place of `opened`.
+- It exits 2 without exactly one argument.
+- `kumpel-commit.sh` is sourced, not run. Its `kumpel_commit <message>` commits what is staged with Kumpel (`kumpel@noreply.invalid`) as author and committer, while the clone's own identity stays the human's. `archive-feature.sh` and `start-story.sh` commit only through it, so every Kumpel commit names Kumpel (see *The factory works on `develop`; `main` holds the accepted features* in [decisions.md](../decisions.md)).
 
 See also: *The hosting client*.
 
@@ -144,11 +153,13 @@ The scripts run for real, in `tmp_path`, with stand-ins on the `PATH` for `gclou
     tests/support/operator_job_support.py
     tests/support/operator_skill_support.py
     tests/support/site_check_support.py
+    tests/support/archive_feature_support.py
 
 - [operator_support.py](../../tests/support/operator_support.py) holds the paths of the scripts, `INTERFACE_KEYS`, `operator_environment`, and runners for a script, `site`, a library and the hosting client.
 - [operator_job_support.py](../../tests/support/operator_job_support.py) holds the job's site values, `words` (the words of a recorded call), the wrapper's pattern and the `gcloud` stand-in.
 - [operator_skill_support.py](../../tests/support/operator_skill_support.py) holds `SKILL`, `SCRIPTS`, the `curl` stand-in's `Request` records and `Operator`, a machine with a site, answers and a bare remote.
 - [site_check_support.py](../../tests/support/site_check_support.py) holds `Machine`, a machine for `site check`, and the readers of its `ok`/`FAIL` lines.
+- [archive_feature_support.py](../../tests/support/archive_feature_support.py) holds a finished feature for the tests of `archive-feature.sh`. It names the folders and texts of the feature's stories and acceptances, `ACCEPTANCE` and `DONE_FRONT_MATTER` among them. `finished_feature` gives the files of one feature by path, and `tree` the files a branch of the remote holds.
 - The tests of the scripts are in `tests/operator_scripts/`; *Test modules by script* in the *Reference* lists them.
 
 See also: *Test modules by script* in the *Reference*.
@@ -172,5 +183,6 @@ See also: *Test modules by script* in the *Reference*.
 | `job.sh` | [test_operator_job.py](../../tests/operator_scripts/test_operator_job.py), [test_operator_job_log.py](../../tests/operator_scripts/test_operator_job_log.py) |
 | the sanitiser | [test_operator_sanitise.py](../../tests/operator_scripts/test_operator_sanitise.py) |
 | the skill's scripts | [test_operator_skill_scripts.py](../../tests/operator_scripts/test_operator_skill_scripts.py), [test_operator_merge_reset.py](../../tests/operator_scripts/test_operator_merge_reset.py), `test_operator_skill_signature.py`, `test_operator_texts.py` |
+| `archive-feature.sh`, `promote.sh` and `kumpel-commit.sh` | [test_operator_develop.py](../../tests/operator_scripts/test_operator_develop.py) (the scripts read and write `develop`, and only a promotion reaches `main`), [test_operator_archive_outcome.py](../../tests/operator_scripts/test_operator_archive_outcome.py) (an archive needs an accepted last acceptance), [test_operator_promote_reuse.py](../../tests/operator_scripts/test_operator_promote_reuse.py) (an open promotion is reused) |
 | the skill's name (neither skill text names the repository's old name) | [test_operator_skill_name.py](../../tests/operator_scripts/test_operator_skill_name.py) |
 | the Python isolation | `test_operator_python_isolation.py` |
