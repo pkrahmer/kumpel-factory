@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 650
 comments_read: [6716086925]
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-08T02:28:08.175232Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -95,6 +91,12 @@ journal:
   kind: started
   at: '2026-11-08T02:28:08.175232Z'
   stage: tests
+- number: 16
+  speaker: tester
+  kind: result
+  at: '2026-11-08T02:28:46.599717Z'
+  stage: tests
+  run: 0661c7e8e45746708c0630fe32784786
 ---
 
 # promote.sh reuses an open promotion
@@ -226,3 +228,25 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
 
     The factory left out changes outside the write paths: factory/features/F0057-the-factory-works-on-develop/in-progress/F0057-S0007-promote-reuses-an-open-promotion.md.
 15. factory: started tests as vm.
+16. tester: Made the two test changes listed in the coder's journal entry 14, which come from review findings 1 and 2. I changed nothing else.
+
+    1. Moved a shared constant under the standing leave to move shared test helpers:
+       - `PULL_NUMBER` (4711) and `OLD_SWITCHES` (`{"merge": False, "answer": True, "start_next": True}`) now live in `tests/support/operator_skill_support.py`, each with a short comment.
+       - Earlier test file changed: `tests/operator_scripts/test_operator_develop.py`. It no longer defines either constant and imports both from the support module. Its tests keep their names and check the same things.
+       - `tests/operator_scripts/test_operator_promote_reuse.py` dropped its copies, `PULL_NUMBER` and `SWITCHES`. It now imports `PULL_NUMBER` and `OLD_SWITCHES` from the support module, and its four `{**SWITCHES, …}` uses are now `{**OLD_SWITCHES, …}`.
+    2. `tests/operator_scripts/test_operator_promote_reuse.py::test_promote_stops_when_the_query_for_the_open_promotion_fails` now asserts `result.exit_status == 22` instead of `!= 0`. 22 is the exit status the hosting client returns for an HTTP error, and the Interface says the script exits with "the hosting client's message and exit status".
+
+    Criteria to tests (unchanged):
+    - criterion 1: tests/operator_scripts/test_operator_promote_reuse.py::test_promote_without_an_open_promotion_asks_for_it_and_opens_one
+    - criterion 2: tests/operator_scripts/test_operator_promote_reuse.py::test_promote_adds_the_next_feature_to_the_open_promotion
+    - criterion 3: tests/operator_scripts/test_operator_promote_reuse.py::test_promote_again_for_a_feature_already_in_the_open_promotion_changes_nothing
+    - criterion 4: tests/operator_scripts/test_operator_promote_reuse.py::test_promote_stops_when_the_query_for_the_open_promotion_fails
+    - criteria 5 and 6 (make check, docs): no test.
+
+    Files changed: tests/support/operator_skill_support.py, tests/operator_scripts/test_operator_develop.py, tests/operator_scripts/test_operator_promote_reuse.py. I created no new files.
+
+    Run: `uv run pytest -q` on the two operator test modules gave 30 passed, as expected since the script already exits with 22. `make lint`: lint: green (0.1 s). The test runner imported every module.
+
+    Open: the factory dropped the coder's rewrite of criterion 4 in the Description (journal entry 14). The criterion still says "exits non-zero", while the test now checks exactly 22, as the Interface says. The documenter or the coder may want to bring the criterion's wording into line.
+
+    `lint`: lint: green (0.2 s)

@@ -16,8 +16,10 @@ from support.archive_feature_support import (
 )
 from support.git_support import clone
 from support.operator_skill_support import (
+    OLD_SWITCHES,
     OPEN_PROMOTION,
     PREFIX,
+    PULL_NUMBER,
     Operator,
     make_bare_remote,
     recorded_requests,
@@ -25,8 +27,6 @@ from support.operator_skill_support import (
     write_switches,
 )
 
-PULL_NUMBER = 4711
-SWITCHES = {"merge": False, "answer": True, "start_next": True}
 SECOND_ARCHIVED = "factory/archive/F0002-other"
 FIRST_BLOCK = "The stories of F0001:\n\n- F0001-S0001: First story\n- F0001-S0002: Second story"
 SECOND_BLOCK = "The stories of F0002:\n\n- F0002-S0001: First story\n- F0002-S0002: Second story"
@@ -79,7 +79,7 @@ def answer_promotion(operator: Operator, open_pulls: list[dict[str, object]]) ->
 def test_promote_without_an_open_promotion_asks_for_it_and_opens_one(
     archived: Operator,
 ) -> None:
-    write_switches(archived, {**SWITCHES, "promote": False})
+    write_switches(archived, {**OLD_SWITCHES, "promote": False})
     answer_promotion(archived, [])
 
     result = archived.run("promote.sh", "F0001")
@@ -113,7 +113,7 @@ def test_promote_without_an_open_promotion_asks_for_it_and_opens_one(
 def test_promote_adds_the_next_feature_to_the_open_promotion(
     archived: Operator, promote: bool
 ) -> None:
-    write_switches(archived, {**SWITCHES, "promote": promote})
+    write_switches(archived, {**OLD_SWITCHES, "promote": promote})
     answer_promotion(archived, [open_promotion(FIRST_BLOCK)])
 
     result = archived.run("promote.sh", "F0002")
@@ -142,7 +142,7 @@ def test_promote_adds_the_next_feature_to_the_open_promotion(
 def test_promote_again_for_a_feature_already_in_the_open_promotion_changes_nothing(
     archived: Operator,
 ) -> None:
-    write_switches(archived, {**SWITCHES, "promote": False})
+    write_switches(archived, {**OLD_SWITCHES, "promote": False})
     answer_promotion(archived, [open_promotion(FIRST_BLOCK)])
 
     result = archived.run("promote.sh", "F0001")
@@ -156,12 +156,12 @@ def test_promote_again_for_a_feature_already_in_the_open_promotion_changes_nothi
 def test_promote_stops_when_the_query_for_the_open_promotion_fails(
     archived: Operator,
 ) -> None:
-    write_switches(archived, {**SWITCHES, "promote": True})
+    write_switches(archived, {**OLD_SWITCHES, "promote": True})
     answer_promotion(archived, [])
     archived.fail(OPEN_PROMOTION, "500", "Server Error")
 
     result = archived.run("promote.sh", "F0001")
 
-    assert result.exit_status != 0, result.stdout
+    assert result.exit_status == 22, result.stdout
     assert re.search(r"hosting: GET \S+: 500 ", result.stderr), result.stderr
     assert requests_that_change(archived) == []

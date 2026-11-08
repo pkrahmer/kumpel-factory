@@ -21,8 +21,10 @@ from support.git_support import clone, commit_all, remote_commit, run_git, write
 from support.operator_skill_support import (
     DEFAULT_BRANCH,
     KUMPEL,
+    OLD_SWITCHES,
     OPEN_PROMOTION,
     PREFIX,
+    PULL_NUMBER,
     SCRIPTS_BRANCH,
     SKILL,
     Operator,
@@ -31,9 +33,6 @@ from support.operator_skill_support import (
     write_switches,
 )
 from support.operator_support import ROOT
-
-PULL_NUMBER = 4711
-OLD_SWITCHES = {"merge": False, "answer": True, "start_next": True}
 
 
 def test_start_story_commits_on_develop_as_kumpel(operator: Operator) -> None:

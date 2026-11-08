@@ -122,6 +122,12 @@ class Operator:
         return found
 
 
+# The promotion pull request's number the stand-in answers with.
+PULL_NUMBER = 4711
+# The switches a promotion test starts from, before it sets `promote`.
+OLD_SWITCHES = {"merge": False, "answer": True, "start_next": True}
+
+
 # The query for the open promotion, a pull request from the owner's `develop` to `main`.
 OPEN_PROMOTION = (
     f"{PREFIX}/pulls?state=open&base=main&head={REPOSITORY.partition('/')[0]}:develop&per_page=1"
