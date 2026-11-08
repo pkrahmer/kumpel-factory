@@ -1,11 +1,11 @@
 ---
 stage: intake
-blocked: question
+blocked: null
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 662
-comments_read: []
+comments_read: [6721852631]
 handed_over: null
 claim: null
 journal:
@@ -26,6 +26,11 @@ journal:
   stage: intake
   run: f1cae251b2d24c42b4c30f28b31b5299
   blocked: question
+- number: 4
+  speaker: human
+  kind: comment
+  at: '2026-11-08T13:06:37.371105Z'
+  stage: intake
 ---
 
 # Each stage's start facts come from the factory
@@ -112,3 +117,8 @@ Expect: `True`
    - **Docs criterion:** it names what the reader must know and dictates no sentences.
    - **Architecture:** a `StageDefinition` field in pipeline/domain, project commands run through the existing check container, the blocks built in agents/domain `prompts.py`. Nothing calls a tool outside a wrapper.
    - **Scope:** this is S0004 of F0058, decision 6, and not in "Out of scope". The human's leave names every earlier test it may change.
+4. 2026-11-08 human: Answers from the human:
+
+   1. (a). Add the criterion: the common system prompt names the `<context>` blocks as start facts the agent need not gather again, in the shipped agent files and the operator template alike.
+   2. (a). The `context` commands count toward the lease. Add the Interface line and a criterion with both rows: a stage whose `context` time limits push the total past `lease_duration` is refused, and one that fits is accepted.
+   3. (a). The pipeline definition's contract rises to 1.1. Add a criterion that a definition with `contract: "1.0"` and one with `"1.1"` both load, and that both may carry `context`. The human raises `factory/pipeline.yml` itself to 1.1 after this story, together with its `context` lines; this story does not change `factory/` beyond the work item.
