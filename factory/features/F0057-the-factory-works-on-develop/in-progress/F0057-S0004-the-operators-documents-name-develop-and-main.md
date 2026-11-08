@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 646
 comments_read: [6715370076, 6715449873]
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-08T01:10:31.265788Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -79,6 +75,12 @@ journal:
   kind: started
   at: '2026-11-08T01:10:31.265788Z'
   stage: tests
+- number: 13
+  speaker: tester
+  kind: result
+  at: '2026-11-08T01:11:20.978493Z'
+  stage: tests
+  run: b9680d04450a486598f4610a2724c551
 ---
 
 # The operator's documents name develop and main
@@ -190,3 +192,33 @@ Expect: `documents ok (<seconds> s)`
     Criterion → test mapping: none yet. Files created: none. Modules the test run could not import: none, because I did not run the tests.
 11. 2026-11-08 human: (a), with your leave for the pinned test; the coder removes both words from GLOSSARY_FORBIDDEN. The agent-file test stays as it is.
 12. factory: started tests as vm.
+13. tester: I wrote the test for the criterion the human added in journal entry 11 (option (a)) and changed the earlier test that pins the v1-word list, which the human gave leave for. `make lint` is green.
+
+    **Description updated (R5):**
+    - The new criterion 8 goes before the two closing ones: "`promote` and `promoted` are no longer v1 words: the document check accepts them in a checked document, and the other v1 words stay forbidden." `make check` is now 9 and docs is 10.
+    - The sentence "It changes no code and no test" and the Interface's "No test changes" line now name the one code change (`GLOSSARY_FORBIDDEN` in `src/factory/shared/domain/documents.py`) and the human's leave for the pinned test.
+
+    **Criterion → test:**
+    - criteria 1–7, 9, 10: documents and checks only; no test of mine (docs route, `make documents`, `make check`).
+    - criterion 8: `tests/shared/domain/test_documents_promotion_words.py::test_the_words_of_a_promotion_are_no_v1_words`. It is one parametrized test. Rows `promote`, `` `promote` `` (backticks, as `install.md` writes the switch) and `promoted` in the guide's `install.md` must give no finding. A control row, `ticket`, must still give `uses the v1 word 'ticket'`.
+    - criterion 8, the list itself: `tests/pipeline/domain/test_documents.py::test_the_v1_words_are_the_sixteen_in_their_order`. This is the earlier test, changed with the human's leave (journal entry 11):
+      - it no longer has `promote` and `promoted` in the list it expects;
+      - I renamed it from `..._the_eighteen_...` to `..._the_sixteen_...` so the name stays true.
+
+    **Files:**
+    - Created: `tests/shared/domain/test_documents_promotion_words.py`.
+    - Changed: `tests/pipeline/domain/test_documents.py`, only the pinned list test, under the human's leave.
+    - Left as the human said: `tests/agent_files/test_claude_agent_texts.py`.
+
+    **Test run** (`uv run pytest -q` on the two files): 4 tests fail, for the right reason, and the rest pass.
+    - The three promotion rows fail because the check still returns a `uses the v1 word` finding.
+    - The pinned-list test fails because `GLOSSARY_FORBIDDEN` still has 18 words.
+    - The `ticket` control row and the other tests in `test_documents.py` pass. `test_every_v1_word_alone_on_its_line_is_one_finding` takes its rows from `GLOSSARY_FORBIDDEN`, so it follows the coder's change by itself.
+
+    Modules the test runner could not import: none.
+
+    For the coder: remove `promote` and `promoted` from `GLOSSARY_FORBIDDEN`. Then `make documents` should pass on the documenter's `install.md`.
+
+    The factory left out changes outside the write paths: factory/features/F0057-the-factory-works-on-develop/in-progress/F0057-S0004-the-operators-documents-name-develop-and-main.md.
+
+    `lint`: lint: green (0.1 s)
