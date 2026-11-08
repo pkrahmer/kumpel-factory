@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 662
 comments_read: [6721852631]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-08T13:07:12.864167Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -42,6 +46,11 @@ journal:
   at: '2026-11-08T13:07:07.805443Z'
   stage: intake
   run: 2e29510f597e4db3aea3d7f8d758ec58
+- number: 7
+  speaker: factory
+  kind: started
+  at: '2026-11-08T13:07:12.864167Z'
+  stage: tests
 ---
 
 # Each stage's start facts come from the factory
@@ -145,3 +154,4 @@ Expect: `True`
    - Docs criterion: names what the reader must know (the key, what the factory does with it, the size limit, the failure line, one operator example, one decision entry) and dictates no sentences.
    - Architecture: the stage key and the lease rule belong in pipeline/domain. The commands run through the existing project-commands interface in the check container, as checks do. The blocks are built in agents/domain prompts. No tool is called outside its wrapper. The contract schema is regenerated with `factory.entry.contract`.
    - Scope: within F0058, whose decision 6 matches this story, and not in its Out of scope. The human's leave names every earlier test the story may change. Route `tests`, because the Interface changes `src/`.
+7. factory: started tests as vm.
