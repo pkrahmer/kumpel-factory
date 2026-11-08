@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 0
 attempts: 0
@@ -20,8 +20,13 @@ journal:
   at: '2026-11-08T22:10:21.341700Z'
   stage: acceptance
   run: 42ca702dc6a240adbcfec45e9b5cbb59
+- number: 3
+  speaker: factory
+  kind: done
+  at: '2026-11-08T22:12:15.295834Z'
+  stage: done
 stories: [F0060-S0001, F0060-S0002, F0060-S0003]
-outcome: null
+outcome: accepted
 ---
 
 # Acceptance of Runs share the project's start
@@ -214,3 +219,4 @@ S0003 needed the human most. All three of its questions asked leave to change ea
    6. Decisions for the human: `feature.md` decisions 1 to 6, the "add to these rules" wording chosen to keep an earlier test passing, a `CLAUDE.md` that is a link running silently without instructions, step 4 placed because step 3 was pinned, and the widened leave of S0003 entry 16. Every earlier test changed under a named leave.
    7. Slow checks: nothing beyond `make check`, which is green (test 139.8 s, coverage 99.21 %). The slowest test is the documents-marker guard (30.9 s); the feature's tests take 9.6 s. Free disk fell by 0.3 GB while none of the three named paths grew, which the text-only changes cannot explain; ZFS snapshots or podman images are the likely cause.
    8. Cost: 46 runs, 84.4 min, $14.62. S0001 took the most time (46.8 min) because of four docs runs on the slow index. S0003 needed the human most, three times, every time for leave on pinned agent texts. 7 answers in all (6 questions, 1 `attempts_cap`), 0.4 h waited. Each story still shows the coder relay that S0003 removes.
+3. factory: done (pull request merged); cost: 1 runs, 8.7 min, 53 turns, 151050 tokens in (5054151 more from cache), 38032 out, $2.53
