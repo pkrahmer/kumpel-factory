@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 647
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: docs-only
+  started_at: '2026-11-08T01:35:31.481318Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -47,6 +51,11 @@ journal:
   at: '2026-11-08T01:35:26.619144Z'
   stage: docs-review
   run: a44b8f1b58424fa69de17292dcd987b5
+- number: 8
+  speaker: factory
+  kind: started
+  at: '2026-11-08T01:35:31.481318Z'
+  stage: docs-only
 ---
 
 # The project guide names develop and main
@@ -144,3 +153,4 @@ Expect: `documents ok (<seconds> s)`
    - `operator.md:133` (`main` as the line of accepted features) and `work.md:396` (the guard's old literals) are rightly left as `main`.
    - `pipeline.md`'s note that `main_branch_failing` keeps its name matches F0057 decision 6.
    - The other remaining matches are entry-point `main` functions, the variable at `machine.md:400`, or code names.
+8. factory: started docs-only as vm.
