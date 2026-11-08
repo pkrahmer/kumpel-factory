@@ -1,5 +1,5 @@
 ---
-stage: smoke-test
+stage: approval
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 680
 comments_read: [6727432579, 6727512748, 6727549619]
 handed_over: null
-claim:
-  instance: vm
-  stage: smoke-test
-  started_at: '2026-11-08T21:58:16.982378Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -195,6 +191,12 @@ journal:
   kind: started
   at: '2026-11-08T21:58:16.982378Z'
   stage: smoke-test
+- number: 34
+  speaker: smoke-tester
+  kind: result
+  at: '2026-11-08T22:00:34.561516Z'
+  stage: smoke-test
+  run: 0c7befe6186f42d48fbce85493ca7809
 ---
 
 # A review whose findings need only tests goes to the tester
@@ -526,3 +528,28 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     `secrets`: secrets: green (0.6 s)
     `documents`: documents ok (59.3 s)
 33. factory: started smoke-test as vm.
+34. smoke-tester: Smoke test passed. I ran both commands from the repository root exactly as written, and both meet their `Expect:` lines. No findings.
+
+    1. `grep -c 'review → tests' agents/system-prompt.md`
+    ```
+    1
+    ```
+    Expected `1`. Met.
+
+    2. `uv run pytest tests/agent_files/test_review_to_tests_agent_files.py`
+    ```
+    Bytecode compiled 4164 files in 83ms
+    ................                                                         [100%]
+    16 passed in 2.57s
+    ```
+    Expected a summary line with only `passed` and no `failed` or `error`. Met.
+
+    Checked against the acceptance criteria:
+    - Criterion 4: R12 in `agents/system-prompt.md:35` and `SYSTEM_PROMPT` in `src/factory/agents/domain/prompts.py:121` both put `review → tests` right after `review → doing`.
+    - Criteria 1, 2, 3 and 5: covered by the 16 passing tests.
+    - Criterion 7 (docs): `docs/operator-guide/pipeline.md:98` says three things the criterion asks for. The review stage may send a story to the tester when its findings need only tests. This needs `tests` in `review`'s `next`. The move counts as a rework round against `round_cap`.
+    - Criterion 6: the factory runs `make check` after this stage. The coder's run in entry 28 was green.
+
+    Nothing in the smoke test contradicts any criterion.
+
+    `check`: check: green
