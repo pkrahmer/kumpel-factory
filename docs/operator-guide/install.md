@@ -8,7 +8,7 @@ An instance runs one project. It is told what it needs through environment varia
 
 Install the factory on a repository that holds no [work items](../project-guide/glossary.md) from an older version of the factory, or whose old work items are archived or discarded. The factory starts fresh and does not detect old work items. To run an instance without a VM, see [cloud-run.md](cloud-run.md).
 
-1. Make sure the repository has the branch `develop`. If it has only `main`, create `develop` from it and push it: `git switch -c develop origin/main` and `git push -u origin develop`. The factory works on `develop`, so the preflight names a missing `origin/develop` and no stage starts (see "The preflight's items" in [health.md](health.md)). See *The branches* below for what `develop` and `main` hold.
+1. Make sure the repository has the branch `develop`. If it has only `main`, create `develop` from it and push it: `git switch -c develop origin/main` and `git push -u origin develop`. The factory works on `develop`, so on a remote that has no `develop` an instance starts no stage and shows the `repository_unavailable` stop with the detail `the repository has no develop branch yet` (see its row in [health.md](health.md#the-wait-for-a-repository-that-is-not-ready)). See *The branches* below for what `develop` and `main` hold.
 
 2. Prepare a fresh Ubuntu 24.04 machine for an instance with `sudo sh operator/vm/setup.sh --device <disk> --repository-url <url>`. The first run stops with `setup: checkout: waiting for /home/factory/.secrets/hosting-token`, because the private repository needs the token.
 
@@ -41,6 +41,8 @@ check: green
 ## The branches
 
 The factory works on `develop`. It reads the pipeline definition, the agent files and the stage file there, and it pushes its archives and its stop records there. Each story has its own branch `work-item/<id>`, and its pull request goes to `develop`.
+
+`main` stays the repository's default branch, and a fresh clone starts on it. The factory and Kumpel do not depend on that: they check out `develop` themselves.
 
 `main` is the line of accepted features. Nothing reaches it except a promotion: after a feature's acceptance, `develop` is merged into `main`.
 

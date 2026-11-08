@@ -2,16 +2,12 @@
 stage: docs-only
 blocked: null
 round: 0
-attempts: 0
+attempts: 1
 crashes: 0
 pull_request: 651
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: docs-only
-  started_at: '2026-11-08T02:43:37.598316Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -34,6 +30,19 @@ journal:
   kind: started
   at: '2026-11-08T02:43:37.598316Z'
   stage: docs-only
+- number: 5
+  speaker: documenter
+  kind: result
+  at: '2026-11-08T02:47:00.082952Z'
+  stage: docs-only
+  run: 948fd1c27eb94f77b123856951ac1020
+- number: 6
+  speaker: factory
+  kind: stall
+  at: '2026-11-08T02:47:00.426155Z'
+  stage: docs-only
+  run: 948fd1c27eb94f77b123856951ac1020
+  reason: check_red
 ---
 
 # The operator's documents on the archive, the promotion and the default branch
@@ -83,3 +92,31 @@ Expect: `documents ok (<seconds> s)`
    - Architecture: documents only, so there is no layer or area impact.
    - Scope: it fits F0057's goal of the operator's documents naming `develop` and `main`. It touches no "Out of scope" item. It is a follow-up gap found at acceptance, and it is not a new feature.
 4. factory: started docs-only as vm.
+5. documenter: Changed files:
+   - `docs/operator-playbook.md`: the archive sentence now names `archive-feature.sh` (commit `<id>: archived`, refuses unless the last acceptance says `outcome: accepted`) in place of the hand `git mv`. The acceptance step now names the promotion (`promote.sh`, the switch `promote`) and links to work-items.md, *The branches*.
+   - `docs/operator-guide/work-items.md`: under the *Automatically delete head branches* step I added that a promotion's head is `develop`, so with the setting on its merge deletes `develop`.
+   - `docs/operator-guide/install.md`: step 1 now names the `repository_unavailable` stop with the detail `the repository has no develop branch yet`. It links to the row in health.md, `#the-wait-for-a-repository-that-is-not-ready`, which is where that row sits. *The branches* now says `main` stays the default branch, a fresh clone starts there, and the factory and Kumpel check out `develop` themselves.
+
+   I read the scripts `archive-feature.sh` and `promote.sh` and the health.md row before I wrote. `make documents` ended with `documents ok (58.4 s)`. I did not run `make check`, because every changed file is a document.
+
+   I cross-read these and found them current: the *After the merge* and *Rebuilds* steps in the playbook, which already name the archive commit; the rest of work-items.md's *The branches* text on promotion; and health.md's preflight text.
+
+   I did not add a `docs/decisions.md` entry, as the docs criterion says.
+
+   Stale text I saw and left alone, because it is not part of this story: the playbook's older numbered change list and its step 26 still describe the old archive wording. They are history, not rules.
+6. factory: Stage docs-only stalled (attempt 1 of 2): a check is red after the stage: `check`
+   src/factory/watching/application/transcripts.py         61      2     10      0    97%   92-93
+   src/factory/watching/domain/board.py                    55      0      4      1    98%   78->76
+   src/factory/watching/domain/machine.py                  52      3     18      5    89%   45->43, 48, 60, 78->76, 80
+   src/factory/watching/domain/transcripts.py              10      2      0      0    80%   21-22
+   src/factory/work/application/acceptance_reading.py     132      1     46      1    99%   240
+   src/factory/work/application/work_items.py              90      2     24      2    96%   135, 171
+   src/factory/work/domain/acceptance.py                  195      1     52      1    99%   368
+   ------------------------------------------------------------------------------------------------
+   TOTAL                                                11369     55   2298     52    99%
+
+   159 files skipped due to complete coverage.
+   Required test coverage of 90.0% reached. Total coverage: 99.22%
+   ======================================================================================= short test summary info ========================================================================================
+   FAILED tests/guards/test_project_guide_files.py::test_no_file_names_a_removed_guide_file - AssertionError: assert ['docs/operat...ork-items.md'] == []
+   make: *** [Makefile:89: test] Error 1
