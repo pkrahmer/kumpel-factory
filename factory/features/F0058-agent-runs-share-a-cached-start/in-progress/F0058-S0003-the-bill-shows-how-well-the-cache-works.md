@@ -12,6 +12,7 @@ After this story, the bill shows for each work item, and in its total, the token
 - One line per role with the same three figures, in the work item's bill.
 - The hit rate is shown as a whole percent. A work item with no prompt tokens shows `-`.
 - Today's lines and their order stay as they are.
+- The human's leave for earlier tests: a test that pins the bill's whole output or its models may change to hold the new figures, keeping its name and checking otherwise the same thing: `tests/entry/test_bill.py`, `tests/watching/application/test_bill_service.py`, `tests/watching/domain/test_bills.py`, `tests/watching/domain/test_bills_model_time.py` and `tests/hosting/application/test_costs.py`. The tester's entry names each one it changed.
 
 ## Acceptance criteria
 

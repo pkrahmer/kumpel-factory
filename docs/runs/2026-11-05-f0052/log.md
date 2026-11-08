@@ -279,3 +279,4 @@ Times are UTC. The plan: `night-plan.md`.
 - 10:41 F0058-S0001 (every role has the same tools and the same decision tool) started
 - 11:20 F0058-S0001 merged (PR #659, 15 runs, $3.21), VM moved; S0002 got a test leave and started
 - 11:21 F0057 time split measured (journals and cost records), added to the e2e eval
+- 12:32 F0058-S0002 merged (PR #660, 17 runs, $9.03), VM moved; S0003 got a test leave and started
