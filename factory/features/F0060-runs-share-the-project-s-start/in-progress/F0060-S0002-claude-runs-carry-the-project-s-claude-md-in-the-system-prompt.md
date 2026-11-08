@@ -1,17 +1,13 @@
 ---
 stage: doing
-blocked: null
+blocked: question
 round: 2
 attempts: 0
 crashes: 0
 pull_request: 679
 comments_read: [6727152793]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T21:21:05.131611Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -150,6 +146,13 @@ journal:
   kind: started
   at: '2026-11-08T21:21:05.131611Z'
   stage: doing
+- number: 26
+  speaker: coder
+  kind: question
+  at: '2026-11-08T21:21:22.079466Z'
+  stage: doing
+  run: 58970ee53d36459a956d700ddfaaeb18
+  blocked: question
 ---
 
 # Claude runs carry the project's CLAUDE.md in the system prompt
@@ -372,3 +375,12 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     Earlier tests:
     - `tests/agents/adapters/test_claude_runtime.py`: changed under the human's leave in entry 8. Only the two switches were added to its local `SWITCHES` dict, and the test keeps its name.
 25. factory: started doing as vm.
+26. coder: Question: the reviewer's finding in entry 24 asks the coder to extend criterion 9 in the work item. The coder's write paths in `factory/pipeline.yml` do not include the work item (`{work_item}`), so the change I make there would be dropped (R14). I changed no code in this run. The code from entry 18 is on the branch and `make check` was green in entry 22.
+
+    The text I would add to the end of criterion 9's operator-guide part, after "...the one-hour cache costs more than it saves)":
+    "; that a root `CLAUDE.md` that is a symbolic link, or not a regular file, is not read either, so such a project runs without its instructions, because the file is read on the host and following a link could put a host file into the prompt; and that a project keeps its root `CLAUDE.md` as a regular file (not, for example, a link to `AGENTS.md`)".
+
+    Options:
+    (a) You add this text to criterion 9 yourself, or tell me to add it and name the work item's path as a write path for this run. **I recommend this.** After that I end with `review`, and no code changes.
+    (b) I end with `review` now, without the change, and the reviewer adds the text to criterion 9. The work item is in the reviewer's write paths. This is quicker, but it goes against how entry 24 assigned the work.
+    (c) Leave criterion 9 as it is. I would not choose this: operators whose `CLAUDE.md` is a link would lose their instructions and not know why.
