@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 0
 attempts: 0
@@ -20,8 +20,13 @@ journal:
   at: '2026-11-08T01:52:02.901047Z'
   stage: acceptance
   run: cf8170776cca40408d78b64cfa62fcff
+- number: 3
+  speaker: factory
+  kind: done
+  at: '2026-11-08T01:55:58.472953Z'
+  stage: done
 stories: [F0057-S0001, F0057-S0002, F0057-S0003, F0057-S0004, F0057-S0005]
-outcome: null
+outcome: accepted
 ---
 
 # Acceptance of The factory works on develop
@@ -212,3 +217,4 @@ The human answered 14 questions, all of cause `question`, and the stories waited
    6 Decisions: feature decisions 1 to 9, the human's 14 answers across S0001 to S0004, and three defaults nobody asked about. Every earlier test change has a named leave.
    7 Slow checks: nothing beyond `make check`, which is green (`test: green (102.5 s)`, 99.22 %). The slowest tests are the 10 s `ROOMY_LIMIT` ones. Free disk fell 0.7 GB with the used figure unchanged, which the feature's changes do not explain (no dependency or image change).
    8 Cost: $24.34 over 69 runs. S0003 cost the most ($9.68, 54.8 min: a lint stall and three review rounds). S0002 needed the human most: 7 of the 14 questions, because its narrow Interface had to be widened text by text until the human's j39. The stories waited 0.5 h in total.
+3. factory: done (pull request merged); cost: 1 runs, 9.5 min, 55 turns, 170040 tokens in (5143179 more from cache), 43362 out, $2.75
