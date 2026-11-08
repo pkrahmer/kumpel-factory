@@ -1,5 +1,5 @@
 ---
-stage: review
+stage: docs
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 656
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: review
-  started_at: '2026-11-08T07:46:13.669329Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -56,6 +52,12 @@ journal:
   kind: started
   at: '2026-11-08T07:46:13.669329Z'
   stage: review
+- number: 9
+  speaker: reviewer
+  kind: result
+  at: '2026-11-08T07:47:03.475157Z'
+  stage: review
+  run: 1c8fab28ef7d4a20a714a76ae437d393
 ---
 
 # The working branch's remote ref is one constant
@@ -167,3 +169,21 @@ Expect: `origin/develop`
    `check`: check: green
    `duplicates`: duplicates: 6 new, 39 known, 4 gone
 8. factory: started review as vm.
+9. reviewer: no findings
+
+   What I checked (round 0, scope `git diff develop...HEAD -- . ':!factory'` plus the work item):
+   - Criterion 1: `tests/shared/domain/test_paths_work_ref.py::test_the_working_branch_s_remote_ref_is_origin_develop` has the rows `work-ref`, `pipeline-ref` and `form-ref` in one parametrized test, and each expects `"origin/develop"`. `src/factory/shared/domain/paths.py:14` adds `WORK_REF = f"{REMOTE}/{WORK_BRANCH}"` beside `REMOTE` and `WORK_BRANCH`. `PIPELINE_REF` in `pipeline_loading.py` and `FORM_REF` in `task.py` are now `= WORK_REF`.
+   - Criterion 2: `tests/guards/test_work_ref_search.py` runs the guard on the repository. One parametrized test covers both sides of the rule:
+     - The fail rows are `inline` and `private-constant`.
+     - The pass rows are `imports-work-ref` and `work-item-branch`, plus `the-paths-module` for the one allowed file, which tests the "exactly one file" limit from the other side.
+     - The scan reads `src/factory/**/*.py` as `test_work_branch_search.py` does, as the Interface asks.
+     - I compared it with `tests/support/search_support.modules_matching`. That helper leaves files out by bare name, not by path, and is built for `tests/`, so the new scan is not a copy of it.
+   - Criterion 3: the diff adds only test files (status `A`), so no earlier test was touched. The coder's journal entry 7 reports `check: green`.
+   - Source: I read every hunk of the 16 modules. Each of the nine `_WORK_REF` constants and each of the five inline spellings became `WORK_REF`, with no other change in behaviour. A work item's branch keeps `f"{REMOTE}/{snapshot.branch}"`. Each module still imports `REMOTE` or `WORK_BRANCH` only where it still uses it (`hand_over`, `stops` and `costs` for `REMOTE`; `preflight`, `scheduler`, `tick`, `stage` and `stops` for `WORK_BRANCH`). `grep` finds `{REMOTE}/{WORK_BRANCH}` only in `paths.py`, and no `_WORK_REF` is left under `src/factory`.
+   - Architecture: the constant sits in the `shared` domain layer, which may be imported from any layer above it. There is no new dependency and no new interface.
+   - Security: no new markers, secrets, shell or string-built commands.
+   - Quality: names, imports and docstrings are fine, and there is no dead code. `make duplicates` reports 6 new findings, but this change only removes duplication.
+   - Work item hygiene: the journal gives the main choice (keep `PIPELINE_REF` and `FORM_REF` as aliases) and the alternative it rejected. The Description matches what was built. Docs criterion 5 still holds: `docs/project-guide/work.md:394-396` (the `paths` table) does not name `WORK_REF` yet, and the documenter adds it next. No project-guide file names `_WORK_REF`.
+   - Documents: the diff changes none.
+
+   Earlier tests: none. The diff changes, renames or deletes no test file that `develop` already holds.
