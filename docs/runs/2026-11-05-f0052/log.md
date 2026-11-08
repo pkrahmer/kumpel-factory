@@ -332,3 +332,4 @@ Times are UTC. The plan: `night-plan.md`.
 - 21:01 UTC: the human's change after F0060-S0001 made (CLAUDE.md names agents/system-prompt.md as where the rules reach the agents). F0060-S0002 (Claude runs carry the project's CLAUDE.md in the system prompt) started.
 - 21:09 UTC: F0060-S0002: the coder asked for leave to change tests/agents/adapters/test_claude_runtime.py (its own SWITCHES dict lacks the two new switches); answered (a): the tester adds both, the test keeps pinning the values.
 - 21:22 UTC: F0060-S0002: the coder asked who extends criterion 9 (a symlinked root CLAUDE.md is not read; the reviewer's finding); answered (b): the reviewer adds it.
+- 21:32 UTC: F0060-S0002 (Claude runs carry the project's CLAUDE.md in the system prompt) approved, PR #679 merged (16 runs, $4.38). Checked before: the runtime reads CLAUDE.md from the host's dataset checkout (agent_working_directory), not the container path; a symlinked CLAUDE.md is not read.
