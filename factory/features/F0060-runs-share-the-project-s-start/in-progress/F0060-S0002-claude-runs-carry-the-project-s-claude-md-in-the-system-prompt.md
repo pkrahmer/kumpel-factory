@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 679
 comments_read: [6727152793]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T21:10:01.870255Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -84,6 +80,12 @@ journal:
   kind: started
   at: '2026-11-08T21:10:01.870255Z'
   stage: doing
+- number: 14
+  speaker: coder
+  kind: result
+  at: '2026-11-08T21:12:36.535409Z'
+  stage: doing
+  run: c1f00413326f4acd8be07f9f70422e76
 ---
 
 # Claude runs carry the project's CLAUDE.md in the system prompt
@@ -198,3 +200,21 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     `lint`: lint: green (0.1 s)
 13. factory: started doing as vm.
+14. coder: The tester's change from entry 12 is in. Both named test files pass (`test_claude_runtime.py` and `test_claude_runtime_project_instructions.py`), `make check` ends with `check: green`, and `make guides` is green.
+
+    What I built: only `src/factory/agents/adapters/claude_runtime.py`. Most of it was already on the branch from entry 7.
+    - `SWITCHES` gains `CLAUDE_CODE_DISABLE_CLAUDE_MDS: "1"` and `CLAUDE_CODE_PROMPT_CACHE_TTL: "5m"`. The comment above it says why each is set.
+    - `_instructions_text(system_prompt, checkout)` builds the instructions file. It uses two private helpers:
+      - `_project_instructions` reads the root `CLAUDE.md` only when `is_file()` holds. If the read fails with an `OSError` or `UnicodeDecodeError`, it raises `AgentRuntimeError` naming the path.
+      - `_ended_line` makes sure each part ends with a newline.
+    - When a root `CLAUDE.md` exists, the system prompt is followed by a blank line, the introducing sentence and the `<project-instructions>` block. `_write_files` now takes the request's `working_directory` and writes this text once per run, and a resumed call reuses that file.
+
+    Main choice: the Claude adapter reads the text from the run's checkout when the run starts. I rejected putting the block into the shared `system_prompt_text` in `agent_launch`, because the opencode runtime must not get it.
+
+    Refactor, this run: `instructions_text`, `PROJECT_INSTRUCTIONS_FILE` and `PROJECT_INTRODUCTION` are now private (`_`-prefixed). Only this module uses them, and they are not in its `__all__`. I made no other change.
+
+    The journal does not change the task's meaning: entry 8's leave was a test change only, so `## Description` stays as it is.
+
+    Noticed and not touched: the docs criterion (9) is the documenter's.
+
+    `duplicates`: duplicates: 7 new, 39 known, 4 gone

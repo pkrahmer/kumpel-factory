@@ -99,8 +99,8 @@ _SESSION_FOLDER = ".claude/projects"
 # A session id comes from the runtime's output and becomes part of a glob pattern; a separator,
 # a parent step or a glob character in it could reach another session's file or leave the folder.
 _SESSION_REFUSED_CHARACTERS = frozenset("/\\*?[]")
-PROJECT_INSTRUCTIONS_FILE = "CLAUDE.md"
-PROJECT_INTRODUCTION = (
+_PROJECT_INSTRUCTIONS_FILE = "CLAUDE.md"
+_PROJECT_INTRODUCTION = (
     "The project's instructions, its CLAUDE.md, follow; obey them as you obey this system prompt."
 )
 
@@ -338,7 +338,7 @@ def _project_instructions(checkout: Path) -> str | None:
 
     A file that cannot be read as UTF-8 text is `AgentRuntimeError`.
     """
-    path = checkout / PROJECT_INSTRUCTIONS_FILE
+    path = checkout / _PROJECT_INSTRUCTIONS_FILE
     if not path.is_file():
         return None
     try:
@@ -347,7 +347,7 @@ def _project_instructions(checkout: Path) -> str | None:
         raise AgentRuntimeError(f"cannot read the project's instructions {path}: {exc}") from exc
 
 
-def instructions_text(system_prompt: str, checkout: Path) -> str:
+def _instructions_text(system_prompt: str, checkout: Path) -> str:
     """The instructions file of a run in `checkout`: the system prompt and the root `CLAUDE.md`.
 
     Without a root `CLAUDE.md` file it is `system_prompt` alone; otherwise a blank line, one
@@ -357,7 +357,7 @@ def instructions_text(system_prompt: str, checkout: Path) -> str:
     if project is None:
         return system_prompt
     return (
-        f"{_ended_line(system_prompt)}\n{PROJECT_INTRODUCTION}\n<project-instructions>\n"
+        f"{_ended_line(system_prompt)}\n{_PROJECT_INTRODUCTION}\n<project-instructions>\n"
         f"{_ended_line(project)}</project-instructions>\n"
     )
 
@@ -501,7 +501,7 @@ class ClaudeCodeRuntime(AgentRuntime):
         return state_directory_error(self._state_directory, exc)
 
     def _write_files(self, files: _RunFiles, checkout: Path) -> None:
-        instructions = instructions_text(system_prompt_text(self._system_prompt_file), checkout)
+        instructions = _instructions_text(system_prompt_text(self._system_prompt_file), checkout)
         try:
             files.instructions.write_text(instructions, encoding="utf-8")
         except OSError as exc:
