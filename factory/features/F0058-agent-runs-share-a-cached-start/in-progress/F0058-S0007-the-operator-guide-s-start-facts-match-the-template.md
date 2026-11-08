@@ -1,17 +1,13 @@
 ---
-stage: docs-review
+stage: docs-only
 blocked: null
-round: 0
+round: 1
 attempts: 0
 crashes: 0
 pull_request: 667
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: docs-review
-  started_at: '2026-11-08T15:07:48.161890Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -45,6 +41,12 @@ journal:
   kind: started
   at: '2026-11-08T15:07:48.161890Z'
   stage: docs-review
+- number: 7
+  speaker: reviewer
+  kind: result
+  at: '2026-11-08T15:08:20.953552Z'
+  stage: docs-review
+  run: fb9e7e48afee4224ae03346d15cf16b3
 ---
 
 # The operator guide's start facts match the template
@@ -105,3 +107,8 @@ Expect: `0`.
    `secrets`: secrets: green (0.3 s)
    `documents`: documents ok (59.5 s)
 6. factory: started docs-review as vm.
+7. reviewer: Findings:
+   1. `docs/operator-guide/pipeline.md:52`: the sentence "Each measures from the point where the branch left `origin/develop`" is not true of all three targets. In `operator/template/Makefile:139-140`, `facts-files` runs `git ls-files -- . ':!factory'` with no `base_ref`; only `facts-diff` and `facts-changes` (`:131-136`) start at the merge base. Fix: say that `facts-diff` and `facts-changes` measure from where the branch left `origin/develop` and that `facts-files` lists the tracked files as they are. The part about leaving out `factory/` is true of all three and can stay.
+   2. `docs/operator-guide/pipeline.md:52` and `:63`: the YAML and make blocks show excerpts of `operator/template/factory/pipeline.yml` and `operator/template/Makefile`, but the text names those files only in backticks. Rule 8 of `docs/project-guide/style.md` says to link the file a code block shows once, above the block, with a relative link. Fix: link each template file once before its block, for example `[pipeline.yml](../../operator/template/factory/pipeline.yml)` and `[Makefile](../../operator/template/Makefile)`.
+
+   Checked and found correct: the table's description of `facts-diff` (stat, then the whole diff, without `uv.lock`) and of `facts-changes` (name and status, then untracked files). The stage mapping matches `operator/template/factory/pipeline.yml:23-26`, and the three `time_limit: 1` values match `:10-12`. The `tests`, `doing` and `review` lines of the YAML example match the template. The `base_ref` and `facts-diff` recipe matches `operator/template/Makefile:128-133` exactly. No `develop...HEAD` remains in the section. The "project's own" paragraph meets criterion 3. The rules of start facts (order, the cut, `failed:`, the lease) are unchanged apart from the block name in the example.
