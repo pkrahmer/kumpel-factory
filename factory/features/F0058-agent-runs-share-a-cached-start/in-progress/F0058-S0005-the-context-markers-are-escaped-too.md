@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 664
 comments_read: [6722586434]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T14:17:21.917900Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -52,6 +56,11 @@ journal:
   speaker: human
   kind: comment
   at: '2026-11-08T14:17:19.530739Z'
+  stage: doing
+- number: 9
+  speaker: factory
+  kind: started
+  at: '2026-11-08T14:17:21.917900Z'
   stage: doing
 ---
 
@@ -132,3 +141,4 @@ Expect: `1`
 
    Noticed, not touched: I did not refactor anything; the change is the two added tuple entries.
 8. 2026-11-08 human: Answer from the human: A. Keep the Interface: `<context` is escaped as a prefix, like the other markers. Leave for the tester to replace `<context-free>` in the `near` row of `tests/agents/domain/test_prompts_context_markers.py` with a text that holds no marker (such as `context-free`), and nothing else.
+9. factory: started doing as vm.
