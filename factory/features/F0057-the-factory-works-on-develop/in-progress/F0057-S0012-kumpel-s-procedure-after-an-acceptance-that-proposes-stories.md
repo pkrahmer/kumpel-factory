@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 654
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T07:14:41.611300Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -89,6 +85,12 @@ journal:
   kind: started
   at: '2026-11-08T07:14:41.611300Z'
   stage: doing
+- number: 15
+  speaker: coder
+  kind: result
+  at: '2026-11-08T07:18:57.542142Z'
+  stage: doing
+  run: 34ee3c2fdaec48548291088be5e5cf96
 ---
 
 # Kumpel's procedure after an acceptance that proposes stories
@@ -214,3 +216,22 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
 
     `lint`: lint: green (0.2 s)
 14. factory: started doing as vm.
+15. coder: Round 1, after the tester's change. I changed no code this round. The reviewer's one finding (entry 9, item 1) was a change to this story's own test only. The tester made it in entry 13: `section_steps` in `tests/operator_scripts/test_operator_approving_after_acceptance.py` now gets the section from `factory.shared.domain.sections.section_text`. Nothing else is left for the coder.
+
+    Built (unchanged since entry 7): `operator/skill/kumpel/references/approving.md`, *After a feature's acceptance*.
+    - Step 1 has a continuation line for the case where the accepted acceptance proposed stories. The refusal `is in backlog/` is then expected, and Kumpel tells the human that the archive and the promotion wait for the feature's next accepted acceptance.
+    - Step 2 names the reuse of an open promotion and its line `promotion open: #<number>, for the human to merge`.
+
+    Main choice (from entry 7): the new step-1 case is a continuation line, not part of step 1's first line. `test_operator_archive_outcome.py` reads only that first line, so it stays untouched. Rejected: rewriting the first line into a longer list of refusals.
+
+    Refactor: there is no new diff this round, so nothing to change.
+
+    Noticed, not touched:
+    - `tests/operator_scripts/test_operator_archive_outcome.py:121-124` still finds the section with its own inline lines. Changing it needs the human's leave, and this story changes no earlier test.
+    - The docs criterion is the documenter's: `docs/operator-playbook.md` step 8 and `docs/operator-guide/install.md` *The promotion*.
+    - The journal did not change the task's meaning, so the Description stays as it is.
+
+    `make check`: check: green (test: green, 108.4 s).
+
+    `check`: check: green
+    `duplicates`: duplicates: 6 new, 39 known, 4 gone
