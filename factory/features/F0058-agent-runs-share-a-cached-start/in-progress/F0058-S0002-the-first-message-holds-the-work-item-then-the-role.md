@@ -1,17 +1,13 @@
 ---
 stage: doing
-blocked: null
+blocked: question
 round: 1
 attempts: 0
 crashes: 0
 pull_request: 660
 comments_read: [6720878077, 6720941885, 6720981420, 6721183670]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T12:10:35.276166Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -179,6 +175,13 @@ journal:
   kind: started
   at: '2026-11-08T12:10:35.276166Z'
   stage: doing
+- number: 31
+  speaker: coder
+  kind: question
+  at: '2026-11-08T12:13:17.773775Z'
+  stage: doing
+  run: 193187598273437f8707369eabdc66c1
+  blocked: question
 ---
 
 # The first message holds the work item, then the role
@@ -592,3 +595,38 @@ Expect: the docstring names the order: the work item's body, the role's instruct
 
     `lint`: lint: green (0.2 s)
 30. factory: started doing as vm.
+31. coder: Round 1. The code is ready, but the reviewer's finding 2 (entry 25) needs a path outside my write paths, so I'm asking before I hand over to review.
+
+    **Question: who adds the operator-guide line to criterion 14?**
+    Finding 2 asks for one addition to criterion 14 (`docs:`) in the work item's `## Description`: the operator guide's "The agent files" (`docs/operator-guide/agent-runtime.md`) names `system-prompt.md` among what the agent home ships, and says what a missing one does (the run falls back to the built-in common system prompt). In entry 27 I made that edit. The factory dropped it ("left out changes outside the write paths"), because the work item is not in the coder's write paths. Without it, the documenter is not asked to cover the new file in the operator guide. Options:
+    - (a) You add that line to criterion 14 yourself, or give me explicit leave to write the work item's Description. Then I end with `review`.
+    - (b) Your answer here counts as the addition to criterion 14. I end with `review`, and the documenter takes it from the journal.
+    - (c) You drop finding 2 and the operator guide stays as it is.
+    I would choose (b): it costs no extra round, and the documenter reads the journal.
+
+    **State of the work:**
+    - `make check`: check: green (test: green, 110.2 s, coverage 99.22 %).
+    - The tester's changes from round 1 (entry 29) pass with no code change:
+      - new `tests/agents/adapters/test_claude_runtime_system_prompt.py` (criterion 12, including the check that `SYSTEM_PROMPT` equals `agents/system-prompt.md`);
+      - new `tests/support/first_message_support.py`;
+      - `SYSTEM_PROMPT_FILE` moved into `tests/support/shipped_agents.py`.
+    - This round, findings 1, 3 and 4 are closed by those tests. Finding 2 is the open question above.
+
+    **What I built:** unchanged from entry 23, already committed:
+    - `src/factory/agents/domain/prompts.py`
+    - `src/factory/pipeline/application/task.py`
+    - `src/factory/agents/adapters/agent_launch.py`
+    - `src/factory/agents/adapters/claude_runtime.py`
+    - `src/factory/agents/adapters/opencode_runtime.py`
+    - `src/factory/agents/application/provider_limits.py`
+    - `src/factory/entry/wiring.py`
+    - `agents/system-prompt.md`
+    - `agents/agents/*.md`
+
+    **Main choice (still holds):** the common text reaches the runtimes through a `system_prompt_file` keyword, with a built-in fallback. I rejected a field on `AgentDefinition`, because every agent would carry the same text and every test that builds one would need it.
+
+    **Refactor:** no code changed this round, so there was nothing to refactor.
+
+    **Description:** I did not rewrite it; it isn't in my write paths. See the question.
+
+    **Noticed, not touched:** the common text exists twice, in `SYSTEM_PROMPT` and in `agents/system-prompt.md`. The new criterion 12 test now catches any drift between the two.
