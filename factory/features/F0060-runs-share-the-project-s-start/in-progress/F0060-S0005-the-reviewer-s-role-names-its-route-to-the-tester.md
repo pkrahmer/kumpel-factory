@@ -1,5 +1,5 @@
 ---
-stage: review
+stage: docs
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 682
 comments_read: [6727864627]
 handed_over: null
-claim:
-  instance: vm
-  stage: review
-  started_at: '2026-11-08T22:22:10.661622Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -73,6 +69,12 @@ journal:
   kind: started
   at: '2026-11-08T22:22:10.661622Z'
   stage: review
+- number: 12
+  speaker: reviewer
+  kind: result
+  at: '2026-11-08T22:22:36.494619Z'
+  stage: review
+  run: f6ebcca8a47d4150991ea8d06f26bf70
 ---
 
 # The reviewer's role names its route to the tester
@@ -201,3 +203,24 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     `duplicates`: duplicates: 7 new, 39 known, 4 gone
 11. factory: started review as vm.
+12. reviewer: no findings
+
+    - Group 1, acceptance criteria:
+      - Criterion 1: `test_reviewer_role_recommendation_names_the_route_to_the_tester` has two rows. One checks that the new sentence appears exactly once in `## Role`, the other that "`doing` sends the work item back. Never both" is gone.
+      - Criterion 2: `test_reviewer_role_notes_name_the_route_to_the_tester` has two rows. One checks the new route text appears exactly once, the other that "sends it back with `doing`." is gone.
+      - Criterion 3: `test_reviewer_stage_step_4_and_docs_review_are_unchanged` has two rows. They pin step 4 word for word and the heading and first paragraph of `### docs-review`. Both match `agents/agents/reviewer.md` on the branch, and the diff does not touch `## Stage`.
+      - Criterion 4: the coder's entry 10 reports `make check` green.
+      - Criterion 5 is the documenter's.
+      - I ran the new test file and the three earlier test files the change touches (`test_claude_agent_texts_review_leave.py`, `test_claude_agent_texts_review_groups.py`, `test_shared_rules_system_prompt.py`). All pass. The smoke test's `grep -c` gives `1`.
+    - Group 2, architecture: only agent text and tests change, and no code under `src/`.
+    - Group 3, security: no secrets and no markers that silence a check.
+    - Group 4, quality:
+      - `agents/agents/reviewer.md:35` and `:37` hold exactly the two sentences the Interface quotes. The sentence "Never both, …" is unchanged.
+      - The new test reuses `section_text` and `agent_body`. It copies no helper.
+      - The `.replace` lines added to the review-groups test come before `untested_side_is_a_note` and map back to the earlier text that test expects. The checksum test passes.
+    - Group 5, work item hygiene: the Description matches what was built. The coder's entry names the main choice (a word-for-word replacement) and what it rejected (rewording the paragraph). The docs criterion still says what the documenter must write.
+
+    Earlier tests changed:
+    - tests/agent_files/test_claude_agent_texts_review_leave.py: the human's leave, journal entry 4, carried into the Interface. `_RECOMMENDATION` and `_NOTES` take the new sentences.
+    - tests/agent_files/test_claude_agent_texts_review_groups.py: the human's leave, journal entry 4, which names this file. `test_the_rest_of_the_reviewer_body_is_unchanged` maps the new sentences back to the earlier text with `.replace`.
+    - tests/support/shared_rules_support.py: the human's leave, journal entry 4. The reviewer's `Role` checksum in `PARTS_BEFORE` changed because F0060-S0004 has not been merged.
