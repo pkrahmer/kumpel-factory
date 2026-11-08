@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 646
 comments_read: [6715370076]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-08T01:08:10.450023Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -53,6 +57,11 @@ journal:
   at: '2026-11-08T01:08:05.344884Z'
   stage: docs-only
   run: b9fcb1c5395e49419b8ab84aa87bc1da
+- number: 9
+  speaker: factory
+  kind: started
+  at: '2026-11-08T01:08:10.450023Z'
+  stage: tests
 ---
 
 # The operator's documents name develop and main
@@ -147,3 +156,4 @@ Expect: `documents ok (<seconds> s)`
    - `docs/runs/` and the decision log stay as the Interface says.
    - `docs/project-guide/` was not in the Interface. I did not check it for `main`.
    - `docs/operator-guide/README.md` is not word-checked differently; nothing in it names the working branch.
+9. factory: started tests as vm.
