@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 662
 comments_read: [6721852631, 6722094144]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: docs
+  started_at: '2026-11-08T13:49:08.056612Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -180,6 +184,11 @@ journal:
   at: '2026-11-08T13:49:02.602138Z'
   stage: review
   run: c1b99d70106d43288640f207310f9255
+- number: 32
+  speaker: factory
+  kind: started
+  at: '2026-11-08T13:49:08.056612Z'
+  stage: docs
 ---
 
 # Each stage's start facts come from the factory
@@ -559,3 +568,4 @@ Expect: `True`
     - `tests/pipeline/domain/test_contract.py`: the human's leave, entry 15.
     - `tests/shared/domain/test_contract_version_4.py`: the human's leave, entry 15.
     - `tests/shared/domain/test_contract_version_4_2.py`: the human's leave, entry 15.
+32. factory: started docs as vm.
