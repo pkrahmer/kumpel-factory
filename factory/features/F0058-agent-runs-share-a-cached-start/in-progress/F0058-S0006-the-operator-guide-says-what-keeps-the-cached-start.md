@@ -1,17 +1,13 @@
 ---
-stage: docs-review
+stage: docs-only
 blocked: null
-round: 0
+round: 1
 attempts: 0
 crashes: 0
 pull_request: 665
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: docs-review
-  started_at: '2026-11-08T14:44:02.554853Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -45,6 +41,12 @@ journal:
   kind: started
   at: '2026-11-08T14:44:02.554853Z'
   stage: docs-review
+- number: 7
+  speaker: reviewer
+  kind: result
+  at: '2026-11-08T14:44:57.743272Z'
+  stage: docs-review
+  run: 5c91770383024551bdf0a81f1762d64c
 ---
 
 # The operator guide says what keeps the cached start
@@ -109,3 +111,9 @@ Expect: at least one line in the section *A project's own agents*.
    `secrets`: secrets: green (0.4 s)
    `documents`: documents ok (60.4 s)
 6. factory: started docs-review as vm.
+7. reviewer: I checked the diff of `docs/operator-guide/agent-runtime.md` against `agents/agents/*.md` (every file has `model: opus` and the tools `[Read, Grep, Glob, Edit, Bash, Write, Skill]`; intake, tester, coder, documenter and smoke tester use `effort: medium`, the two reviewers `high`), the cache paragraph in `docs/project-guide/agents.md` (line 266), F0058 decision 1 in `docs/decisions.md`, `docs/operator-guide/records.md` (*What a work item cost: `factory-bill`*, *The cache figures*, the hit-rate row) and `docs/project-guide/style.md`. Criteria 1 to 4 are met in substance: the condition and what breaking it costs, where the effect shows, the reworded *The models*, and an example that keeps the shared start with a sentence saying so. The sentence "cache writes cost more than plain input" is Anthropic's pricing, not a claim about the factory's code. It is true, so I kept it. Four findings remain:
+
+   1. `docs/operator-guide/agent-runtime.md:342`: the link to the bill's section is an anchor link, `[What a work item cost: ...](records.md#what-a-work-item-cost-factory-bill)`. Style rule 8 asks for the heading in italics, then `in` and a link to the page. The document check also drops a link's fragment (`src/factory/shared/domain/documents.py`, `_FRAGMENT`), so a renamed heading would go unnoticed. Fix: write `see *What a work item cost: factory-bill* in [records.md](records.md)`, and name its part *The cache figures* the same way. That still meets criterion 2.
+   2. `docs/operator-guide/agent-runtime.md:340`: "write paths" is a glossary word (`docs/project-guide/glossary.md`, **write paths**), and this is its first use in the file, but it has no link (style rule 3). Fix: link it as `[write paths](../project-guide/glossary.md)`.
+   3. `docs/operator-guide/agent-runtime.md:340`: "A smaller tool list does not make a role safer either" claims more than the code and the project guide back. `docs/project-guide/agents.md:266` says only that the tool list does not limit what a role writes, because the write paths do this through the take. Fix: "A smaller tool list does not limit what a role writes: its write paths do."
+   4. `docs/operator-guide/agent-runtime.md:338`, `:340`, `:342`: several new sentences run to about 30 to 40 words, against style rule 2 (split a sentence of more than about 25 words). They are the one that starts "Every shipped agent has the tools …; intake, the tester, …", "A project's agent shares the cached start … should share with", "A project's agent that differs … than plain input", and "The effect shows in `factory-bill`: … than the others". Fix: split each, for example the shipped values into one sentence on the tools and model and one on the efforts, and the cost sentence at its colon.
