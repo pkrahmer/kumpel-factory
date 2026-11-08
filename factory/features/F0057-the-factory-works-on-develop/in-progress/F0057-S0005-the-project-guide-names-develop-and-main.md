@@ -1,17 +1,13 @@
 ---
-stage: docs-review
+stage: docs-only
 blocked: null
-round: 0
+round: 1
 attempts: 0
 crashes: 0
 pull_request: 647
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: docs-review
-  started_at: '2026-11-08T01:34:33.224979Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -45,6 +41,12 @@ journal:
   kind: started
   at: '2026-11-08T01:34:33.224979Z'
   stage: docs-review
+- number: 7
+  speaker: reviewer
+  kind: result
+  at: '2026-11-08T01:35:26.619144Z'
+  stage: docs-review
+  run: a44b8f1b58424fa69de17292dcd987b5
 ---
 
 # The project guide names develop and main
@@ -121,3 +123,24 @@ Expect: `documents ok (<seconds> s)`
    `secrets`: secrets: green (2.0 s)
    `documents`: documents ok (57.5 s)
 6. factory: started docs-review as vm.
+7. reviewer: Docs review, round 0. I read the work item and `git diff develop...HEAD -- README.md docs operator/README.md`, which covers the nine files under `docs/project-guide/`. I checked the claims against the code on the branch:
+   - `WORK_BRANCH = "develop"` and `REMOTE = "origin"` are in `src/factory/shared/domain/paths.py:12-13`.
+   - `PIPELINE_REF = f"{REMOTE}/{WORK_BRANCH}"` is in `src/factory/pipeline/application/pipeline_loading.py:15`.
+   - The restore's `git.checkout(WORK_BRANCH, start_point=_WORK_REF)` is in `src/factory/pipeline/application/tick.py:197`.
+   - The guard's `LITERALS` are in `tests/guards/test_work_branch_search.py:9`.
+   - `prepare(main, WORK_BRANCH, ...)`, where `main` is a variable, is in `src/factory/machine/application/preflight.py:286`.
+   - The `reset-to-tag.sh` header and its "left main alone" line are in `operator/skill/kumpel/scripts/reset-to-tag.sh:4-5, 93`.
+   - The ref-name examples `+main` and `^main` are in `tests/hosting/adapters/test_git_cli_arguments.py:159, 229`.
+   All of these match. Criterion 2 is met at `work.md:394-396`.
+
+   I ran the Interface's script: `grep -rnE "\bmain\b" docs/project-guide`, with code names and entry-point functions filtered out. The documenter filtered whole lines by code name, so it missed a working-branch mention on a line that also holds `stage_file_on_main`. Criterion 1 is not met yet.
+
+   Findings:
+   1. `docs/project-guide/machine.md:723`: "beside where the preflight probes `main`". The preflight probes the working branch (`_WORK_REF`, `src/factory/machine/application/preflight.py:509`), so this line breaks criterion 1. Fix: say "probes `develop`" (or "the working branch"), and keep `stage_file_on_main` as the code name.
+   2. `docs/project-guide/README.md:174`: "give the rig after one probe of a red main". This means a failing working branch, not the code name `red_main`. Fix: "after one probe of a red `develop`" (or "of a failing working branch"), and keep the fixture name `red_main` as it is.
+   3. `docs/project-guide/hosting.md:338`: "the factory's names (`main`, `work-item/<id>`)". The factory's branch names are now `develop` (`WORK_BRANCH`) and `work-item/<id>`, so this line is stale, as the documenter's own entry says. Fix: change it to "(`develop`, `work-item/<id>`)". Leave the examples `+main` and `^main` on lines 332, 336 and 338, because the tests use those strings.
+
+   Not findings, but checked:
+   - `operator.md:133` (`main` as the line of accepted features) and `work.md:396` (the guard's old literals) are rightly left as `main`.
+   - `pipeline.md`'s note that `main_branch_failing` keeps its name matches F0057 decision 6.
+   - The other remaining matches are entry-point `main` functions, the variable at `machine.md:400`, or code names.
