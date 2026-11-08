@@ -22,7 +22,7 @@ from factory.pipeline.application.stage import (
     StageLauncher,
     StageReport,
 )
-from factory.pipeline.domain.checks import CheckResult
+from factory.pipeline.domain.checks import CheckResult, CommandOutput
 from factory.pipeline.domain.pipeline_definition import PipelineDefinition
 from factory.shared.adapters.clock import ManualClock
 from factory.shared.domain.errors import HostingServiceError, PushFailed
@@ -109,6 +109,11 @@ class RecordingCommands(ProjectCommands):
         """Record, then delegate."""
         self.calls.append((command, time_limit))
         return self._delegate.run(command, time_limit=time_limit)
+
+    def start_fact(self, command: str, *, time_limit: timedelta) -> CommandOutput:
+        """Record, then delegate."""
+        self.calls.append((command, time_limit))
+        return self._delegate.start_fact(command, time_limit=time_limit)
 
 
 def _target(name: str, log: Path, lines: list[str], status: int) -> str:

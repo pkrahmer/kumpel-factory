@@ -8,7 +8,7 @@ from typing import override
 from factory.agents.adapters.fake_agent_runtime import FakeAgentRuntime, ScriptedRun
 from factory.machine.application.project_commands import ProjectCommands
 from factory.pipeline.application.boundaries import Boundaries
-from factory.pipeline.domain.checks import CheckResult
+from factory.pipeline.domain.checks import CheckResult, CommandOutput
 from factory.work.domain.journal import entry_text
 from support.human_clone import HumanClone
 from support.stage_run_support import (
@@ -41,6 +41,10 @@ class StoppedTestCommands(ProjectCommands):
         if command == "test":
             return STOPPED_TEST
         return self._delegate.run(command, time_limit=time_limit)
+
+    @override
+    def start_fact(self, command: str, *, time_limit: timedelta) -> CommandOutput:
+        return self._delegate.start_fact(command, time_limit=time_limit)
 
 
 def test_a_report_stopped_at_its_time_limit_says_so_in_the_entry(

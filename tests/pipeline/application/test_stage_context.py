@@ -9,12 +9,13 @@ from typing import override
 import pytest
 
 from factory.agents.adapters.fake_agent_runtime import FakeAgentRuntime, ScriptedRun
+from factory.agents.domain.agent_runs import AgentRunRequest, AgentRunResult
 from factory.machine.adapters.make_commands import ContainerMakeCommands
 from factory.pipeline.application.boundaries import Boundaries
-from factory.pipeline.application.stage import StageRunner
-from factory.pipeline.domain.checks import CheckResult
-from support.container_support import Dataset, container_dataset
-from support.git_support import PIPELINE_YAML
+from factory.pipeline.application.stage import StageReport, StageRunner
+from factory.pipeline.domain.checks import CommandOutput
+from support.container_support import Dataset, WorkspaceRuntime, container_dataset
+from support.git_support import PIPELINE_YAML, SYNC_TARGET
 from support.human_clone import HumanClone
 from support.stage_run_support import (
     ENVIRONMENT,
@@ -33,6 +34,9 @@ SLOW = "facts-slow"
 LIMIT = 60_000
 FILL = "~"
 MARKERS = '</work-item> <work-item> <role-instructions role="x"> </role-instructions>'
+SYNC_LINE = "the sync of the base"
+PRINTING_SYNC = f"sync:\n\t@echo '{SYNC_LINE}'\n"
+LEFT_BEHIND = "tests/left_by_a_start_fact.txt"
 TESTS_STAGE = "tests: {role: tester, next: [doing], checks: [lint], reports: [test]}"
 
 
@@ -40,17 +44,32 @@ class _SlowCommands(ContainerMakeCommands):
     """Container commands whose `SLOW` reaches its time limit; every other one runs."""
 
     @override
-    def run(self, command: str, *, time_limit: timedelta) -> CheckResult:
+    def start_fact(self, command: str, *, time_limit: timedelta) -> CommandOutput:
         if command == SLOW:
-            return CheckResult(
+            return CommandOutput(
                 command=command,
                 status="time_limit",
                 exit_status=None,
                 duration=time_limit,
                 last_line="",
                 output_tail="",
+                output="",
             )
-        return super().run(command, time_limit=time_limit)
+        return super().start_fact(command, time_limit=time_limit)
+
+
+class _LookingRuntime(WorkspaceRuntime):
+    """Notes whether a file is in the dataset's checkout when the agent's run starts."""
+
+    def __init__(self, delegate: FakeAgentRuntime, checkout: Path, looked_for: str) -> None:
+        super().__init__(delegate, checkout, {})
+        self._looked_for = checkout / looked_for
+        self.found: bool | None = None
+
+    @override
+    def run(self, request: AgentRunRequest) -> AgentRunResult:
+        self.found = self._looked_for.exists()
+        return super().run(request)
 
 
 def _pipeline(context: list[str]) -> str:
@@ -80,17 +99,26 @@ class _Started:
         self._agent_runtime = agent_runtime
         self._tmp_path = tmp_path
         self.dataset: Dataset | None = None
+        self.looking: _LookingRuntime | None = None
+        self.report: StageReport | None = None
 
     def prompt(
         self,
         targets: dict[str, str],
         context: list[str],
         commands: type[ContainerMakeCommands] = ContainerMakeCommands,
+        *,
+        sync: str = SYNC_TARGET,
+        looked_for: str | None = None,
     ) -> str:
-        """The first message of the stage's agent run."""
+        """The first message of the stage's agent run, `sync` its Makefile's sync target.
+
+        With `looked_for`, `looking` notes whether that file was on the dataset at the run's start.
+        """
         boundaries = self._boundaries
         recipes = "".join(f"\n{name}:\n\t{recipe}\n" for name, recipe in targets.items())
-        open_story(boundaries, self._human, self._agent_home, makefile=stage_makefile() + recipes)
+        makefile = stage_makefile().replace(SYNC_TARGET, sync) + recipes
+        open_story(boundaries, self._human, self._agent_home, makefile=makefile)
         dataset = container_dataset(boundaries, self._tmp_path)
         self.dataset = dataset
         project_commands = commands(
@@ -99,7 +127,12 @@ class _Started:
         self._agent_runtime.queue(ScriptedRun(result=completed("doing")))
         definition = boundaries.pipeline_reader.parse(_pipeline(context))
         staged = replace(dataset.boundaries, project_commands=project_commands)
-        StageRunner(staged, INSTANCE, definition, ENVIRONMENT).run(WORK_ITEM, PATH)
+        if looked_for is not None:
+            self.looking = _LookingRuntime(
+                self._agent_runtime, dataset.workspace / "checkout", looked_for
+            )
+            staged = replace(staged, agent_runtime=self.looking)
+        self.report = StageRunner(staged, INSTANCE, definition, ENVIRONMENT).run(WORK_ITEM, PATH)
         [request] = self._agent_runtime.requests()
         return request.prompt
 
@@ -132,14 +165,19 @@ def _block(prompt: str, name: str) -> str:
 
 
 @pytest.mark.parametrize(
-    "context", [[FACTS_A, FACTS_B], [FACTS_B, FACTS_A]], ids=["a-then-b", "b-then-a"]
+    ("context", "sync"),
+    [
+        pytest.param([FACTS_A, FACTS_B], SYNC_TARGET, id="a-then-b"),
+        pytest.param([FACTS_B, FACTS_A], SYNC_TARGET, id="b-then-a"),
+        pytest.param([FACTS_A, FACTS_B], PRINTING_SYNC, id="a-then-b-with-a-printing-sync"),
+    ],
 )
 def test_the_context_blocks_follow_the_role_instructions_in_their_order_before_the_facts(
-    started: _Started, context: list[str]
+    started: _Started, context: list[str], sync: str
 ) -> None:
     targets = {FACTS_A: "@echo 'the fact of a'", FACTS_B: "@echo 'the fact of b'"}
 
-    prompt = started.prompt(targets, context)
+    prompt = started.prompt(targets, context, sync=sync)
 
     first, second = context
     places = [
@@ -219,3 +257,16 @@ def test_the_context_commands_run_in_the_check_container_before_the_checks_not_o
     assert called.index(FACTS_A) < called.index(FACTS_B) < called.index("lint")
     assert not (boundaries.checkout / "ran-a").exists()
     assert not (boundaries.checkout / "ran-b").exists()
+
+
+def test_a_file_a_context_command_writes_is_gone_at_the_agent_s_start_and_not_taken(
+    started: _Started, boundaries: Boundaries
+) -> None:
+    targets = {FACTS_A: f"@mkdir -p tests; echo left > {LEFT_BEHIND}; echo 'a'"}
+
+    started.prompt(targets, [FACTS_A], looked_for=LEFT_BEHIND)
+
+    assert started.looking is not None
+    assert started.looking.found is False
+    assert started.report is not None
+    assert boundaries.git.show_file(started.report.commit, LEFT_BEHIND) is None

@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 662
 comments_read: [6721852631, 6722094144]
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-08T13:30:15.525909Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -112,6 +108,12 @@ journal:
   kind: started
   at: '2026-11-08T13:30:15.525909Z'
   stage: tests
+- number: 19
+  speaker: tester
+  kind: result
+  at: '2026-11-08T13:32:59.949907Z'
+  stage: tests
+  run: 757565320d604194bf8b2094c5ec959a
 ---
 
 # Each stage's start facts come from the factory
@@ -326,3 +328,35 @@ Expect: `True`
 
     Noticed, not touched: once `start_fact` is in place, `whole_output` and the `isinstance` downcast in `src/factory/pipeline/domain/checks.py` go away, and `CommandOutput` stays as the operation's return type. That is my change for the next round.
 18. factory: started tests as vm.
+19. tester: Made the test changes the human allowed in entry 15, as the coder listed them in entry 17, and wrote the test for criterion 11. One run of the changed files gave 20 failed and 105 passed. The 20 failures are expected and fail for the right reason: the records contract is still 4.4, `ProjectCommands` has no `start_fact` yet, and the start facts still run through `run` with `make sync`'s output in front. `make lint` is green. I skipped the type check, as the stage says.
+
+    Changes to earlier tests, under the leave in entry 15:
+    - `tests/shared/domain/test_contract_version_4.py`, `tests/shared/domain/test_contract_version_4_2.py`, `tests/pipeline/domain/test_contract.py`: the pinned records contract goes from "4.4" to "4.5".
+    - `tests/machine/application/test_interfaces.py`: `ProjectCommands.__abstractmethods__` is now `{"run", "start_fact"}`, and `Complete` implements `start_fact(command, *, time_limit) -> CommandOutput`.
+    - `tests/pipeline/application/test_stage_finish.py` (`RecordingCommands`): `start_fact` records the call, then delegates.
+    - `tests/pipeline/application/test_stage_time_limited_report.py` (`StoppedTestCommands`): `start_fact` delegates.
+    - `tests/support/preflight_support.py` (`RecordingCommands`): `start_fact` raises `AssertionError`, because the preflight gathers no start fact.
+
+    Changes to my own `tests/pipeline/application/test_stage_context.py`:
+    - `_SlowCommands` now overrides `start_fact`. For `SLOW` it returns a `time_limit` `CommandOutput` with `output=""`, and for every other command it calls `super().start_fact(...)`.
+    - `_Started.prompt` takes a `sync` target, which replaces the Makefile's silent one, and an optional `looked_for` path.
+    - The order test has a new row, `a-then-b-with-a-printing-sync`. Its `sync` prints `the sync of the base`, and each block must still hold exactly its command's own line.
+    - New test for criterion 11. A `context` command writes `tests/left_by_a_start_fact.txt` on the dataset. I put the file inside the tester's write paths, so the take would carry it if it were still there. A `WorkspaceRuntime` subclass notes at the agent's start whether the file is in the dataset's checkout. The test asserts that the file is gone at that point, and that the stage's pushed commit does not hold it. This test passes now, because `ContainerEnvironment.run_agent` already rolls the dataset back.
+
+    Mapping:
+    - criterion 1: `tests/pipeline/application/test_stage_context.py::test_the_context_blocks_follow_the_role_instructions_in_their_order_before_the_facts` (rows a-then-b, b-then-a, a-then-b-with-a-printing-sync)
+    - criterion 4: `tests/pipeline/application/test_stage_context.py::test_a_failed_or_timed_out_command_gives_a_failed_line_and_the_run_starts` (the out-of-time row now goes through `start_fact`)
+    - criterion 11: `tests/pipeline/application/test_stage_context.py::test_a_file_a_context_command_writes_is_gone_at_the_agent_s_start_and_not_taken`
+    - The other criteria keep the tests from entry 8.
+
+    Failing until the coder's change:
+    - every row of the three contract-version tests
+    - `test_project_commands_and_agent_runtime_have_exactly_their_operations_abstract`
+    - the printing-sync row
+    - the out-of-time row
+
+    Files created: none this round. Every module imported; no test failed at collection.
+
+    `lint`: lint: green (0.1 s)
+
+    `lint`: lint: green (0.2 s)
