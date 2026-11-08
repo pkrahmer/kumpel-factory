@@ -259,3 +259,4 @@ Times are UTC. The plan: `night-plan.md`.
 - 01:27Z: F0057-S0004 PR #646 merged (9 runs, $1.91; promote/promoted left the v1 words). factory-vm moved to 02cf60732. F0057-S0005 (the project guide names develop and main): started.
 - 01:43Z: F0057-S0005 PR #647 merged (docs route, 5 runs, $0.89). Acceptance F0057-A0001 opened as PR #648.
 - 01:56Z: F0057-A0001 PR #648 merged: accepted with stories ($2.75). Feature $24.34, 69 runs, 14 answers, 0.5 h waited. Proposed S0006 (archive refuses a refused acceptance), S0007 (promote reuses an open promotion), S0008 (operator docs gaps), S0009 (code names by role). API spend since the switch: $27.09. F0057-S0006 started.
+- 01:58Z: F0057-S0006 PR #649 asked 5 at intake. Answered all as proposed.
