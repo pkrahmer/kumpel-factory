@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 645
 comments_read: [6714658360, 6714963482]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T00:40:05.965440Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -176,6 +180,11 @@ journal:
   at: '2026-11-08T00:40:00.355391Z'
   stage: review
   run: 601a26bdccd94844a3d513d1e6d77229
+- number: 31
+  speaker: factory
+  kind: started
+  at: '2026-11-08T00:40:05.965440Z'
+  stage: doing
 ---
 
 # Kumpel works on develop and promotes accepted features to main
@@ -500,3 +509,4 @@ Expect: `off`
 
     Notes:
     - `tests/operator_scripts/test_operator_develop.py:291` and `:316`: the promote switch's new-file rows and its old-file rows are two test functions for one switch. The setups differ (`init` against a hand-written file), so this is kept as a note.
+31. factory: started doing as vm.
