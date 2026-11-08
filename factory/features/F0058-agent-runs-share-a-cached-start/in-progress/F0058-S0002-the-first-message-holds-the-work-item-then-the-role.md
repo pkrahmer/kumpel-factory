@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 660
 comments_read: [6720878077, 6720941885]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-08T11:31:33.254729Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -58,6 +62,11 @@ journal:
   speaker: human
   kind: comment
   at: '2026-11-08T11:31:30.764647Z'
+  stage: tests
+- number: 10
+  speaker: factory
+  kind: started
+  at: '2026-11-08T11:31:33.254729Z'
   stage: tests
 ---
 
@@ -212,3 +221,4 @@ Expect: the docstring names the order: the work item's body, the role's instruct
    2. (a) OpenCode's message is the request's prompt, then one blank line, then the result block; the configuration's agent `prompt` no longer holds the role's instructions. Leave given for `tests/agents/adapters/test_opencode_runtime_provider.py` and `tests/machine/adapters/test_opencode_runtime_lockdown.py` (through `tests/support/opencode_stand_in.py`).
    3. The black-box test: two runs of different roles see equal text after `--append-system-prompt-file`, and it is neither role's instructions. The coder picks the source.
    The same rule as before applies to every file under this leave: names stay, each checks otherwise the same thing, and your entry names each file you changed.
+10. factory: started tests as vm.
