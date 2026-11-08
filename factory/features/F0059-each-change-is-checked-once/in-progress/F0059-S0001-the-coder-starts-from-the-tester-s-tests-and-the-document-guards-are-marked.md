@@ -1,5 +1,5 @@
 ---
-stage: smoke-test
+stage: approval
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 672
 comments_read: [6723592271, 6723685612, 6723780619]
 handed_over: null
-claim:
-  instance: vm
-  stage: smoke-test
-  started_at: '2026-11-08T16:25:00.014866Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -173,6 +169,12 @@ journal:
   kind: started
   at: '2026-11-08T16:25:00.014866Z'
   stage: smoke-test
+- number: 30
+  speaker: smoke-tester
+  kind: result
+  at: '2026-11-08T16:25:26.294732Z'
+  stage: smoke-test
+  run: e5392c6d81d7433581b56ad33ae65ff9
 ---
 
 # The coder starts from the tester's tests, and the guards that read the documents are marked
@@ -504,3 +506,14 @@ Expect: a line `<n> tests collected`, `<n>` greater than 0.
     `secrets`: secrets: green (0.8 s)
     `documents`: documents ok (61.0 s)
 29. factory: started smoke-test as vm.
+30. smoke-tester: Ran the smoke test as written, from the repository root.
+
+    Command: `uv run pytest --strict-markers -m documents --collect-only 2>&1 | tail -1`
+    ```
+    176/11158 tests collected (10982 deselected) in 4.61s
+    ```
+    Met its `Expect:` line. The output has the form `<n> tests collected` with n = 176, which is greater than 0. The `176/11158` form is pytest's output for a `-m` selection, as intake noted in entry 6. Exit was clean, so `--strict-markers` accepted the registered marker.
+
+    Check against the criteria: I also ran the other side, `uv run pytest --strict-markers -m "not documents" --collect-only 2>&1 | tail -1`, which gave `10982/11158 tests collected (176 deselected) in 4.57s`. 176 + 10982 = 11158, so the two selections together make up the whole suite (criteria 1 and 2). The smoke test contradicts no criterion.
+
+    Findings: none.
