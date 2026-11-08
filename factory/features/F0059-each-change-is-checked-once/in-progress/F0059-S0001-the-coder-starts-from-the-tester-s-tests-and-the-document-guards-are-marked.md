@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 672
 comments_read: [6723592271, 6723685612, 6723780619]
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-08T16:08:00.854134Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -129,6 +125,12 @@ journal:
   kind: started
   at: '2026-11-08T16:08:00.854134Z'
   stage: tests
+- number: 22
+  speaker: tester
+  kind: result
+  at: '2026-11-08T16:08:48.339519Z'
+  stage: tests
+  run: edb11e3a642e43f89412a4aa7b4d502f
 ---
 
 # The coder starts from the tester's tests, and the guards that read the documents are marked
@@ -328,3 +330,38 @@ Expect: a line `<n> tests collected`, `<n>` greater than 0.
 
     Noticed but not touched: nothing new. As noted in entry 13, `CLAUDE.md` does not yet name, in the coder's own words, the command for single test files. That change is the human's.
 21. factory: started tests as vm.
+22. tester: Made the test change the human approved (entry 18), as entry 20 named it, and nothing else.
+
+    - Moved `test_todays_install_guide_gives_no_settings_finding` out of `tests/shared/domain/test_document_settings.py` into a new module, `tests/guards/test_install_guide_settings.py`. The function keeps its name and body, and the new module carries `pytestmark = pytest.mark.documents`. The only other change to `test_document_settings.py` removes the three imports that only that test used (`OPERATOR_INSTALL`, `SETTINGS_SECTION`, and `ROOT` from `support.operator_support`). The module stays unmarked. No shared helper was needed: the new module imports `ROOT` from the existing `tests/support/operator_support.py`.
+    - Added `pytestmark = pytest.mark.documents` to `tests/guards/test_mount_program_search.py`, under the Interface's leave. Its `pytest` import was already there.
+
+    Final list of marked modules (13):
+    - `tests/guards/test_area_guides.py`
+    - `tests/guards/test_folder_readmes.py`
+    - `tests/guards/test_test_folder_readmes.py`
+    - `tests/guards/test_operator_guide_files.py`
+    - `tests/guards/test_operator_guide_pointers_search.py`
+    - `tests/guards/test_project_guide_files.py`
+    - `tests/guards/test_license_headers.py`
+    - `tests/guards/test_work_branch_search.py`
+    - `tests/guards/test_root_operator_folders_removed.py`
+    - `tests/guards/test_agent_folder_names.py`
+    - `tests/guards/test_mount_program_search.py`
+    - `tests/guards/test_install_guide_settings.py`
+    - `tests/operator_scripts/test_operator_site_check.py`
+
+    Criterion → test (unchanged except for the list):
+    - criterion 1: tests/guards/test_documents_marker.py::test_the_documents_marker_selects_every_test_of_the_marked_modules_and_no_other
+    - criterion 2: tests/guards/test_documents_marker.py::test_the_tests_without_the_marker_are_the_rest_of_the_suite
+    - criterion 3: no test function, by the human's answer in entry 4. My search is in entries 8 and 11, and the reviewer's (entry 15) added the two modules above.
+    - criterion 4: tests/agent_files/test_claude_agent_texts_first_tests.py (the four tests named in entry 11)
+    - criteria 5 and 6: `make check` and the docs stage.
+
+    Files created: `tests/guards/test_install_guide_settings.py`.
+    Earlier test files changed this round:
+    - `tests/shared/domain/test_document_settings.py`, under the human's leave in entry 18 (the test moved out, and its now-unused imports removed).
+    - `tests/guards/test_mount_program_search.py`, under the Interface's leave (marker line only).
+
+    Run: `uv run pytest -q` on the moved test's new module, `test_mount_program_search.py`, `test_document_settings.py`, `test_documents_marker.py`, `test_test_folder_readmes.py` and `test_tests_layout.py`: all passed, and every module imported. `make lint`: lint: green (0.2 s).
+
+    `lint`: lint: green (0.1 s)
