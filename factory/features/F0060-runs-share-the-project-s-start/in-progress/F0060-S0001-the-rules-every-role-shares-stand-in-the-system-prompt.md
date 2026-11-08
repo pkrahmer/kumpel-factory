@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 678
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-08T20:03:39.008330Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -100,6 +96,12 @@ journal:
   kind: started
   at: '2026-11-08T20:03:39.008330Z'
   stage: tests
+- number: 17
+  speaker: tester
+  kind: result
+  at: '2026-11-08T20:04:24.554960Z'
+  stage: tests
+  run: 2ad6ecb0d92647418ca55e4a9c27b46b
 ---
 
 # The rules every role shares stand in the system prompt
@@ -317,3 +319,25 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     Noticed, not touched: the docs for criterion 9 are still the documenter's.
 16. factory: started tests as vm.
+17. tester: Round 1. Made the three moves that the coder's entry 15 names, which answer the reviewer's findings in entry 13. All three fall under CLAUDE.md's standing leave to move a shared test helper. Every test keeps its name and checks the same thing.
+
+    1. `tests/agent_files/test_shared_rules_system_prompt.py`: removed `_rules()` and now uses `shared_rules()` from `tests/support/shipped_agents.py`. With it, the now-unused `section_text` import is gone.
+    2. Moved `_headings` and `_WITHOUT_ROLE` into `tests/support/shipped_agents.py` as `headings()` and `WITHOUT_ROLE`. Both test modules now use them from there, and the copies in each are deleted. In the first test of the new module, the local variable `headings` became `found` so that it no longer shadows the helper.
+    3. `test_shared_rules_system_prompt.py`: removed `_CLAUDE_REPLY` and now imports `REPLY as CLAUDE_REPLY` from `tests/support/claude_stand_in.py`. Replaced `Step(stdout=REPLY_EVENTS)` with `REPLY as OPENCODE_REPLY` from `tests/support/opencode_stand_in.py`, the way `tests/support/container_extra_support.py` does it.
+
+    Earlier test file changed under the standing leave: `tests/agent_files/test_claude_agent_texts.py`, which now uses `headings` and `WITHOUT_ROLE` from support. Also changed: `tests/agent_files/test_shared_rules_system_prompt.py` (this story's) and `tests/support/shipped_agents.py` (gains the helper and the constant). No files created.
+
+    Criteria → tests: unchanged from entry 5, all in `tests/agent_files/test_shared_rules_system_prompt.py`:
+    - criterion 1: `test_the_system_prompt_holds_each_rule_once_in_order_after_the_orientation`
+    - criterion 2: `test_no_shipped_agent_file_holds_the_shared_rules`
+    - criterion 3: `test_every_agent_file_keeps_its_own_sections_word_for_word_in_order`
+    - criterion 4: `test_the_rules_in_the_system_prompt_are_the_coders_rules_word_for_word`
+    - criterion 5: `test_the_orientation_says_whom_the_rules_bind_and_where_the_role_stands`
+    - criterion 6: `test_the_fallback_system_prompt_equals_the_shipped_file`
+    - criterion 7: `test_a_run_gets_the_rules_in_the_system_prompt_and_none_in_its_first_message`
+
+    Run: `uv run pytest -q tests/agent_files/` together with the shared-helper guards (`tests/guards/test_shared_test_helpers.py`, `test_shared_imports.py`, `test_shared_constants.py`): all passed. Every module imported. Type check skipped, as the stage allows. Open: none.
+
+    `lint`: lint: green (0.1 s)
+
+    `lint`: lint: green (0.2 s)

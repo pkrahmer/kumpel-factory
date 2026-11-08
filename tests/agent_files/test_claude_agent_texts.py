@@ -8,13 +8,13 @@ from factory.shared.domain.sections import section_text
 from support.shipped_agents import (
     SHIPPED_AGENTS,
     SHIPPED_NAMES,
+    WITHOUT_ROLE,
     ShippedAgent,
     agent_body,
+    headings,
     shared_rules,
     template_definition,
 )
-
-_WITHOUT_ROLE = {"intake", "smoke-tester"}
 
 _FIRST_LESSON = (
     "- Run `make check` and every other make target in the foreground and read its output. "
@@ -148,10 +148,6 @@ _BANNED_WORDS = re.compile(
 )
 
 
-def _headings(body: str) -> list[str]:
-    return re.findall(r"^## .*$", body, re.MULTILINE)
-
-
 def _decisions(role: str) -> list[str]:
     definition = template_definition()
     stages = [stage for stage in definition.stages.values() if stage.role == role]
@@ -169,10 +165,10 @@ def test_body_still_opens_with_the_boundary_and_the_entry_sentence(agent: Shippe
 @pytest.mark.parametrize("name", SHIPPED_NAMES)
 def test_body_has_rules_role_stage_and_lessons_sections_in_order(name: str) -> None:
     expected = ["## Stage", "## Lessons"]
-    if name not in _WITHOUT_ROLE:
+    if name not in WITHOUT_ROLE:
         expected.insert(0, "## Role")
 
-    assert _headings(agent_body(name)) == expected
+    assert headings(agent_body(name)) == expected
 
 
 @pytest.mark.parametrize("name", SHIPPED_NAMES)
@@ -283,5 +279,5 @@ def test_lessons_section_is_last_and_holds_exactly_the_role_bullets(name: str) -
     body = agent_body(name)
     lines = [line for line in (section_text(body, "Lessons") or "").splitlines() if line.strip()]
 
-    assert _headings(body)[-1:] == ["## Lessons"]
+    assert headings(body)[-1:] == ["## Lessons"]
     assert lines == LESSONS[name]
