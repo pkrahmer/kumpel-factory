@@ -270,3 +270,4 @@ Times are UTC. The plan: `night-plan.md`.
 - 07:26Z: F0057-S0012 PR #654 merged (10 runs, $1.68). F0057-S0011 (the project guide names Kumpel's archive and promotion) started.
 - 07:40Z: F0057-S0011 PR #655 merged (docs route, 5 runs, $0.85). F0057-S0010 (the working branch's remote ref is one constant) started.
 - 07:54Z: F0057-S0010 PR #656 merged (6 runs, $1.16).
+- 08:01Z: F0057-A0003 PR #657 merged: accepted, no stories. factory-vm moved to eb0d906c0. F0057 archived by hand (Kumpel's scripts need a site file this machine lacks).
