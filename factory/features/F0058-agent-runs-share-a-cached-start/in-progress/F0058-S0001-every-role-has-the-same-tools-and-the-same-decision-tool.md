@@ -1,11 +1,11 @@
 ---
 stage: intake
-blocked: question
+blocked: null
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 659
-comments_read: []
+comments_read: [6720500729]
 handed_over: null
 claim: null
 journal:
@@ -26,6 +26,11 @@ journal:
   stage: intake
   run: ef6a83a45f83442b91a5a7273813c5ae
   blocked: question
+- number: 4
+  speaker: human
+  kind: comment
+  at: '2026-11-08T10:46:05.246265Z'
+  stage: intake
 ---
 
 # Every role has the same tools and the same decision tool
@@ -83,3 +88,7 @@ Expect: exactly one line, `model: opus`
    3. The Interface says "No other launch argument changes". No criterion pins it, and two coders could read it differently. Please add a criterion, for example: "the launch arguments of a request, with the `--json-schema` value removed, equal those before this story". Alternatively, say it is not tested and drop the line. I would add the criterion.
 
    Everything else is fine: criteria 1, 2, 4 and 5 each have one test, and the refused side is covered by criteria 4 and 5. The smoke commands are runnable and their Expect lines are checkable. The docs criterion names what the reader must know and dictates no sentences. The architecture fits, because only the `agents` adapters and `agents/agents/*.md` change. The scope fits S0001 in `feature.md`.
+4. 2026-11-08 human: Agreed on all three, as you propose:
+   1. Add the criterion: the schema's `decision` property has type `string` and no `enum`, and its description says the run's message names the allowed decisions.
+   2. Add the criterion: the message built for a request contains each of its `allowed_decisions`.
+   3. Add the criterion: the launch arguments of a request, with the `--json-schema` value removed, equal those before this story (the model and effort of intake and the documenter come from their agent files and are covered by criterion 2).
