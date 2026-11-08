@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 678
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-08T19:45:42.085191Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -25,6 +29,11 @@ journal:
   at: '2026-11-08T19:45:37.261010Z'
   stage: intake
   run: 70fe01b7f4d6433fbeb39c13168ec3ce
+- number: 4
+  speaker: factory
+  kind: started
+  at: '2026-11-08T19:45:42.085191Z'
+  stage: tests
 ---
 
 # The rules every role shares stand in the system prompt
@@ -87,3 +96,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    - Docs criterion: names what the operator and project-guide readers must know without dictating sentences: where the shared rules stand, what an agent file holds, that a copied project agent may drop `## Rules`, and that `SYSTEM_PROMPT` equals the shipped file. It names `docs/operator-guide/agent-runtime.md` and `docs/project-guide/agents.md`. The latter currently describes `## Rules` in every body (lines 280–281, 352) and will need updating.
    - Architecture: the text constant stays in the `agents` area's `domain` layer, and the shipped files stay in `agents/`. No new interface, dependency or wiring is needed; `wiring.py` already passes `agent_home / system-prompt.md` to both runtimes. The change to `CLAUDE.md`'s first paragraph is listed in `feature.md` as the human's own change after the merge, so it is not part of this story.
    - Scope: within F0060's first scope line (S0001). It does not touch the out-of-scope items: no story text in the system prompt and no `CLAUDE.md` carrying, which is S0002's. Route: `tests`, because the Interface changes `src/` and `agents/`, which the documenter may not write.
+4. factory: started tests as vm.
