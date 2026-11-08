@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 680
 comments_read: [6727432579]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-08T21:35:13.137995Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -42,6 +46,11 @@ journal:
   at: '2026-11-08T21:35:08.115134Z'
   stage: intake
   run: d2507eff746449e19223e935164122a4
+- number: 7
+  speaker: factory
+  kind: started
+  at: '2026-11-08T21:35:13.137995Z'
+  stage: tests
 ---
 
 # A review whose findings need only tests goes to the tester
@@ -117,3 +126,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    - Scope: within F0060 as its Scope lists S0003, and nothing in its Out of scope.
 
    Route: `tests`, because the Interface changes agent files, `src/` and tests.
+7. factory: started tests as vm.
