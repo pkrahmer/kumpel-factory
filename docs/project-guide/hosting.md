@@ -335,7 +335,7 @@ Besides everything `check_git_argument` refuses, it refuses:
 - the whole values `HEAD` and `@`, because git pushes the checked-out branch under its own name;
 - anything `git check-ref-format --branch` would refuse, applied in the domain without calling git: `^`, `~`, `?`, `[`, `\`, space and control characters, `..`, `@{`, a leading, trailing or doubled `/`, a trailing `.`, and a component that starts with `.` or ends with `.lock`. `push("^main")` is a negative refspec that pushes nothing yet exits 0.
 
-A plus or an `@` inside a name (`a+b`, `a@b`) and `feature/HEAD` are fine. The refusal is a `ValueError` before git and before `BEFORE_PUSH`. It refuses a name git itself allows (`+main`); the factory's names (`main`, `work-item/<id>`) never take that form.
+A plus or an `@` inside a name (`a+b`, `a@b`) and `feature/HEAD` are fine. The refusal is a `ValueError` before git and before `BEFORE_PUSH`. It refuses a name git itself allows (`+main`); the factory's names (`develop`, `work-item/<id>`) never take that form.
 
 ### Where `check_git_argument` applies
 

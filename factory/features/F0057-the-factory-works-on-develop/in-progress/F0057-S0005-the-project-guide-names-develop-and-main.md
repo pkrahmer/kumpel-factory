@@ -1,5 +1,5 @@
 ---
-stage: docs-only
+stage: docs-review
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 647
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: docs-only
-  started_at: '2026-11-08T01:35:31.481318Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -56,6 +52,12 @@ journal:
   kind: started
   at: '2026-11-08T01:35:31.481318Z'
   stage: docs-only
+- number: 9
+  speaker: documenter
+  kind: result
+  at: '2026-11-08T01:39:48.044112Z'
+  stage: docs-only
+  run: 11e2f1fdad65485f99f2c3547cc29eb6
 ---
 
 # The project guide names develop and main
@@ -154,3 +156,17 @@ Expect: `documents ok (<seconds> s)`
    - `pipeline.md`'s note that `main_branch_failing` keeps its name matches F0057 decision 6.
    - The other remaining matches are entry-point `main` functions, the variable at `machine.md:400`, or code names.
 8. factory: started docs-only as vm.
+9. documenter: Round 1: fixed exactly the reviewer's three findings in `docs/project-guide/`. No other file touched.
+   - `machine.md:723`: "where the preflight probes `main`" now says `develop`; `stage_file_on_main` stays as the code name.
+   - `README.md:174`: "after one probe of a red main" now says "a red `develop`"; the fixture name `red_main` stays.
+   - `hosting.md:338`: "the factory's names (`main`, `work-item/<id>`)" now reads "(`develop`, `work-item/<id>`)". The `+main` and `^main` examples on lines 332 and 336 stay, since the tests use those strings.
+
+   Remaining `main` as a branch: `operator.md:133` and `work.md:396`, both meaning the line of accepted features or the guard's old literals, as in round 0. The other matches are the entry-point function, the variable at `machine.md:400`, or code names.
+
+   Cross-read: the other pages were read in round 0 and I changed nothing in them this round.
+
+   `make documents` ends `documents ok (58.5 s)`. I ran no `make check`, since I changed only documents. I wrote no decision-log entry.
+
+   `check`: check: green
+   `secrets`: secrets: green (2.0 s)
+   `documents`: documents ok (57.9 s)
