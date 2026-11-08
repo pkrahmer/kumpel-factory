@@ -1,17 +1,13 @@
 ---
-stage: review
+stage: doing
 blocked: null
-round: 0
+round: 1
 attempts: 0
 crashes: 0
 pull_request: 652
 comments_read: [6716487122]
 handed_over: null
-claim:
-  instance: vm
-  stage: review
-  started_at: '2026-11-08T03:13:31.725076Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -73,6 +69,12 @@ journal:
   kind: started
   at: '2026-11-08T03:13:31.725076Z'
   stage: review
+- number: 12
+  speaker: reviewer
+  kind: result
+  at: '2026-11-08T03:15:00.047631Z'
+  stage: review
+  run: 1768175d351b4c4a8502b8787a134e2f
 ---
 
 # The code names the working branch by its role
@@ -80,7 +82,7 @@ journal:
 
 ## Description
 
-After F0057 the factory works on `develop`, and the texts the operator sees follow `WORK_BRANCH`. Several names in the code still say `main` for the working branch: a public function, private helpers, a field of a domain model, local variables, a comment and a test constant. Two modules also write the remote's name out in `f"origin/{WORK_BRANCH}"` instead of building it from `REMOTE`. The human sent these to a later story (F0057-S0002, journal entry 39), and F0057's acceptance collected them. This story renames them with no change in behaviour, so that a reader of the code sees the branch's role, not its old name.
+After F0057 the factory works on `develop`, and the texts the operator sees follow `WORK_BRANCH`. Several names in the code still say `main` for the working branch: a public function, private helpers, a field of a domain model, local variables and parameters, a module constant, a comment and a test constant. Two modules also write the remote's name out in `f"origin/{WORK_BRANCH}"` instead of building it from `REMOTE`. The human sent these to a later story (F0057-S0002, journal entry 39), and F0057's acceptance collected them. This story renames them with no change in behaviour, so that a reader of the code sees the branch's role, not its old name.
 
 What stays as it is:
 - the stop `main_branch_failing` and `_MAIN_FAILING` (F0057 decision 6);
@@ -198,3 +200,36 @@ Expect: `0`
     `check`: check: green
     `duplicates`: duplicates: 6 new, 39 known, 4 gone
 11. factory: started review as vm.
+12. reviewer: Reviewed `git diff develop...HEAD -- . ':!factory'` and the work item. Round 0.
+
+    Findings:
+    1. Work item, criterion 6 (docs) is incomplete. The coder renamed `_ProjectImageStart._follow_main` to `_follow_work_branch` (`src/factory/entry/run.py:235`), as the Interface's rule requires. But `docs/project-guide/pipeline.md:468` still names `_ProjectImageStart._follow_main`, and criterion 6 lists only `machine.md` and `watching.md`, so the documenter would leave `pipeline.md` stale. Fix: criterion 6 also names `docs/project-guide/pipeline.md`. I grepped `docs/` for `on_main` and `_MAIN` and found neither, so `pipeline.md` is the only file missing.
+
+    Checked, no finding:
+    - Group 1, criteria and tests:
+      - Criterion 1: `tests/guards/test_work_branch_search.py` has one test that runs the guard on the repository. Its parametrized test has failing rows for `stage_file_on_main`, `x.main_commit` and `_main_reports`, and passing rows for the four kept names (`main_branch_failing`, `main_failed`, `main_probed`, `def main(`).
+      - Criterion 2: `tests/entry/test_wiring_work_branch_names.py` has four rows, including the refused `main_commit` built through a `type[BaseModel]` variable.
+      - Criterion 3: the earlier tests changed only under the human's leave (list below).
+      - Criterion 4: the same parametrized test has the rows `remote-spelled-out` (fails) and `remote-from-constant` (passes).
+      - `make check` was green after the coder (entry 10).
+      - `EvaluationInput` is not in `CONTRACT`, and `src/factory/contract/` holds no `main_commit`.
+    - Untested by the human's answer 2: I grepped `src/factory` for a bare `main` identifier. Only the string `"main"` in `src/factory/entry/run.py:51` and `stop_table`'s `main_branch_failing` remain. The locals in `preflight.py` and `evaluation.py` are now `work`.
+    - Untested by answer 3: the `check_story.py` comment now says "the working branch".
+    - Renames beyond the Interface's list: `on_main`, `_follow_main`, and `_MAIN` in `opening.py`, now `_WORK_REF`, the name the other modules use for that value. All three follow from the Interface's rule that no identifier holds `main` as a word part, and none changes behaviour.
+    - `hand_over.py` now also builds the branch side as `{REMOTE}/{snapshot.branch}`. This is consistent with the Interface and changes no behaviour.
+    - Group 2, architecture: no layer or import changes beyond `REMOTE` from `factory.shared.domain.paths`.
+    - Group 3, security: nothing new, and no suppression markers.
+    - Group 4, quality:
+      - Names say what things are, and no helper was copied: `_WORK_REF` in `opening.py` replaces an existing constant, it is not a new copy.
+      - `make duplicates` reports 6 new. 4 are in files this diff does not touch (`claude_runtime`/`opencode_runtime`, `folder_readmes`, `cost_records`). The `hand_over`/`acceptance` pair is the known one, listed with its modules in reverse order (it appears again as gone).
+
+    description corrected: "a public function, private helpers, a field of a domain model, local variables, a comment and a test constant" -> "a public function, private helpers, a field of a domain model, local variables and parameters, a module constant, a comment and a test constant"
+
+    Earlier tests:
+    - tests/conftest.py: the human's leave (Interface, 2026-11-08: the `remote` docstring)
+    - tests/guards/test_work_branch_search.py: none needed (only adds imports, constants, a helper and two tests; the earlier tests are as they were)
+    - tests/pipeline/application/handlers/test_merged.py: the human's leave (Interface, 2026-11-08: the module docstring)
+    - tests/pipeline/application/test_repository_waiter.py: the human's leave (Interface, 2026-11-08: `NO_MAIN` -> `NO_WORK_BRANCH`)
+    - tests/pipeline/domain/test_evaluation_due.py: the human's leave (Interface, 2026-11-08: `main_commit` -> `work_commit`)
+    - tests/pipeline/domain/test_evaluation_reject.py: the human's leave (Interface, 2026-11-08: `main_commit` -> `work_commit`)
+    - tests/support/evaluation_support.py: the human's leave (Interface, 2026-11-08: `main_commit` -> `work_commit`)
