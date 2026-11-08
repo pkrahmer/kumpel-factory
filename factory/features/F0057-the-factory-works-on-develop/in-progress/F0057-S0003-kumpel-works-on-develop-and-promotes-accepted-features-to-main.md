@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 2
 attempts: 1
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 645
 comments_read: [6714658360, 6714963482]
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-08T00:42:45.595373Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -196,6 +192,12 @@ journal:
   kind: started
   at: '2026-11-08T00:42:45.595373Z'
   stage: tests
+- number: 34
+  speaker: tester
+  kind: result
+  at: '2026-11-08T00:43:50.853527Z'
+  stage: tests
+  run: 1d31cecc031148f0ad567c96c06f1a00
 ---
 
 # Kumpel works on develop and promotes accepted features to main
@@ -535,3 +537,23 @@ Expect: `off`
 
     Noticed, not touched: nothing new. Criterion 5 in the Description already carries the reviewer's extension.
 33. factory: started tests as vm.
+34. tester: Tester, round 2: the approved test change. I made only the two changes the coder's entry 32 names for the reviewer's findings in entry 30. I edited one file, `tests/operator_scripts/test_operator_develop.py`, which this story wrote. I created no files and touched no other earlier test file.
+
+    1. Finding 1: the story files that `finished_feature` writes into `done/` now start with front matter, like real done stories. A new constant `DONE_FRONT_MATTER` (`---` / `stage: done` / `---`) goes in front of `FIRST` and `SECOND` there. `FIRST` itself is unchanged, so the backlog stories that `test_start_story_commits_on_develop_as_kumpel` and the other tests use keep their shape. `test_promote_opens_the_promotion_and_merges_it_only_with_the_switch_on` now checks the story titles in the pull request body against files that have front matter.
+    2. Finding 2 (criterion 5 extended): `test_a_settings_file_without_the_promote_switch_reads_it_as_off` gets two new rows, `get-unknown` and `set-unknown`, on the old settings file that has no `promote`.
+       - `get colour` is refused with `unknown key: colour`.
+       - `set colour on` is refused with `unknown switch: colour (known: merge, answer, start_next, promote)`.
+       - Each refusal exits non-zero, prints nothing to stdout and leaves the settings file unchanged.
+       - The two existing rows, `read` and `set-on`, check what they checked before.
+       - To take the new rows, each row now names the command to run, its expected stdout and an optional refusal. The test keeps its name: the old file is still what it is about.
+
+    Criterion mapping (unchanged apart from the rows above):
+    - criterion 2: tests/operator_scripts/test_operator_develop.py, the archive test, with its rows; the done-story fixtures now carry front matter.
+    - criterion 3: tests/operator_scripts/test_operator_develop.py::test_promote_opens_the_promotion_and_merges_it_only_with_the_switch_on
+    - criterion 5: tests/operator_scripts/test_operator_develop.py::test_the_promote_switch_is_off_in_a_new_file_and_set_like_the_others and ::test_a_settings_file_without_the_promote_switch_reads_it_as_off (rows read, set-on, get-unknown, set-unknown)
+
+    Rejected: a separate test function for the unknown-switch refusal. I wrote one first and then folded it back in as rows, because the reviewer asked for rows of the existing test.
+
+    Run: `uv run pytest -q tests/operator_scripts/test_operator_develop.py` passed (25 tests, all green). The code already handles both changes (entry 32), so these tests are not red; every module imported. `make lint`: green.
+
+    `lint`: lint: green (0.2 s)

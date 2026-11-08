@@ -28,6 +28,7 @@ FEATURE_TEXT = "# Example feature\n\n## Stories\n\n- S0001: first\n- S0002: seco
 FIRST = "# First story\n\n## Journal\n\n1. human: created.\n"
 SECOND = "# Second story\n\n## Journal\n\n1. human: created.\n"
 THIRD = "# Third story\n\n## Journal\n\n1. human: created.\n"
+DONE_FRONT_MATTER = "---\nstage: done\n---\n"
 ACCEPTANCE = "# Acceptance of F0001\n\n## Journal\n\n1. factory: created.\n"
 LOG_FORMAT = "%s%n%an <%ae>%n%cn <%ce>"
 PULL_NUMBER = 4711
@@ -38,8 +39,8 @@ def finished_feature(folder: str) -> dict[str, str]:
     """A feature in `folder` whose two stories and whose acceptance are done."""
     return {
         f"{folder}/feature.md": FEATURE_TEXT,
-        f"{folder}/done/F0001-S0001-first.md": FIRST,
-        f"{folder}/done/F0001-S0002-second.md": SECOND,
+        f"{folder}/done/F0001-S0001-first.md": DONE_FRONT_MATTER + FIRST,
+        f"{folder}/done/F0001-S0002-second.md": DONE_FRONT_MATTER + SECOND,
         f"{folder}/done/F0001-A0001-acceptance.md": ACCEPTANCE,
     }
 
@@ -321,21 +322,42 @@ def test_the_promote_switch_is_off_in_a_new_file_and_set_like_the_others(
 
 
 @pytest.mark.parametrize(
-    ("changes", "value"),
+    ("changes", "words", "stdout", "refusal"),
     [
-        pytest.param([], "off", id="read"),
-        pytest.param([["on"]], "on", id="set-on"),
+        pytest.param([], ["get", "promote"], "off\n", None, id="read"),
+        pytest.param([["on"]], ["get", "promote"], "on\n", None, id="set-on"),
+        pytest.param([], ["get", "colour"], "", "unknown key: colour", id="get-unknown"),
+        pytest.param(
+            [],
+            ["set", "colour", "on"],
+            "",
+            "unknown switch: colour (known: merge, answer, start_next, promote)",
+            id="set-unknown",
+        ),
     ],
 )
 def test_a_settings_file_without_the_promote_switch_reads_it_as_off(
-    operator: Operator, changes: list[list[str]], value: str
+    operator: Operator,
+    changes: list[list[str]],
+    words: list[str],
+    stdout: str,
+    refusal: str | None,
 ) -> None:
     write_switches(operator, OLD_SWITCHES)
-    for words in changes:
-        result = operator.run("settings.sh", "set", "promote", *words)
+    for change in changes:
+        result = operator.run("settings.sh", "set", "promote", *change)
         assert result.exit_status == 0, result.stderr
-    answer = operator.run("settings.sh", "get", "promote")
-    assert (answer.exit_status, answer.stdout) == (0, f"{value}\n"), answer.stderr
+    before = operator.settings_file.read_text(encoding="utf-8")
+
+    answer = operator.run("settings.sh", *words)
+
+    assert answer.stdout == stdout
+    if refusal is None:
+        assert answer.exit_status == 0, answer.stderr
+    else:
+        assert answer.exit_status != 0
+        assert refusal in answer.stderr
+        assert operator.settings_file.read_text(encoding="utf-8") == before
 
 
 @pytest.mark.parametrize(
