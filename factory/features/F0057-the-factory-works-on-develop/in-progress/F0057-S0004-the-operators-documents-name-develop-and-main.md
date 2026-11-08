@@ -1,5 +1,5 @@
 ---
-stage: smoke-test
+stage: approval
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 646
 comments_read: [6715370076, 6715449873]
 handed_over: null
-claim:
-  instance: vm
-  stage: smoke-test
-  started_at: '2026-11-08T01:21:15.079363Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -123,6 +119,12 @@ journal:
   kind: started
   at: '2026-11-08T01:21:15.079363Z'
   stage: smoke-test
+- number: 21
+  speaker: smoke-tester
+  kind: result
+  at: '2026-11-08T01:22:29.987998Z'
+  stage: smoke-test
+  run: e0863d095eb14f1697b3d94ef9acc920
 ---
 
 # The operator's documents name develop and main
@@ -353,3 +355,17 @@ Expect: `documents ok (<seconds> s)`
     `secrets`: secrets: green (1.6 s)
     `documents`: documents ok (57.7 s)
 20. factory: started smoke-test as vm.
+21. smoke-tester: Smoke test passed with no findings.
+
+    I ran the one command under `## Smoke test` from the repository root, exactly as written.
+
+    1. `uv run python -m factory.entry.check_documents | tail -1`. **Met** its `Expect:` line, `documents ok (<seconds> s)`. The `Bytecode compiled` line is uv's own output and came before the piped line.
+
+    ```
+    Bytecode compiled 4164 files in 59ms
+    documents ok (60.1 s)
+    ```
+
+    **The criteria, read again:** the output matches criterion 7. It also supports criterion 8: the document check passes on `docs/operator-guide/install.md`, which names the switch `promote`. Nothing in the output contradicts any other criterion.
+
+    **Findings:** none.
