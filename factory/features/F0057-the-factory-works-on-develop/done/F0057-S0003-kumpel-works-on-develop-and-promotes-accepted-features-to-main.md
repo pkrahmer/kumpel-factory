@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 2
 attempts: 1
@@ -242,6 +242,11 @@ journal:
   at: '2026-11-08T00:57:03.014410Z'
   stage: smoke-test
   run: 1577f4109c9b4754bf5bfb29e134132a
+- number: 43
+  speaker: factory
+  kind: done
+  at: '2026-11-08T00:58:54.601877Z'
+  stage: approval
 ---
 
 # Kumpel works on develop and promotes accepted features to main
@@ -695,3 +700,4 @@ Expect: `off`
     The command's own `trap` removed its temporary directory. I left nothing in `/tmp` and changed no file.
 
     Findings: none.
+43. factory: done (pull request merged); cost: 19 runs, 54.8 min, 193 turns, 841696 tokens in (6320671 more from cache), 95614 out, $9.68
