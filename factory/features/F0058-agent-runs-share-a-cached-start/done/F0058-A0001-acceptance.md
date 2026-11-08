@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 0
 attempts: 0
@@ -30,8 +30,13 @@ journal:
   at: '2026-11-08T14:07:15.711640Z'
   stage: acceptance
   run: 1fdf05f031d947f9a0f376e6a1f7ce1e
+- number: 5
+  speaker: factory
+  kind: done
+  at: '2026-11-08T14:09:08.897668Z'
+  stage: done
 stories: [F0058-S0001, F0058-S0002, F0058-S0003, F0058-S0004]
-outcome: null
+outcome: accepted
 ---
 
 # Acceptance of Agent runs share a cached start
@@ -187,3 +192,4 @@ S0002 stands out: 17 runs, 49.7 min and $9.03, two fifths of the feature. Its jo
    8. Cost: 59 runs, 118.7 min, $22.12; about 90 % cache hit over the feature (86 / 93 / 82 / 91 % per story). 11 questions answered, 0.4 h waited. S0002 stands out at $9.03, 17 runs and 5 questions, because its Interface's leave for earlier tests missed the OpenCode tests and the CRC-pinned review-groups test, and its docs criterion missed the operator-guide line. S0002 needed the human most.
 
    make check: green as found. Files written: the report and `backlog/F0058-S0005-the-context-markers-are-escaped-too.md` and `backlog/F0058-S0006-the-operator-guide-says-what-keeps-the-cached-start.md`; both pass `factory-check-story`.
+5. factory: done (pull request merged); cost: 1 runs, 7.2 min, 42 turns, 107199 tokens in (2820233 more from cache), 28012 out, $1.66
