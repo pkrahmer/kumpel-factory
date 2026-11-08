@@ -1,7 +1,7 @@
 # factory-rf's pipeline definition: v1.1 builds this repository since the handover.
 # Its predecessor is v1's stage table, factory/v1/stages.yml at the tag planning-history-2026-10-19: the same
 # stages, write paths, caps and project commands, in v1.1's names. Every time is in minutes.
-contract: "1.0"
+contract: "1.1"
 attempts_cap: 2             # v1's max_attempts: agent runs that end without a result before the factory asks
 crash_cap: 2
 acceptance_stage: acceptance
@@ -14,6 +14,9 @@ project_commands:
   documents: {time_limit: 2}    # the four documents against the document check: a check of the docs stage only
   secrets: {time_limit: 3}      # detect-secrets over the files changed on the branch, the documents, and the journals that check's not_read leaves out
   sync: {time_limit: 5}         # v1.2: the checkout's tools after a checkout; the stage environment runs it, no stage lists it
+  facts-diff: {time_limit: 1}      # start facts (F0058): the branch's diff, for the reviewers
+  facts-changes: {time_limit: 1}   # the changed and new files, for the coder and the documenter
+  facts-files: {time_limit: 1}     # the tracked files, for the tester
 # The write paths keep v1's lanes. Every stage's own work item is written by the factory
 # (the journal, the state, the cost records); a role names it only when its agent edits the text.
 # A role's time_limit plus the time_limits of its stage's checks and reports stay within its lease_duration.
@@ -29,13 +32,13 @@ roles:
   acceptance-reviewer: {write_paths: ["{work_item}", "{feature}/backlog/*"], time_limit: 40, lease_duration: 60}
 stages:
   intake: {role: intake, next: [tests, docs-only]}
-  tests: {role: tester, next: [doing], checks: [lint]}     # the new tests are red on purpose; no make test after it (the human, 2026-11-02)
-  doing: {role: coder, next: [review, tests], checks: [check], reports: [duplicates]}
-  review: {role: reviewer, next: [docs, doing], round_cap: 2}
-  docs: {role: documenter, next: [smoke-test, doing], checks: [check, secrets, documents], round_cap: 2}
+  tests: {role: tester, next: [doing], checks: [lint], context: [facts-files]}     # the new tests are red on purpose; no make test after it (the human, 2026-11-02)
+  doing: {role: coder, next: [review, tests], checks: [check], reports: [duplicates], context: [facts-changes]}
+  review: {role: reviewer, next: [docs, doing], round_cap: 2, context: [facts-diff]}
+  docs: {role: documenter, next: [smoke-test, doing], checks: [check, secrets, documents], round_cap: 2, context: [facts-changes]}
   smoke-test: {role: smoke-tester, next: [approval, doing, docs], round_cap: 2}
-  docs-only: {role: documenter, next: [docs-review, tests], checks: [check, secrets, documents]}   # the docs route (the human, 2026-11-05)
-  docs-review: {role: reviewer, next: [docs-approval, docs-only], round_cap: 3}   # 3 for the rewrite of whole pages (the human, 2026-11-06)
+  docs-only: {role: documenter, next: [docs-review, tests], checks: [check, secrets, documents], context: [facts-changes]}   # the docs route (the human, 2026-11-05)
+  docs-review: {role: reviewer, next: [docs-approval, docs-only], round_cap: 3, context: [facts-diff]}   # 3 for the rewrite of whole pages (the human, 2026-11-06)
   docs-approval: {approval: true, next: [done, docs-only]}   # the human: a merge accepts, a close sends back to the documenter
   acceptance: {role: acceptance-reviewer, next: [approval]}
   approval: {approval: true, next: [done, doing]}   # the human: a merge accepts, a close sends back
