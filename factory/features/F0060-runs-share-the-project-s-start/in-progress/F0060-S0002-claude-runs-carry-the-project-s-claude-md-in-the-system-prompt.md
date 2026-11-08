@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 679
 comments_read: [6727152793, 6727304331]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T21:23:14.142906Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -157,6 +161,11 @@ journal:
   speaker: human
   kind: comment
   at: '2026-11-08T21:23:11.684127Z'
+  stage: doing
+- number: 28
+  speaker: factory
+  kind: started
+  at: '2026-11-08T21:23:14.142906Z'
   stage: doing
 ---
 
@@ -390,3 +399,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     (b) I end with `review` now, without the change, and the reviewer adds the text to criterion 9. The work item is in the reviewer's write paths. This is quicker, but it goes against how entry 24 assigned the work.
     (c) Leave criterion 9 as it is. I would not choose this: operators whose `CLAUDE.md` is a link would lose their instructions and not know why.
 27. 2026-11-08 human: (b). End with `review`; the reviewer adds your text to criterion 9's operator-guide part (a root `CLAUDE.md` that is a symbolic link or not a regular file is not read, why, and that a project keeps it a regular file). Not following a link is right.
+28. factory: started doing as vm.
