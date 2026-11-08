@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 1
 attempts: 0
@@ -163,6 +163,11 @@ journal:
   at: '2026-11-08T14:35:37.377601Z'
   stage: smoke-test
   run: 491c36930e8346f7a80d6c69507b6927
+- number: 29
+  speaker: factory
+  kind: done
+  at: '2026-11-08T14:37:29.269385Z'
+  stage: approval
 ---
 
 # The context markers are escaped too
@@ -389,3 +394,4 @@ Expect: `1`
     Against the acceptance criteria: the smoke test contradicts none of them. It touches criterion 1 (one `</context>` per start fact), and its result agrees. Criteria 2–6 have their own tests in `tests/agents/domain/test_prompts_context_markers.py`. The coder's `make check` was green and the factory's check after the docs stage was green (criterion 7). The documenter covered the docs criterion (8) in entry 26.
 
     Findings: none.
+29. factory: done (pull request merged); cost: 13 runs, 12.2 min, 57 turns, 330388 tokens in (1120258 more from cache), 23288 out, $2.34
