@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 665
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: docs-only
+  started_at: '2026-11-08T14:39:20.250744Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -25,6 +29,11 @@ journal:
   at: '2026-11-08T14:39:15.262805Z'
   stage: intake
   run: 7573b9f541154314961c9e65d0ae4017
+- number: 4
+  speaker: factory
+  kind: started
+  at: '2026-11-08T14:39:20.250744Z'
+  stage: docs-only
 ---
 
 # The operator guide says what keeps the cached start
@@ -71,3 +80,4 @@ Expect: at least one line in the section *A project's own agents*.
    - Docs criterion: it names what the operator must know: what keeps the shared start, what breaking it costs, where it shows and what the aliases mean. It quotes no sentences. It also says why the project guide and `docs/decisions.md` need no change.
    - Architecture: no code, no change to `factory/`, no tests, no dependency. The operator guide is the right document for operator-facing guidance.
    - Scope: within F0058. The feature's goal is that runs share one cached start, and decision 3 is the shared model and effort. The story writes down for operators what S0001 to S0003 built. It touches nothing the feature lists as out of scope.
+4. factory: started docs-only as vm.
