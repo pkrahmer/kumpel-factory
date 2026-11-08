@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 1
 attempts: 1
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 645
 comments_read: [6714658360, 6714963482]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T00:33:55.304383Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -163,6 +159,12 @@ journal:
   kind: started
   at: '2026-11-08T00:33:55.304383Z'
   stage: doing
+- number: 28
+  speaker: coder
+  kind: result
+  at: '2026-11-08T00:38:16.549044Z'
+  stage: doing
+  run: a32e17dd7f12440bb15e3d54115eb65d
 ---
 
 # Kumpel works on develop and promotes accepted features to main
@@ -454,3 +456,17 @@ Expect: `off`
 
     `lint`: lint: green (0.1 s)
 27. factory: started doing as vm.
+28. coder: Round 1, after the tester's change (journal 26). I changed no code in this run.
+
+    The working tree was clean when I started. The commits already hold my fix for the reviewer's finding 1 (journal 24: `operator/skill/kumpel/scripts/settings.sh` has one table of the known switches and their defaults, used by `init`, `get` and `set`; `set` now accepts a known switch the file lacks and writes it). They also hold the tester's changes for findings 1 and 2 in `tests/operator_scripts/test_operator_develop.py`: the new `set-on` row, `remote_commit` used in place of the copied `head()`, and `write_switches` taking the dict of switches.
+
+    `make check` is green: `test: green (108.3 s)`, coverage 99.22 %, `check: green`.
+
+    Main choice (unchanged from journal 24): the switch table is one JSON string in the shell, passed into each Python heredoc as an argument. I rejected having reads fill in missing defaults by writing to the file, because a read should not write.
+
+    Refactor: this run added no diff, so there was nothing to change.
+
+    Noticed, not touched: nothing new. Both of the reviewer's findings are addressed, and the Description already carries the criteria from journals 4 and 14.
+
+    `check`: check: green
+    `duplicates`: duplicates: 6 new, 39 known, 4 gone
