@@ -1,5 +1,5 @@
 ---
-stage: docs-approval
+stage: done
 blocked: null
 round: 1
 attempts: 1
@@ -87,6 +87,11 @@ journal:
   at: '2026-11-08T02:57:33.583910Z'
   stage: docs-review
   run: 689668e60df248e2a2d4b15e3878ff5c
+- number: 15
+  speaker: factory
+  kind: done
+  at: '2026-11-08T03:01:27.112001Z'
+  stage: docs-approval
 ---
 
 # The operator's documents on the archive, the promotion and the default branch
@@ -240,3 +245,4 @@ Expect: `documents ok (<seconds> s)`
     Considered and not raised: the first sentence of the playbook's archive paragraph is still about 40 words. A semicolon splits it into two clauses of about 10 and 30 words, which is within the "about 25" of style rule 2. The playbook is the human's document, and much of it was written before this style.
 
     no findings
+15. factory: done (pull request merged); cost: 6 runs, 5.6 min, 35 turns, 144700 tokens in (602605 more from cache), 13586 out, $0.83
