@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 680
 comments_read: [6727432579]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T21:37:39.400730Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -53,6 +57,11 @@ journal:
   at: '2026-11-08T21:37:34.392381Z'
   stage: tests
   run: df24a412196847469eb123f9488ab5d4
+- number: 9
+  speaker: factory
+  kind: started
+  at: '2026-11-08T21:37:39.400730Z'
+  stage: doing
 ---
 
 # A review whose findings need only tests goes to the tester
@@ -154,3 +163,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    Open point for the reviewer: the Interface fixes no exact wording for the reviewer's and tester's new sentences, so criteria 1 to 3 check for key phrases, not whole sentences. The coder's text must contain the phrases listed above, including "own story" (as the Description words it) and "each finding" in the tester's step 0.
 
    `lint`: lint: green (0.2 s)
+9. factory: started doing as vm.
