@@ -1,5 +1,5 @@
 ---
-stage: smoke-test
+stage: approval
 blocked: null
 round: 0
 attempts: 1
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 649
 comments_read: [6715900227]
 handed_over: null
-claim:
-  instance: vm
-  stage: smoke-test
-  started_at: '2026-11-08T02:13:40.926865Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -113,6 +109,12 @@ journal:
   kind: started
   at: '2026-11-08T02:13:40.926865Z'
   stage: smoke-test
+- number: 19
+  speaker: smoke-tester
+  kind: result
+  at: '2026-11-08T02:14:01.890844Z'
+  stage: smoke-test
+  run: cdd493df125a4742aaf9d40468725e47
 ---
 
 # archive-feature.sh refuses a feature whose acceptance was refused
@@ -283,3 +285,26 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
     `secrets`: secrets: green (0.5 s)
     `documents`: documents ok (66.9 s)
 18. factory: started smoke-test as vm.
+19. smoke-tester: Smoke test passed with no findings.
+
+    Command 1, run from the repository root as written:
+
+    ```bash
+    uv run pytest tests/operator_scripts/test_operator_archive_outcome.py 2>&1 | tail -1
+    ```
+
+    ```
+    12 passed in 0.84s
+    ```
+
+    Expect: a line ending in `passed in <seconds>s` with no `failed`. Met: 12 passed, none failed.
+
+    I read the acceptance criteria again against the result and the branch. Nothing contradicts a criterion:
+    - Criteria 1 and 2: their rows are in the module that just passed (7 rows for criterion 1, 4 rows for criterion 2).
+    - Criterion 3: `operator/skill/kumpel/references/approving.md:32`, step 1 of *After a feature's acceptance*, holds the refusal text `is not finished: its last acceptance`.
+    - Criterion 4: the factory's checks after the doing and docs stages report `check: green` (journal entries 13 and 17). I did not run `make check` myself, because the smoke test does not include it.
+    - Criterion 5 (docs): `operator/README.md:110` says a feature is archived only when its last acceptance in `done/` says `outcome: accepted`. `docs/operator-guide/install.md:59`, *The promotion*, says a refused feature is neither archived nor promoted.
+
+    Findings: none.
+
+    Open, not a finding (the coder and the reviewer named it): the opening `---` does not have to be the file's first line, as the Interface words it.
