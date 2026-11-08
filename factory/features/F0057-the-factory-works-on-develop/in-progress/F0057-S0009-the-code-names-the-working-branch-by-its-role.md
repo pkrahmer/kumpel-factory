@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 652
 comments_read: [6716487122]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: review
+  started_at: '2026-11-08T03:17:37.054253Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -86,6 +90,11 @@ journal:
   at: '2026-11-08T03:17:32.023935Z'
   stage: doing
   run: 6c4888d42b16434e9f7a36229f36e2ad
+- number: 15
+  speaker: factory
+  kind: started
+  at: '2026-11-08T03:17:37.054253Z'
+  stage: review
 ---
 
 # The code names the working branch by its role
@@ -265,3 +274,4 @@ Expect: `0`
 
     `check`: check: green (not run again: passed on tree 6c0222e1925c at 2026-11-08T03:11:26Z)
     `duplicates`: duplicates: 6 new, 39 known, 4 gone
+15. factory: started review as vm.
