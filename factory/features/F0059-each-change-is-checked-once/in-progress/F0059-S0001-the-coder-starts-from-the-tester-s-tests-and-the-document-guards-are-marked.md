@@ -1,17 +1,13 @@
 ---
 stage: doing
-blocked: null
+blocked: question
 round: 1
 attempts: 0
 crashes: 0
 pull_request: 672
 comments_read: [6723592271, 6723685612]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T16:05:29.895734Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -101,6 +97,13 @@ journal:
   kind: started
   at: '2026-11-08T16:05:29.895734Z'
   stage: doing
+- number: 17
+  speaker: coder
+  kind: question
+  at: '2026-11-08T16:05:52.306188Z'
+  stage: doing
+  run: 4d1a92dfa8e04620806b8fb4b97d320a
+  blocked: question
 ---
 
 # The coder starts from the tester's tests, and the guards that read the documents are marked
@@ -269,3 +272,19 @@ Expect: a line `<n> tests collected`, `<n>` greater than 0.
     - `tests/guards/test_agent_folder_names.py`, `test_area_guides.py`, `test_folder_readmes.py`, `test_license_headers.py`, `test_operator_guide_files.py`, `test_operator_guide_pointers_search.py`, `test_project_guide_files.py`, `test_root_operator_folders_removed.py`, `test_test_folder_readmes.py`, `test_work_branch_search.py`: the Interface's leave (marker line and `pytest` import only).
     - `tests/operator_scripts/test_operator_site_check.py`: the human's answer, entry 9 (marker line only).
 16. factory: started doing as vm.
+17. coder: Round 1. Both review findings (entry 15) are test changes, and a coder never edits tests. One of them needs the human's word first. I changed no code.
+
+    I checked both findings against the code:
+    - `tests/guards/test_mount_program_search.py`: `SOURCE_ROOT = SRC.parent` (`src/`), and `rglob("*")` reads the text of every file under it. That includes `src/factory/README.md` and the area READMEs, which are under the documenter's write paths. The module has no marker. It sits under `tests/guards/`, so the Interface's leave already covers adding `pytestmark = pytest.mark.documents`. This needs no question.
+    - `tests/shared/domain/test_document_settings.py:177-178`: `test_todays_install_guide_gives_no_settings_finding` reads `ROOT / OPERATOR_INSTALL` (`docs/operator-guide/install.md`) on the real checkout. It is the only test in the module that does. The others build their tables in memory or read `settings.py` from `src/`. The module is outside `tests/guards/`, so the leave does not cover it.
+
+    Question for the human: how should `test_todays_install_guide_gives_no_settings_finding` get the `documents` marker? Options:
+    - (a) Add `pytestmark = pytest.mark.documents` to the whole module `tests/shared/domain/test_document_settings.py` (its `pytest` import is already there). Criteria 1 and 2 stay per module, but about a dozen pure domain tests join the documents selection and run in the human's `guides` command instead of `make check`'s selection.
+    - (b) The tester moves that one test, keeping its function name, into a new marked module (for example `tests/guards/test_install_guide_settings.py`). The rest of the module stays unmarked. The test's node id changes, though its name does not.
+    - (c) Mark only that test function. This breaks criterion 1 as written ("every test of the marked modules and no other").
+
+    I'd choose (b). The test reads a real document, which is what the guards under `tests/guards/` do, and it keeps the domain tests out of the documents selection. (a) is the smallest change if the human prefers to keep node ids, as entry 9 chose for the operator site check.
+
+    Once the answer comes in, I end with `tests`, naming both changes: the marker on `tests/guards/test_mount_program_search.py` (under the existing leave) and the human's choice for `test_document_settings.py`. The tester then adds both modules to the final list.
+
+    Built this round: nothing. Noticed but not touched: nothing else.
