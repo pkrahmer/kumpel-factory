@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 652
 comments_read: [6716487122]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T03:06:31.800646Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -53,6 +57,11 @@ journal:
   at: '2026-11-08T03:06:26.825751Z'
   stage: tests
   run: 16bff0447f2a4984905ba9e5bc25b456
+- number: 9
+  speaker: factory
+  kind: started
+  at: '2026-11-08T03:06:31.800646Z'
+  stage: doing
 ---
 
 # The code names the working branch by its role
@@ -154,3 +163,4 @@ Expect: `0`
    Test run: the test files I wrote or changed (except conftest.py, which every run loads) ran red for the right reason. In test_evaluation_reject.py, `EvaluationInput` refuses the new `work_commit` key, which does not exist yet. The new guard and import tests fail because the old names are still there. No module failed to import: `stage_file_on_work_branch` is imported inside its test row, so the module still collects. make lint: green.
 
    `lint`: lint: green (0.1 s)
+9. factory: started doing as vm.
