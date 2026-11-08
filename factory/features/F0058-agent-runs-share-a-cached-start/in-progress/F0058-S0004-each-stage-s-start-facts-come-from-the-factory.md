@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 662
 comments_read: [6721852631, 6722094144]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T13:29:47.325954Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -91,6 +95,11 @@ journal:
   speaker: human
   kind: comment
   at: '2026-11-08T13:29:44.913272Z'
+  stage: doing
+- number: 16
+  speaker: factory
+  kind: started
+  at: '2026-11-08T13:29:47.325954Z'
   stage: doing
 ---
 
@@ -290,3 +299,4 @@ Expect: `True`
     2. (a). Add the declared operation `ProjectCommands.start_fact(command, *, time_limit) -> CommandOutput`, without `sync`, and remove the downcast. Leave to add the method to the test implementations in `tests/machine/application/test_interfaces.py`, `tests/pipeline/application/test_stage_finish.py`, `tests/pipeline/application/test_stage_time_limited_report.py` and `tests/support/preflight_support.py`, and for the tester's changes to `tests/pipeline/application/test_stage_context.py` as described.
 
     On criterion 8: there is no system prompt under `operator/template`, and none is wanted. The sentence in `agents/system-prompt.md` and in the fallback `SYSTEM_PROMPT` meets the criterion; read "the operator template alike" as void.
+16. factory: started doing as vm.
