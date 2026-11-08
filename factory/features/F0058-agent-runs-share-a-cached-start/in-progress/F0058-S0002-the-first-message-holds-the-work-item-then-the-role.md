@@ -1,11 +1,11 @@
 ---
 stage: tests
-blocked: question
+blocked: null
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 660
-comments_read: [6720878077, 6720941885]
+comments_read: [6720878077, 6720941885, 6720981420]
 handed_over: null
 claim: null
 journal:
@@ -71,6 +71,11 @@ journal:
   stage: tests
   run: 63f00b83d7724358bec7c8b48382683f
   blocked: question
+- number: 12
+  speaker: human
+  kind: comment
+  at: '2026-11-08T11:36:31.244192Z'
+  stage: tests
 ---
 
 # The first message holds the work item, then the role
@@ -266,3 +271,4 @@ Expect: the docstring names the order: the work item's body, the role's instruct
     **Left open on purpose:** your answer does not say whether OpenCode's configuration still gives its agent a `prompt` key, or whether that prompt still holds the result block. The tests check only that it does not hold the role's instructions.
 
     **Run:** one run of the changed and created test files: the new and changed tests fail as failures, not collection errors, for example `test_task.py::test_the_request_names_the_round_cap_of_a_stage_that_has_one` and `test_task_acceptance.py`, because `PromptFacts` has no `body`, `role`, `role_instructions` or `round_cap` yet. Every module imported; nothing was missing. `make lint`: green. I skipped the type check, as the stage says.
+12. 2026-11-08 human: (b): only a call that starts a session gets the result block; a call with `--session` sends its prompt as it is. Keeping the per-run system-prompt file path as it is, holding the common text, is fine. OpenCode's configuration prompt: the coder decides, as long as it does not hold the role's instructions.
