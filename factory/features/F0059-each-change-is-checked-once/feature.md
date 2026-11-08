@@ -7,11 +7,11 @@ Checks take more than half of the factory's time (`docs/runs/2026-11-08-e2e-demo
 - The factory runs `make check` after every round of the coder, although the coder ran it itself before it handed forward. In the journals of F0053 to F0058 the factory's check after the coder was red once in 113 coder results.
 - The factory runs `make check` again after every round of the documenter, although the documenter can write only Markdown files. It runs the whole suite only because a few guards in `tests/guards/` read the real documents.
 
-After this feature the coder starts from the tester's test files alone. The factory runs the whole `make check` once per story, after the smoke tester, on the tree that goes to the human's approval; when it is red, the smoke tester sends the work item to the coder or the documenter, whichever can fix the failure. The guards that read the documents move into a fast project command of their own, `guides`, which the docs stages run beside `secrets` and `documents`, so a broken document is still found where the documenter can fix it. Done when both stories are merged, the human's changes are made, `make check` and `make guides` are green on `develop`, and the human's measurement run has been compared with F0058's.
+After this feature the coder starts from the tester's test files alone. The factory runs the whole `make check` once per story, after the smoke tester, on the tree that goes to the human's approval; when it is red, the smoke tester sends the work item to the coder or the documenter, whichever can fix the failure. The guards that read the documents move into a fast project command of their own, `guides`, which the docs stages run beside `secrets` and `documents`, so a broken document is still found where the documenter can fix it. Done when both stories are merged, the human's changes are made, `make check` and `make guides` are green on `develop`, and the human's measurement run has been compared with the baseline of 2026-11-08.
 
 ## Before it starts
 
-F0058 is archived and promoted, and its measurement run is done, so the measurement of this feature stands on its own.
+F0058 is archived and promoted. One measurement run after this feature measures F0058 and F0059 together: the cost records keep their effects apart (F0058 the tokens, the cache and the turns; F0059 the seconds spent in checks) (the human, 2026-11-08).
 
 ## Scope
 
@@ -38,7 +38,7 @@ After both stories are merged, in one commit on `develop` (Claude prepares them)
 - `CLAUDE.md`: under *Checks*, the coder starts with `uv run pytest -q <the tester's test files>` and finishes with `make check guides`; the factory's check runs after the smoke tester; `make guides` joins the list of targets the pipeline knows.
 - `demo/todo-service/project` and `operator/template`: the same stage checks in their `factory/pipeline.yml`, without `guides`, since their projects have no guards that read documents.
 
-Then the measurement run: demo-todo F0001 on a fresh repository, compared with F0058's run.
+Then the measurement run for F0058 and F0059 together: demo-todo F0001 on a fresh repository, compared with the baseline of 2026-11-08.
 
 ## Decisions taken for the human
 
