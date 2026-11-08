@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 680
 comments_read: [6727432579, 6727512748, 6727549619]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T21:47:06.755052Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -109,6 +113,11 @@ journal:
   at: '2026-11-08T21:47:01.555317Z'
   stage: tests
   run: 4828c96f0b9d429ea27e55629a0699cc
+- number: 19
+  speaker: factory
+  kind: started
+  at: '2026-11-08T21:47:06.755052Z'
+  stage: doing
 ---
 
 # A review whose findings need only tests goes to the tester
@@ -283,3 +292,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     The criteria still map to their tests as entry 8 lists them. The coder's `make check` comes next. The coder still has the refactor step to do.
 
     `lint`: lint: green (0.1 s)
+19. factory: started doing as vm.
