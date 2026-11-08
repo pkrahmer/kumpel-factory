@@ -1,5 +1,5 @@
 ---
-stage: docs-review
+stage: docs-approval
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 665
 comments_read: [6722914653]
 handed_over: null
-claim:
-  instance: vm
-  stage: docs-review
-  started_at: '2026-11-08T14:53:00.577836Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -102,6 +98,12 @@ journal:
   kind: started
   at: '2026-11-08T14:53:00.577836Z'
   stage: docs-review
+- number: 17
+  speaker: reviewer
+  kind: result
+  at: '2026-11-08T14:53:31.346551Z'
+  stage: docs-review
+  run: faaa2ad00f4a421a8cb524a85def6460
 ---
 
 # The operator guide says what keeps the cached start
@@ -195,3 +197,11 @@ Expect: at least one line in the section *A project's own agents*.
     `secrets`: secrets: green (0.4 s)
     `documents`: documents ok (61.7 s)
 16. factory: started docs-review as vm.
+17. reviewer: no findings
+
+    Reviewed `git diff develop...HEAD -- README.md docs operator/README.md`: only `docs/operator-guide/agent-runtime.md` changed. I checked it against the code, the criteria and `docs/project-guide/style.md`.
+
+    - Facts: every `agents/agents/*.md` names `model: opus` and the tools `[Read, Grep, Glob, Edit, Bash, Write, Skill]`. Intake, tester, coder, documenter and smoke tester use `effort: medium`, and the reviewer and acceptance reviewer use `high`. The common system prompt is real: `system_prompt_text` in `src/factory/agents/adapters/agent_launch.py:328` and `SYSTEM_PROMPT_FILE_NAME` in `src/factory/entry/wiring.py:619`. The reason given (a request begins with its tool list, the cache is per model and is cut by a change of effort) matches F0058 decision 1 in `docs/decisions.md` and *The seven agents* in `docs/project-guide/agents.md`. The model is free text (`model: str`, *The keys of an agent file*), and `FACTORY_OPENCODE_MODELS` maps `opus`, `sonnet` and `haiku`, so it is true that `sonnet` and `haiku` are aliases a project's agent may name. In `docs/operator-guide/records.md`, the bill's role table has the columns `cache written` and `hit rate`, and the headings *What a work item cost: `factory-bill`* and *The cache figures* exist exactly as cited.
+    - Criteria: 1 is met (**The cached start** gives the two conditions and says an agent that differs starts its own cache). 2 is met (the hit rate per role in `factory-bill`, with a link to records.md in the style rule 8 form). 3 is met (*The models*). 4 is met (the example keeps the shared start, and the sentence after it says so). 6 is met. The smoke-test greps match: `cached start` appears in the file, and `factory-bill` appears at line 342, inside *A project's own agents*.
+    - Round-0 findings 1 to 4 are fixed. The anchor link is gone and the heading is now in italics with `in [records.md](records.md)`. `write paths` links to the glossary. The "safer" claim now reads "does not limit what a role writes". The long sentences are split.
+    - Style: the sentence after the example ("The example keeps the tools, the model and the effort of …") is about 30 words, a little over rule 2's "about 25". It is one idea with one parenthesis, so I did not send it back.
