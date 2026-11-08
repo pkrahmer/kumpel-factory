@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: tests
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 654
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T07:13:45.561099Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -67,6 +63,12 @@ journal:
   kind: started
   at: '2026-11-08T07:13:45.561099Z'
   stage: doing
+- number: 11
+  speaker: coder
+  kind: result
+  at: '2026-11-08T07:14:05.590554Z'
+  stage: doing
+  run: c418071a3e884fe981f0da4c398240b2
 ---
 
 # Kumpel's procedure after an acceptance that proposes stories
@@ -155,3 +157,12 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
 
    Earlier tests: none. The diff adds one test file (`A`) and changes, renames or deletes no test file that `develop` holds.
 10. factory: started doing as vm.
+11. coder: Round 1. I changed no code. The reviewer's one finding, entry 9 item 1, asks for a change only to this story's own test, so it goes to the tester.
+
+    The change: in `tests/operator_scripts/test_operator_approving_after_acceptance.py`, `section_steps` should stop finding the section itself (the `lines.index(SECTION)` / `startswith("## ")` lines, and the `SECTION` constant). It should get the section from `factory.shared.domain.sections.section_text(APPROVING.read_text(encoding="utf-8"), "After a feature's acceptance")` (`src/factory/shared/domain/sections.py:128`, already used by `tests/support/shipped_agents.py:162`). It keeps only the code that splits that text into numbered steps with their continuation lines. The three rows and the test's name stay the same. `section_text` returns `str | None`, so the test must handle `None` to satisfy mypy.
+
+    Main choice: I hand it to the tester rather than editing the test myself, because the coder never edits tests (R9). The alternative I rejected was a `question`: the finding concerns a test written in this story, so no other story's test changes and the human's leave is not needed.
+
+    `operator/skill/kumpel/references/approving.md` stays as it was in entry 7. The journal did not change the task's meaning, so the Description stays as it is. I did not run `make check` this round because nothing in the working tree changed.
+
+    Noticed, not touched: `tests/operator_scripts/test_operator_archive_outcome.py:121-124` still finds the section with its own inline lines. Changing that test would need the human's leave or the standing leave to move a shared helper, and this story says no earlier test changes.
