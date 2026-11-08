@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: tests
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 662
 comments_read: [6721852631, 6722094144]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T13:29:47.325954Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -101,6 +97,12 @@ journal:
   kind: started
   at: '2026-11-08T13:29:47.325954Z'
   stage: doing
+- number: 17
+  speaker: coder
+  kind: result
+  at: '2026-11-08T13:30:10.198658Z'
+  stage: doing
+  run: f92d504ae4c24d50a2e7b46a78d38870
 ---
 
 # Each stage's start facts come from the factory
@@ -300,3 +302,17 @@ Expect: `True`
 
     On criterion 8: there is no system prompt under `operator/template`, and none is wanted. The sentence in `agents/system-prompt.md` and in the fallback `SYSTEM_PROMPT` meets the criterion; read "the operator template alike" as void.
 16. factory: started doing as vm.
+17. coder: Changed no code this round. The human's answers in entry 15 call for test changes, so I hand the item to the tester first. When it comes back, I will raise `RECORDS_CONTRACT` to 4.5, regenerate the schemas and add the declared operation.
+
+    The test changes the human allowed (entry 15):
+
+    1. **Contract version.** In `tests/shared/domain/test_contract_version_4.py`, `tests/shared/domain/test_contract_version_4_2.py` and `tests/pipeline/domain/test_contract.py:54`, change the pinned records contract from "4.4" to "4.5".
+    2. **New interface operation.** `ProjectCommands` (`src/factory/machine/application/project_commands.py`) gets a second abstract method: `start_fact(self, command: str, *, time_limit: timedelta) -> CommandOutput`. `CommandOutput` already exists in `factory.pipeline.domain.checks`. It is a `CheckResult` with the whole `output: str`. The method runs the command on the stage's base without `make sync` first. Add this method to the test implementations of `ProjectCommands` in `tests/machine/application/test_interfaces.py`, `tests/pipeline/application/test_stage_finish.py`, `tests/pipeline/application/test_stage_time_limited_report.py` and `tests/support/preflight_support.py`.
+    3. **`tests/pipeline/application/test_stage_context.py`**, two changes:
+       - Move `_SlowCommands` to override `start_fact` instead of `run`. For `SLOW` it returns a `time_limit` `CommandOutput` with `output=""`, and otherwise it calls `super().start_fact(...)`.
+       - Add a row whose Makefile `sync` target prints a line. The command's `<context>` block must not contain that line.
+    4. **New test for criterion 11** (added by the reviewer in entry 12, finding 4): a file a `context` command writes on the dataset is not there when the agent's run starts, and the take after the run does not carry it. The code for this is already in place: `ContainerEnvironment.run_agent` rolls the dataset back to its base before the agent runs (`src/factory/machine/application/stage_environment.py`).
+
+    What the journal changed in the task: entry 15 says criterion 8's "the operator template alike" is void. The sentence in `agents/system-prompt.md` and in the fallback `SYSTEM_PROMPT` is enough. I left the Description unchanged; criterion 8's test already covers those two.
+
+    Noticed, not touched: once `start_fact` is in place, `whole_output` and the `isinstance` downcast in `src/factory/pipeline/domain/checks.py` go away, and `CommandOutput` stays as the operation's return type. That is my change for the next round.
