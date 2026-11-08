@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 664
 comments_read: [6722586434]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-08T14:17:43.006578Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -64,6 +68,11 @@ journal:
   at: '2026-11-08T14:17:37.809169Z'
   stage: doing
   run: c617e1bf6f8f48199b4d9591ec29fa11
+- number: 11
+  speaker: factory
+  kind: started
+  at: '2026-11-08T14:17:43.006578Z'
+  stage: tests
 ---
 
 # The context markers are escaped too
@@ -147,3 +156,4 @@ Expect: `1`
 10. coder: The human's answer (entry 8, option A) calls for one test change. In the `near` row of `test_a_text_without_a_marker_reaches_the_message_byte_for_byte` in `tests/agents/domain/test_prompts_context_markers.py`, replace `<context-free>` with a text that holds no marker, such as `context-free`, and change nothing else. The tester makes this change.
 
     The code is already on the branch from the last run (commit bae1a49ee). `_MARKER_TEXTS` in `src/factory/agents/domain/prompts.py:42` now also holds `"<context"` and `CONTEXT_CLOSE`. I changed no code this run, and the Description stays as it is: the answer keeps the Interface as written, with `<context` escaped as a prefix like the other markers. After the tester's change the work item comes back to doing. Then I run `make check` and do the refactor step.
+11. factory: started tests as vm.
