@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 662
 comments_read: [6721852631, 6722094144]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: review
+  started_at: '2026-11-08T13:48:08.858413Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -169,6 +173,11 @@ journal:
   at: '2026-11-08T13:48:00.175114Z'
   stage: doing
   run: cf1b0ab878e34232807534891c3c278a
+- number: 30
+  speaker: factory
+  kind: started
+  at: '2026-11-08T13:48:08.858413Z'
+  stage: review
 ---
 
 # Each stage's start facts come from the factory
@@ -517,3 +526,4 @@ Expect: `True`
 
     `check`: check: green
     `duplicates`: duplicates: 7 new, 39 known, 4 gone
+30. factory: started review as vm.
