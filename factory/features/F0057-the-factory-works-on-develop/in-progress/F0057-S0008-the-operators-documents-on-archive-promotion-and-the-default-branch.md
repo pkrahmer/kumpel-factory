@@ -1,5 +1,5 @@
 ---
-stage: docs-only
+stage: docs-review
 blocked: null
 round: 1
 attempts: 1
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 651
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: docs-only
-  started_at: '2026-11-08T02:52:30.858729Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -74,6 +70,12 @@ journal:
   kind: started
   at: '2026-11-08T02:52:30.858729Z'
   stage: docs-only
+- number: 12
+  speaker: documenter
+  kind: result
+  at: '2026-11-08T02:56:49.273530Z'
+  stage: docs-only
+  run: 558898f89993443b8f4de2d742bc33d0
 ---
 
 # The operator's documents on the archive, the promotion and the default branch
@@ -187,3 +189,24 @@ Expect: `documents ok (<seconds> s)`
 
     No docs/decisions.md entry was expected, and none was written.
 11. factory: started docs-only as vm.
+12. documenter: Round 1: I fixed the reviewer's three findings.
+
+    Changed files:
+    - `docs/operator-playbook.md`, step 8 (finding 1): the promotion text now reads "see *The promotion* in [the operator guide](operator-guide/install.md)". That section is in install.md, not work-items.md. The bare file name `work-items.md` stays out of the text, so the guide-file guard stays green.
+    - `docs/operator-playbook.md`, archive paragraph (finding 3): the one long sentence is split into three. The script refuses while a story is left in `backlog/` or `in-progress/`. It also refuses while the feature has no acceptance, or while the last acceptance is not in `done/` or does not say `outcome: accepted`. I read `archive-feature.sh` before writing this.
+    - `docs/operator-guide/install.md`, step 1 (finding 2): the health.md link now follows style rule 8: "see its row under *The wait for a repository that is not ready* in [health.md](health.md)". The anchor is gone.
+
+    Checks:
+    - `make documents` ended with `documents ok (58.8 s)`.
+    - `tests/guards/test_project_guide_files.py` passes.
+    - I did not run `make check`, because every changed file is a document.
+
+    I cross-read these and found them current: the earlier round's edits to `work-items.md` and `install.md` (*The branches*), and the health.md row.
+
+    Stale text I saw and left alone, because it is not part of this story: the playbook's older numbered change list and its step 26 still describe the old archive wording. They are history.
+
+    I added no `docs/decisions.md` entry, as the docs criterion says none.
+
+    `check`: check: green
+    `secrets`: secrets: green (0.6 s)
+    `documents`: documents ok (58.6 s)
