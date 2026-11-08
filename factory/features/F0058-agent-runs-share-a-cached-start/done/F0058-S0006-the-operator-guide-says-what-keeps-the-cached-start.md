@@ -1,5 +1,5 @@
 ---
-stage: docs-approval
+stage: done
 blocked: null
 round: 1
 attempts: 0
@@ -104,6 +104,11 @@ journal:
   at: '2026-11-08T14:53:31.346551Z'
   stage: docs-review
   run: faaa2ad00f4a421a8cb524a85def6460
+- number: 18
+  speaker: factory
+  kind: done
+  at: '2026-11-08T14:54:23.243162Z'
+  stage: docs-approval
 ---
 
 # The operator guide says what keeps the cached start
@@ -205,3 +210,4 @@ Expect: at least one line in the section *A project's own agents*.
     - Criteria: 1 is met (**The cached start** gives the two conditions and says an agent that differs starts its own cache). 2 is met (the hit rate per role in `factory-bill`, with a link to records.md in the style rule 8 form). 3 is met (*The models*). 4 is met (the example keeps the shared start, and the sentence after it says so). 6 is met. The smoke-test greps match: `cached start` appears in the file, and `factory-bill` appears at line 342, inside *A project's own agents*.
     - Round-0 findings 1 to 4 are fixed. The anchor link is gone and the heading is now in italics with `in [records.md](records.md)`. `write paths` links to the glossary. The "safer" claim now reads "does not limit what a role writes". The long sentences are split.
     - Style: the sentence after the example ("The example keeps the tools, the model and the effort of …") is about 30 words, a little over rule 2's "about 25". It is one idea with one parenthesis, so I did not send it back.
+18. factory: done (pull request merged); cost: 7 runs, 5.9 min, 33 turns, 171876 tokens in (577737 more from cache), 14253 out, $1.45
