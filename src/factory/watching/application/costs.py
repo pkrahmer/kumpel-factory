@@ -26,7 +26,10 @@ from factory.watching.domain.bills import (
     Bill,
     StageBill,
     bill,
+    bills_by_role,
     bills_by_stage,
+    cache_line,
+    cache_table,
     cost_line,
     cost_table,
 )
@@ -181,7 +184,10 @@ def _denied_paths(result: AgentRunResult) -> list[str]:
 
 
 class WorkItemBill(BaseModel):
-    """A work item's bill: its total, its stages, and their cost line and table texts."""
+    """A work item's bill: its total, its stages, and their cost line and table texts.
+
+    `cache` and `cache_by_role` are the texts of its cache figures, in total and per role.
+    """
 
     model_config = ConfigDict(frozen=True, extra="forbid")
 
@@ -190,6 +196,8 @@ class WorkItemBill(BaseModel):
     stages: list[StageBill]
     line: str
     table: str
+    cache: str
+    cache_by_role: str
 
 
 class BillService:
@@ -215,6 +223,8 @@ class BillService:
             stages=stages,
             line=cost_line(whole),
             table=cost_table(stages),
+            cache=cache_line(whole),
+            cache_by_role=cache_table(bills_by_role(records)),
         )
 
     def in_flight(self) -> list[WorkItemId]:

@@ -13,6 +13,7 @@ from factory.shared.domain.identifiers import branch_name
 from factory.shared.domain.paths import cost_records_path
 from factory.watching.adapters.cost_records_jsonl import JsonLinesCostRecordReader
 from factory.watching.application.costs import BillService
+from support.bill_cache_support import without_cache, without_cache_in_flight
 from support.bill_support import completed_records, sidecar_text
 from support.git_support import CHECKOUT
 from support.human_clone import HumanClone
@@ -59,7 +60,7 @@ def test_one_id_prints_the_table_and_the_cost_line(checkout: GitCli, human: Huma
 
     status = run([FIRST], service, out)
 
-    assert out.getvalue().splitlines() == _block(service, FIRST)
+    assert without_cache(out.getvalue().splitlines()) == _block(service, FIRST)
     assert status == 0
 
 
@@ -92,7 +93,7 @@ def test_no_argument_prints_every_in_flight_work_item_that_has_a_bill(
 
     status = run([], service, out)
 
-    assert out.getvalue().splitlines() == [
+    assert without_cache_in_flight(out.getvalue().splitlines(), [FIRST, SECOND]) == [
         FIRST,
         *_block(service, FIRST),
         "",
@@ -115,7 +116,7 @@ def test_main_reads_the_id_from_sys_argv_in_the_current_checkout(
 
     status = main()
 
-    assert capsys.readouterr().out.splitlines() == _block(_service(checkout), FIRST)
+    assert without_cache(capsys.readouterr().out.splitlines()) == _block(_service(checkout), FIRST)
     assert status == 0
 
 
@@ -132,7 +133,7 @@ def test_main_with_a_list_uses_the_list_instead_of_sys_argv(
 
     status = main([SECOND])
 
-    assert capsys.readouterr().out.splitlines() == _block(_service(checkout), SECOND)
+    assert without_cache(capsys.readouterr().out.splitlines()) == _block(_service(checkout), SECOND)
     assert status == 0
 
 
