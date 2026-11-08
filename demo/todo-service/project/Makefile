@@ -132,7 +132,7 @@ openapi:
 
 # Start facts (F0058): the factory runs these before an agent and puts their output into its
 # first message; never part of `check`. The base is where the branch left origin/develop.
-base_ref = $$(git merge-base HEAD origin/develop 2>/dev/null || git rev-parse HEAD)
+base_ref = $$(git merge-base HEAD origin/develop)
 
 # The branch's changes: the file list with counts, then the whole diff, without the factory's files.
 facts-diff:

@@ -3,7 +3,7 @@
 # its own (the type check is skipped there, because the modules under test do not exist yet).
 # What each target runs is the repository's business; this file is a Python example. `types` and
 # `layers` are in `check`, not in `lint`: the tests stage runs `lint` only.
-.PHONY: check lint types layers sast secrets licenses test sync duplicates documents mutants areas facts-diff facts-changes facts-files
+.PHONY: guides check lint types layers sast secrets licenses test sync duplicates documents mutants areas facts-diff facts-changes facts-files
 .SILENT:
 
 # One shell per recipe, stopped by its first failing line, so that a recipe can time itself.
@@ -89,7 +89,14 @@ test:
 	$(start)
 	mkdir -p .reports
 	# COLUMNS: each FAILED line keeps its error message, so the tail a stall quotes names it.
-	COLUMNS=200 uv run pytest -q --no-header --tb=short -p no:cacheprovider -n auto --dist worksteal 	  --junit-xml=.reports/junit.xml --cov --cov-report=term-missing:skip-covered
+	COLUMNS=200 uv run pytest -q --no-header --tb=short -p no:cacheprovider -n auto --dist worksteal 	  --junit-xml=.reports/junit.xml --cov --cov-report=term-missing:skip-covered -m "not documents"
+	$(green)
+
+# The tests that read the documents (marker `documents`, F0059): the docs stages' check and the
+# coder's `make check guides`; without coverage, so `check` need not read the documenter's files.
+guides:
+	$(start)
+	COLUMNS=200 uv run pytest -q --no-header --tb=short -p no:cacheprovider -n auto --dist worksteal -m documents
 	$(green)
 
 # Similar code (pylint's duplicate-code) and dead code (vulture) in src/factory, against the
@@ -137,7 +144,7 @@ mutants:
 
 # Start facts (F0058): the factory runs these before an agent and puts their output into its
 # first message; never part of `check`. The base is where the branch left origin/develop.
-base_ref = $$(git merge-base HEAD origin/develop 2>/dev/null || git rev-parse HEAD)
+base_ref = $$(git merge-base HEAD origin/develop)
 
 # The branch's changes: the file list with counts, then the whole diff, without the factory's files.
 facts-diff:

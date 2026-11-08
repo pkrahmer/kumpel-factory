@@ -7,8 +7,9 @@ crash_cap: 2
 acceptance_stage: acceptance
 project_commands:
   # The gate; a passed result is reused while the files it reads, the pipeline definition and the image stay the same.
-  check: {time_limit: 8, not_read: ["docs/runs/*", "factory/features/*.md", "factory/features/*.jsonl", "factory/archive/*", "factory/stops.jsonl", "planning/*", "session-logs/*"]}
+  check: {time_limit: 8, not_read: ["docs/runs/*", "factory/features/*.md", "factory/features/*.jsonl", "factory/archive/*", "factory/stops.jsonl", "planning/*", "session-logs/*", "README.md", "docs/*", "operator/README.md", "agents/README.md", "operator/bin/README.md", "operator/claude/README.md", "operator/job/README.md", "operator/lib/README.md", "operator/opencode/README.md", "operator/skill/README.md", "operator/vm/README.md", "security/README.md", "src/factory/README.md", "src/factory/agents/README.md", "src/factory/entry/README.md", "src/factory/hosting/README.md", "src/factory/machine/README.md", "src/factory/pipeline/README.md", "src/factory/shared/README.md", "src/factory/watching/README.md", "src/factory/work/README.md", "tests/README.md", "tests/support/README.md", "tests/guards/README.md"]}
   lint: {time_limit: 5}
+  guides: {time_limit: 2}       # the tests that read the documents (F0059): the docs stages, beside secrets and documents
   test: {time_limit: 10}
   duplicates: {time_limit: 2}   # similar and dead code against security/duplicates-baseline.txt, for the reviewer
   documents: {time_limit: 2}    # the four documents against the document check: a check of the docs stage only
@@ -33,11 +34,11 @@ roles:
 stages:
   intake: {role: intake, next: [tests, docs-only]}
   tests: {role: tester, next: [doing], checks: [lint], context: [facts-files]}     # the new tests are red on purpose; no make test after it (the human, 2026-11-02)
-  doing: {role: coder, next: [review, tests], checks: [check], reports: [duplicates], context: [facts-changes]}
+  doing: {role: coder, next: [review, tests], reports: [duplicates], context: [facts-changes]}
   review: {role: reviewer, next: [docs, doing], round_cap: 2, context: [facts-diff]}
-  docs: {role: documenter, next: [smoke-test, doing], checks: [check, secrets, documents], round_cap: 2, context: [facts-changes]}
-  smoke-test: {role: smoke-tester, next: [approval, doing, docs], round_cap: 2}
-  docs-only: {role: documenter, next: [docs-review, tests], checks: [check, secrets, documents], context: [facts-changes]}   # the docs route (the human, 2026-11-05)
+  docs: {role: documenter, next: [smoke-test, doing], checks: [guides, secrets, documents], round_cap: 2, context: [facts-changes]}
+  smoke-test: {role: smoke-tester, next: [approval, doing, docs], checks: [check], round_cap: 2}   # the one full check (F0059)
+  docs-only: {role: documenter, next: [docs-review, tests], checks: [check, guides, secrets, documents], context: [facts-changes]}   # the docs route (the human, 2026-11-05)
   docs-review: {role: reviewer, next: [docs-approval, docs-only], round_cap: 3, context: [facts-diff]}   # 3 for the rewrite of whole pages (the human, 2026-11-06)
   docs-approval: {approval: true, next: [done, docs-only]}   # the human: a merge accepts, a close sends back to the documenter
   acceptance: {role: acceptance-reviewer, next: [approval]}
