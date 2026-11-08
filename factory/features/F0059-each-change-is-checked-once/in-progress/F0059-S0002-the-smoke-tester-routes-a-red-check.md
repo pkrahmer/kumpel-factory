@@ -1,3 +1,30 @@
+---
+stage: intake
+blocked: null
+round: 0
+attempts: 0
+crashes: 0
+pull_request: null
+comments_read: []
+handed_over: null
+claim:
+  instance: vm
+  stage: intake
+  started_at: '2026-11-08T16:28:24.046470Z'
+  lease_duration: 60
+journal:
+- number: 1
+  speaker: human
+  kind: created
+  at: '2026-11-08T16:28:24.038819Z'
+  stage: intake
+- number: 2
+  speaker: factory
+  kind: started
+  at: '2026-11-08T16:28:24.046470Z'
+  stage: intake
+---
+
 # The smoke tester routes a red check
 
 ## Description
@@ -33,3 +60,6 @@ grep -c 'check_red' agents/agents/smoke-tester.md
 Expect: a count of 1 or more.
 
 ## Journal
+
+1. 2026-11-08 human: created.
+2. factory: started intake as vm.
