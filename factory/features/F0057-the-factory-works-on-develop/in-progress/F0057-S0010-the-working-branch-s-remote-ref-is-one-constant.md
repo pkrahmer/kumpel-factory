@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 656
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T07:41:31.366834Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -45,6 +41,12 @@ journal:
   kind: started
   at: '2026-11-08T07:41:31.366834Z'
   stage: doing
+- number: 7
+  speaker: coder
+  kind: result
+  at: '2026-11-08T07:46:08.759406Z'
+  stage: doing
+  run: 750cb135090d41f78649c761c1bf9a68
 ---
 
 # The working branch's remote ref is one constant
@@ -136,3 +138,22 @@ Expect: `origin/develop`
 
    `lint`: lint: green (0.2 s)
 6. factory: started doing as vm.
+7. coder: I added `WORK_REF = f"{REMOTE}/{WORK_BRANCH}"` to `src/factory/shared/domain/paths.py`, beside `REMOTE` and `WORK_BRANCH`. All sixteen spellings now use it:
+   - The nine private `_WORK_REF` constants are removed, and each module imports `WORK_REF` instead. The modules are `pipeline/application/{tick,scheduler}.py`, `machine/application/preflight.py`, `work/application/{work_items,acceptance,acceptance_reading}.py`, `entry/wiring.py`, `watching/application/watcher.py` and `hosting/application/opening.py`.
+   - `FORM_REF` in `pipeline/application/task.py` and `PIPELINE_REF` in `pipeline/application/pipeline_loading.py` are now `= WORK_REF`.
+   - The five inline spellings now use `WORK_REF`: `pipeline/application/handlers/hand_over.py`, `pipeline/application/stops.py` (both places), `pipeline/application/stage.py` and `watching/application/costs.py`.
+   - I removed imports of `REMOTE` and `WORK_BRANCH` wherever they were no longer used. Modules that still need them for `f"{REMOTE}/{snapshot.branch}"` or `checkout(WORK_BRANCH, ...)` keep them.
+
+   `grep -rn '{REMOTE}/{WORK_BRANCH}' src/factory --include=*.py` now finds only the one line in `paths.py`. `make check` is green: coverage is 99.22 %, the run ends with `check: green`, and the two new test modules pass without any test changed.
+
+   Main choice: `PIPELINE_REF` and `FORM_REF` stay as public names set to `WORK_REF`, as the Description asks. The alternative was to drop them and import `WORK_REF` wherever they are used. I rejected it because tests and the project guide name them.
+
+   Refactor pass: I read the whole diff. It is a mechanical substitution, so I found nothing to change. The only extra step was undoing a multi-line import that the tooling had produced in `costs.py`, which keeps that diff to one line.
+
+   The journal did not change the meaning of the task.
+
+   Noticed, not touched:
+   - The project guide may still name `_WORK_REF`. That is the docs stage's work under criterion 5.
+
+   `check`: check: green
+   `duplicates`: duplicates: 6 new, 39 known, 4 gone

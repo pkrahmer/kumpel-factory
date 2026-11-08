@@ -8,12 +8,10 @@ from factory.pipeline.application.boundaries import Boundaries
 from factory.pipeline.domain.pipeline_definition import PipelineDefinition
 from factory.shared.domain.errors import WorkItemFormatError
 from factory.shared.domain.identifiers import WorkItemId, branch_name
-from factory.shared.domain.paths import REMOTE, WORK_BRANCH
+from factory.shared.domain.paths import WORK_REF
 from factory.shared.domain.sections import JOURNAL, sections, title
 from factory.work.domain.journal import HUMAN, NewEntry, append_entry
 from factory.work.domain.work_item import WorkItemDocument, initial_state
-
-_WORK_REF = f"{REMOTE}/{WORK_BRANCH}"
 
 
 class PreparedWorkItem(BaseModel):
@@ -69,15 +67,15 @@ class WorkItemOpening:
     def _reopen(self, branch: str, path: str) -> tuple[WorkItemDocument, bool]:
         # The remote is the truth: whatever a local branch of this name held is dropped.
         self._boundaries.git.checkout(branch, start_point=f"origin/{branch}")
-        merge_conflict = self._boundaries.git.merge(_WORK_REF) == "conflict"
+        merge_conflict = self._boundaries.git.merge(WORK_REF) == "conflict"
         document = self._boundaries.work_item_reader.read(self._boundaries.checkout / path)
         return document, merge_conflict
 
     def _open_new(self, branch: str, path: str) -> WorkItemDocument:
-        self._boundaries.git.checkout(branch, start_point=_WORK_REF)
-        text = self._boundaries.git.show_file(_WORK_REF, path)
+        self._boundaries.git.checkout(branch, start_point=WORK_REF)
+        text = self._boundaries.git.show_file(WORK_REF, path)
         if text is None:
-            raise WorkItemFormatError(f"the work item file is not on {_WORK_REF}", path)
+            raise WorkItemFormatError(f"the work item file is not on {WORK_REF}", path)
         # The backlog file's own front matter is the human's draft, never the pipeline's state.
         specification = self._boundaries.work_item_reader.parse_specification(text)
         document = WorkItemDocument(

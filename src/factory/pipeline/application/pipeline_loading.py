@@ -10,9 +10,9 @@ from factory.shared.domain.errors import (
     AgentDefinitionInvalid,
     PipelineDefinitionInvalid,
 )
-from factory.shared.domain.paths import PIPELINE_DEFINITION_FILE, REMOTE, WORK_BRANCH
+from factory.shared.domain.paths import PIPELINE_DEFINITION_FILE, WORK_REF
 
-PIPELINE_REF = f"{REMOTE}/{WORK_BRANCH}"
+PIPELINE_REF = WORK_REF
 
 
 class PipelineLoader:

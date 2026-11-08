@@ -41,7 +41,7 @@ from factory.shared.domain.errors import (
     ProjectCommandError,
     SnapshotError,
 )
-from factory.shared.domain.paths import REMOTE, WORK_BRANCH
+from factory.shared.domain.paths import WORK_BRANCH, WORK_REF
 from factory.shared.domain.printed_lines import printed_lines
 from factory.shared.domain.settings import (
     API_LOGIN_FILE_VARIABLE,
@@ -58,7 +58,6 @@ PROBE_COMMAND = "lint"
 # A constant, the default of every project command: the preflight needs no pipeline definition.
 PROBE_TIME_LIMIT = timedelta(minutes=10)
 
-_WORK_REF = f"{REMOTE}/{WORK_BRANCH}"
 _SHORT_COMMIT = 12
 _MAIN_FAILING: RepositoryStopReason = "main_branch_failing"
 _PREFLIGHT_FAILED: RepositoryStopReason = "preflight_failed"
@@ -76,7 +75,7 @@ _METADATA_ITEM = "metadata-block"
 # curl writes `000` as the HTTP code when it got no answer: refused, unreachable or timed out.
 _NOT_CONNECTED = "000"
 _HTTP_CODE = re.compile(r"[0-9]{3}")
-_NO_WORK_BRANCH_TO_PREPARE = f"no {_WORK_REF} to prepare the stage environment from"
+_NO_WORK_BRANCH_TO_PREPARE = f"no {WORK_REF} to prepare the stage environment from"
 
 PROBE_AGENT = "coder"
 PROBE_PROMPT = "Probe: end with the decision question and the entry probe."
@@ -275,7 +274,7 @@ def agent_run_probe_item(
 ) -> PreflightItem:
     """Run the agent runtime once with a stage's flags; it passes when the run completes."""
     # A flag the pinned runtime rejects would end every real run `died` without saying why.
-    work = boundaries.git.resolve(_WORK_REF)
+    work = boundaries.git.resolve(WORK_REF)
     if work is None:
         return PreflightItem(name=_PROBE_ITEM, passed=False, detail=_NO_WORK_BRANCH_TO_PREPARE)
     try:
@@ -506,7 +505,7 @@ class Preflight:
         if stamp is None or stamp.main_failed is None:
             return
         try:
-            work = self._boundaries.git.resolve(_WORK_REF)
+            work = self._boundaries.git.resolve(WORK_REF)
         except GitError:
             return
         if work != stamp.main_failed and not self._changes_only_stop_records(stamp.main_failed):
@@ -522,7 +521,7 @@ class Preflight:
         return changes_only_stop_records(paths)
 
     def _probe(self, stamp: PreflightStamp) -> RepositoryStopReason | None:
-        work = self._boundaries.git.resolve(_WORK_REF)
+        work = self._boundaries.git.resolve(WORK_REF)
         if work is None:
             return None
         if stamp.main_failed == work:
@@ -536,8 +535,8 @@ class Preflight:
     def _run_probe(self, stamp: PreflightStamp, work: CommitId) -> RepositoryStopReason | None:
         # The working branch only: a work item's red branch is its own concern, not the machine's.
         git = self._boundaries.git
-        git.checkout(WORK_BRANCH, start_point=_WORK_REF)
-        git.reset_to(_WORK_REF)
+        git.checkout(WORK_BRANCH, start_point=WORK_REF)
+        git.reset_to(WORK_REF)
         stage_environment_of(self._boundaries).prepare(
             work, WORK_BRANCH, sync_time_limit=PROBE_TIME_LIMIT
         )

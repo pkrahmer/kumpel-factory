@@ -35,6 +35,7 @@ from factory.shared.domain.identifiers import (
 from factory.shared.domain.paths import (
     REMOTE,
     WORK_BRANCH,
+    WORK_REF,
     cost_records_path,
     feature_file_path,
     work_item_path,
@@ -66,7 +67,6 @@ from factory.work.domain.work_item import (
     require_state,
 )
 
-_WORK_REF = f"{REMOTE}/{WORK_BRANCH}"
 _KIND = "acceptance_due"
 _HAND_OVER = "hand_over"
 _MERGED = "merged"
@@ -122,7 +122,7 @@ class AcceptanceService:
         branch = branch_name(work_item)
         path = work_item_path(acceptance.directory, "in-progress", acceptance_file_name(work_item))
         git = self._boundaries.git
-        git.checkout(branch, start_point=_WORK_REF)
+        git.checkout(branch, start_point=WORK_REF)
         report = self._boundaries.checkout / path
         report.parent.mkdir(parents=True, exist_ok=True)
         self._boundaries.work_item_writer.write(report, head)
@@ -167,13 +167,13 @@ class AcceptanceService:
         for acceptance in self._reader.read():
             if acceptance.feature == feature:
                 return acceptance
-        raise ValueError(f"feature {feature} has no directory on {_WORK_REF}")
+        raise ValueError(f"feature {feature} has no directory on {WORK_REF}")
 
     def _feature_title(self, directory: str) -> str:
         path = feature_file_path(directory)
         text = read_feature_file(self._boundaries.git, directory)
         if text is None:
-            raise WorkItemFormatError(f"missing on {_WORK_REF}", path)
+            raise WorkItemFormatError(f"missing on {WORK_REF}", path)
         feature_title = title(text)
         if feature_title is None:
             raise WorkItemFormatError("the feature file has no title line", path)
@@ -182,7 +182,7 @@ class AcceptanceService:
     def _waits(self, story_path: str) -> list[HumanWait]:
         # One damaged archived story must not stop the acceptance of the whole feature.
         try:
-            document = self._reader.document(_WORK_REF, story_path)
+            document = self._reader.document(WORK_REF, story_path)
         except WorkItemFormatError:
             return []
         return [] if document.state is None else human_waits(document.state.journal)
@@ -190,7 +190,7 @@ class AcceptanceService:
     def _records(self, story_path: str) -> list[CostRecord]:
         sidecar = cost_records_path(story_path)
         boundaries = self._boundaries
-        return read_cost_records(boundaries.git, boundaries.cost_reader, _WORK_REF, sidecar)
+        return read_cost_records(boundaries.git, boundaries.cost_reader, WORK_REF, sidecar)
 
 
 class AcceptanceDueHandler(Handler):
@@ -348,7 +348,7 @@ class AcceptanceClosed(Handler):
         git = self._boundaries.git
         branch_ref = f"{REMOTE}/{snapshot.branch}"
         if git.resolve(branch_ref) is None:
-            if git.show_file(_WORK_REF, destination_path(snapshot.path, "done")) is None:
+            if git.show_file(WORK_REF, destination_path(snapshot.path, "done")) is None:
                 raise CannotHandle(
                     kind=event.kind, reason=f"no report on the branch or the {WORK_BRANCH} branch"
                 )
