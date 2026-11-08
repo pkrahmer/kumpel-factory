@@ -1,5 +1,5 @@
 ---
-stage: review
+stage: docs
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 664
 comments_read: [6722586434]
 handed_over: null
-claim:
-  instance: vm
-  stage: review
-  started_at: '2026-11-08T14:29:52.418762Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -139,6 +135,12 @@ journal:
   kind: started
   at: '2026-11-08T14:29:52.418762Z'
   stage: review
+- number: 24
+  speaker: reviewer
+  kind: result
+  at: '2026-11-08T14:30:31.321487Z'
+  stage: review
+  run: 8e4ed249d6e742a390921cb4f3075272
 ---
 
 # The context markers are escaped too
@@ -316,3 +318,22 @@ Expect: `1`
     `check`: check: green
     `duplicates`: duplicates: 7 new, 39 known, 4 gone
 23. factory: started review as vm.
+24. reviewer: no findings
+
+    Checked and fine:
+    - Code: `_MARKER_TEXTS` (`src/factory/agents/domain/prompts.py:42-49`) holds six markers. `_escape_markers` applies them to the body (`compose_prompt`, line 170) and to the whole text `_context_text` returns (`_context_block`, line 140): the output, the cut line from `_cut` and the `failed: <reason>` line. The role's instructions go through `_block` unescaped (line 172). The escape runs after the cut, so a marker in the kept part is escaped, and a marker split by the cut is left as harmless partial text. `<context` cannot match inside `</context>`, and an `&lt;` that is already escaped is never matched again. `compose_prompt`, `PromptFacts` and `StartFact` keep their signatures and fields. The docstring of `compose_prompt` says "its marker texts escaped" without counting them, so it is still true.
+    - Criteria 1–6, each against its test in `tests/agents/domain/test_prompts_context_markers.py`:
+      - 1: two start facts, with `<context name="x">` and `</context>` as rows. The test checks one opening and one closing per fact, plus the escaped text.
+      - 2: the same rows for the body. The test checks that no `<context` and no `</context>` stands before `&lt;/work-item>`, which is stricter than "between the two markers" because the work item block comes first. It also checks the escaped text.
+      - 3: checks the exact `failed: … &lt;/context> …` line and one `</context>`.
+      - 4: rows `near` and `plain`, each used as the body and as an output. The test checks both byte for byte inside their blocks. The `near` row holds none of the six markers, as the human's answer in entry 8 asks.
+      - 5: instructions that hold both markers reach the message unescaped.
+      - 6: an output 5 characters over `CONTEXT_LIMIT` with `</context>` in the kept part. The test checks the escaped marker, the `[5 more characters cut here` line and one `</context>`.
+      - Each rule's both sides (escaped vs. byte for byte, escaped vs. unescaped role) are covered as rows or by their own criterion. The tester's run passed (entry 20), and the coder's `make check` after it was green (entry 22: `check: green`, coverage 99.21 %).
+    - Architecture: the change is domain-only. It adds no I/O, no dependency and no new module under `src/`, and the test mirrors the package under `tests/agents/domain/`.
+    - Security: no markers that silence a check, no secrets. The change makes the prompt's block boundaries harder to forge from data, which is what it is for.
+    - Quality: two tuple entries reuse the existing `CONTEXT_CLOSE`, with no duplicate logic. The test builds its facts from `CODER_FACTS` in `tests/support/first_message_support.py`, so the copied helper from round 0 is gone.
+    - Work item hygiene: the main choice (`<context` escaped as a prefix) and the rejected matcher are in entries 7, 8 and 14. The Description matches what was built. Docs criterion 8 names the two guide files, the six markers and the reason.
+    - Smoke test: the output's `</context>` becomes `&lt;/context>`, so only the block's own closing marker is left and the count is 1.
+
+    Earlier tests: none changed. The diff only adds `tests/agents/domain/test_prompts_context_markers.py`, so no leave was needed. The leave to edit `MARKERS` in `tests/agents/domain/test_prompts.py` and `tests/pipeline/application/test_stage_context.py` was not used.
