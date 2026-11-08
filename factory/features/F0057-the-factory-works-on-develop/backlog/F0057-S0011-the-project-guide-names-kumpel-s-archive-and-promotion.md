@@ -1,6 +1,5 @@
 # The project guide names Kumpel's archive and promotion
 
-<!-- proposed by feature acceptance of 2026-11-08; refine before starting -->
 
 ## Description
 

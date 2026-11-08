@@ -1,6 +1,5 @@
 # Kumpel's procedure after an acceptance that proposes stories
 
-<!-- proposed by feature acceptance of 2026-11-08; refine before starting -->
 
 ## Description
 

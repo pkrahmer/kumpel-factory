@@ -1,6 +1,5 @@
 # The working branch's remote ref is one constant
 
-<!-- proposed by feature acceptance of 2026-11-08; refine before starting -->
 
 ## Description
 
