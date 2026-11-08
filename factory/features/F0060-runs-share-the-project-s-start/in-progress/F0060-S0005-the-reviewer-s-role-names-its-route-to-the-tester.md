@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 682
 comments_read: [6727864627]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: review
+  started_at: '2026-11-08T22:22:10.661622Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -64,6 +68,11 @@ journal:
   at: '2026-11-08T22:22:05.332147Z'
   stage: doing
   run: 5c40ce28840d4a56a610ca62f4f7cf5d
+- number: 11
+  speaker: factory
+  kind: started
+  at: '2026-11-08T22:22:10.661622Z'
+  stage: review
 ---
 
 # The reviewer's role names its route to the tester
@@ -191,3 +200,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     Not touched: the docs criterion (`docs/operator-guide/agent-runtime.md`, `docs/operator-guide/pipeline.md`, `docs/decisions.md`). That is the documenter's work.
 
     `duplicates`: duplicates: 7 new, 39 known, 4 gone
+11. factory: started review as vm.
