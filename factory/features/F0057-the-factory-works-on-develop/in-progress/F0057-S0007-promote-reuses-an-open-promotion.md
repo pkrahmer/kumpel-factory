@@ -1,5 +1,5 @@
 ---
-stage: review
+stage: docs
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 650
 comments_read: [6716086925]
 handed_over: null
-claim:
-  instance: vm
-  stage: review
-  started_at: '2026-11-08T02:33:06.159714Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -117,6 +113,12 @@ journal:
   kind: started
   at: '2026-11-08T02:33:06.159714Z'
   stage: review
+- number: 20
+  speaker: reviewer
+  kind: result
+  at: '2026-11-08T02:33:51.428132Z'
+  stage: review
+  run: 0c3051b35ba74b21a478607280baa6c5
 ---
 
 # promote.sh reuses an open promotion
@@ -284,3 +286,23 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
     `check`: check: green
     `duplicates`: duplicates: 6 new, 39 known, 4 gone
 19. factory: started review as vm.
+20. reviewer: Round 1 review of `git diff develop...HEAD -- . ':!factory'` against the work item. The diff covers `operator/skill/kumpel/scripts/promote.sh`, `tests/operator_scripts/test_operator_promote_reuse.py` (new), `tests/operator_scripts/test_operator_develop.py` and `tests/support/operator_skill_support.py`.
+
+    What I checked:
+    - Both round-0 findings are fixed. `PULL_NUMBER` and `OLD_SWITCHES` now exist only in `tests/support/operator_skill_support.py`, and both modules import them from there. Criterion 4's test now asserts `exit_status == 22`, the hosting client's status, as the Interface says.
+    - The script's diff is unchanged since round 0. It sends the GET with the exact query and takes the owner from `${SITE_REPOSITORY%%/*}`, and it stops with `|| exit $?` when that GET fails. One `python3 -I` step plans `open`, `patch` or `keep` and gets the JSON as arguments, so no shell or JSON is built from strings. The PATCH carries only `body`. `keep` sends nothing. The merge path and the title are unchanged, and the switch-off line reads `opened` or `open`.
+    - Criteria 1 to 4: each has one test, and the rows of criterion 2 are parametrized. Each test checks what its criterion and the Interface say. Both sides of the "block already in the body" rule are tested (criteria 2 and 3), and so is the failing side of the GET (criterion 4).
+    - The coder's entry 18 records that `make check` is green.
+    - Architecture and security: nothing under `src/` changed, and the diff adds no markers or secrets.
+    - The Description matches what was built, and docs criterion 6 is still right for the documenter.
+    - Documents: the diff changes none.
+
+    On the open point in entries 16 and 18: criterion 4 still says "exits non-zero". That is still true of exit status 22. The Interface fixes the exact status and the test checks it, so this is not a finding. A reviewer may only change the Description and add criteria, not reword an existing one.
+
+    no findings
+
+    Earlier tests:
+    - `tests/operator_scripts/test_operator_develop.py`, changed under two leaves:
+      - The standing leave to move a shared test helper: `PULL_NUMBER`, `OLD_SWITCHES`, `write_switches` and `requests_that_change` moved to `tests/support/operator_skill_support.py`. The imports they made unused (`json`, `Request`, `recorded_requests`) went with them. Every test keeps its name and what it checks.
+      - The human's leave in journal entry 4: `test_promote_opens_the_promotion_and_merges_it_only_with_the_switch_on` now answers `OPEN_PROMOTION` with `[]`.
+    - `tests/support/operator_skill_support.py`: no leave needed. The change only adds `OPEN_PROMOTION` and the moved helpers and constants.
