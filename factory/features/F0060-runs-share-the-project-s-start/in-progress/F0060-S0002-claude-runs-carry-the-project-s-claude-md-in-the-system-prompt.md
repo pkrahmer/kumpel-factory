@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 679
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T21:04:16.654031Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -36,6 +40,11 @@ journal:
   at: '2026-11-08T21:04:11.671637Z'
   stage: tests
   run: 970e4c59ea934628bc5665d12e8352e9
+- number: 6
+  speaker: factory
+  kind: started
+  at: '2026-11-08T21:04:16.654031Z'
+  stage: doing
 ---
 
 # Claude runs carry the project's CLAUDE.md in the system prompt
@@ -106,3 +115,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    Run (`uv run pytest -q` on the new file): 5 failed for the right reason, and the rest passed. The failures are 1, 3, 4 (both rows), 5 and 6: the block is missing, no error is raised for a file that is not UTF-8, and the switches are missing. Criterion 2's rows and criterion 7 pass already, because they pin behaviour that exists today. Every module imported; none was missing. `make lint` is green after `ruff format` on the new file. I skipped the type check, as the stage says.
 
    `lint`: lint: green (0.1 s)
+6. factory: started doing as vm.
