@@ -1,5 +1,5 @@
 ---
-stage: review
+stage: docs
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 660
 comments_read: [6720878077, 6720941885, 6720981420, 6721183670, 6721345876]
 handed_over: null
-claim:
-  instance: vm
-  stage: review
-  started_at: '2026-11-08T12:18:35.122133Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -207,6 +203,12 @@ journal:
   kind: started
   at: '2026-11-08T12:18:35.122133Z'
   stage: review
+- number: 36
+  speaker: reviewer
+  kind: result
+  at: '2026-11-08T12:20:17.667392Z'
+  stage: review
+  run: 55cda9996cf7439d91433a4ba71ebb0d
 ---
 
 # The first message holds the work item, then the role
@@ -254,7 +256,7 @@ The journal only grows at its end, so the next run's message starts with the sam
 11. No shipped agent file under `agents/agents/` tells the agent to read its work item before it starts, and each says the work item is in the first message.
 12. A runtime given no system-prompt file, or a path where no file exists, gives every run the built-in common system prompt, which is the same text as `agents/system-prompt.md`; a file that exists but cannot be read ends the run with `AgentRuntimeError` naming the file (rows of one test).
 13. `make check` stays green.
-14. docs: the project guide's description of an agent run says what the system prompt and the first message hold, in which order, with which markers, and why (the shared cached start, and the rules' weight); `agents/README.md` says the same for the agent files. `docs/decisions.md`: one entry, the role's instructions move into the first message after the work item, for the prompt cache.
+14. docs: the project guide's description of an agent run says what the system prompt and the first message hold, in which order, with which markers, and why (the shared cached start, and the rules' weight); `agents/README.md` says the same for the agent files. The operator guide's "The agent files" (`docs/operator-guide/agent-runtime.md`) names `system-prompt.md` among what the agent home ships, and says that a missing one makes the run fall back to the built-in common system prompt. `docs/decisions.md`: one entry, the role's instructions move into the first message after the work item, for the prompt cache.
 
 ## Smoke test
 
@@ -687,3 +689,40 @@ Expect: the docstring names the order: the work item's body, the role's instruct
     `check`: check: green
     `duplicates`: duplicates: 7 new, 39 known, 4 gone
 35. factory: started review as vm.
+36. reviewer: Review, round 1. No findings, so I'm passing the work item to `docs`.
+
+    **What I reviewed:** the work item and `git diff develop...HEAD -- . ':!factory'`. I read the code under `src/` and `agents/` again, and every test the diff adds or changes, including the tester's round-1 changes from entry 29.
+
+    **Group 1, acceptance criteria:**
+    - Criteria 1 to 12 each have a test that checks what the criterion says. Criterion 12 is `tests/agents/adapters/test_claude_runtime_system_prompt.py`. It has three rows of one test: no file, a missing path, and an unreadable path (a folder at that path). The first two rows also check that the built-in `SYSTEM_PROMPT` equals `agents/system-prompt.md`.
+    - The `round_cap` limit is tested on both sides (0 and 1).
+    - The Interface says the role's instructions are not escaped. That is pinned without a separate criterion: every shipped agent body now holds the literal `<work-item>`, and `test_shipped_agents_effect.py::test_instructions_file_holds_the_agent_body` checks that the role block starts with the body byte for byte.
+    - The coder's `make check` was green (entry 34).
+
+    **Groups 2 to 4:**
+    - **Architecture:** the layers hold. The domain does no I/O, and the file is read in `factory.agents.adapters.agent_launch.system_prompt_text`. Wiring stays in `factory.entry.wiring`.
+    - **Security:** no markers that silence a check, and an error names only the path and the OS error.
+    - **Quality:** the docstrings say what each name does.
+
+    **Group 5, work item hygiene:** the journal states the main decision, the `system_prompt_file` keyword with a built-in fallback, and why the `AgentDefinition` field was rejected.
+
+    **Round-0 findings:** all four are closed. Findings 1, 3 and 4 by the tester (entry 29), finding 2 by the human's answer (entry 32).
+
+    description corrected: criterion 14 (`docs:`) named only the project guide, `agents/README.md` and `docs/decisions.md` -> it also names the operator guide's "The agent files" (`docs/operator-guide/agent-runtime.md`). That section must name `system-prompt.md` among what the agent home ships, and say that a missing one makes the run fall back to the built-in common system prompt. This is the human's answer in entry 32. The coder's edit in entry 27 was dropped because the work item is outside the coder's write paths.
+
+    Earlier tests (changed, status M):
+    - `tests/agent_files/test_claude_agent_texts_review_groups.py`: human's leave, journal entry 17.
+    - `tests/agents/adapters/test_claude_runtime.py`: human's leave named in the Interface.
+    - `tests/agents/adapters/test_opencode_runtime.py`: human's leave named in the Interface and entry 9; the round-1 move of `CODER_FACTS` is under the standing leave to move a shared test helper.
+    - `tests/agents/adapters/test_opencode_runtime_provider.py`: human's leave, journal entry 9.
+    - `tests/agents/adapters/test_shipped_agents_effect.py`: human's leave named in the Interface and entry 17; the move of `SYSTEM_PROMPT_FILE` is under the standing leave to move a shared test helper.
+    - `tests/agents/application/test_patient_runs.py`: human's leave, journal entry 9; the move of `CODER_FACTS` is under the standing leave to move a shared test helper.
+    - `tests/agents/domain/test_prompts.py`: human's leave named in the Interface.
+    - `tests/machine/adapters/test_opencode_runtime_lockdown.py`: human's leave, journal entry 9.
+    - `tests/pipeline/application/test_task.py`: human's leave named in the Interface.
+    - `tests/pipeline/application/test_task_acceptance.py`: human's leave named in the Interface.
+    - `tests/support/opencode_stand_in.py`: human's leave named in the Interface and entry 9.
+    - `tests/support/shipped_agents.py`: standing leave to move a shared test helper (it only adds `SYSTEM_PROMPT_FILE`).
+
+    Notes:
+    - `tests/agents/adapters/test_claude_runtime_system_prompt.py:58`: it finds the value after `--append-system-prompt-file` inline. The other runtime tests use their own `_after` helper for this, and `tests/support/claude_resume_support.py:98` has one too.
