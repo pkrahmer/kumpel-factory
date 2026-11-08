@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 672
 comments_read: [6723592271, 6723685612]
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-08T15:58:45.829234Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -68,6 +64,12 @@ journal:
   kind: started
   at: '2026-11-08T15:58:45.829234Z'
   stage: tests
+- number: 11
+  speaker: tester
+  kind: result
+  at: '2026-11-08T15:59:31.146858Z'
+  stage: tests
+  run: ddbb9db76b294cefb76af23a9c426a6f
 ---
 
 # The coder starts from the tester's tests, and the guards that read the documents are marked
@@ -154,3 +156,38 @@ Expect: a line `<n> tests collected`, `<n>` greater than 0.
 
    Confirmed: `tests/guards/test_guide_index_problems.py` and `tests/guards/test_document_tests_write_their_documents.py` stay unmarked, since they read no document on the real checkout. The four modules your search added stay marked.
 10. factory: started tests as vm.
+11. tester: Carried out the human's answer (entry 9). I added `pytestmark = pytest.mark.documents` to `tests/operator_scripts/test_operator_site_check.py`, to the whole module and nothing else in it. Its `pytest` import was already there. The work from the earlier run of this stage is unchanged and committed.
+
+    Final list of marked modules (11):
+    - `tests/guards/test_area_guides.py`
+    - `tests/guards/test_folder_readmes.py`
+    - `tests/guards/test_test_folder_readmes.py`
+    - `tests/guards/test_operator_guide_files.py`
+    - `tests/guards/test_operator_guide_pointers_search.py`
+    - `tests/guards/test_project_guide_files.py`
+    - `tests/guards/test_license_headers.py`
+    - `tests/guards/test_work_branch_search.py`
+    - `tests/guards/test_root_operator_folders_removed.py`
+    - `tests/guards/test_agent_folder_names.py`
+    - `tests/operator_scripts/test_operator_site_check.py`
+
+    Left unmarked, as the human confirmed: `tests/guards/test_guide_index_problems.py` and `tests/guards/test_document_tests_write_their_documents.py`.
+
+    The marker is registered in `tests/conftest.py` (`pytest_configure`, `config.addinivalue_line`).
+
+    Criterion → test:
+    - criterion 1: tests/guards/test_documents_marker.py::test_the_documents_marker_selects_every_test_of_the_marked_modules_and_no_other
+    - criterion 2: tests/guards/test_documents_marker.py::test_the_tests_without_the_marker_are_the_rest_of_the_suite
+    - criterion 3: no test function, by the human's answer in entry 4. The search, named in entry 8: a grep over `tests/` for paths built from the repository root (`Path(__file__).parents[...]`, `ROOT`, `REPOSITORY`, the support modules' ROOT) and for the names of the documenter's paths (`README.md`, `docs/`, `operator-guide`, `project-guide`, `checked-documents.txt`). I then read every hit to see what it opens. It also found `test_operator_site_check.py`, now marked.
+    - criterion 4: tests/agent_files/test_claude_agent_texts_first_tests.py::test_the_coder_starts_with_only_the_tester_s_named_test_files (rows role, step-one), ::test_the_coder_no_longer_starts_with_the_whole_suite, ::test_the_coder_still_finishes_with_make_check_green, ::test_the_coder_file_names_no_new_make_target_and_no_pytest_option
+    - criteria 5 and 6: `make check` and the docs stage.
+
+    Files created (earlier run): `tests/guards/test_documents_marker.py`, `tests/agent_files/test_claude_agent_texts_first_tests.py`.
+
+    Earlier test files changed:
+    - Under the leave in the Interface: `tests/conftest.py` and the ten `tests/guards/` modules above.
+    - Under the human's leave in entry 9: `tests/operator_scripts/test_operator_site_check.py`.
+
+    Run of the two new files: both marker tests pass. Three criterion 4 tests fail as expected (the two rows of starts-with-only-the-named-files, and no-longer-starts-with-the-whole-suite) until `agents/agents/coder.md` changes. Every module imported. `make lint` is green.
+
+    `lint`: lint: green (0.2 s)

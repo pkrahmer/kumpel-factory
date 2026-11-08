@@ -34,6 +34,8 @@ from support.site_check_support import (
     site,
 )
 
+pytestmark = pytest.mark.documents
+
 
 @pytest.fixture(scope="module")
 def system(tmp_path_factory: pytest.TempPathFactory) -> Path:
