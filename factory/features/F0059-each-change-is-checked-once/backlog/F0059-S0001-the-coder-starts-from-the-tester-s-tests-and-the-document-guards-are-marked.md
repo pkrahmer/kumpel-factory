@@ -8,7 +8,7 @@ A few tests read the real documents: the guides under `docs/` and the README fil
 
 ## Interface
 
-- `agents/agents/coder.md`, and its copy in `operator/template` that `tests/agent_files/test_template_sync.py` keeps equal: the role section and step 1 say that the coder starts by running only the test files the tester's latest entry names, with the command `CLAUDE.md` names for single test files, and reads their failures. The rest of the coder's steps stay as they are, `make check` at the end included. The text stays project-neutral: it names no `make` target and no `pytest` option beyond what it names today.
+- `agents/agents/coder.md`: the role section and step 1 say that the coder starts by running only the test files the tester's latest entry names, with the command `CLAUDE.md` names for single test files, and reads their failures. The rest of the coder's steps stay as they are, `make check` at the end included. The text stays project-neutral: it names no `make` target and no `pytest` option beyond what it names today.
 - `tests/conftest.py` registers the marker `documents` with a one-line description (pytest's `pytest_configure` and `config.addinivalue_line`), so `pytest --strict-markers` accepts it.
 - Every test module that reads a file under the documenter's write paths (`factory/pipeline.yml`, `roles.documenter.write_paths`) on the real checkout, not one it wrote under `tmp_path`, carries `pytestmark = pytest.mark.documents`. A starting list, from a search on 2026-11-08: the modules under `tests/guards/` named `test_area_guides.py`, `test_folder_readmes.py`, `test_test_folder_readmes.py`, `test_operator_guide_files.py`, `test_operator_guide_pointers_search.py`, `test_project_guide_files.py`, `test_guide_index_problems.py` and `test_document_tests_write_their_documents.py`. The tester checks each against what it reads, adds any it finds, and names the final list in its entry.
 - A module that reads both documents and code keeps the marker: the human's `guides` command runs in the doing stage as well (`feature.md`, decision 2).
@@ -21,7 +21,7 @@ The human's leave for earlier tests: this story may add the marker line, and the
 1. `uv run pytest --strict-markers -m documents --collect-only -q` collects every test of the marked modules and no other.
 2. `uv run pytest --strict-markers -m "not documents" --collect-only -q` collects every other test, so the two selections together are the whole suite.
 3. No test outside the marked modules reads a file under the documenter's write paths on the real checkout. The tester's entry names how it searched.
-4. The coder's agent file, in both copies, says the first step runs only the tester's named test files, and still says the run ends with `make check` green.
+4. The coder's agent file says the first step runs only the tester's named test files, and still says the run ends with `make check` green.
 5. `make check` stays green.
 6. docs: `docs/project-guide/` names the marker `documents`: which tests carry it, and why (so that the check after the docs stage can be reused once the human's `guides` command exists). `tests/README.md` says the same in one sentence.
 
