@@ -1,5 +1,5 @@
 ---
-stage: smoke-test
+stage: approval
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 654
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: smoke-test
-  started_at: '2026-11-08T07:23:56.282560Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -122,6 +118,12 @@ journal:
   kind: started
   at: '2026-11-08T07:23:56.282560Z'
   stage: smoke-test
+- number: 21
+  speaker: smoke-tester
+  kind: result
+  at: '2026-11-08T07:24:21.150340Z'
+  stage: smoke-test
+  run: 4d50f49ac3674ee1b2307bfed97563ff
 ---
 
 # Kumpel's procedure after an acceptance that proposes stories
@@ -307,3 +309,24 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
     `secrets`: secrets: green (0.5 s)
     `documents`: documents ok (57.8 s)
 20. factory: started smoke-test as vm.
+21. smoke-tester: Smoke test, round 1. I ran the one command under `## Smoke test` from the repository root, as written.
+
+    Command 1: `uv run pytest tests/operator_scripts/test_operator_approving_after_acceptance.py 2>&1 | tail -1`
+    ```
+    3 passed in 0.01s
+    ```
+    Expect: a line ending in `passed in <seconds>s` with no `failed`. **Met.**
+
+    I then read the acceptance criteria again and checked them against the branch (`git diff develop...HEAD -- . ':!factory'`):
+    - Criterion 1: under `## After a feature's acceptance` in `operator/skill/kumpel/references/approving.md`:
+      - Step 1's continuation line contains `is in backlog/` and `next accepted acceptance`.
+      - Step 2 contains `promotion open: #<number>, for the human to merge`.
+      - The three passing rows confirm this.
+    - Criterion 2 (`make check` green): the smoke test does not contradict it. The coder's entry 15 and the factory's check after the docs stage record it green. I did not run `make check` again; the smoke test does not ask for it.
+    - Criterion 3 (docs), all three parts hold:
+      - `docs/operator-playbook.md` step 8 now says that after an acceptance with proposed stories, `archive-feature.sh` refuses with `is in backlog/`. It says the archive and the promotion wait for the feature's next accepted acceptance, not this one.
+      - `docs/operator-guide/install.md`, *The promotion*, now says when the promotion waits and why: the proposed stories sit in `backlog/`, the archive refuses, and `promote.sh` refuses a feature that is not archived.
+      - `docs/decisions.md` is unchanged, which is right because the human chose no change of behaviour.
+    - The diff touches no script and no earlier test, as the Interface requires.
+
+    Findings: none.
