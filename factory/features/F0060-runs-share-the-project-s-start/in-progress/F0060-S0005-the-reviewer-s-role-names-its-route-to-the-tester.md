@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 682
 comments_read: [6727864627]
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-08T22:14:45.353712Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -51,6 +47,12 @@ journal:
   kind: started
   at: '2026-11-08T22:14:45.353712Z'
   stage: tests
+- number: 8
+  speaker: tester
+  kind: result
+  at: '2026-11-08T22:19:29.836597Z'
+  stage: tests
+  run: 0dd4e3ee161d44b5b760920f93abefa6
 ---
 
 # The reviewer's role names its route to the tester
@@ -126,3 +128,36 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    - Scope: within F0060 (the reviewer's route to the tester) and not in its Out of scope.
    - Route: `tests`, because `agents/agents/reviewer.md` is outside the documenter's write paths.
 7. factory: started tests as vm.
+8. tester: Wrote the tests for the reviewer's `## Role` route to the tester, and updated the earlier tests the human's leave in journal entry 4 covers.
+
+   - criterion 1: tests/agent_files/test_reviewer_role_route_to_tests.py::test_reviewer_role_recommendation_names_the_route_to_the_tester. Two rows: the new sentence is in `## Role` exactly once, and "`doing` sends the work item back. Never both" is in it zero times.
+   - criterion 2: tests/agent_files/test_reviewer_role_route_to_tests.py::test_reviewer_role_notes_name_the_route_to_the_tester. Two rows: "with `doing` or, by step 4 of the Stage, with `tests`" is in `## Role` exactly once, and "sends it back with `doing`." is in it zero times.
+   - criterion 3: tests/agent_files/test_reviewer_role_route_to_tests.py::test_reviewer_stage_step_4_and_docs_review_are_unchanged. Two rows: `## Stage` still holds step 4 word for word, and the opening of `### docs-review` (its heading and first paragraph).
+   - criterion 4 (`make check`) and criterion 5 (docs): no test of their own.
+
+   Files created: tests/agent_files/test_reviewer_role_route_to_tests.py.
+
+   Earlier test files changed under the human's leave (journal entry 4). Each test keeps its name and checks the same thing:
+   - tests/agent_files/test_claude_agent_texts_review_leave.py: `_RECOMMENDATION` and `_NOTES` now hold the new sentences.
+   - tests/agent_files/test_claude_agent_texts_review_groups.py: `test_the_rest_of_the_reviewer_body_is_unchanged` now maps the two new sentences back to the earlier ones by `.replace`, before the existing replacements.
+   - tests/support/shared_rules_support.py: the reviewer's `Role` checksum in `PARTS_BEFORE` changed from 992493990 to 373419100, because F0060-S0004 is not merged. I computed the new value from the reviewer text with the Interface's two changes applied.
+
+   To check this, I applied the two changes to a scratch edit of agents/agents/reviewer.md, outside my write paths, and restored the file afterwards. With the earlier tests unchanged, that edit made exactly these earlier tests fail:
+   - tests/agent_files/test_shared_rules_system_prompt.py::test_every_agent_file_keeps_its_own_sections_word_for_word_in_order[reviewer], which reads `PARTS_BEFORE`
+   - tests/agent_files/test_claude_agent_texts_review_groups.py
+   - tests/agent_files/test_claude_agent_texts_review_leave.py
+
+   No other earlier test failed. With my updates and the scratch edit, all of tests/agent_files passed.
+
+   Red run (`make test`, on the unchanged reviewer.md), failing for the right reason (wrong result, the old text is still there):
+   - the new test's rows `old-sentence-gone`, `new-route-once` and `old-route-gone` fail; `new-sentence-once` failed too, by the scratch check above (the new sentence is not in the file yet)
+   - test_claude_agent_texts_review_leave.py fails on the old text
+   - test_every_agent_file_keeps_its_own_sections_word_for_word_in_order[reviewer] fails on the old checksum
+
+   Every module was imported; nothing failed to import. `make lint` is green.
+
+   For the coder: change only agents/agents/reviewer.md `## Role`, using the two sentences exactly as the Interface quotes them.
+
+   The factory left out changes outside the write paths: agents/agents/reviewer.md.
+
+   `lint`: lint: green (0.1 s)

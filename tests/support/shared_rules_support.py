@@ -167,7 +167,7 @@ PARTS_BEFORE: dict[str, dict[str, int]] = {
     "coder": {"opening": 2541228184, "Role": 536293745, "Stage": 3093711021, "Lessons": 974268139},
     "reviewer": {
         "opening": 715436559,
-        "Role": 992493990,
+        "Role": 373419100,
         "Stage": 3113525091,
         "Lessons": 1263948714,
     },
