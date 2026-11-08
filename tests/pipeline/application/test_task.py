@@ -199,8 +199,9 @@ def test_the_request_shares_the_allowed_decisions_and_the_facts_of_the_context(
     boundaries: Boundaries,
 ) -> None:
     context = _context("doing", document=_document(CREATED, round_=2))
+    agent = _agent("coder")
 
-    request = _composer(boundaries).compose(context, _agent("coder"))
+    request = _composer(boundaries).compose(context, agent)
 
     decisions = allowed_decisions(["review", "tests"])
     facts = PromptFacts(
@@ -211,6 +212,9 @@ def test_the_request_shares_the_allowed_decisions_and_the_facts_of_the_context(
         branch="work-item/F0001-S0002",
         pull_request=7,
         round=2,
+        body=context.document.body,
+        role="coder",
+        role_instructions=agent.instructions,
     )
     assert request.allowed_decisions == decisions
     assert request.prompt == compose_prompt(facts)
@@ -351,3 +355,27 @@ def test_task_context_holds_the_pull_request_limit_on_both_sides(
     else:
         with pytest.raises(ValidationError):
             TaskContext.model_validate(values)
+
+
+def test_the_request_names_the_round_cap_of_a_stage_that_has_one(boundaries: Boundaries) -> None:
+    context = _context("review", document=_document(CREATED, round_=1))
+
+    request = _composer(boundaries).compose(context, _agent("reviewer"))
+
+    lines = request.prompt.split("\n")
+    assert (
+        "Round: 1 of 3; a rework decision after round 3 makes the factory ask the human." in lines
+    )
+
+
+def test_the_message_starts_with_the_work_item_body_then_the_roles_instructions(
+    boundaries: Boundaries,
+) -> None:
+    context = _context("doing")
+
+    prompt = _composer(boundaries).compose(context, _agent("coder")).prompt
+
+    body_at = prompt.index(context.document.body)
+    role_at = prompt.index('<role-instructions role="coder">')
+    assert prompt.startswith("<work-item>")
+    assert body_at < role_at < prompt.index("Do the work.", role_at) < prompt.index("Round: 0")

@@ -1,5 +1,5 @@
 ---
-model: sonnet
+model: opus
 effort: medium
 budget_usd: 1.5
 tools: [Read, Grep, Glob, Edit, Bash, Write, Skill]
@@ -24,7 +24,7 @@ R4. The work item is the memory. Everything the next stage needs is in the work 
 
 R5. Work item structure: the front matter and the `## Journal` section are the factory's; you never edit them, and an edit there is dropped. The `## Description` is the current meaning of the task and is rewritten when the journal changes it; a criterion the human's answer adds goes before the two closing ones (`make check` stays green, `docs:`), which stay last. No clock time in the work item: git has it. The folder is the lifecycle: `backlog/` is the human's, `in-progress/` is the pipeline's, `done/` the archive; you never move a work item.
 
-R6. Your prompt names the facts you need: the work item, the stage, the allowed decisions, the branch, the pull request, the round, and whatever your stage section says the factory tells you. Take them from the prompt; do not work them out from git or the hosting service.
+R6. Your prompt names the facts you need: the work item, the stage, the allowed decisions, the branch, the pull request, the round, and whatever your stage section says the factory tells you. Take them from the prompt; do not work them out from git or the hosting service. The work item itself, from its title to the end of its journal, is in your first message, in the `<work-item>` block, so you do not read it before you start; read its file again only for text you changed during the run.
 
 R7. The stage changes by your decision and nothing else. The factory checks it against the stage's `next` in the pipeline definition (`factory/pipeline.yml`). A forward decision waits for the stage's checks, which the factory runs itself after you (the project commands the stage lists under `checks`, such as `make check`, or `make lint` for the tests stage): red holds the work item at your stage and counts as a stall.
 
@@ -48,7 +48,7 @@ R15. A project may bring its own skills under `.claude/skills/` and its own agen
 
 You write for the reader who was not there: someone who opens the repository next month and needs to run, use or change what this story built. You have the author's story and the reviewer's recommendation; you do not have their context, and neither will the reader.
 
-- Read the story (`## Description`, `## Interface`, the docs criterion under `## Acceptance criteria`, the journal) and the diff `git diff develop...HEAD -- . ':!factory' ':!docs' ':!README.md'`. That is what changed; the docs criterion says what the reader must know afterwards.
+- Take the story from the first message (`## Description`, `## Interface`, the docs criterion under `## Acceptance criteria`, the journal) and read the diff `git diff develop...HEAD -- . ':!factory' ':!docs' ':!README.md'`. That is what changed; the docs criterion says what the reader must know afterwards.
 - Write where the project keeps it: `CLAUDE.md` names the documentation layout under *Docs*. README for what a newcomer needs first (what it is, how to run it, where to look next); `docs/` for the rest. Change existing text where it is wrong or incomplete; add a section only when none fits. Do not write a changelog, do not narrate the story, do not repeat the code: the reader wants the current truth, stated once.
 - Generated documentation is not yours: `docs/openapi.json` and its kind are produced by `make` targets the coder ran; you read them, you do not edit them.
 - Cross-read everything else under `docs/` and the README against the diff: a name that changed, a behaviour that moved, an example that no longer runs. Fix what is stale. Prose that was wrong before this story and is unrelated to it is a note in your entry, not your edit (R13).
@@ -62,7 +62,7 @@ You write for the reader who was not there: someone who opens the repository nex
 
 ## Stage
 
-1. Read the story, the diff and the documentation as the role section describes, all in your first turn (one command, or parallel reads). Nothing else: not other work items, not `feature.md`, not `factory/`, not `.claude/`. If the prompt's round is greater than 0, the latest findings name what to redo; do exactly that. When the latest entry is the smoke tester's and it ended with `docs`, its numbered findings are slips in the documents: fix exactly those, run the commands they name again, and end with `smoke-test`.
+1. Read the diff and the documentation as the role section describes, all in your first turn (one command, or parallel reads). Nothing else: not other work items, not `feature.md`, not `factory/`, not `.claude/`. If the prompt's round is greater than 0, the latest findings name what to redo; do exactly that. When the latest entry is the smoke tester's and it ended with `docs`, its numbered findings are slips in the documents: fix exactly those, run the commands they name again, and end with `smoke-test`.
 2. Write the documentation the docs criterion asks for, and fix what the cross-read found stale. If the criterion says `none`, write nothing new; the cross-read is still your job. Run every example you wrote or changed. When the project's Makefile has a `documents` target, run `make documents` in the same command as your last edit, and end only when its last line is `documents ok (<seconds> s)`: without `documents ok` there, the documents are not done, and a finding it prints is yours to fix, with that command run again after the fix.
 3. In the same command as your last edit, run `make check`, after `make documents` when step 2 runs it. `make check` must stay green (a documentation file can be part of a check, and an example in a doctest is code the check runs). The factory runs it again after you.
 4. Your entry: which files you changed and why in one line each, which documents you cross-read and found current, and anything stale you saw but did not touch because it is unrelated to this story.
@@ -75,7 +75,7 @@ You do not edit code, tests or comments in code. The human reads the documentati
 
 On the docs route no tester and no coder came before you: the story changes only documents, and you write the whole change. In the stage `docs-only`, these bullets replace steps 1 to 6 above.
 
-- Read the story and the documentation in your first turn. There is no code diff; the docs criterion and the Interface say what to write.
+- Read the documentation in your first turn. There is no code diff; the docs criterion and the Interface say what to write.
 - Write the whole change the docs criterion asks for, and fix what the cross-read found stale. Run every example you wrote or changed.
 - Run `make documents` in the same command as your last edit; it must be green.
 - Your entry: which files you changed and why in one line each, and which documents you cross-read and found current. End with `docs-review`.

@@ -37,7 +37,7 @@ With two or more arguments the command prints `usage: python -m factory.entry.co
 
 **The approval.** A work item enters the [approval](../project-guide/glossary.md) with its last `result` record in the journal. No record marks the entry, so a reader takes the approval's start from that record's `at` and its end from the `done` record's `at`.
 
-**The version.** Each schema carries the records contract's version in `x-records-contract`, now `4.4`. The major version rises for a change that can break a reader: a field removed or renamed, a type narrowed, a meaning changed. The minor version rises for an added optional field or value. This version is not the `contract` of the [pipeline definition](../project-guide/glossary.md), which is the version of the definition's own format (see "The pipeline definition" in [pipeline.md](pipeline.md)). Why the contract changed is in [the decision log](../decisions.md).
+**The version.** Each schema carries the records contract's version in `x-records-contract`, now `4.5`. The major version rises for a change that can break a reader: a field removed or renamed, a type narrowed, a meaning changed. The minor version rises for an added optional field or value. This version is not the `contract` of the [pipeline definition](../project-guide/glossary.md), which is the version of the definition's own format (see "The pipeline definition" in [pipeline.md](pipeline.md)). Why the contract changed is in [the decision log](../decisions.md).
 
 **Unknown properties.** The schemas say `additionalProperties: false` for what this version of the factory writes. A reader still ignores a property it does not know, since a later minor version may add one.
 
@@ -48,27 +48,37 @@ Every agent run writes a cost record beside its work item; it holds the run's du
 1. Fetch the remote, since the command does not: `git fetch`.
 2. Run `factory-bill` from a checkout of your project, with a work item id or without one.
 
-   This run took place on the factory's VM, in a checkout of the factory's own repository, after `git fetch`, for one of its work items. Its numbers change with every run.
+   This run took place on the factory's VM, in a checkout of the factory's own repository, for one of its work items while it was in flight. Its numbers change with every run.
 
    ```console vm
-   $ uv run factory-bill F0054-S0009
+   $ uv run factory-bill F0058-S0003
    | stage | runs | min | model min | turns | in | cached | out | USD |
    | :-- | --: | --: | --: | --: | --: | --: | --: | --: |
-   | intake | 1 | 0.2 | 0.2 | 5 | 13471 | 53043 | 1053 | 0.07 |
-   | docs-only | 2 | 2.8 | 1.6 | 20 | 59106 | 509625 | 10172 | 0.39 |
-   | docs-review | 2 | 3.0 | 3.0 | 23 | 93185 | 785048 | 16349 | 1.23 |
-   | **total** | 5 | 6.0 | 4.7 | 48 | 165762 | 1347716 | 27574 | 1.69 |
+   | intake | 2 | 1.0 | 0.9 | 9 | 42865 | 134930 | 4698 | 0.34 |
+   | tests | 2 | 4.6 | 2.6 | 19 | 66846 | 479426 | 15497 | 0.74 |
+   | doing | 3 | 5.9 | 1.1 | 14 | 79773 | 312863 | 6485 | 0.59 |
+   | review | 2 | 1.4 | 1.4 | 9 | 74224 | 197424 | 7221 | 0.56 |
+   | **total** | 9 | 12.9 | 6.0 | 51 | 263708 | 1124643 | 33901 | 2.22 |
 
-   Cost: 5 runs, 6.0 min, 48 turns, 165762 tokens in (1347716 more from cache), 27574 out, $1.69
+   Cost: 9 runs, 12.9 min, 51 turns, 263708 tokens in (1124643 more from cache), 33901 out, $2.22
+   Cache: 1124643 read, 263628 written, 81 % hit
+
+   | role | cache read | cache written | hit rate |
+   | :-- | --: | --: | --: |
+   | intake | 134930 | 42851 | 76 % |
+   | tester | 479426 | 66816 | 88 % |
+   | coder | 312863 | 79751 | 80 % |
+   | reviewer | 197424 | 74210 | 73 % |
+   | **total** | 1124643 | 263628 | 81 % |
    ```
 
-With an id it prints the cost table, an empty line and `Cost: <line>`. With no argument it does that for every work item in flight, each block headed by its id and separated from the next by an empty line. A work item in flight is one that has a branch `work-item/<id>` on the remote.
+With an id it prints the cost table, an empty line, `Cost: <line>`, `Cache: <line>`, an empty line and the cache table by role (see [The cache figures](#the-cache-figures)). With no argument it does that for every work item in flight, each block headed by its id and separated from the next by an empty line. A work item in flight is one that has a branch `work-item/<id>` on the remote.
 
 The command reads the remote-tracking refs only (`origin/<the work item's branch>`, or `origin/develop` for an archived work item), never your working tree and never the journal. It does not fetch, which is why step 1 comes first. Two checkouts that have fetched the same remote show the same bill.
 
 | Exit status | Meaning |
 |---|---|
-| 0 | the bill was printed (with no argument, also when nothing is in flight) |
+| 0 | the bill was printed (with no argument, also when nothing is in flight), or `-h` or `--help` printed the help |
 | 1 | `no work item <id>`: no file of that id on the remote |
 | 2 | `not a work item id: <argument>`, or more than one argument (`usage: factory-bill [<work item id>]`) |
 
@@ -104,6 +114,22 @@ One row per stage, in the order the stage first ran; a stage that runs again (`d
 | USD | the cost in dollars, two decimals |
 
 Figures are rounded half up.
+
+### The cache figures
+
+The cache figures say whether the prompt cache works: how much of what the agents sent the model was read from the cache instead of paid for in full. The bill shows them only in `factory-bill`; the cost table posted on the pull request and the acceptance report do not carry them.
+
+The example under step 2 above shows them: the `Cache:` line under the `Cost:` line, an empty line, and the table by role.
+
+The `Cache:` line covers the whole work item; the table has one row per role (the cost record's `role`), in the order the role first ran, and a role that runs again is one row. The **total** row equals the `Cache:` line. With no argument each work item in flight has its own; there is no total across them.
+
+| Figure | Meaning |
+|---|---|
+| cache read | tokens read from the cache (the cost table's `cached`) |
+| cache written | tokens written to the cache |
+| hit rate | cache read divided by every prompt token: cache read + cache written + uncached input; a whole percent rounded half up (2 of 3 is `67 %`), or `-` when there were no prompt tokens |
+
+To read the hit rate: a high one means most of each prompt came from the cache. A low one with a large cache written means the runs wrote prefixes that later runs did not read back, for example because the start of the prompt changed between runs. Compare the rates before and after a change to the prompts: that is how to tell whether the change helped the cache.
 
 When the factory posts the table on the pull request (see "The hand-over at the approval" in [work-items.md](work-items.md)), a line follows it after an empty line:
 

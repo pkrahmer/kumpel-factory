@@ -15,10 +15,12 @@ from factory.agents.domain.agent_runs import (
     AgentRunResult,
     EndReason,
 )
+from factory.agents.domain.prompts import compose_prompt
 from factory.agents.domain.provider_limits import ProviderLimit
 from factory.pipeline.application.boundaries import Boundaries
 from factory.shared.adapters.clock import ManualClock, ManualWaiter
 from factory.shared.domain.settings import InstanceSettings
+from support.first_message_support import CODER_FACTS
 from support.log_support import log_lines
 from support.settings_support import AGENT_HOME
 
@@ -137,7 +139,7 @@ def test_a_limited_run_waits_the_cooldown_and_resumes_its_session_with_what_is_l
     assert first == request
     assert second == request.model_copy(
         update={
-            "prompt": CONTINUE_PROMPT,
+            "prompt": f"{request.prompt}\n\n{CONTINUE_PROMPT}",
             "resume_session": SESSION,
             "agent": request.agent.model_copy(update={"budget_usd": Decimal("0.80")}),
             "time_limit": timedelta(seconds=55),
@@ -336,3 +338,22 @@ def test_the_log_lines_give_whole_seconds_and_the_waits_are_kept_whole(
 
     assert waiter.waits == waited
     assert _limit_lines(tmp_path)[-1] == line
+
+
+def test_a_resumed_run_gets_the_whole_message_again_then_the_word_to_continue(
+    patient: Boundaries, agent_runtime: FakeAgentRuntime
+) -> None:
+    message = compose_prompt(CODER_FACTS)
+    request = _request(patient).model_copy(update={"prompt": message})
+    _queue(agent_runtime, _limited(cost="0.20"), _limited(cost="0.10"), _completed())
+
+    PatientRuns(patient).run(request)
+
+    resumed = [sent.prompt for sent in agent_runtime.requests()[1:]]
+    assert resumed == [f"{message}\n\n{CONTINUE_PROMPT}"] * 2
+    assert all(
+        prompt.index("<work-item>")
+        < prompt.index('<role-instructions role="coder">')
+        < prompt.index("Round: 0")
+        for prompt in resumed
+    )

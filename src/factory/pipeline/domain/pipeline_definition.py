@@ -49,7 +49,10 @@ class RoleDefinition(BaseModel):
 
 
 class StageDefinition(BaseModel):
-    """One stage: who works there, where it may move and what is checked after the agent."""
+    """One stage: who works there, where it may move and what is checked after the agent.
+
+    `context` names the project commands whose output the agent gets as its start facts.
+    """
 
     model_config = ConfigDict(frozen=True, extra="forbid", strict=True)
 
@@ -59,6 +62,7 @@ class StageDefinition(BaseModel):
     approval: bool = False
     checks: list[str] = []
     reports: list[str] = []
+    context: list[str] = []
     round_cap: PositiveInt | None = None
 
 
@@ -76,7 +80,10 @@ def _default_project_commands() -> dict[str, ProjectCommandDefinition]:
 
 
 class PipelineDefinition(BaseModel):
-    """The whole pipeline definition; the order of `stages` is the pipeline's order."""
+    """The whole pipeline definition; the order of `stages` is the pipeline's order.
+
+    Its `contract` is 1.1 since a stage may carry `context`; a definition at 1.0 loads too.
+    """
 
     model_config = ConfigDict(frozen=True, extra="forbid", strict=True)
 
@@ -168,7 +175,11 @@ def _reserved_name_faults(definition: PipelineDefinition) -> list[str]:
 def _command_faults(definition: PipelineDefinition) -> list[str]:
     faults: list[str] = []
     for name, stage in definition.stages.items():
-        for kind, commands in (("check", stage.checks), ("report", stage.reports)):
+        for kind, commands in (
+            ("check", stage.checks),
+            ("report", stage.reports),
+            ("context", stage.context),
+        ):
             faults += [
                 f"stage {name}: {kind} {command} is not a project command"
                 for command in commands
@@ -181,13 +192,13 @@ def _minutes_at_stage(
     definition: PipelineDefinition, stage: StageDefinition, role: RoleDefinition
 ) -> int:
     commands = definition.project_commands
-    listed = [*stage.checks, *stage.reports]
+    listed = [*stage.checks, *stage.reports, *stage.context]
     return role.time_limit + sum(commands[name].time_limit for name in listed if name in commands)
 
 
 def _lease_faults(definition: PipelineDefinition) -> list[str]:
-    # The lease must outlast the agent run and every check and report after it, or another
-    # claimant could take the work item over while the stage is still running.
+    # The lease must outlast the start facts, the agent run and every check and report after
+    # it, or another claimant could take the work item over while the stage is still running.
     faults: list[str] = []
     for name, stage in definition.stages.items():
         if stage.role is None or stage.role not in definition.roles:

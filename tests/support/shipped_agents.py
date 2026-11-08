@@ -12,10 +12,10 @@ from factory.work.adapters.work_item_markdown import RuamelYamlHandler, split_fr
 
 ROOT = Path(__file__).parents[2]
 AGENT_HOME = ROOT / "agents"
+SYSTEM_PROMPT_FILE = AGENT_HOME / "system-prompt.md"
 TEMPLATE_PIPELINE = ROOT / "operator" / "template" / "factory" / "pipeline.yml"
 
 _ALL_TOOLS = ["Read", "Grep", "Glob", "Edit", "Bash", "Write", "Skill"]
-_TOOLS_WITHOUT_WRITE = ["Read", "Grep", "Glob", "Edit", "Bash", "Skill"]
 
 
 class ShippedAgent(BaseModel):
@@ -35,10 +35,10 @@ class ShippedAgent(BaseModel):
 SHIPPED_AGENTS = [
     ShippedAgent(
         name="intake",
-        model="sonnet",
-        effort="low",
+        model="opus",
+        effort="medium",
         budget_usd=Decimal("1"),
-        tools=_TOOLS_WITHOUT_WRITE,
+        tools=_ALL_TOOLS,
         boundary="You do not improve the story; you accept it or ask.",
         entry=(
             "Your entry starts with `accepted` and then has one line for each of the Interface, "
@@ -77,7 +77,7 @@ SHIPPED_AGENTS = [
         model="opus",
         effort="high",
         budget_usd=Decimal("3"),
-        tools=_TOOLS_WITHOUT_WRITE,
+        tools=_ALL_TOOLS,
         boundary="You find and do not fix: you write no code, not even scratch.",
         entry=(
             "Your entry is the numbered findings, each with a location, what is wrong and what "
@@ -86,7 +86,7 @@ SHIPPED_AGENTS = [
     ),
     ShippedAgent(
         name="documenter",
-        model="sonnet",
+        model="opus",
         effort="medium",
         budget_usd=Decimal("1.5"),
         tools=_ALL_TOOLS,
@@ -104,7 +104,7 @@ SHIPPED_AGENTS = [
         model="opus",
         effort="medium",
         budget_usd=Decimal("2"),
-        tools=_TOOLS_WITHOUT_WRITE,
+        tools=_ALL_TOOLS,
         boundary="Fix nothing: run the smoke test as written and report what you observe.",
         entry=(
             "Your entry gives each command's output trimmed to 40 lines and whether it met its "

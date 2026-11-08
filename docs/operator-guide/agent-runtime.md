@@ -209,7 +209,7 @@ The preflight does not read the key: the probe of the agent run shows whether a 
 
 **Your own build.** Choose an opencode build with `FACTORY_OPENCODE` (its path), `FACTORY_OPENCODE_VERSION` (what `--version` prints) and `FACTORY_OPENCODE_MODELS`. Add them to `factory.local.env` (see "The environment file" in [machine.md](machine.md)), install the build on the VM and restart the instance. The values `factory.env` carries are the stage image's `opencode-ai`, its pin in `operator/vm/Dockerfile` and the three Anthropic ids.
 
-**The models.** The agent files name `opus`, `sonnet` and `haiku`. `FACTORY_OPENCODE_MODELS` maps each to a `<provider>/<model>` id of opencode. `operator/vm/Dockerfile` pins `opus=anthropic/claude-opus-5-5,sonnet=anthropic/claude-sonnet-5-5,haiku=anthropic/claude-haiku-5-5`. Check that an id exists by running this where opencode is installed, for example in the stage image:
+**The models.** Every shipped agent file names `opus`. `sonnet` and `haiku` are aliases too, which a project's own agent may name (see *A project's own agents* for what a different model costs). `FACTORY_OPENCODE_MODELS` maps each of the three to a `<provider>/<model>` id of opencode. `operator/vm/Dockerfile` pins `opus=anthropic/claude-opus-5-5,sonnet=anthropic/claude-sonnet-5-5,haiku=anthropic/claude-haiku-5-5`. Check that an id exists by running this where opencode is installed, for example in the stage image:
 
 ```sh
 opencode models anthropic
@@ -315,13 +315,15 @@ The file is YAML front matter between two lines of three hyphens, then the agent
 
 ```markdown
 ---
-model: sonnet
-tools: [Read, Write]
-effort: low
-budget_usd: 0.1
+model: opus
+tools: [Read, Grep, Glob, Edit, Bash, Write, Skill]
+effort: medium
+budget_usd: 1
 ---
 The agent's instructions.
 ```
+
+The example keeps the tools, the model and the effort of the shipped intake, tester, coder, documenter and smoke tester, so it shares their cached start (see *A project's own agents*).
 
 The body, without the whitespace around it, is the instructions. A line of hyphens inside it belongs to it. The four keys are the only ones the agent runtime applies, because Claude Code ignores an agent file in print mode and the runner builds its flags and prompt from them itself. Any other key would read as if it did something and do nothing, so the file is refused when the pipeline definition is loaded. See "The stop `agent_definition_invalid`" in [stops.md](stops.md).
 
@@ -332,6 +334,12 @@ For each role the factory reads `<project>/factory/agents/<name>.md` from `origi
 A project's agent replaces the installed one whole and never extends it. Nothing is merged, so a key or a line of instructions you leave out is not taken from the shipped file. To change a shipped agent, copy it from `agents/agents/` in the image's source to `<project>/factory/agents/<name>.md` and change the copy.
 
 The file follows the same rules and has the same faults as any agent file. A fault of a project file is named with its place, for example `factory/agents/coder.md at origin/develop: key not applied by the agent runtime: colour`. The load of every tick and the preflight's probe check it. A faulty project file is never replaced by the installed one: the [stop](../project-guide/glossary.md) `agent_definition_invalid` stands until a commit on `develop` fixes it.
+
+**The cached start.** Every run of a role begins with the same common system prompt, and a Claude Code request begins with its tool list. The prompt cache is per model and is cut by a change of effort. Runs therefore share a cached start only where their tools, model and effort agree. Every shipped agent has the tools `[Read, Grep, Glob, Edit, Bash, Write, Skill]` and the model `opus`. Intake, the tester, the coder, the documenter and the smoke tester run at `effort: medium`. The reviewer and the acceptance reviewer run at `high`.
+
+A project's agent shares the cached start of the other roles only under two conditions. Its `tools` are the shipped list, and its `model` and `effort` match the roles it should share with. A project's agent that differs in any of the three starts a cache of its own. Its runs write the start of the prompt to the cache again instead of reading it. Cache writes cost more than plain input. A smaller tool list does not limit what a role writes: its [write paths](../project-guide/glossary.md) do.
+
+The effect shows in `factory-bill`: its table by role gives each role's hit rate. A role whose agent left the shared start has a lower rate and a larger cache written than the others. See *What a work item cost: `factory-bill`* in [records.md](records.md), and its part *The cache figures*.
 
 - **A new role.** Add the role to `<project>/factory/pipeline.yml` and its file under `<project>/factory/agents/`, in one commit on `develop`. A role whose only agent is the project's own needs no installed file.
 - **Back to the shipped agent.** Remove `<project>/factory/agents/<name>.md` from `develop`.
@@ -348,9 +356,9 @@ Only Claude Code's runs are given the `Skill` tool. An opencode run leaves it ou
 
 ### The shipped agents and settings
 
-The checkout ships them in its `agents/` folder: `agents/agents/<role>.md` and `agents/settings.json`. The stage image copies the folder to `/etc/factory/agents`. The files are in Claude Code's format and the opencode runtime translates them per run, so the folder carries no runtime's name. The setting `FACTORY_CLAUDE_HOME` names this folder for both runtimes.
+The checkout ships them in its `agents/` folder: `agents/agents/<role>.md`, `agents/settings.json` and `agents/system-prompt.md`, the common system prompt every role's run gets. The stage image copies the folder to `/etc/factory/agents`. The files are in Claude Code's format and the opencode runtime translates them per run, so the folder carries no runtime's name. The setting `FACTORY_CLAUDE_HOME` names this folder for both runtimes.
 
-The folder holds seven agents (`intake`, `tester`, `coder`, `reviewer`, `documenter`, `smoke-tester`, `acceptance-reviewer`) and `settings.json`. Each agent's `tools` ends with `Skill`, and the settings allow it in `permissions.allow`, right after `Grep`.
+The folder holds seven agents (`intake`, `tester`, `coder`, `reviewer`, `documenter`, `smoke-tester`, `acceptance-reviewer`) `settings.json` and `system-prompt.md`. A folder without `system-prompt.md`, such as one installed before the file was shipped, makes every run fall back to the built-in common system prompt, the same text; a file there that cannot be read ends the run with an `AgentRuntimeError` naming it. Each agent's `tools` ends with `Skill`, and the settings allow it in `permissions.allow`, right after `Grep`.
 
 The instance reads them from `FACTORY_CLAUDE_HOME` (`/srv/factory/<instance>/factory/agents`, the `agents/` folder of the factory's own clone). Change the files in the repository: a change reaches the instance by a merge and the steps of "The rebuild after a merge" in [machine.md](machine.md).
 

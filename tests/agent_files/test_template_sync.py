@@ -93,7 +93,10 @@ def test_template_pipeline_definition_names_sync_and_no_stage_lists_it() -> None
 
     definition = RuamelPipelineDefinitionReader().parse(text)
 
-    assert list(definition.project_commands) == ["check", "lint", "test", "sync"]
+    assert list(definition.project_commands) == [
+        *["check", "lint", "test", "sync"],
+        *["facts-diff", "facts-changes", "facts-files"],
+    ]
     sync = definition.project_commands["sync"]
     assert sync.time_limit == 5
     assert sync.not_read == []

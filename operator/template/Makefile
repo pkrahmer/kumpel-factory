@@ -10,7 +10,7 @@
 # pyproject.toml configures them (coverage's `source` and `fail_under`, mypy's `strict`, and
 # `[tool.mutmut]`, whose runs leave out the tests that read the source); security/semgrep holds
 # the vendored semgrep rules and .secrets.baseline the reviewed findings of detect-secrets.
-.PHONY: check lint types layers sast secrets licenses test sync duplicates mutants
+.PHONY: check lint types layers sast secrets licenses test sync duplicates mutants facts-diff facts-changes facts-files
 .SILENT:
 
 # What the project decides: the folder of its package, and the command that checks its layers.
@@ -122,3 +122,19 @@ mutants:
 	# mutmut generates mutants for every module; the ones outside the feature stay "not checked".
 	uv run mutmut results | { grep -v ': not checked$$' || true; }
 	$(green)
+
+# Start facts (F0058): the factory runs these before an agent and puts their output into its
+# first message; never part of `check`. The base is where the branch left origin/develop.
+base_ref = $$(git merge-base HEAD origin/develop 2>/dev/null || git rev-parse HEAD)
+
+# The branch's changes: the file list with counts, then the whole diff, without the factory's files.
+facts-diff:
+	base=$(base_ref); git diff --stat "$$base" -- . ':!factory' ':!uv.lock'; echo; git diff "$$base" -- . ':!factory' ':!uv.lock'
+
+# The changed and new files, by name and status.
+facts-changes:
+	base=$(base_ref); git diff --name-status "$$base" -- . ':!factory'; git ls-files --others --exclude-standard
+
+# The tracked files without the factory's own.
+facts-files:
+	git ls-files -- . ':!factory'

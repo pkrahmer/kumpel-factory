@@ -144,7 +144,11 @@ class ContainerEnvironment(StageEnvironment):
         *,
         run: Callable[[AgentRunRequest], AgentRunResult] | None = None,
     ) -> AgentRunResult:
-        """Run the agent on the dataset, which is rolled back before the next stage anyway."""
+        """Run the agent on the dataset rolled back to its base, which the next stage rolls back.
+
+        The rollback drops what a check container left on the base, a start fact's included.
+        """
+        self._snapshots.reset()
         return (run or self._boundaries.agent_runtime.run)(request)
 
     @override

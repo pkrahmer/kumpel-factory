@@ -83,8 +83,9 @@ def _resumed_request(
     agent = request.agent.model_copy(update={"budget_usd": budget_left})
     update: dict[str, object] = {"agent": agent, "time_limit": time_left}
     # Without a session there is nothing to continue; the stage's own prompt starts it afresh.
+    # With one, the whole message comes again, since the journal may have grown meanwhile.
     if session is not None:
-        update |= {"prompt": CONTINUE_PROMPT, "resume_session": session}
+        update |= {"prompt": f"{request.prompt}\n\n{CONTINUE_PROMPT}", "resume_session": session}
     return request.model_copy(update=update)
 
 

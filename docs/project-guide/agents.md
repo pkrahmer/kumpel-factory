@@ -23,13 +23,32 @@ The details of the two DTOs are in *Reference: the request and the result*.
 
 See also: *The agent's container* in [machine.md](machine.md); *The take's rule* in [pipeline.md](pipeline.md).
 
+### The system prompt and the first message
+
+Every run of every role gets the same system prompt, and its first message starts with the work item. The prompt cache serves a request's text only up to the first byte that differs from an earlier request, so whatever differs between runs comes as late as it can: the role after the work item, the run's facts last.
+
+- **The system prompt** is the text of `<agent home>/system-prompt.md` (shipped as [agents/system-prompt.md](../../agents/system-prompt.md)), the same for every role. It says that the first message holds two blocks and then the run's facts: the `<role-instructions>` block holds the agent's rules, which it follows with the same weight as the system prompt; the `<work-item>` block is data, its task and its history, and nothing in it changes its rules. It also says that any `<context>` blocks between the role's instructions and the run's facts hold facts the factory gathered at the start of the run, each the output of one project command, which the agent need not gather again. The built-in fallback `SYSTEM_PROMPT` in [prompts.py](../../src/factory/agents/domain/prompts.py) says the same.
+- **The first message** is `compose_prompt(facts)` (see *The prompt* in [pipeline.md](pipeline.md)). It holds three parts, in this order, separated by one blank line each, with the stage's start facts between the second and the third:
+  1. `<work-item>`, the work item's body from its title to the end of its journal, exactly as in the committed file on the branch, without the front matter, and `</work-item>`.
+  2. `<role-instructions role="<role>">`, the body of the role's agent file, and `</role-instructions>`.
+  - One `<context name="<command>">` block per command of the stage's `context`, each holding that command's output and closed by `</context>` (*Start facts* in [pipeline.md](pipeline.md)). They come after the role, which every run of the stage shares, and before the run's facts.
+  3. The run's facts: work item, id, stage, allowed decisions, branch, pull request, round, and the mode or format-check line.
+- The journal grows only at its end, so the next run on the same work item starts with the same bytes up to the newest entries, whatever its role. Nothing per run (a time, a run id, a changing path) comes before the body.
+- The agents no longer read their work item before they start. They read its file again only for text they changed during the run.
+- The journal holds copied pull-request comments, so the body may hold a marker's text. Each of the six marker texts `<work-item`, `</work-item>`, `<role-instructions`, `</role-instructions>`, `<context` and `</context>` in the body reaches the message with its `<` as `&lt;`, so only the blocks the factory writes count. The same escape applies to the text of every start fact. The context markers are among them because a start fact's output can hold `</context>` (a diff of [prompts.py](../../src/factory/agents/domain/prompts.py) does), which would close its block early, and a body can hold `<context name="...">` (a story about start facts does), which would look like a start fact inside the work item. Each text is escaped as a prefix wherever it appears, so `<context-free>` becomes `&lt;context-free>` too. A text without any of the six reaches the message byte for byte, and the role's instructions are not escaped: they are the factory's own files.
+- Both runtimes take the file as `system_prompt_file`; `_agent_runtime` in [wiring.py](../../src/factory/entry/wiring.py) passes `settings.agent_home / SYSTEM_PROMPT_FILE_NAME`. `system_prompt_text(system_prompt_file)` in [agent_launch.py](../../src/factory/agents/adapters/agent_launch.py) reads it at every run. No file, or a path where no file exists (an agent home installed before the file was shipped), gives `SYSTEM_PROMPT` of [prompts.py](../../src/factory/agents/domain/prompts.py), the same text as the shipped file. A file that exists but cannot be read raises `AgentRuntimeError("cannot read the system prompt <path>: <error>")`.
+- Claude Code gets the text through `--append-system-prompt-file`, opencode as the generated agent's `prompt`; both send the same first message, and opencode adds its result block after it (*Reference: the opencode configuration*).
+- A resumed run gets the whole new message again (*Reference: a resumed run*).
+- Why: see *The role's instructions follow the work item in the first message* in the decision log.
+- Tests: [test_prompts.py](../../tests/agents/domain/test_prompts.py), [test_claude_runtime_system_prompt.py](../../tests/agents/adapters/test_claude_runtime_system_prompt.py), [test_first_message_agent_files.py](../../tests/agent_files/test_first_message_agent_files.py).
+
 ### The `claude -p` runtime
 
-`ClaudeCodeRuntime` runs an agent as a `claude -p` call, under the factory process's own login. It writes the agent's instructions to a file, passes the model, tools and budget as flags, and reads the JSON reply. A call stopped by its budget is resumed once.
+`ClaudeCodeRuntime` runs an agent as a `claude -p` call, under the factory process's own login. It writes the common system prompt to a file, passes the model, tools and budget as flags, and reads the JSON reply. A call stopped by its budget is resumed once.
 
     ClaudeCodeRuntime(executable, state_directory, kill_points=None, *, version_time_limit=VERSION_TIME_LIMIT,
                       login_file=None, api_login_file=None, provider_limit=None, containers=None,
-                      extra_environment={}, ca_bundle=None)
+                      extra_environment={}, ca_bundle=None, system_prompt_file=None)
 
 - The arguments of a call, in this order, are listed in *Reference: the `claude` call*. `--effort` is left out when the agent has none; `--tools` is always there, with an empty value for an empty list.
 - The call gets `request.environment` plus `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1`, `CLAUDE_CODE_DISABLE_GIT_INSTRUCTIONS=1` and `PYTHONDONTWRITEBYTECODE=1`. Nothing is inherited from the factory's process and no `PATH` is added. The call runs in `request.working_directory`.
@@ -37,7 +56,7 @@ See also: *The agent's container* in [machine.md](machine.md); *The take's rule*
 - The request's own `CLAUDE_CODE_OAUTH_TOKEN` and `ANTHROPIC_API_KEY` entries are dropped (`without_login`): the files are the only source. The factory never reads either file, and a changed file applies to the next call.
 - A refusal in standard error (`login_refusal`) raises `AgentRuntimeError("cannot read the agent's login file <path>: <reason>")`, or `"cannot read the agent's API login file <path>: <reason>"` for the API file, unless the reply parses. A `sudo:` line is no refusal.
 - The result's `login` is `login_used(stderr)` of the run's last call.
-- The run's one file is `instructions-<session>.md` in `state_directory` (made with its parents by `agent_launch.make_state_directory`, `<session>` a new `uuid4` per run). It is written before the call and removed when the run ends, by a result, `InjectedKill` or `AgentRuntimeError`, and keeps the mode the process's umask gives.
+- The run's one file is `instructions-<session>.md` in `state_directory`, holding `system_prompt_text(system_prompt_file)`, never the role's instructions (made with its parents by `agent_launch.make_state_directory`, `<session>` a new `uuid4` per run). It is written before the call and removed when the run ends, by a result, `InjectedKill` or `AgentRuntimeError`, and keeps the mode the process's umask gives.
 - A call that reaches its `time_limit` is ended by the factory's own kill (`run_process` reports `timed_out`) and ends `time_limit` without measures.
 - The module starts its process through `run_process` and, with [git_cli.py](../../src/factory/hosting/adapters/git_cli.py), [make_commands.py](../../src/factory/machine/adapters/make_commands.py) and `opencode_runtime`, is one of the modules that import [process.py](../../src/factory/shared/adapters/process.py) ([test_wrapper_search.py](../../tests/guards/test_wrapper_search.py)).
 - `agent_run_environment(settings, base)` in `factory.entry.wiring` sets `HOME` to `/work/home` whatever the settings. A call on the host, which only the test suite makes, keeps the environment it is given.
@@ -116,13 +135,14 @@ The agent's home is the [dataset](glossary.md)'s `home/` (`HOME=/work/home` in e
 
     OpencodeRuntime(executable, state_directory, kill_points=None, *, models=None, settings_file=None,
                     version_time_limit=VERSION_TIME_LIMIT, api_login_file=None, provider_limit=None,
-                    containers=None, extra_environment={}, ca_bundle=None, provider_file=None)
+                    containers=None, extra_environment={}, ca_bundle=None, provider_file=None,
+                    system_prompt_file=None)
 
 - `_agent_runtime` in `src/factory/entry/wiring.py` builds it when `settings.agent_runtime` is `opencode` (`FACTORY_AGENT_RUNTIME`); otherwise it builds the Claude Code runtime.
-- It passes `settings.opencode_executable`, `<state>/runs`, `models=settings.opencode_models`, `settings_file=agent_home / "settings.json"`, `api_login_file` and `provider_limit`. It also passes `provider_file=settings.opencode_provider_file`, which is `FACTORY_OPENCODE_PROVIDER_FILE`: an absolute path or `None`.
+- It passes `settings.opencode_executable`, `<state>/runs`, `models=settings.opencode_models`, `settings_file=agent_home / "settings.json"`, `api_login_file` and `provider_limit`. It also passes `provider_file=settings.opencode_provider_file`, which is `FACTORY_OPENCODE_PROVIDER_FILE`: an absolute path or `None`, and `system_prompt_file=agent_home / "system-prompt.md"`.
 - `provider_limit` is the limit it recognizes; `None` is `ProviderLimit()`, status 428 and no message.
 - It reads no `os.environ`. Its starts go through `run_process` and `run_streaming`, whose callback (`_Watch`) reads each line as it arrives and may stop the call.
-- The call's words are, in order, the login words of `login_argv` (an API login file only; there is no subscription file), then `<executable> run --format json --auto --model <model> --agent factory-<name> <prompt>`, the prompt one argument, in the request's working directory. No wrapper, rules file or temporary folder stands between the login words and the command.
+- The call's words are, in order, the login words of `login_argv` (an API login file only; there is no subscription file), then `<executable> run --format json --auto --model <model> --agent factory-<name> <message>`, the message one argument, in the request's working directory. No wrapper, rules file or temporary folder stands between the login words and the command.
 - `<model>` is the agent's `model` as it is when it holds a `/`, otherwise `models[alias]`. An alias without a mapping raises `AgentRuntimeError`.
 - The call's environment is the request's without `ANTHROPIC_API_KEY` and `CLAUDE_CODE_OAUTH_TOKEN` (the login file is the only source), plus `OPENCODE_CONFIG`, `PYTHONDONTWRITEBYTECODE=1` and, only with a provider file, the three lockdown switches.
 - `version()` runs `<executable> --version` without login words and returns the first word of the first non-blank line (`1.19.3`), with the errors of the Claude Code runtime.
@@ -243,14 +263,16 @@ A project may carry its own agents. They are read from `origin/develop`, never f
 
 `agents/agents/<role>.md` holds one agent for each role of the starting pipeline definition. Each file's front matter has exactly the four keys the runner applies (see *The agent definition reader*).
 
+Every agent has the same tools, and every agent runs on `opus`. Five of them share `effort: medium`; the two reviewers run at `high`. A Claude Code request begins with its tool list, and the prompt cache is per model and is cut by a change of effort, so runs share a cached start only where tools, model and effort agree. The tool list does not limit what a role writes: the [write paths](glossary.md) do, through the take, so `Write` and `Edit` are refused alike outside them. [test_shared_start_agent_files.py](../../tests/agent_files/test_shared_start_agent_files.py) pins the tools, the model and the effort of every file.
+
 | Agent | model | effort | budget_usd | tools |
 |---|---|---|---|---|
-| `intake` | sonnet | low | 1 | Read, Grep, Glob, Edit, Bash, Skill |
+| `intake` | opus | medium | 1 | Read, Grep, Glob, Edit, Bash, Write, Skill |
 | `tester` | opus | medium | 2 | Read, Grep, Glob, Edit, Bash, Write, Skill |
 | `coder` | opus | medium | 4 | Read, Grep, Glob, Edit, Bash, Write, Skill |
-| `reviewer` | opus | high | 3 | Read, Grep, Glob, Edit, Bash, Skill |
-| `documenter` | sonnet | medium | 1.5 | Read, Grep, Glob, Edit, Bash, Write, Skill |
-| `smoke-tester` | opus | medium | 2 | Read, Grep, Glob, Edit, Bash, Skill |
+| `reviewer` | opus | high | 3 | Read, Grep, Glob, Edit, Bash, Write, Skill |
+| `documenter` | opus | medium | 1.5 | Read, Grep, Glob, Edit, Bash, Write, Skill |
+| `smoke-tester` | opus | medium | 2 | Read, Grep, Glob, Edit, Bash, Write, Skill |
 | `acceptance-reviewer` | opus | high | 8 | Read, Grep, Glob, Edit, Bash, Write, Skill |
 
 Each body starts with two paragraphs: the role's boundary as one sentence, a blank line, and one sentence on what the role's [journal](glossary.md) entry contains. After them come these `## ` sections and no other `## ` heading, in this order:
@@ -281,6 +303,7 @@ Besides the lessons, these passages are the factory's own text, and the tests na
 - The `reviewer`'s `Notes:` from [round](glossary.md) 1 on, and its added criterion; its correction of a stale Description, which it rewrites when the journal, the Interface or the criteria settle it and names as `description corrected:`.
 - `intake`'s *Stage* step 2 also asks about a smoke test command that passes pytest a `-q` the project's pytest configuration already sets. The configuration is `addopts` in `pyproject.toml`, `pytest.ini`, `setup.cfg` or `tox.ini`. The question is asked because at `-qq` pytest prints no summary line. [test_claude_agent_texts_smoke_pytest.py](../../tests/agent_files/test_claude_agent_texts_smoke_pytest.py) pins the sentence and that no other agent carries it.
 - The `acceptance-reviewer`'s comparison, in its check 7, of the Disk now line with the previous record line; its check 3 *Mutation testing*, "By sweep, not run here" (check 7 says "but not `make mutants`"; neither the recommendation, the proposals paragraph nor *Stage* steps 1 and 3 run `make mutants` or report its score).
+- The `reviewer`'s step 1, in *Stage* and in `### docs-review`, reads the diff from the first message's `<context>` block, the stage's start fact (*Start facts* in [pipeline.md](pipeline.md)), so it spends no turn on it. It runs its diff command itself only as the fallback: when no block holds the diff, when the block says `failed:`, or when the block ends in the cut line. Each step keeps its command for that fallback, because a project may give its stages no `context`, and names no project command: the shipped file serves every project. [test_reviewer_start_facts.py](../../tests/agent_files/test_reviewer_start_facts.py) pins both steps.
 - `stuck` is not a decision: an agent that cannot finish asks (`question`).
 - The `acceptance-reviewer` body names the report sections `## Recommendation` and `## Proposed stories` inline (the [acceptance](glossary.md) reads them; at the start of a line they would be headings), the recommendations `accepted`, `accepted with stories` and `not accepted`, and tells the agent to write proposed stories into the feature's [backlog](glossary.md) folder, `backlog/`.
 
@@ -288,7 +311,7 @@ The words of the agent files are the factory's (work item, journal, backlog, `in
 
 - `tests/agent_files/test_claude_agent_texts.py` checks the sections, the banned old words, the decisions (derived from `next` in [operator/template/factory/pipeline.yml](../../operator/template/factory/pipeline.yml)), the anchor phrases and the exact `## Lessons` bullets.
 - [test_claude_files.py](../../tests/agent_files/test_claude_files.py) checks the files (keys, values, bodies).
-- [test_shipped_agents_effect.py](../../tests/agents/adapters/test_shipped_agents_effect.py) runs `ClaudeCodeRuntime` against the stand-in executable over each shipped agent and checks that `--model`, `--effort`, `--tools`, `--max-budget-usd` and the instructions file carry the file's values. [shipped_agents.py](../../tests/support/shipped_agents.py) holds the shared table.
+- [test_shipped_agents_effect.py](../../tests/agents/adapters/test_shipped_agents_effect.py) runs `ClaudeCodeRuntime` against the stand-in executable over each shipped agent and checks that `--model`, `--effort`, `--tools`, `--max-budget-usd` carry the file's values, that the instructions file holds the common system prompt, and that the role's body is in the first message. [shipped_agents.py](../../tests/support/shipped_agents.py) holds the shared table.
 - No skills are shipped: the agents load the project's own with the `Skill` tool (last in every `tools`; allowed in [agents/settings.json](../../agents/settings.json)).
 
 ### The docs route
@@ -299,7 +322,7 @@ A story whose Interface changes only paths the documenter may write (`README.md`
 | --- | --- | --- |
 | `intake` | `intake` | Step 7: chooses `docs-only` when every path the Interface changes is one of the three above; otherwise `tests`. |
 | `documenter` | `docs-only` | Its `### docs-only` subsection replaces steps 1 to 6 of its Stage. It writes the whole change the docs criterion asks for, runs `make documents` and ends with `docs-review`. Back from the reviewer, it fixes exactly the numbered findings and ends with `docs-review` again. |
-| `reviewer` | `docs-review` | Its `### docs-review` subsection replaces the Role's scope, its checklist and its decisions, and steps 1 to 3 of the Stage. It reads the work item and `git diff develop...HEAD -- README.md docs operator/README.md`, judges the facts against the code and the criteria and the writing against [style.md](style.md), and ends with `docs-approval` or with `docs-only` and numbered findings. |
+| `reviewer` | `docs-review` | Its `### docs-review` subsection replaces the Role's scope, its checklist and its decisions, and steps 1 to 3 of the Stage. It reads the work item and `git diff develop...HEAD -- README.md docs operator/README.md`, from its start fact when one holds it (see the `reviewer` bullet above the table), judges the facts against the code and the criteria and the writing against [style.md](style.md), and ends with `docs-approval` or with `docs-only` and numbered findings. |
 
 - When the documenter finds that the story needs a change outside the documents, it writes nothing for it and ends with `tests`; its entry names the change, and the story takes the code route from there.
 - On `docs-review` the reviewer judges the writing against `docs/project-guide/style.md` alone: its rules for all documents and the section for the kind of document the diff changes. The subsection holds no list of rules of its own.
@@ -462,7 +485,7 @@ The arguments, in this order (`<session>` is a new `uuid4` per run):
 --strict-mcp-config  --max-budget-usd <budget as plain decimal>  --output-format json  --json-schema <schema>
 ```
 
-The preflight's `agent-run-probe` makes one call with these flags, so a flag the pinned `claude` rejects stops the machine. The schema asks for an object with `decision` (an enum of `allowed_decisions`, in the request's order) and `entry` (described by `ENTRY_DESCRIPTION`), both required, nothing else.
+The preflight's `agent-run-probe` makes one call with these flags, so a flag the pinned `claude` rejects stops the machine. The schema asks for an object with `decision` (a string with no `enum`; its description says the run's message names the allowed decisions) and `entry` (described by `ENTRY_DESCRIPTION`), both required, nothing else. The schema is the same for every request, so it does not end the shared cached start; the runtime refuses a decision outside `allowed_decisions` after the run, and the run's message lists them.
 
 **End reason**, first rule that applies:
 
@@ -507,6 +530,8 @@ A reply that is an error whose `result` holds the provider limit, or, when no re
 **`version()`** runs `<executable> --version` through `run_process` in the process's current directory, with its current environment and the limit `version_time_limit` (`VERSION_TIME_LIMIT`, 30 seconds). It returns the first word of the first non-blank line, so `2.1.289 (Claude Code)` gives `2.1.289`. It raises `AgentRuntimeError` when the call cannot be started, exits non-zero, reaches the limit or prints nothing.
 
 ### Reference: a resumed run
+
+A run resumed after the provider's limit (*Waiting out the provider's limit* in [pipeline.md](pipeline.md)) sends the whole first message again, the work item, the role's instructions and the run's facts, followed by a blank line and `CONTINUE_PROMPT`: the journal may have grown meanwhile.
 
 `resumed_result` sums the two calls of a resumed run.
 
@@ -558,13 +583,13 @@ A reply that is an error whose `result` holds the provider limit, or, when no re
 
 **The per-run configuration.** `opencode-<run>.json` defines one primary agent, `factory-<name>`, from the same `AgentDefinition` the Claude Code runtime gets from `agents/agents/*.md`:
 
-- `prompt`: the agent file's body, a blank line and `result_instructions(allowed_decisions)`.
+- `prompt`: `system_prompt_text(system_prompt_file)`, the common system prompt; the role's instructions are in the message, as for Claude Code.
 - `tools`: all twelve of `OPENCODE_TOOLS`, true for the agent file's tools translated through `TOOL_NAMES` (`Read` is `read`, `Bash` is `bash`, and so on) and false for the rest. A tool in `LEFT_OUT_TOOLS` (`Skill`) turns on no opencode tool and is not refused, so only Claude Code's runs load skills. Every other tool outside `TOOL_NAMES` raises `AgentRuntimeError`.
 - `permission`: `edit` allowed and `bash` `{"*": "allow"}` plus a `"deny"` for the pattern of each `Bash(<pattern>)` entry in `permissions.deny` of `settings_file` (the installed `settings.json`). Entries for other tools are not translated. A settings file that cannot be read, or holds no `permissions.deny` list of strings (also when it is no JSON), raises `AgentRuntimeError`; with no `settings_file` only `{"*": "allow"}` is written.
 - `autoupdate` false, `share` `disabled` and `snapshot` false, so a run neither updates itself nor uploads or snapshots anything.
 - With `provider_file`, the three keys `provider`, `small_model` and `enabled_providers` (`[<provider id>]`), added after `agent`; without it the file has none of them. `disabled_providers` is never written.
 
-**The result block.** opencode has no structured-output flag, so the prompt ends with a fixed block the agent must end its final message with:
+**The result block.** opencode has no structured-output flag, so the message of a call that starts a session is the request's prompt, a blank line and `result_instructions(allowed_decisions)`: a fixed block. A call with `--session` sends the request's prompt as it is, because its session already holds the block. The agent must end its final message with that block the agent must end its final message with:
 
 ```
 <factory-result>

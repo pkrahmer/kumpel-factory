@@ -61,10 +61,36 @@ def test_the_rest_of_the_reviewer_body_is_unchanged() -> None:
         "the architecture, security or anything under `src/` is still a finding and sends it "
         "back with `doing`."
     )
+    # A later story put the work item in the first message, so the reviewer no longer reads it.
+    work_item_in_the_first_message = (
+        " The work item itself, from its title to the end of its journal, is in your first "
+        "message, in the `<work-item>` block, so you do not read it before you start; read its "
+        "file again only for text you changed during the run."
+    )
+    # A later story let the reviewer read the diff from its start facts: the whole of step 1
+    # before its Makefile sentence goes back to the earlier text.
+    review_reads_the_diff = re.compile(r"(?m)^1\. Review .*? (?=Do not read the Makefile)")
+    review_reads_both = (
+        "1. Review `git diff develop...HEAD -- . ':!factory'` as the role section describes; the "
+        "work item is the only other input. Read both in your first command: the work item, the "
+        "diff's `--stat`, and the diff without the generated files `CLAUDE.md` names and lock "
+        "files (add `':!<path>'` for each; the stat still lists them). "
+    )
+    docs_review_reads_the_diff = (
+        "1. Read `git diff develop...HEAD -- README.md docs operator/README.md` in your first "
+        "command. The work item is in your first message. Nothing else is under review."
+    )
+    docs_review_reads_both = (
+        "1. Read the work item and `git diff develop...HEAD -- README.md docs "
+        "operator/README.md` in your first command. Nothing else is under review."
+    )
     # The earlier body named the working branch `main`, before it became `develop`.
     earlier = (
-        body.replace(_ALL_GROUPS, _STOP_AT_THE_FIRST)
+        review_reads_the_diff.sub(lambda _: review_reads_both, body, count=1)
+        .replace(_ALL_GROUPS, _STOP_AT_THE_FIRST)
         .replace(untested_side_is_a_note, untested_side_is_a_finding)
+        .replace(work_item_in_the_first_message, "")
+        .replace(docs_review_reads_the_diff, docs_review_reads_both)
         .replace("develop", "main")
     )
 

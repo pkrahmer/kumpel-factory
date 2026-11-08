@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-"""The bill command: the cost table and cost line of one work item, or of every one in flight."""
+"""The bill command: the cost and cache figures of one work item, or of every one in flight."""
 
 import re
 import sys
@@ -12,13 +12,26 @@ from factory.shared.domain.identifiers import ACCEPTANCE_ID, STORY_ID
 from factory.watching.application.costs import BillService, WorkItemBill
 
 _USAGE = "usage: factory-bill [<work item id>]"
+_HELP = f"""{_USAGE}
+
+Print the bill of the work item, or of every work item in flight, one block each:
+the table of its stages, the Cost: line, then its cache figures in a Cache: line
+and a table by role. The cache figures are the tokens read from the cache (cache
+read), the tokens written to it (cache written) and the hit rate: cache read
+divided by every prompt token (cache read, cache written and uncached input), as
+a whole percent, or - when there were no prompt tokens.
+"""
+_HELP_FLAGS = ("-h", "--help")
 _OK = 0
 _NO_BILL = 1
 _FAILURE = 2
 
 
 def _block(work_item_bill: WorkItemBill) -> str:
-    return f"{work_item_bill.table}\n\nCost: {work_item_bill.line}\n"
+    return (
+        f"{work_item_bill.table}\n\nCost: {work_item_bill.line}\n"
+        f"Cache: {work_item_bill.cache}\n\n{work_item_bill.cache_by_role}\n"
+    )
 
 
 def _is_work_item_id(argument: str) -> bool:
@@ -52,6 +65,9 @@ def run(argv: Sequence[str], service: BillService, out: TextIO) -> int:
     if len(argv) > 1:
         out.write(f"{_USAGE}\n")
         return _FAILURE
+    if argv and argv[0] in _HELP_FLAGS:
+        out.write(_HELP)
+        return _OK
     if argv:
         return _one(service, argv[0], out)
     return _all_in_flight(service, out)

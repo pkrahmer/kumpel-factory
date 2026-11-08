@@ -11,13 +11,15 @@ from factory.agents.domain.prompts import (
     CODER_ROLE,
     TESTER_ROLE,
     PromptFacts,
+    StartFact,
     allowed_decisions,
     compose_prompt,
 )
 from factory.pipeline.application.boundaries import Boundaries
 from factory.pipeline.application.take import agent_working_directory
+from factory.pipeline.domain.checks import CheckResult, command_ending
 from factory.pipeline.domain.pipeline_definition import PipelineDefinition, RoleDefinition
-from factory.shared.domain.errors import WorkItemFormatError
+from factory.shared.domain.errors import ProjectCommandError, WorkItemFormatError
 from factory.shared.domain.identifiers import Name, WorkItemId, feature_of, is_acceptance
 from factory.shared.domain.paths import STORY_FORM_FILE, WORK_REF
 from factory.work.application.acceptance import AcceptanceService
@@ -43,6 +45,7 @@ class TaskContext(BaseModel):
     branch: str
     pull_request: PositiveInt
     findings: list[FormFinding]
+    start_facts: list[StartFact] = []
 
 
 class StoryFormChecker:
@@ -97,8 +100,13 @@ class TaskComposer:
             branch=context.branch,
             pull_request=context.pull_request,
             round=self._round(context),
+            body=context.document.body,
+            role=self._role_name(context.stage),
+            role_instructions=agent.instructions,
+            round_cap=self._definition.stages[context.stage].round_cap,
             test_change_entry=self._test_change_entry(context),
             findings=self._findings(context),
+            start_facts=context.start_facts,
         )
         return AgentRunRequest(
             agent=agent,
@@ -108,6 +116,24 @@ class TaskComposer:
             working_directory=agent_working_directory(self._boundaries),
             environment=dict(self._environment),
         )
+
+    def start_facts(self, stage: str) -> list[StartFact]:
+        """The outputs of `stage`'s `context` commands, in their order, each under its limit.
+
+        A command that fails, runs out of time or cannot start gives a fact naming why; the
+        run goes ahead without its output.
+        """
+        return [self._start_fact(command) for command in self._definition.stages[stage].context]
+
+    def _start_fact(self, command: str) -> StartFact:
+        limit = timedelta(minutes=self._definition.project_commands[command].time_limit)
+        try:
+            result = self._boundaries.project_commands.start_fact(command, time_limit=limit)
+        except ProjectCommandError as error:
+            return StartFact(command=command, failure=str(error))
+        if result.passed:
+            return StartFact(command=command, output=result.output)
+        return StartFact(command=command, failure=_failure(result, limit))
 
     def _prompt(self, context: TaskContext, facts: PromptFacts) -> str:
         prompt = compose_prompt(facts)
@@ -149,3 +175,10 @@ class TaskComposer:
         if result is None or result.speaker != CODER_ROLE:
             return None
         return result.number
+
+
+def _failure(result: CheckResult, limit: timedelta) -> str:
+    if result.status == "time_limit":
+        return f"ran out of its time limit of {limit // timedelta(minutes=1)} min"
+    ending = command_ending(result)
+    return f"{ending}: {result.last_line}" if result.last_line else ending

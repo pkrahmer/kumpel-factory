@@ -1,4 +1,4 @@
-contract: "1.0"
+contract: "1.1"
 attempts_cap: 2
 crash_cap: 2
 acceptance_stage: acceptance
@@ -7,6 +7,9 @@ project_commands:
   lint: {time_limit: 5}
   test: {time_limit: 10}
   sync: {time_limit: 5}  # the tools after a checkout: the stage environment runs it, no stage lists it
+  facts-diff: {time_limit: 1}      # start facts (F0058): the branch's diff, for the reviewers
+  facts-changes: {time_limit: 1}   # the changed and new files, for the coder and the documenter
+  facts-files: {time_limit: 1}     # the tracked files, for the tester
 roles:
   intake: {write_paths: ["{work_item}"]}
   tester: {write_paths: ["tests/*"]}
@@ -17,10 +20,10 @@ roles:
   acceptance-reviewer: {write_paths: ["{work_item}", "{feature}/backlog/*"]}
 stages:
   intake: {role: intake, next: [tests]}
-  tests: {role: tester, next: [doing], checks: [lint], reports: [test]}
-  doing: {role: coder, next: [review, tests], checks: [check]}
-  review: {role: reviewer, next: [docs, doing], round_cap: 3}
-  docs: {role: documenter, next: [smoke-test, doing], checks: [check], round_cap: 3}
+  tests: {role: tester, next: [doing], checks: [lint], reports: [test], context: [facts-files]}
+  doing: {role: coder, next: [review, tests], checks: [check], context: [facts-changes]}
+  review: {role: reviewer, next: [docs, doing], round_cap: 3, context: [facts-diff]}
+  docs: {role: documenter, next: [smoke-test, doing], checks: [check], round_cap: 3, context: [facts-changes]}
   smoke-test: {role: smoke-tester, next: [approval, doing, docs], round_cap: 3}
   acceptance: {role: acceptance-reviewer, next: [approval]}
   approval: {approval: true, next: [done, doing]}

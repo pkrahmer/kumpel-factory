@@ -3,7 +3,7 @@
 # its own (the type check is skipped there, because the modules under test do not exist yet).
 # What each target runs is the repository's business; this file is a Python example. `types` and
 # `layers` are in `check`, not in `lint`: the tests stage runs `lint` only.
-.PHONY: check lint types layers sast secrets licenses test sync duplicates documents mutants areas
+.PHONY: check lint types layers sast secrets licenses test sync duplicates documents mutants areas facts-diff facts-changes facts-files
 .SILENT:
 
 # One shell per recipe, stopped by its first failing line, so that a recipe can time itself.
@@ -134,3 +134,19 @@ mutants:
 	# mutmut generates mutants for every module; those outside MODULES stay "not checked".
 	uv run mutmut results | { grep -v ': not checked$$' || true; }
 	if [ -n "$$stopped" ]; then echo "mutants: stopped after $(MUTANTS_SECONDS) s, so the mutants it did not reach are not checked"; exit 1; fi
+
+# Start facts (F0058): the factory runs these before an agent and puts their output into its
+# first message; never part of `check`. The base is where the branch left origin/develop.
+base_ref = $$(git merge-base HEAD origin/develop 2>/dev/null || git rev-parse HEAD)
+
+# The branch's changes: the file list with counts, then the whole diff, without the factory's files.
+facts-diff:
+	base=$(base_ref); git diff --stat "$$base" -- . ':!factory' ':!uv.lock'; echo; git diff "$$base" -- . ':!factory' ':!uv.lock'
+
+# The changed and new files, by name and status.
+facts-changes:
+	base=$(base_ref); git diff --name-status "$$base" -- . ':!factory'; git ls-files --others --exclude-standard
+
+# The tracked files without the factory's own.
+facts-files:
+	git ls-files -- . ':!factory'

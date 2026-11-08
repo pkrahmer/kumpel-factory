@@ -13,7 +13,7 @@ from factory.watching.domain.cost_records import CostRecord
 from factory.work.domain.acceptance import AcceptanceState
 from factory.work.domain.work_item import WorkItemState
 
-RECORDS_CONTRACT = "4.4"
+RECORDS_CONTRACT = "4.5"
 CONTRACT_KEY = "x-records-contract"
 JSON_SCHEMA_DIALECT = "https://json-schema.org/draft/2020-12/schema"
 

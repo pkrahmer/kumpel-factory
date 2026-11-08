@@ -37,13 +37,57 @@ A refused definition [stops](../project-guide/glossary.md) the factory with `pip
 - The stage `done` must exist, with no role and no `next`. Write it `done: {}`; `done:` alone is refused.
 - The contract major must be 1. Any minor is read.
 - Every stage other than `done` needs a non-empty `next` and either a role or `approval: true`. Every name in `next` must be a stage.
-- The lease: for each stage with a role, the role's `time_limit` plus the `time_limit` of every command in the stage's `checks` and `reports` must be at most the role's `lease_duration`. With the defaults, 40 + 10 (one check) + 10 (one report) = 60 fits. A stage with two checks and a report adds up to 70 and is refused. Raise the `lease_duration` or lower a limit.
+- The lease: for each stage with a role, the role's `time_limit` plus the `time_limit` of every command in the stage's `checks`, `reports` and `context` must be at most the role's `lease_duration`. With the defaults, 40 + 10 (one check) + 10 (one report) = 60 fits. A stage with two checks and a report adds up to 70 and is refused. Raise the `lease_duration` or lower a limit.
 - Values are taken only in their YAML type. A limit is an integer (not `'30'`, `30.0` or `true`). `approval` is `true` or `false` (not `'yes'` or `1`). Names and [write paths](../project-guide/glossary.md) are text.
 - A key that is not listed is refused, so a misspelt key is never ignored. That holds for `tool_paths` too. An agent run may write only its write paths, and there is no folder for tool state.
 - A given `project_commands` replaces the default set as a whole. List `check`, `lint` and `test` again if you still want them.
 - Every role needs an agent file, a project's own or the installed one (see "The agent files" in [agent-runtime.md](agent-runtime.md)).
 
 [docs/project-guide/pipeline.md](../project-guide/pipeline.md), "The rules of the definition", lists every fault.
+
+### Start facts
+
+Most agent runs begin by gathering the same facts: the diff, the list of changed files, the recent log. Each such call costs the agent a turn. A stage's `context` names project commands that gather these facts instead; the factory runs them before the agent, and the agent starts with their outputs. Your Makefile decides what each command shows.
+
+The template (`operator/template/Makefile` and `operator/template/factory/pipeline.yml`) ships three such targets. `facts-diff` and `facts-changes` measure from the point where the branch left `origin/develop`; `facts-files` lists the tracked files as they are. Each leaves out the factory's own files under `factory/`.
+
+| Target | What it shows | Stages in the template |
+|---|---|---|
+| `facts-diff` | the branch's changes: `git diff --stat`, then the whole diff, without `uv.lock` | `review` |
+| `facts-changes` | the changed files by name and status, then the new untracked files | `doing`, `docs` |
+| `facts-files` | every tracked file | `tests` |
+
+The template's [pipeline.yml](../../operator/template/factory/pipeline.yml) lists them like this:
+
+```yaml
+project_commands:
+  facts-diff: {time_limit: 1}
+  facts-changes: {time_limit: 1}
+  facts-files: {time_limit: 1}
+stages:
+  tests: {role: tester, next: [doing], checks: [lint], reports: [test], context: [facts-files]}
+  doing: {role: coder, next: [review, tests], checks: [check], context: [facts-changes]}
+  review: {role: reviewer, next: [docs, doing], round_cap: 3, context: [facts-diff]}
+```
+
+Its [Makefile](../../operator/template/Makefile) finds the base with `git merge-base`, so a checkout without a local `develop` branch works too:
+
+```make
+base_ref = $$(git merge-base HEAD origin/develop 2>/dev/null || git rev-parse HEAD)
+
+facts-diff:
+	base=$(base_ref); git diff --stat "$$base" -- . ':!factory' ':!uv.lock'; echo; git diff "$$base" -- . ':!factory' ':!uv.lock'
+```
+
+The targets are your project's own. The factory knows only the names a stage's `context` lists. You may change what a target shows, rename it, or drop a stage's `context`, and nothing in the factory changes with it.
+
+- The commands run in order, each under its own `time_limit`, in the check container on the stage's base, like a check but without `make sync` first. Each output becomes a `<context name="facts-diff">` block of the first message, after the role's instructions.
+- An output longer than 60,000 characters is cut to its first 60,000, followed by a line naming how many characters were cut and telling the agent to run the command itself.
+- A command that fails or runs out of time gives the block the line `failed: <reason>`, and the agent's run starts anyway. A start fact never holds a stage.
+- The commands' `time_limit`s count toward the lease.
+- `context` came with the definition's contract 1.1; a definition at `'1.0'` may carry it too.
+
+The full rules are under *Start facts* in [the project guide's pipeline.md](../project-guide/pipeline.md).
 
 ### More than one route
 
@@ -119,6 +163,7 @@ The keys of a stage:
 | `approval` | the human decides in this stage; it has no role | `false` | `approval: true` |
 | `checks` | project commands that must pass after the agent | empty | `checks: [check]` |
 | `reports` | project commands run after green and only recorded | empty | `reports: [duplicates]` |
+| `context` | project commands run before the agent; each output goes into the agent's first message as a start fact | empty | `context: [facts-diff]` |
 | `round_cap` | rounds the stage allows before the human is asked | none (no cap) | `round_cap: 3` |
 
 The keys of a role:

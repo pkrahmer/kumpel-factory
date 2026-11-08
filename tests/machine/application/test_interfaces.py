@@ -17,7 +17,7 @@ from factory.machine.application.containers import ContainerRuns
 from factory.machine.application.project_commands import ProjectCommands
 from factory.machine.application.snapshots import Snapshots
 from factory.machine.application.stage_environment import StageEnvironment
-from factory.pipeline.domain.checks import CheckResult
+from factory.pipeline.domain.checks import CheckResult, CommandOutput
 from support.git_interface_support import OPERATIONS as GIT_OPERATIONS
 from support.hosting_interface_support import OPERATIONS as HOSTING_OPERATIONS
 
@@ -87,7 +87,7 @@ def test_hosting_abstract_methods_are_its_ten_operations_with_their_return_types
 
 
 def test_project_commands_and_agent_runtime_have_exactly_their_operations_abstract() -> None:
-    assert ProjectCommands.__abstractmethods__ == {"run"}
+    assert ProjectCommands.__abstractmethods__ == {"run", "start_fact"}
     assert AgentRuntime.__abstractmethods__ == {"run", "version", "read_transcript", "tool_uses"}
     assert Snapshots.__abstractmethods__ == {"mount_point", "reset", "advance", "changed_paths"}
     assert ContainerRuns.__abstractmethods__ == {"launch", "run"}
@@ -132,6 +132,9 @@ def test_a_subclass_must_implement_every_operation_to_be_constructed() -> None:
 
     class Complete(ProjectCommands):
         def run(self, command: str, *, time_limit: timedelta) -> CheckResult:
+            raise AssertionError((command, time_limit))
+
+        def start_fact(self, command: str, *, time_limit: timedelta) -> CommandOutput:
             raise AssertionError((command, time_limit))
 
     incomplete: Callable[[], object] = Incomplete

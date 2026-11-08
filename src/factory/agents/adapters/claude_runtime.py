@@ -45,6 +45,7 @@ from factory.agents.adapters.agent_launch import (
     run_launch,
     since,
     state_directory_error,
+    system_prompt_text,
     version_launch,
     version_printed,
 )
@@ -157,17 +158,20 @@ def _parse_reply(stdout: str) -> _Reply | None:
         return None
 
 
-def _decision_schema(request: AgentRunRequest) -> str:
-    schema = {
+_DECISION_DESCRIPTION = "one of the allowed decisions that the run's message names"
+# One schema for every request: the tool list opens the request, so a schema that varied
+# with the stage would end the cached start the runs share. The decision is checked after the run.
+_DECISION_SCHEMA = json.dumps(
+    {
         "type": "object",
         "properties": {
-            "decision": {"type": "string", "enum": request.allowed_decisions},
+            "decision": {"type": "string", "description": _DECISION_DESCRIPTION},
             "entry": {"type": "string", "description": ENTRY_DESCRIPTION},
         },
         "required": ["decision", "entry"],
         "additionalProperties": False,
     }
-    return json.dumps(schema)
+)
 
 
 def _session_arguments(request: AgentRunRequest, new_session: str) -> list[str]:
@@ -194,7 +198,7 @@ def _arguments(request: AgentRunRequest, new_session: str, files: _RunFiles) -> 
         "--output-format",
         "json",
         "--json-schema",
-        _decision_schema(request),
+        _DECISION_SCHEMA,
     ]
     return arguments
 
@@ -347,6 +351,7 @@ class ClaudeCodeRuntime(AgentRuntime):
         containers: ContainerRuns | None = None,
         extra_environment: Mapping[str, str] = {},
         ca_bundle: Path | None = None,
+        system_prompt_file: Path | None = None,
     ) -> None:
         """Call `executable`, keep a run's files in `state_directory`, reach `kill_points`.
 
@@ -355,7 +360,9 @@ class ClaudeCodeRuntime(AgentRuntime):
         A call refused by `provider_limit`, the default limit when `None`, ends `provider_limit`.
         With `containers`, every call runs in a container, with `extra_environment` and with
         `ca_bundle` mounted read-only at its own path.
+        Every run's system prompt is the text of `system_prompt_file`, the same for every role.
         """
+        self._system_prompt_file = system_prompt_file
         self._containers = containers
         self._extra_environment = dict(extra_environment)
         self._bundle_files = [] if ca_bundle is None else [ca_bundle]
@@ -388,7 +395,7 @@ class ClaudeCodeRuntime(AgentRuntime):
         files = _RunFiles.of(self._state_directory, new_session)
         make_state_directory(self._state_directory)
         try:
-            self._write_files(request, files)
+            self._write_files(files)
             arguments = _arguments(request, new_session, files)
             process = self._call(request, files, arguments, request.time_limit)
             result = _result(request, process, session, self._provider_limit)
@@ -451,9 +458,10 @@ class ClaudeCodeRuntime(AgentRuntime):
     def _state_error(self, exc: OSError) -> AgentRuntimeError:
         return state_directory_error(self._state_directory, exc)
 
-    def _write_files(self, request: AgentRunRequest, files: _RunFiles) -> None:
+    def _write_files(self, files: _RunFiles) -> None:
+        system_prompt = system_prompt_text(self._system_prompt_file)
         try:
-            files.instructions.write_text(request.agent.instructions, encoding="utf-8")
+            files.instructions.write_text(system_prompt, encoding="utf-8")
         except OSError as exc:
             raise self._state_error(exc) from exc
 

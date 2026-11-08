@@ -207,21 +207,25 @@ A bill is the sum of cost records and nothing else. The cost line in a `done` jo
 
     bill(records) -> Bill
     bills_by_stage(records) -> list[StageBill]
+    bills_by_role(records) -> list[RoleBill]
     total(stage_bills) -> Bill
     cost_line(bill) -> str
     cost_table(stage_bills) -> str
+    hit_rate(tokens) -> str
+    cache_line(bill) -> str
+    cache_table(role_bills) -> str
     one_decimal(value: Decimal) -> str
     BillService(git, cost_reader).for_work_item(work_item) -> WorkItemBill | None
     BillService(git, cost_reader).in_flight() -> list[WorkItemId]
 
-- `Bill` and `StageBill` are frozen and forbid unknown keys. `Bill` holds `runs`, `runs_cost_unknown`, `duration`, `model_duration`, `turns`, `tokens` and `cost_usd`; `StageBill` pairs a `Name` with a `Bill`. `Name` is in [identifiers.py](../../src/factory/shared/domain/identifiers.py).
+- `Bill`, `StageBill` and `RoleBill` are frozen and forbid unknown keys. `Bill` holds `runs`, `runs_cost_unknown`, `duration`, `model_duration`, `turns`, `tokens` and `cost_usd`; `StageBill` pairs a stage's `Name` with a `Bill`, `RoleBill` a role's. `Name` is in [identifiers.py](../../src/factory/shared/domain/identifiers.py).
 - `bill` counts every record in `runs`, whatever its status and end reason, so a failed run is in the bill. `runs_cost_unknown` counts the records whose `cost_usd` is `None`.
 - `duration`, `model_duration`, `turns`, `tokens` (field by field) and `cost_usd` sum the known values. A `None` is skipped, never zero.
 - `total` sums the stage bills field by field.
-- `bills_by_stage` gives one `StageBill` per stage, in the order of its first record. A stage that runs again joins its first group.
-- `cost_line` and `cost_table` build the text that `records.md` describes. Minutes and dollars are rounded half up with `Decimal.quantize`. The minutes are computed from `Decimal(str(seconds))` to avoid float half-way errors.
+- `bills_by_stage` gives one `StageBill` per stage, in the order of its first record. A stage that runs again joins its first group. `bills_by_role` does the same per record `role`; both group through one private helper.
+- `cost_line`, `cost_table`, `cache_line` and `cache_table` build the text that `records.md` describes. The hand-over's posted table and the acceptance report use only `cost_line` and `cost_table`. Minutes and dollars are rounded half up with `Decimal.quantize`. The minutes are computed from `Decimal(str(seconds))` to avoid float half-way errors.
 - `one_decimal` gives one decimal, rounded half up. It is the one rounding helper of the module: the minutes and the human's hours both call it, so there is no second copy.
-- `WorkItemBill` has `work_item`, `total`, `stages`, `line` and `table`.
+- `WorkItemBill` has `work_item`, `total`, `stages`, `line`, `table`, `cache` and `cache_by_role`; the last two are the texts of `cache_line` and of `cache_table` over `bills_by_role`, built from the same records, and only `factory-bill` reads them.
 - `for_work_item` reads only remote-tracking refs: `origin/<branch>` when it exists, else `origin/develop`.
 - It finds the first `.md` file under the features directory whose name parses to the id; none gives `None`.
 - It reads that file's sidecar with `show_file`; no sidecar means no records.
@@ -249,8 +253,9 @@ $ uv run python -c "import json; from factory.watching.adapters.cost_records_jso
     main(argv=None) -> int
 
 - `run` returns the exit status; `main` builds the service with `build_bill_service` from [wiring.py](../../src/factory/entry/wiring.py). `bill.py` imports no adapter itself; it reaches them through `build_bill_service`.
-- With one id, `run` writes the table, a blank line and `Cost: <line>`, and returns 0. An argument that is no work item id gives `not a work item id: <argument>` and 2. A work item with no bill gives `no work item <id>` and 1.
+- With one id, `run` writes the table, a blank line, `Cost: <line>`, `Cache: <line>`, a blank line and the cache table, and returns 0. An argument that is no work item id gives `not a work item id: <argument>` and 2. A work item with no bill gives `no work item <id>` and 1.
 - With more than one argument, `run` writes `usage: factory-bill [<work item id>]` and returns 2.
+- With `-h` or `--help` as its one argument, `run` writes the usage and a text that names cache read, cache written and hit rate, and returns 0.
 - With no argument, `run` writes one block for each work item in flight that has a bill, headed by its id, and returns 0.
 
 ### The human's waits
@@ -410,4 +415,7 @@ On one line they come in that order. Only a line with none of them can be `dupli
 
 - `cost_line(bill)` is `<runs> runs, <minutes> min, <turns> turns, <in> tokens in (<cache_read> more from cache), <out> out, $<dollars>`. Tokens in are `input` plus `cache_creation`. The dollars have two decimals and, when some record's cost is unknown, end in ` + <n> unknown`.
 - `cost_table` is a Markdown table with the header `| stage | runs | min | model min | turns | in | cached | out | USD |`, one row for each stage and a last row `**total**`.
+- `cache_line(bill)` is `<cache_read> read, <cache_creation> written, <hit rate> hit`.
+- `cache_table` is a Markdown table with the header `| role | cache read | cache written | hit rate |`, one row for each role and a last row `**total**`, the sum of the roles.
+- `hit_rate(tokens)` is `cache_read` divided by `cache_read + cache_creation + input`, as `<n> %` with `n` a whole percent rounded half up with `Decimal`; it is `-` when that sum is 0.
 - The table's `min` and `model min` have one decimal.

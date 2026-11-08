@@ -271,3 +271,29 @@ Times are UTC. The plan: `night-plan.md`.
 - 07:40Z: F0057-S0011 PR #655 merged (docs route, 5 runs, $0.85). F0057-S0010 (the working branch's remote ref is one constant) started.
 - 07:54Z: F0057-S0010 PR #656 merged (6 runs, $1.16).
 - 08:01Z: F0057-A0003 PR #657 merged: accepted, no stories. factory-vm moved to eb0d906c0. F0057 archived by hand (Kumpel's scripts need a site file this machine lacks).
+- 08:02Z: Promotion PR #658 (develop to main, 12 stories) merged as merge commit 2c814d869; develop is in main. Ruleset 26790661 on main: pull request with 0 approvals, no force push, no deletion. F0057 done.
+- 09:17 e2e demo-todo-2: F0001 accepted (PR #5), 40 runs, 8.27 USD; eval in docs/runs/2026-11-08-e2e-demo-todo-2/eval.md
+- 09:51 e2e demo-todo-2: transcript review (Haiku flags, Opus report, 0.48 USD) and caching/speed economics added to the eval
+- 09:58 e2e demo-todo-2: caching hypothesis checked against request shapes; corrected in the eval
+- 10:10 F0058 (agent runs share a cached start) added: feature and three stories in backlog
+- 10:41 F0058-S0001 (every role has the same tools and the same decision tool) started
+- 11:20 F0058-S0001 merged (PR #659, 15 runs, $3.21), VM moved; S0002 got a test leave and started
+- 11:21 F0057 time split measured (journals and cost records), added to the e2e eval
+- 12:32 F0058-S0002 merged (PR #660, 17 runs, $9.03), VM moved; S0003 got a test leave and started
+
+- 13:01 UTC: F0058-S0003 (the bill shows how well the cache works) approved, PR #661 merged (11 runs, $2.77), archived as b8ee6fbfe. F0058-S0004 (each stage's start facts come from the factory) started, with a leave for 17 earlier tests.
+- 13:05 UTC: F0058-S0004 intake asked 3 questions on PR #662 (system prompt criterion, lease, contract version); answered (a) to each, as recommended.
+- 13:28 UTC: F0058-S0004 coder asked 2 questions on PR #662 (records contract 4.5, a declared start_fact operation); answered (a) to both with leave for the named tests; criterion 8 needs no operator template file.
+- 13:44 UTC: wrote F0059 (each change is checked once) with S0001 in the backlog; it starts after F0058 and its measurement. Count from the journals of F0053-F0058: 113 coder results, 1 stall of the factory's check after the coder.
+- 13:57 UTC: F0058-S0004 (each stage's start facts come from the factory) approved, PR #662 merged (16 runs, $7.11). F0059 gains S0002 (the smoke tester routes a red check); the factory's full check moves to after the smoke tester (the human's idea).
+- 14:09 UTC: F0058-A0001 (acceptance) approved, PR #663 merged ($1.66; feature 59 runs, $22.12, ~90 % cache hit). It proposed S0005 (the context markers are escaped too) and S0006 (the operator guide says what keeps the cached start). S0005 started with a leave for the two MARKERS lists.
+- 14:16 UTC: F0058-S0005 coder asked on PR #664 about the near row holding <context; answered A (prefix escape, the tester changes the row).
+- 14:23 UTC: the human's changes after F0058-S0004, applied by Claude on the human's order: start-fact targets facts-diff, facts-changes and facts-files in the Makefiles of this repository, demo/todo-service/project and operator/template; their pipelines rise to contract 1.1 and give tests, doing, review, docs (and here docs-only, docs-review) their context lines; tests/agent_files/test_template_sync.py lists the three new template commands. Checked on the VM in the stage image on a throwaway clone: make check green except tests/entry/test_watch_settings.py, which fails there without the change too.
+- 14:38 UTC: F0058-S0005 (the context markers are escaped too) approved, PR #664 merged (13 runs, $2.34), archived as 39b0f207f. F0058-S0006 (the operator guide says what keeps the cached start, docs route) started.
+- 14:47 UTC: the API key ran out in F0058-S0006 (docs-only): runs 461832ed (14:46:25) and 319d1ac0 (14:46:40) died with "Credit balance is too low"; the factory recorded each as a stall "died without a result" (the reason only in its log), retried 15 s later, then asked the human at the attempts cap (2). Claude emptied /home/factory/.secrets/anthropic-api-key as the human ordered (not read) and commented on PR #665 to retry.
+- 14:53 UTC: the next run (152fbf2b, documenter) completed under the login "subscription", as its cost record shows.
+- 15:02 UTC: F0058-A0002 (second acceptance) approved, PR #666 merged (feature 79 runs, $25.91, ~89 % cache hit). It proposed S0007 (the operator guide's start facts match the template, docs route), started now.
+- 15:15 UTC: F0058-S0007 (the operator guide's start facts match the template) approved, PR #667 merged (5 runs, $1.29). A0003 next; cosmetic proposals stay in the backlog (planning/later-topics.md).
+- 15:23 UTC: F0058-A0003 (third acceptance) approved, PR #668 merged ($1.82; feature 84 runs, $27.20). Its one proposal, S0008 (the reviewer starts from its start facts), closes a gap in the goal (the reviewer still ran the diff itself), so it started, with leave for the two tests it names.
+- 15:36 UTC: F0058-S0008 (the reviewer starts from its start facts) approved, PR #669 merged (6 runs, $1.87).
+- 15:46 UTC: F0058-A0004 (fourth acceptance) PR #670 merged: accepted, no stories ($1.11; feature 91 runs, $30.18). F0058 archived by hand.

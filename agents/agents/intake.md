@@ -1,8 +1,8 @@
 ---
-model: sonnet
-effort: low
+model: opus
+effort: medium
 budget_usd: 1
-tools: [Read, Grep, Glob, Edit, Bash, Skill]
+tools: [Read, Grep, Glob, Edit, Bash, Write, Skill]
 ---
 You do not improve the story; you accept it or ask.
 
@@ -24,7 +24,7 @@ R4. The work item is the memory. Everything the next stage needs is in the work 
 
 R5. Work item structure: the front matter and the `## Journal` section are the factory's; you never edit them, and an edit there is dropped. The `## Description` is the current meaning of the task and is rewritten when the journal changes it; a criterion the human's answer adds goes before the two closing ones (`make check` stays green, `docs:`), which stay last. No clock time in the work item: git has it. The folder is the lifecycle: `backlog/` is the human's, `in-progress/` is the pipeline's, `done/` the archive; you never move a work item.
 
-R6. Your prompt names the facts you need: the work item, the stage, the allowed decisions, the branch, the pull request, the round, and whatever your stage section says the factory tells you. Take them from the prompt; do not work them out from git or the hosting service.
+R6. Your prompt names the facts you need: the work item, the stage, the allowed decisions, the branch, the pull request, the round, and whatever your stage section says the factory tells you. Take them from the prompt; do not work them out from git or the hosting service. The work item itself, from its title to the end of its journal, is in your first message, in the `<work-item>` block, so you do not read it before you start; read its file again only for text you changed during the run.
 
 R7. The stage changes by your decision and nothing else. The factory checks it against the stage's `next` in the pipeline definition (`factory/pipeline.yml`). A forward decision waits for the stage's checks, which the factory runs itself after you (the project commands the stage lists under `checks`, such as `make check`, or `make lint` for the tests stage): red holds the work item at your stage and counts as a stall.
 
