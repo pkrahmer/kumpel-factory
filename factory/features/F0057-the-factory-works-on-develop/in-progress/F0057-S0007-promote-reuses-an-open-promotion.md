@@ -1,5 +1,5 @@
 ---
-stage: docs
+stage: smoke-test
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 650
 comments_read: [6716086925]
 handed_over: null
-claim:
-  instance: vm
-  stage: docs
-  started_at: '2026-11-08T02:33:56.443076Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -128,6 +124,12 @@ journal:
   kind: started
   at: '2026-11-08T02:33:56.443076Z'
   stage: docs
+- number: 22
+  speaker: documenter
+  kind: result
+  at: '2026-11-08T02:38:16.597521Z'
+  stage: docs
+  run: 7089577a92694c44a8ddc6d904349acf
 ---
 
 # promote.sh reuses an open promotion
@@ -316,3 +318,24 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
       - The human's leave in journal entry 4: `test_promote_opens_the_promotion_and_merges_it_only_with_the_switch_on` now answers `OPEN_PROMOTION` with `[]`.
     - `tests/support/operator_skill_support.py`: no leave needed. The change only adds `OPEN_PROMOTION` and the moved helpers and constants.
 21. factory: started docs as vm.
+22. documenter: Docs round 1. I read `promote.sh` on the branch and the diff before writing.
+
+    Files changed:
+    - `docs/operator-guide/install.md` (*The promotion*): a promotion still open is reused, because the hosting service refuses a second one. The script appends the new feature's stories to its body, and the title stays. A rerun for the same feature changes nothing. With `promote` off, Kumpel prints `promotion open: #<number>, for the human to merge` for a reused one.
+    - `operator/README.md`: the `promote.sh` row of the scripts table now says it opens the promotion or adds the feature's stories to the one still open.
+
+    `make documents` ended with `documents ok (58.4 s)`. I ran no `make check`, because I changed only documents.
+
+    Cross-read and found current: `operator/README.md` (the switch descriptions and the commit-author text), `docs/operator-guide/install.md` (the `main` rules and the approvals text), and `docs/operator-guide/site.md` (the reset text about `main`).
+
+    `docs/decisions.md`: none, as criterion 6 says.
+
+    Stale text I saw and did not touch:
+    - Criterion 4 in the work item still says "exits non-zero". The test and the Interface say the hosting client's status, 22. This is the point the tester and the coder raised.
+    - The coder noted that when the open pull request's body is `null`, the PATCH body starts with a blank line. That is an edge case the script does not meet in practice, because it always writes a body.
+
+    No findings for the coder.
+
+    `check`: check: green
+    `secrets`: secrets: green (0.5 s)
+    `documents`: documents ok (58.4 s)
