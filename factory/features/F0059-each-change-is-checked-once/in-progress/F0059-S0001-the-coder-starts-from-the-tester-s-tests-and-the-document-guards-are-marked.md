@@ -1,5 +1,5 @@
 ---
-stage: review
+stage: docs
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 672
 comments_read: [6723592271, 6723685612, 6723780619]
 handed_over: null
-claim:
-  instance: vm
-  stage: review
-  started_at: '2026-11-08T16:13:42.239991Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -151,6 +147,12 @@ journal:
   kind: started
   at: '2026-11-08T16:13:42.239991Z'
   stage: review
+- number: 26
+  speaker: reviewer
+  kind: result
+  at: '2026-11-08T16:15:10.880828Z'
+  stage: review
+  run: 62dbdfddffff405fa4bdcbb6bbc7b927
 ---
 
 # The coder starts from the tester's tests, and the guards that read the documents are marked
@@ -408,3 +410,46 @@ Expect: a line `<n> tests collected`, `<n>` greater than 0.
     `check`: check: green
     `duplicates`: duplicates: 7 new, 39 known, 4 gone
 25. factory: started review as vm.
+26. reviewer: no findings
+
+    Both findings from entry 15 are fixed in the diff:
+    - `tests/guards/test_mount_program_search.py` carries `pytestmark = pytest.mark.documents`.
+    - `test_todays_install_guide_gives_no_settings_finding` moved, under the same name and with the same body, into the marked module `tests/guards/test_install_guide_settings.py`. In `tests/shared/domain/test_document_settings.py` only that test and the three imports it alone used are removed.
+
+    Group 1:
+    - Criteria 1 and 2: `tests/guards/test_documents_marker.py` runs `pytest --strict-markers --collect-only` with no selection, with `documents` and with `not documents`. It checks that the documents selection is exactly the node ids of the modules whose text holds the marker line, and that the rest is the whole suite minus that selection.
+    - The marker registration in `tests/conftest.py` is checked implicitly: under `--strict-markers` the collection must exit with 0.
+    - Criterion 3: I searched beside the tester and the reviewer of entry 15.
+      - I grepped every unmarked `test_*.py` and every `tests/support/*.py` for `rglob`, `glob`, `iterdir`, `os.walk`, `ls-files`, `searched_files`, `README`, `docs`, `security`, `AGENT_HOME` and `ROOT /`, and read each hit that opens a real path. I checked against every path in `roles.documenter.write_paths`, the `agents/`, `operator/*/`, `security/`, `src/factory/**` and `tests/**` READMEs included.
+      - What I found: the unmarked guards that walk `tests/` or `src/` read only `*.py` files. `test_tests_layout.py` and `test_old_layer_packages_removed.py` read names only. `test_working_branch_in_agent_texts.py` reads `agents/agents` and `operator/template`. `test_docker_path_removed.py` checks `image/` and `operator/vm` files. `test_agent_folder.py` reads `claude/` and `agents/agents`.
+      - I also confirmed that no marked module reads a document at import time, so the subprocess collection in `test_documents_marker.py` does not read the documents either.
+      - No gap left.
+    - Criterion 4: `tests/agent_files/test_claude_agent_texts_first_tests.py` checks the role bullet and step 1 (one row each), that `make test` is gone as the start, that "Finish with `make check` green." is still there, and that the file names no new make target and no `pytest`.
+    - Criterion 5: the factory's `make check` after the coder was green (entry 24).
+
+    Group 2: `agents/agents/coder.md` stays project-neutral. It points to the command `CLAUDE.md` names for single test files and names no target or option. No code under `src/` changed.
+
+    Group 3: no secrets and no silencing markers. The new subprocess call goes through `run_process` with an argv list.
+
+    Group 4: the names are clear and the docstrings are present. The new modules copy no helper.
+
+    Group 5: the journal records the main choices (marking whole modules, moving the install-guide test) and the options that were rejected. The Description matches what was built, and the docs criterion still says what the reader must know.
+
+    Notes:
+    - `tests/agent_files/test_claude_agent_texts_first_tests.py:30`: `assert "only" in text` would pass on any "only" anywhere in the section. Asserting the exact phrase "running only the test files" would pin the claim more tightly.
+
+    Earlier tests changed (any status but `A`):
+    - `tests/conftest.py`: the Interface's leave (marker registration).
+    - `tests/guards/test_agent_folder_names.py`: the Interface's leave (marker line).
+    - `tests/guards/test_area_guides.py`: the Interface's leave (marker line).
+    - `tests/guards/test_folder_readmes.py`: the Interface's leave (marker line).
+    - `tests/guards/test_license_headers.py`: the Interface's leave (marker line).
+    - `tests/guards/test_mount_program_search.py`: the Interface's leave (marker line).
+    - `tests/guards/test_operator_guide_files.py`: the Interface's leave (marker line and `pytest` import).
+    - `tests/guards/test_operator_guide_pointers_search.py`: the Interface's leave (marker line).
+    - `tests/guards/test_project_guide_files.py`: the Interface's leave (marker line and `pytest` import).
+    - `tests/guards/test_root_operator_folders_removed.py`: the Interface's leave (marker line).
+    - `tests/guards/test_test_folder_readmes.py`: the Interface's leave (marker line).
+    - `tests/guards/test_work_branch_search.py`: the Interface's leave (marker line).
+    - `tests/operator_scripts/test_operator_site_check.py`: the human's answer, entry 9 (marker line).
+    - `tests/shared/domain/test_document_settings.py`: the human's answer, entry 18 (the one test moved out, and its now-unused imports removed).
