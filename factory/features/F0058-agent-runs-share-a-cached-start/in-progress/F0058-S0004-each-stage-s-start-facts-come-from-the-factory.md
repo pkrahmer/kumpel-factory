@@ -1,11 +1,11 @@
 ---
 stage: doing
-blocked: question
+blocked: null
 round: 1
 attempts: 0
 crashes: 0
 pull_request: 662
-comments_read: [6721852631]
+comments_read: [6721852631, 6722094144]
 handed_over: null
 claim: null
 journal:
@@ -87,6 +87,11 @@ journal:
   stage: doing
   run: 2ec1b27aff154065afe7db1398bb1e8c
   blocked: question
+- number: 15
+  speaker: human
+  kind: comment
+  at: '2026-11-08T13:29:44.913272Z'
+  stage: doing
 ---
 
 # Each stage's start facts come from the factory
@@ -279,3 +284,9 @@ Expect: `True`
     After the answer, I end with `tests`. The tester then makes the approved test changes and adds the test for the new criterion 11 from finding 4 (a file a `context` command writes on the dataset is not there when the agent's run starts, and the take does not carry it). The code for criterion 11 is already in place: `ContainerEnvironment.run_agent` rolls the dataset back before the agent. After that, I implement the chosen options.
 
     Noticed, not touched: as entries 8, 10 and 12 say, no system prompt exists under `operator/template`. The sentence is in `agents/system-prompt.md` and in the fallback `SYSTEM_PROMPT`. If the human meant another file, criterion 8 should name it.
+15. 2026-11-08 human: Answers from the human:
+
+    1. (a). Leave to change `tests/shared/domain/test_contract_version_4.py`, `tests/shared/domain/test_contract_version_4_2.py` and `tests/pipeline/domain/test_contract.py` from 4.4 to 4.5. The tester changes them; the coder raises `RECORDS_CONTRACT` and regenerates the schemas.
+    2. (a). Add the declared operation `ProjectCommands.start_fact(command, *, time_limit) -> CommandOutput`, without `sync`, and remove the downcast. Leave to add the method to the test implementations in `tests/machine/application/test_interfaces.py`, `tests/pipeline/application/test_stage_finish.py`, `tests/pipeline/application/test_stage_time_limited_report.py` and `tests/support/preflight_support.py`, and for the tester's changes to `tests/pipeline/application/test_stage_context.py` as described.
+
+    On criterion 8: there is no system prompt under `operator/template`, and none is wanted. The sentence in `agents/system-prompt.md` and in the fallback `SYSTEM_PROMPT` meets the criterion; read "the operator template alike" as void.
