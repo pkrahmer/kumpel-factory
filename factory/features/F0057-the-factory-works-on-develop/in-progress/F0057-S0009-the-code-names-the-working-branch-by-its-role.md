@@ -1,5 +1,5 @@
 ---
-stage: docs
+stage: smoke-test
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 652
 comments_read: [6716487122]
 handed_over: null
-claim:
-  instance: vm
-  stage: docs
-  started_at: '2026-11-08T03:18:22.261278Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -106,6 +102,12 @@ journal:
   kind: started
   at: '2026-11-08T03:18:22.261278Z'
   stage: docs
+- number: 18
+  speaker: documenter
+  kind: result
+  at: '2026-11-08T03:21:39.684277Z'
+  stage: docs
+  run: 7df14860084e4572aa287740347c99b6
 ---
 
 # The code names the working branch by its role
@@ -315,3 +317,22 @@ Expect: `0`
     - tests/pipeline/domain/test_evaluation_reject.py: the human's leave (Interface, 2026-11-08: `main_commit` -> `work_commit`)
     - tests/support/evaluation_support.py: the human's leave (Interface, 2026-11-08: `main_commit` -> `work_commit`)
 17. factory: started docs as vm.
+18. documenter: Docs round 1. Criterion 6 as the reviewer corrected it names three files, and I fixed all three. I ran no `make check` and no `make documents`, because I changed only documents.
+
+    Files changed:
+    - `docs/project-guide/machine.md`: `stage_file_on_main` is now `stage_file_on_work_branch` (line 723), and `_follow_main` is now `_follow_work_branch` (lines 727 and 729). Both match `src/factory/entry/run.py` and `wiring.py`.
+    - `docs/project-guide/pipeline.md`: `_ProjectImageStart._follow_main` is now `_follow_work_branch` (line 468).
+    - `docs/project-guide/watching.md`: in the `EvaluationInput(...)` signature on line 13, `main_commit` is now `work_commit`.
+
+    I grepped `README.md` and `docs/project-guide/` for every old name: `stage_file_on_main`, `_follow_main`, `main_commit`, `_main_reports`, `_main_report_paths`, `_main_commit`, `on_main`, `_MAIN` and `origin/{WORK_BRANCH}`. None is left. I changed nothing in `docs/decisions.md`, as criterion 6 says.
+
+    I cross-read the `docs/project-guide/` index and the `docs/operator-guide/` files against the diff and found them current. They name none of the renamed identifiers.
+
+    Stale text I noticed and did not touch:
+    - `docs/decisions.md:1235` and `docs/project-guide/README.md:174` name the test fixture `red_main`, and `README.md:244` of `machine.md` names `push_main`. They are test names, which the human chose not to rename, so they are not stale.
+
+    No findings for the coder. The code matches the Interface.
+
+    `check`: check: green
+    `secrets`: secrets: green (1.6 s)
+    `documents`: documents ok (58.2 s)

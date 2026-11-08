@@ -10,7 +10,7 @@ The watcher is `Watcher` in [watcher.py](../../src/factory/watching/application/
 
     Watcher(boundaries, instance, *, observer=False).evaluate(definition) -> Event
     evaluate(facts: EvaluationInput, lookup, claim_status) -> Event
-    EvaluationInput(definition, snapshots, main_commit, illegal_changes=[], due=[])
+    EvaluationInput(definition, snapshots, work_commit, illegal_changes=[], due=[])
     waiting(state, definition) -> bool
     question_posted(snapshot, comments) -> bool
 
