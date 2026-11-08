@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 645
 comments_read: [6714658360, 6714963482]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T00:20:05.057425Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -87,6 +91,11 @@ journal:
   speaker: human
   kind: comment
   at: '2026-11-08T00:20:02.668217Z'
+  stage: doing
+- number: 15
+  speaker: factory
+  kind: started
+  at: '2026-11-08T00:20:05.057425Z'
   stage: doing
 ---
 
@@ -247,3 +256,4 @@ Expect: `off`
 14. 2026-11-08 human: 1. Yes: the tester writes `f"/heads/{DEFAULT_BRANCH}"`; route tests for that.
     2. (b): the coder may write operator/README.md for this story (factory/pipeline.yml on develop). Add the three rows to its file table; the documenter finishes the rest of the docs criterion.
     3. The missing `promote` key: yes, in this story `settings.sh get` treats a missing switch as `off`, so an old settings file works without a new init. The tester adds a row for it.
+15. factory: started doing as vm.
