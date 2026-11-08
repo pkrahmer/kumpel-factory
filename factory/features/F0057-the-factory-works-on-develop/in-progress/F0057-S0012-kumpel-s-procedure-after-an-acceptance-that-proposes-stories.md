@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 654
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-08T07:07:19.213414Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -34,6 +30,12 @@ journal:
   kind: started
   at: '2026-11-08T07:07:19.213414Z'
   stage: tests
+- number: 5
+  speaker: tester
+  kind: result
+  at: '2026-11-08T07:08:00.554677Z'
+  stage: tests
+  run: acaa28d195ef47b0b77c79899ef096e3
 ---
 
 # Kumpel's procedure after an acceptance that proposes stories
@@ -87,3 +89,16 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
    - Architecture: it fits. Docs and Kumpel's skill text only, with a test under `tests/operator_scripts/` as CLAUDE.md lays out. No code or script is touched.
    - Scope: it is within F0057, which covers Kumpel's procedure and the operator's documents on `develop` and `main`. Nothing in "Out of scope" is touched. Route is `tests`, because `operator/skill/*` is not a path the documenter may write.
 4. factory: started tests as vm.
+5. tester: Wrote the test for criterion 1. It reads only the lines of `operator/skill/kumpel/references/approving.md` under `## After a feature's acceptance`, up to the next `## ` heading. It splits them into numbered steps (each step with its continuation lines). Each row checks one phrase in one step, so the same text outside the section, or in the other step, does not satisfy a row.
+
+   - criterion 1: tests/operator_scripts/test_operator_approving_after_acceptance.py::test_steps_after_an_acceptance_name_the_waits_of_the_scripts. Three rows: step 1 contains `is in backlog/`, step 1 contains `next accepted acceptance`, step 2 contains `promotion open: #`.
+   - criterion 2 (`make check` stays green): no test; the factory's check covers it.
+   - criterion 3 (docs): no test; it is the documenter's.
+
+   Files created: `tests/operator_scripts/test_operator_approving_after_acceptance.py`.
+
+   Modules the test run could not import: none. The test runs on the existing file. The run of the new module failed all three rows on the assertion, which is the right reason: today's step 1 says "still in `backlog/`" and does not name the next acceptance, and step 2 does not name the reuse of an open promotion. `make lint` is green.
+
+   Rejected: moving the section-reading lines of `test_operator_archive_outcome.py::test_approving_names_the_refusal_of_a_feature_whose_acceptance_was_not_accepted` into `tests/support/`. Its four inline lines find only the first line of a step, and this story says to change no earlier test. The new module holds its own small reader that also takes a step's continuation lines. No earlier test file was changed.
+
+   `lint`: lint: green (0.2 s)
