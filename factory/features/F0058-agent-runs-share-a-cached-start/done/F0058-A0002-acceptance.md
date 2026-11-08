@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 0
 attempts: 0
@@ -20,8 +20,13 @@ journal:
   at: '2026-11-08T15:00:15.212668Z'
   stage: acceptance
   run: 56bf972ebadf4037947d190d8ec6a983
+- number: 3
+  speaker: factory
+  kind: done
+  at: '2026-11-08T15:02:07.135397Z'
+  stage: done
 stories: [F0058-S0001, F0058-S0002, F0058-S0003, F0058-S0004, F0058-S0005, F0058-S0006]
-outcome: null
+outcome: accepted
 ---
 
 # Acceptance of Agent runs share a cached start
@@ -195,3 +200,4 @@ S0002 needed the human most, because the message every runtime builds touched mo
    8. Cost: 79 runs, 136.8 min, $25.91, about 89 % of input read from the cache. S0002 still stands out ($9.03). S0005 took 13 runs for two tuple entries: a test row that contradicted the Interface, then a criterion the reviewer added. S0005 and S0006 hit only 77 %; their single-run intake and smoke-test roles were at 61 to 78 %. The small demo stories in the measurement run may see the same. 13 questions answered (12 `question`, 1 `attempts_cap`), 0.5 h waited; S0002 needed the human most (5).
 
    make check: green as found. Files written: the report and `backlog/F0058-S0007-the-operator-guide-s-start-facts-match-the-template.md`, which passes `factory-check-story`.
+3. factory: done (pull request merged); cost: 1 runs, 5.6 min, 31 turns, 86471 tokens in (1710561 more from cache), 21686 out, $1.47
