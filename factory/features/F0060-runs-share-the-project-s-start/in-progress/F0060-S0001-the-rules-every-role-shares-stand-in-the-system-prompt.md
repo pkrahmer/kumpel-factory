@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: tests
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 678
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T19:48:51.380168Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -45,6 +41,12 @@ journal:
   kind: started
   at: '2026-11-08T19:48:51.380168Z'
   stage: doing
+- number: 7
+  speaker: coder
+  kind: result
+  at: '2026-11-08T19:58:20.008021Z'
+  stage: doing
+  run: 3c549c6c944448dc9594aa41b18819af
 ---
 
 # The rules every role shares stand in the system prompt
@@ -150,3 +152,22 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
    `lint`: lint: green (0.1 s)
 6. factory: started doing as vm.
+7. coder: Built the move. Four earlier test modules the tester did not change still fail, and each fails only because the rules left the agent files. The human's leave (decision 1 in `feature.md`, "any other test whose only failure is this move") covers them, so I end with `tests` and leave those changes to the tester.
+
+   What I built (in the working tree):
+   - `agents/system-prompt.md`: the orientation, then `## Rules`, then the coder's former rules word for word. The opening paragraph's sentence now reads: "Stage-specific instructions are under `Stage`, role-specific instructions under `Role`, both in the `<role-instructions>` block of your first message." The orientation now says that "The rules below apply to every agent in every stage." It also says that "The `<role-instructions>` block holds the instructions of your role, which add to these rules: follow them with the same weight." The `<work-item>` and `<context>` sentences are unchanged.
+   - `src/factory/agents/domain/prompts.py`: `SYSTEM_PROMPT` is the same text, which I generated from the file.
+   - `agents/agents/*.md` (all seven): the `## Rules` section is removed and nothing else changes. Before removing it I checked that the section was identical in all seven files.
+
+   Main choice: in the orientation, the role sentence says the role's instructions "add to these rules", so that one sentence (split at `:`) names both `role-instructions` and `rules`. That keeps `test_first_message_agent_files.py::test_the_system_prompt_names_both_blocks_and_what_each_one_is` passing. Alternative rejected: "holds the instructions of your role: follow them with the same weight as these rules". It breaks that earlier test, which would then need a change outside the leave.
+
+   State: the new test module `tests/agent_files/test_shared_rules_system_prompt.py` and the six test modules the tester changed all pass. In `make check`, lint, types, layers, sast, secrets and licenses are green. `make test` is red only on these:
+
+   1. `tests/agent_files/test_shipped_agents_r14.py::test_each_agent_holds_the_take_s_r14_once_and_no_kernel_promise` (all 7 rows): it reads `WRITE_PATHS_RULE` from each agent file. Change needed: check that line once in `shared_rules()` (the system prompt), and keep the "no kernel promise" and `$TMPDIR` checks on each agent file.
+   2. `tests/agent_files/test_first_message_agent_files.py::test_no_agent_file_reads_its_work_item_first_and_each_finds_it_in_the_first_message` (6 rows; coder passes): the sentence with "work item" and "first message" came from R6. Change needed: keep the READ_FIRST check on each agent file, and look for the "work item … first message" sentence in the system prompt's rules.
+   3. `tests/agent_files/test_claude_agent_texts.py::test_body_names_every_decision_of_its_stage_in_inline_code` (reviewer, documenter, smoke-tester): `` `question` `` was named in those bodies only by R2/R8 (`E AssertionError: assert ['question'] == []`, test_claude_agent_texts.py:198). Change needed: count a decision as named when it appears in the body or in `shared_rules()`.
+   4. `tests/agent_files/test_claude_agent_texts_review_groups.py::test_the_rest_of_the_reviewer_body_is_unchanged`: it pins the whole reviewer body by crc32 (`E AssertionError: assert 1092243890 == 3903663111`, test_claude_agent_texts_review_groups.py:97). Change needed: drop the `## Rules` section from the reconstructed earlier body before taking the checksum, or pin the new value.
+
+   After those changes no code needs to change. Refactor: nothing to change. The constant was generated from the file, and the agent files lost only their section.
+
+   Noticed, not touched: `docs/project-guide/agents.md` and `docs/operator-guide/agent-runtime.md` still describe `## Rules` in every agent file. The documenter handles that under criterion 9.
