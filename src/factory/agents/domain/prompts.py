@@ -222,7 +222,8 @@ def _escape_markers(body: str) -> str:
     return body
 
 
-def _block(opening: str, text: str, closing: str) -> str:
+def block(opening: str, text: str, closing: str) -> str:
+    """`text` between the lines `opening` and `closing`, with one newline before `closing`."""
     ending = "" if text.endswith("\n") else "\n"
     return f"{opening}\n{text}{ending}{closing}"
 
@@ -246,7 +247,7 @@ def _context_text(fact: StartFact) -> str:
 def _context_block(fact: StartFact) -> str:
     text = _context_text(fact)
     opening = f'<context name="{fact.command}">'
-    return _block(opening, _escape_markers(text), CONTEXT_CLOSE)
+    return block(opening, _escape_markers(text), CONTEXT_CLOSE)
 
 
 def _facts_lines(facts: PromptFacts) -> str:
@@ -276,8 +277,8 @@ def compose_prompt(facts: PromptFacts) -> str:
     block of its own, its marker texts escaped, its output cut after `CONTEXT_LIMIT`
     characters; the facts end without a trailing newline.
     """
-    work_item = _block(WORK_ITEM_OPEN, _escape_markers(facts.body), WORK_ITEM_CLOSE)
+    work_item = block(WORK_ITEM_OPEN, _escape_markers(facts.body), WORK_ITEM_CLOSE)
     role_open = f'<role-instructions role="{facts.role}">'
-    role = _block(role_open, facts.role_instructions, ROLE_CLOSE)
+    role = block(role_open, facts.role_instructions, ROLE_CLOSE)
     context = [_context_block(fact) for fact in facts.start_facts]
     return "\n\n".join([work_item, role, *context, _facts_lines(facts)])

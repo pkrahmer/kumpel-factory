@@ -2,6 +2,7 @@
 """The agent runtime that runs an agent as one `claude -p` call under the operator's login."""
 
 import json
+import stat
 import time
 import uuid
 from collections.abc import Mapping
@@ -58,6 +59,7 @@ from factory.agents.domain.agent_runs import (
     TokenCounts,
     resumed_result,
 )
+from factory.agents.domain.prompts import block
 from factory.agents.domain.provider_limits import ProviderLimit, limit_in_text, named_wait
 from factory.agents.domain.tool_uses import claude_tool_uses
 from factory.machine.application.containers import ContainerRuns
@@ -82,9 +84,14 @@ __all__ = [
 
 # Without these, `claude` would keep its own memory and read git instructions the factory
 # does not give, and Python the agent starts would leave bytecode in the working copy.
+# `claude` would also load the project's CLAUDE.md into the first message, where no later run
+# reads it back from the prompt cache; the instructions file carries it instead. Cache writes
+# are five-minute ones: the one-hour cache costs more than later runs save by reading it.
 SWITCHES = {
     "CLAUDE_CODE_DISABLE_AUTO_MEMORY": "1",
+    "CLAUDE_CODE_DISABLE_CLAUDE_MDS": "1",
     "CLAUDE_CODE_DISABLE_GIT_INSTRUCTIONS": "1",
+    "CLAUDE_CODE_PROMPT_CACHE_TTL": "5m",
     "PYTHONDONTWRITEBYTECODE": "1",
 }
 BUDGET_SUBTYPE = "error_max_budget_usd"
@@ -94,6 +101,10 @@ _SESSION_FOLDER = ".claude/projects"
 # A session id comes from the runtime's output and becomes part of a glob pattern; a separator,
 # a parent step or a glob character in it could reach another session's file or leave the folder.
 _SESSION_REFUSED_CHARACTERS = frozenset("/\\*?[]")
+_PROJECT_INSTRUCTIONS_FILE = "CLAUDE.md"
+_PROJECT_INTRODUCTION = (
+    "The project's instructions, its CLAUDE.md, follow; obey them as you obey this system prompt."
+)
 
 
 # A negative count or cost is no measure: such a reply does not parse, so the call is `died`.
@@ -320,6 +331,27 @@ def _result(
     )
 
 
+def _project_instructions(checkout: Path) -> str | None:
+    path = checkout / _PROJECT_INSTRUCTIONS_FILE
+    try:
+        # A link is no regular file: following it would read a host file into the prompt.
+        if not stat.S_ISREG(path.lstat().st_mode):
+            return None
+        return path.read_text(encoding="utf-8")
+    except FileNotFoundError:
+        return None
+    except (OSError, UnicodeDecodeError) as exc:
+        raise AgentRuntimeError(f"cannot read the project's instructions {path}: {exc}") from exc
+
+
+def _instructions_text(system_prompt: str, checkout: Path) -> str:
+    project = _project_instructions(checkout)
+    if project is None:
+        return system_prompt
+    project_block = block("<project-instructions>", project, "</project-instructions>")
+    return f"{system_prompt.removesuffix('\n')}\n\n{_PROJECT_INTRODUCTION}\n{project_block}\n"
+
+
 def _is_plain_session(session: str) -> bool:
     if session in {"", ".", ".."}:
         return False
@@ -395,7 +427,7 @@ class ClaudeCodeRuntime(AgentRuntime):
         files = _RunFiles.of(self._state_directory, new_session)
         make_state_directory(self._state_directory)
         try:
-            self._write_files(files)
+            self._write_files(files, request.working_directory)
             arguments = _arguments(request, new_session, files)
             process = self._call(request, files, arguments, request.time_limit)
             result = _result(request, process, session, self._provider_limit)
@@ -458,10 +490,10 @@ class ClaudeCodeRuntime(AgentRuntime):
     def _state_error(self, exc: OSError) -> AgentRuntimeError:
         return state_directory_error(self._state_directory, exc)
 
-    def _write_files(self, files: _RunFiles) -> None:
-        system_prompt = system_prompt_text(self._system_prompt_file)
+    def _write_files(self, files: _RunFiles, checkout: Path) -> None:
+        instructions = _instructions_text(system_prompt_text(self._system_prompt_file), checkout)
         try:
-            files.instructions.write_text(system_prompt, encoding="utf-8")
+            files.instructions.write_text(instructions, encoding="utf-8")
         except OSError as exc:
             raise self._state_error(exc) from exc
 

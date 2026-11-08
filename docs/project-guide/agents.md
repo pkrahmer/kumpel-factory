@@ -51,12 +51,12 @@ Every run of every role gets the same system prompt, and its first message start
                       extra_environment={}, ca_bundle=None, system_prompt_file=None)
 
 - The arguments of a call, in this order, are listed in *Reference: the `claude` call*. `--effort` is left out when the agent has none; `--tools` is always there, with an empty value for an empty list.
-- The call gets `request.environment` plus `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1`, `CLAUDE_CODE_DISABLE_GIT_INSTRUCTIONS=1` and `PYTHONDONTWRITEBYTECODE=1`. Nothing is inherited from the factory's process and no `PATH` is added. The call runs in `request.working_directory`.
+- The call gets `request.environment` plus `SWITCHES`: `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1`, `CLAUDE_CODE_DISABLE_CLAUDE_MDS=1` (Claude Code loads no `CLAUDE.md` itself), `CLAUDE_CODE_DISABLE_GIT_INSTRUCTIONS=1`, `CLAUDE_CODE_PROMPT_CACHE_TTL=5m` (every cache write a five-minute one) and `PYTHONDONTWRITEBYTECODE=1`. Nothing is inherited from the factory's process and no `PATH` is added. The call runs in `request.working_directory`.
 - With `login_file` or `api_login_file` set, every call except `version()` starts through a login shell whose words come from `login_argv(LoginFiles(subscription=login_file, api=api_login_file))`, followed by `<executable> <arguments>`. With neither file there are no words.
 - The request's own `CLAUDE_CODE_OAUTH_TOKEN` and `ANTHROPIC_API_KEY` entries are dropped (`without_login`): the files are the only source. The factory never reads either file, and a changed file applies to the next call.
 - A refusal in standard error (`login_refusal`) raises `AgentRuntimeError("cannot read the agent's login file <path>: <reason>")`, or `"cannot read the agent's API login file <path>: <reason>"` for the API file, unless the reply parses. A `sudo:` line is no refusal.
 - The result's `login` is `login_used(stderr)` of the run's last call.
-- The run's one file is `instructions-<session>.md` in `state_directory`, holding `system_prompt_text(system_prompt_file)`, never the role's instructions (made with its parents by `agent_launch.make_state_directory`, `<session>` a new `uuid4` per run). It is written before the call and removed when the run ends, by a result, `InjectedKill` or `AgentRuntimeError`, and keeps the mode the process's umask gives.
+- The run's one file is `instructions-<session>.md` in `state_directory`, holding `system_prompt_text(system_prompt_file)` and the project's root `CLAUDE.md` (*The project's `CLAUDE.md`* below), never the role's instructions (made with its parents by `agent_launch.make_state_directory`, `<session>` a new `uuid4` per run). It is written before the call and removed when the run ends, by a result, `InjectedKill` or `AgentRuntimeError`, and keeps the mode the process's umask gives.
 - A call that reaches its `time_limit` is ended by the factory's own kill (`run_process` reports `timed_out`) and ends `time_limit` without measures.
 - The module starts its process through `run_process` and, with [git_cli.py](../../src/factory/hosting/adapters/git_cli.py), [make_commands.py](../../src/factory/machine/adapters/make_commands.py) and `opencode_runtime`, is one of the modules that import [process.py](../../src/factory/shared/adapters/process.py) ([test_wrapper_search.py](../../tests/guards/test_wrapper_search.py)).
 - `agent_run_environment(settings, base)` in `factory.entry.wiring` sets `HOME` to `/work/home` whatever the settings. A call on the host, which only the test suite makes, keeps the environment it is given.
@@ -65,6 +65,16 @@ Every run of every role gets the same system prompt, and its first message start
 The end reasons, measures, provider limit and resume are in *Reference: the `claude` call*.
 
 See also: *The shared launch module* below; *Calls in a container* below.
+
+### The project's `CLAUDE.md`
+
+`ClaudeCodeRuntime` writes the project's root `CLAUDE.md` into the instructions file itself, because Claude Code, with `CLAUDE_CODE_DISABLE_CLAUDE_MDS=1`, no longer loads it (why: *Claude runs carry the project's `CLAUDE.md` in the system prompt* in the decision log). `_write_files(files, request.working_directory)` writes `_instructions_text(system_prompt, checkout)` once per run, so a resumed call reads the same file.
+
+- `_project_instructions(checkout)` reads `<checkout>/CLAUDE.md` as UTF-8, on the host, when the run starts. It returns nothing when `lstat` shows no regular file (`stat.S_ISREG`): absent, a directory, or a symbolic link, which is never followed, since following it would read a host file into the prompt. A file that vanishes between `lstat` and the read adds nothing too. Any other `OSError`, or a `UnicodeDecodeError`, raises `AgentRuntimeError("cannot read the project's instructions <path>: <error>")`.
+- With no file, the instructions file is the system prompt's text alone, unchanged.
+- With a file, it is the system prompt without one trailing newline, a blank line, the line `The project's instructions, its CLAUDE.md, follow; obey them as you obey this system prompt.`, then `block("<project-instructions>", text, "</project-instructions>")` and a newline. `block` of [prompts.py](../../src/factory/agents/domain/prompts.py) puts the text between the opening and the closing line, with a newline before the closing line unless the text ends with one.
+- `OpenCodeRuntime` adds no such block: opencode reads the project's instructions itself.
+- Tests: [test_claude_runtime_project_instructions.py](../../tests/agents/adapters/test_claude_runtime_project_instructions.py).
 
 ### Calls in a container
 
