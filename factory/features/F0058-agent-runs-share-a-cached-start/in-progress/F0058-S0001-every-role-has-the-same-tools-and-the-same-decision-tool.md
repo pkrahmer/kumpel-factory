@@ -1,11 +1,11 @@
 ---
 stage: doing
-blocked: question
+blocked: null
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 659
-comments_read: [6720500729]
+comments_read: [6720500729, 6720585535]
 handed_over: null
 claim: null
 journal:
@@ -65,6 +65,11 @@ journal:
   stage: doing
   run: 71fcd213f30341aaaf7b09b71e7742c5
   blocked: question
+- number: 11
+  speaker: human
+  kind: comment
+  at: '2026-11-08T10:53:39.699791Z'
+  stage: doing
 ---
 
 # Every role has the same tools and the same decision tool
@@ -185,3 +190,4 @@ Expect: exactly one line, `model: opus`
     Refactor: I read my diff and nothing else needs changing.
 
     Noticed but not touched: the comment above `__all__` in `claude_runtime.py` keeps old names exported for earlier callers. It is unrelated to this story. The journal changed nothing in the Description; it only added criteria 6 to 8, which intake already carried in.
+11. 2026-11-08 human: Option 1: the tester changes the helper's `work.mkdir()` to `work.mkdir(parents=True)`; the test keeps checking the same thing.
