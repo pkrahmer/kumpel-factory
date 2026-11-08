@@ -1704,3 +1704,11 @@ Date: 2026-11-08 (F0060-S0002).
 - Why: Claude Code put the file at the start of the run's first message, with no cache point after it, so every run wrote it to the prompt cache anew and no later run read it back. Measured on 2026-11-08 (`docs/runs/2026-11-05-f0052/log.md`, 19:18 UTC): with kumpel-factory's `CLAUDE.md` (7,284 tokens), three runs as before each read 6,633 tokens and wrote 14,078 to 15,602; with the switch set and the file in the system prompt, the second and third runs read 13,917 and wrote 6,722 and 8,246, so their first request cost 46 % less, about $0.035 a run at the API price list, whatever the role or work item, within the cache's time. The five-minute cache: 35 of 35 and 118 of 119 gaps between runs were under five minutes (19:25 UTC); the one-hour cache would save 18 to 23 % but its dearer writes cost 32 to 34 % more, a net loss.
 - Why a link is not followed: the file is read on the host, not in the container, and a committed link could put any host file the factory can read into the prompt (the reviewer's finding, the human's answer of 2026-11-08). A project keeps its root `CLAUDE.md` a regular file.
 - Rejected: adding the block in the shared `system_prompt_text`, because opencode must not get it; resolving a link to see whether it points inside the checkout, because a link is not a regular file, wherever it points.
+
+## The reviewer may send findings on the story's own tests to the tester
+
+Date: 2026-11-08 (F0060-S0003, F0060-S0005).
+
+- Decision: when `tests` is in the `next` of `review` and every finding needs only a change to the tests of the work item's own story, the reviewer ends with `tests` instead of `doing`. The tester answers the findings and the coder runs once after it. When any finding needs a change outside those tests, all findings go to `doing`. A move from `review` to `tests` counts as a round, as a return to `doing` does. Step 4 of the reviewer's `## Stage` holds the rule, and the two sentences of its `## Role` that name its decisions name this route too.
+- Why: in F0050 to F0059, 58 of the 65 coder runs that came right after review findings only passed the work item on to the tester.
+- Rejected: splitting one review's findings across two stages, the test findings to the tester and the others to the coder (F0060, decision 5).

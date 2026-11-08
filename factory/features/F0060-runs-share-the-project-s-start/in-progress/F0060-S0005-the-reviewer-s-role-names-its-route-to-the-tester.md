@@ -1,5 +1,5 @@
 ---
-stage: docs
+stage: smoke-test
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 682
 comments_read: [6727864627]
 handed_over: null
-claim:
-  instance: vm
-  stage: docs
-  started_at: '2026-11-08T22:22:41.650684Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -84,6 +80,12 @@ journal:
   kind: started
   at: '2026-11-08T22:22:41.650684Z'
   stage: docs
+- number: 14
+  speaker: documenter
+  kind: result
+  at: '2026-11-08T22:26:43.506961Z'
+  stage: docs
+  run: d81fcdc3f2794932af6e1511985f72a9
 ---
 
 # The reviewer's role names its route to the tester
@@ -234,3 +236,30 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     - tests/agent_files/test_claude_agent_texts_review_groups.py: the human's leave, journal entry 4, which names this file. `test_the_rest_of_the_reviewer_body_is_unchanged` maps the new sentences back to the earlier text with `.replace`.
     - tests/support/shared_rules_support.py: the human's leave, journal entry 4. The reviewer's `Role` checksum in `PARTS_BEFORE` changed because F0060-S0004 has not been merged.
 13. factory: started docs as vm.
+14. documenter: Wrote the docs criterion. I changed only documents, so I did not run `make check`; the factory runs the stage's checks after this. `make documents` passed: `documents ok (61.8 s)`.
+
+    Files changed:
+    - `docs/operator-guide/agent-runtime.md`: after the smoke tester's two ways out, I added the reviewer's three:
+      - `docs` when there are no findings.
+      - `tests` when every finding needs only the story's own tests and `review`'s `next` lists `tests`.
+      - `doing` otherwise.
+      Both `tests` and `doing` count as rounds.
+    - `docs/operator-guide/pipeline.md`:
+      - *More than one route*: the sentence about the template's `review` said it lists only `[docs, doing]`. It now says the template already lists `tests` and quotes its line from `operator/template/factory/pipeline.yml:25`. A definition whose `review` lists only `[docs, doing]` still sends every finding to `doing`.
+      - Start facts: the template excerpt quoted `review` with `next: [docs, doing]`. It now shows `[docs, doing, tests]` to match the template. This is a stale quote I found while cross-reading.
+    - `docs/decisions.md`: new entry "The reviewer may send findings on the story's own tests to the tester" (F0060-S0003, F0060-S0005).
+      - Decision: step 4 of `## Stage` and the two `## Role` sentences.
+      - Why: 58 of the 65 coder runs right after review findings in F0050 to F0059 only passed the work item on.
+      - Rejected: splitting one review's findings across two stages (F0060, decision 5).
+
+    Checked against the diff and still correct:
+    - The rest of `docs/operator-guide/pipeline.md`.
+    - The rest of `docs/operator-guide/agent-runtime.md`.
+    - The reviewer decisions in `docs/decisions.md` around lines 581–588, 710–713, 1333 and 1368. They describe rules that still hold.
+    - A search of `README.md` and `docs/` for other text naming the reviewer's ways out as only `docs` and `doing` found nothing else.
+
+    Stale text I did not touch: none found.
+
+    `guides`: guides: green (9.8 s)
+    `secrets`: secrets: green (1.7 s)
+    `documents`: documents ok (66.4 s)
