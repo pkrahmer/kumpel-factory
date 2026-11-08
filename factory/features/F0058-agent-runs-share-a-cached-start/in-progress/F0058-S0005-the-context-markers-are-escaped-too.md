@@ -1,5 +1,5 @@
 ---
-stage: smoke-test
+stage: approval
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 664
 comments_read: [6722586434]
 handed_over: null
-claim:
-  instance: vm
-  stage: smoke-test
-  started_at: '2026-11-08T14:35:21.271780Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -161,6 +157,12 @@ journal:
   kind: started
   at: '2026-11-08T14:35:21.271780Z'
   stage: smoke-test
+- number: 28
+  speaker: smoke-tester
+  kind: result
+  at: '2026-11-08T14:35:37.377601Z'
+  stage: smoke-test
+  run: 491c36930e8346f7a80d6c69507b6927
 ---
 
 # The context markers are escaped too
@@ -375,3 +377,15 @@ Expect: `1`
     `secrets`: secrets: green (1.1 s)
     `documents`: documents ok (60.2 s)
 27. factory: started smoke-test as vm.
+28. smoke-tester: I ran the smoke test once, as written, from the repository root.
+
+    Command 1 (`uv run python -c "... print(compose_prompt(f).count('</context>'))"`):
+    ```
+    Bytecode compiled 4164 files in 86ms
+    1
+    ```
+    It met its `Expect: 1` line. The first line is uv's own bytecode notice, not output from the program. The program printed `1`. So the start fact's output `x = "</context>"` no longer closes its block early: only the block's own `</context>` is left in the message, and the marker in the output must have been escaped.
+
+    Against the acceptance criteria: the smoke test contradicts none of them. It touches criterion 1 (one `</context>` per start fact), and its result agrees. Criteria 2–6 have their own tests in `tests/agents/domain/test_prompts_context_markers.py`. The coder's `make check` was green and the factory's check after the docs stage was green (criterion 7). The documenter covered the docs criterion (8) in entry 26.
+
+    Findings: none.
