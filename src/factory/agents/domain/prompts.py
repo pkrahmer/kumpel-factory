@@ -39,7 +39,14 @@ SYSTEM_PROMPT = (
     "the factory gathered at the start of the run, each the output of one project command, "
     "so you need not gather them again.\n"
 )
-_MARKER_TEXTS = ("<work-item", WORK_ITEM_CLOSE, "<role-instructions", ROLE_CLOSE)
+_MARKER_TEXTS = (
+    "<work-item",
+    WORK_ITEM_CLOSE,
+    "<role-instructions",
+    ROLE_CLOSE,
+    "<context",
+    CONTEXT_CLOSE,
+)
 
 
 class StartFact(BaseModel):
