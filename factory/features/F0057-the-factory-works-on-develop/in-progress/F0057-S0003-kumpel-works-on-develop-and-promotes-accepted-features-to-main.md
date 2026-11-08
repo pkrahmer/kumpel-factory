@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 645
 comments_read: [6714658360, 6714963482]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T00:30:21.323816Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -132,6 +136,11 @@ journal:
   at: '2026-11-08T00:30:15.630909Z'
   stage: review
   run: 44ea7d2e3f1f479d8aa9f7d82e9d8a47
+- number: 23
+  speaker: factory
+  kind: started
+  at: '2026-11-08T00:30:21.323816Z'
+  stage: doing
 ---
 
 # Kumpel works on develop and promotes accepted features to main
@@ -373,3 +382,4 @@ Expect: `off`
     - `tests/operator_scripts/test_operator_skill_scripts.py`: the human's leave of 2026-11-07 (the new switch, lookup on `develop`).
     - `tests/operator_scripts/test_operator_skill_signature.py`: the standing leave to move a shared test helper (`KUMPEL` moved to `tests/support/operator_skill_support.py`).
     - `tests/support/operator_skill_support.py`: the human's leave of 2026-11-07 (`SCRIPTS_BRANCH`, the commits route, a remote whose `HEAD` is `main`). The `KUMPEL` move is under the standing leave.
+23. factory: started doing as vm.
