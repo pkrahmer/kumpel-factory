@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 669
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-08T15:24:42.349120Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -25,6 +29,11 @@ journal:
   at: '2026-11-08T15:24:37.662734Z'
   stage: intake
   run: 16e40619ab6f4346b69c103c362767f9
+- number: 4
+  speaker: factory
+  kind: started
+  at: '2026-11-08T15:24:42.349120Z'
+  stage: tests
 ---
 
 # The reviewer starts from its start facts
@@ -85,3 +94,4 @@ Expect: a line ending in `passed` with no `failed`.
    - Docs criterion: names what the reader must know (the reviewer reads the diff from its start fact and runs the command only as the fallback) and dictates no sentences. Note for the documenter: `docs/project-guide/agents.md` has a `reviewer | docs-review` row in the docs-route table (line 324). It has no `reviewer | review` row; the only other `reviewer` rows are the tools table (line 273) and the Documents checklist row (line 341). So the documenter places the `review` side where it fits. I judge this the documenter's choice, not a gap in the story.
    - Architecture: one shipped agent file and tests under `tests/agent_files/`, mirroring the agent files as CLAUDE.md asks. The story names no project command in the shipped file (R8, the factory knows only `context` names). `factory/` and `src/` are not touched.
    - Scope: inside F0058's scope item S0004 (start facts save the agent's turns): this makes the reviewer use the facts S0004 gives it. It changes neither the reviewer's effort nor its edits to criteria, both of which are out of scope. Other agents stay unchanged as the Description says.
+4. factory: started tests as vm.
