@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 646
 comments_read: [6715370076, 6715449873]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T01:11:25.936867Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -81,6 +85,11 @@ journal:
   at: '2026-11-08T01:11:20.978493Z'
   stage: tests
   run: b9680d04450a486598f4610a2724c551
+- number: 14
+  speaker: factory
+  kind: started
+  at: '2026-11-08T01:11:25.936867Z'
+  stage: doing
 ---
 
 # The operator's documents name develop and main
@@ -222,3 +231,4 @@ Expect: `documents ok (<seconds> s)`
     The factory left out changes outside the write paths: factory/features/F0057-the-factory-works-on-develop/in-progress/F0057-S0004-the-operators-documents-name-develop-and-main.md.
 
     `lint`: lint: green (0.1 s)
+14. factory: started doing as vm.
