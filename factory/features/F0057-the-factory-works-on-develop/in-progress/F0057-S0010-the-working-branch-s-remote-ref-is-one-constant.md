@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 656
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: docs
+  started_at: '2026-11-08T07:47:08.590717Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -58,6 +62,11 @@ journal:
   at: '2026-11-08T07:47:03.475157Z'
   stage: review
   run: 1c8fab28ef7d4a20a714a76ae437d393
+- number: 10
+  speaker: factory
+  kind: started
+  at: '2026-11-08T07:47:08.590717Z'
+  stage: docs
 ---
 
 # The working branch's remote ref is one constant
@@ -187,3 +196,4 @@ Expect: `origin/develop`
    - Documents: the diff changes none.
 
    Earlier tests: none. The diff changes, renames or deletes no test file that `develop` already holds.
+10. factory: started docs as vm.
