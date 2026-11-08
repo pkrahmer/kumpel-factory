@@ -1,5 +1,5 @@
 ---
-stage: review
+stage: docs
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 654
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: review
-  started_at: '2026-11-08T07:19:02.904483Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -100,6 +96,12 @@ journal:
   kind: started
   at: '2026-11-08T07:19:02.904483Z'
   stage: review
+- number: 17
+  speaker: reviewer
+  kind: result
+  at: '2026-11-08T07:19:29.137820Z'
+  stage: review
+  run: 6b589adc5db846c39553fcfbeedd5628
 ---
 
 # Kumpel's procedure after an acceptance that proposes stories
@@ -245,3 +247,19 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
     `check`: check: green
     `duplicates`: duplicates: 6 new, 39 known, 4 gone
 16. factory: started review as vm.
+17. reviewer: Round 1 review of `git diff develop...HEAD -- . ':!factory'` against the work item. The diff changes `operator/skill/kumpel/references/approving.md` and adds `tests/operator_scripts/test_operator_approving_after_acceptance.py`. I read both.
+
+    - Criterion 1 has one test with three rows: `test_steps_after_an_acceptance_name_the_waits_of_the_scripts`. Step 1 is checked for `is in backlog/` and `next accepted acceptance`, step 2 for `promotion open: #`. The test now takes the section from `factory.shared.domain.sections.section_text` (`src/factory/shared/domain/sections.py:127`), which returns only the text up to the next `## ` heading. It then splits that text into numbered steps with their continuation lines. So the same text placed outside the section, or in the other step, cannot satisfy a row. That covers the failing side the criterion names. The finding from round 0 (entry 9, item 1: a copy of the section reader) is fixed.
+    - The coder's journal entry 15 records `make check` green.
+    - I checked the skill text against the scripts:
+      - The step-1 refusal `<feature id> is not finished: <path> is in backlog/` matches `operator/skill/kumpel/scripts/archive-feature.sh` (`refuse "$story is in $folder/"`, prefixed by `$id is not finished: `).
+      - Step 2 says `promote.sh` reuses an open promotion, opens no second one and adds the stories to it. That matches the `patch`/`keep` branches of `promote.sh`. The line `promotion open: #<number>, for the human to merge` is printed only with the switch off, as step 2 says.
+    - Architecture and security: nothing to report. The change is skill text plus one test. It adds no suppression marker, no script change and no change under `src/`.
+    - Work item: the Description, the Interface and the docs criterion match what was built. The docs criterion names the playbook's step 8 and the promotion section of `docs/operator-guide/install.md`, which are the documenter's next work. The journal records the main choice (a continuation line under step 1, so the earlier test's first-line check stays intact) and what was rejected.
+
+    no findings
+
+    Notes:
+    - `tests/operator_scripts/test_operator_approving_after_acceptance.py:27`: the name `text` in the dict comprehension shadows the section `text` read on line 17. A name such as `step_lines` would read more clearly. This only concerns the quality of a test file the diff adds.
+
+    Earlier tests: none. The only test file in the diff is the new one (status `A`). No test file that `develop` holds is changed, renamed or deleted.
