@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 680
 comments_read: [6727432579, 6727512748, 6727549619]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T21:50:41.871754Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -131,6 +135,11 @@ journal:
   at: '2026-11-08T21:50:36.749550Z'
   stage: review
   run: 8c95de3a25df443fb0990706b3294c7b
+- number: 23
+  speaker: factory
+  kind: started
+  at: '2026-11-08T21:50:41.871754Z'
+  stage: doing
 ---
 
 # A review whose findings need only tests goes to the tester
@@ -341,3 +350,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     - `tests/agent_files/test_claude_agent_texts_review_groups.py`: the human's leave, entry 11 (the step 4 `.replace`) and entry 16 (the R12 mapping `.replace`).
     - `tests/pipeline/application/test_docs_route.py`: the standing leave to move a shared test helper. `_step`, `WRITES` and `MAKEFILE` moved to `tests/support/two_routes_support.py` as `decide`, `STAGE_WRITES` and `EVERY_TARGET_MAKEFILE`, and every test keeps its name and its checks.
     - `tests/support/two_routes_support.py`: the standing leave to move a shared test helper (it receives the moved helpers). `TWO_ROUTES` is unchanged.
+23. factory: started doing as vm.
