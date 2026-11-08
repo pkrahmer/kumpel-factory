@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 660
 comments_read: [6720878077]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-08T11:26:53.706575Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -42,6 +46,11 @@ journal:
   at: '2026-11-08T11:26:48.648818Z'
   stage: intake
   run: 0986395bfc2d4a21b2ed3c8f46a70da6
+- number: 7
+  speaker: factory
+  kind: started
+  at: '2026-11-08T11:26:53.706575Z'
+  stage: tests
 ---
 
 # The first message holds the work item, then the role
@@ -152,3 +161,4 @@ Expect: the docstring names the order: the work item's body, the role's instruct
    - Architecture: composing the message belongs in `factory.agents.domain.prompts`. Filling `PromptFacts` belongs in the application layer that builds it today, and the CLI arguments in `factory.agents.adapters.claude_runtime`. The new prompt file under `agents/` is not under `factory/`. The leave for earlier tests names each test file, as CLAUDE.md requires.
    - Scope: this is the feature's S0002, within decisions 4 and 5. OpenCode only follows the new order, as "Out of scope" says.
    - Route: `tests`, because the Interface changes `src/` and `agents/`.
+7. factory: started tests as vm.
