@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 675
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: docs-only
+  started_at: '2026-11-08T17:01:20.960123Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -47,6 +51,11 @@ journal:
   at: '2026-11-08T17:01:15.758031Z'
   stage: docs-review
   run: a8e29700b6f242afb041bfba734df291
+- number: 8
+  speaker: factory
+  kind: started
+  at: '2026-11-08T17:01:20.960123Z'
+  stage: docs-only
 ---
 
 # The guides describe one full check per story
@@ -162,3 +171,4 @@ Expect: `0`
    Findings:
    1. `docs/operator-guide/pipeline.md:131`. Problem: the sentence "It also leaves out the documenter's write paths (…), because no test of `make check` reads them: `make test` runs … in the docs stages." is about 50 words and has two parentheses. That breaks rule 2 of `docs/project-guide/style.md`: split a sentence of more than about 25 words, and use at most one parenthesis per sentence. Fix: split it into three sentences. The first says what is left out, the second why `make test` does not read the documents, and the third what `make guides` runs. Keep one parenthesis at most in each.
    2. `docs/project-guide/README.md:231`. Problem: "So `make check` reads none of the documenter's files" is not true of the code. `make check` runs `secrets` (`Makefile:21`), and `secrets` scans every file changed against `origin/develop`, documents included (`Makefile:64-72`). Fix: say that no test of `make check` reads the documenter's files, as the operator guide says at line 131.
+8. factory: started docs-only as vm.
