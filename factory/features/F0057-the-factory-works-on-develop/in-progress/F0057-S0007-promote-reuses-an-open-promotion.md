@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 650
 comments_read: [6716086925]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T02:28:51.669464Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -106,6 +102,12 @@ journal:
   kind: started
   at: '2026-11-08T02:28:51.669464Z'
   stage: doing
+- number: 18
+  speaker: coder
+  kind: result
+  at: '2026-11-08T02:33:01.482517Z'
+  stage: doing
+  run: 05eca89acafe47379bc51b822286ab09
 ---
 
 # promote.sh reuses an open promotion
@@ -260,3 +262,15 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
 
     `lint`: lint: green (0.2 s)
 17. factory: started doing as vm.
+18. coder: Round 1, after the tester's change: I changed no code. `operator/skill/kumpel/scripts/promote.sh` already passes the hosting client's status on with `|| exit $?`, so the stricter test (`exit_status == 22`) passes as it is. The moved constants `PULL_NUMBER` and `OLD_SWITCHES` in `tests/support/operator_skill_support.py` need no change in the script either. Both review findings are now handled through the tests.
+
+    Checks: I ran `make check` myself and it is green (coverage 99.22 %). The working tree holds no change of mine.
+
+    Refactor: nothing to change. The script's diff is the same one the reviewer already read.
+
+    Description: my round-1 rewrite of criterion 4 ("exits with the hosting client's status for an HTTP error, 22", where it now says "exits non-zero") was dropped because the work item is outside my write paths. The criterion still says "exits non-zero". The Interface already fixes the status ("the hosting client's message and exit status"), and the test now checks 22. Someone allowed to write the work item, or the human, may want to bring the criterion's wording into line. The journal did not change what the task means.
+
+    Noticed, not touched (as before): when the open pull request's body is `null`, the PATCH body starts with a blank line. Docs criterion 6 belongs to the documenter.
+
+    `check`: check: green
+    `duplicates`: duplicates: 6 new, 39 known, 4 gone
