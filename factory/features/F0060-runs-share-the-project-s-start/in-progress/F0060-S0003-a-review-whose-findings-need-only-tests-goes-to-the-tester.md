@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 680
 comments_read: [6727432579, 6727512748]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-08T21:43:33.103723Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -81,6 +85,11 @@ journal:
   at: '2026-11-08T21:43:28.206691Z'
   stage: doing
   run: d9f3517b57f4404b9318547f217f248f
+- number: 14
+  speaker: factory
+  kind: started
+  at: '2026-11-08T21:43:33.103723Z'
+  stage: tests
 ---
 
 # A review whose findings need only tests goes to the tester
@@ -220,3 +229,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     Rejected: putting the new rule outside `## Stage`. The Interface names `## Stage`, and the reviewer's body checksum would break anyway.
 
     Noticed, not touched: the Description is unchanged, because the human's answers change no meaning of the task.
+14. factory: started tests as vm.
