@@ -1,17 +1,13 @@
 ---
 stage: intake
-blocked: null
+blocked: question
 round: 0
 attempts: 0
 crashes: 0
-pull_request: null
+pull_request: 682
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: intake
-  started_at: '2026-11-08T22:12:53.889053Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -23,6 +19,13 @@ journal:
   kind: started
   at: '2026-11-08T22:12:53.889053Z'
   stage: intake
+- number: 3
+  speaker: intake
+  kind: question
+  at: '2026-11-08T22:13:28.773270Z'
+  stage: intake
+  run: f6509fec2afe435c91f4944f2eab0a34
+  blocked: question
 ---
 
 # The reviewer's role names its route to the tester
@@ -65,3 +68,25 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
 1. 2026-11-08 human: created.
 2. factory: started intake as vm.
+3. intake: Intake stopped on one point: the human has not yet given leave to change tests written by earlier stories. Everything else checks out.
+
+   1. **The leave for earlier tests is still only proposed.** The Interface introduces the leave as "to be given by the human when refining; proposed words". The story still carries the marker "proposed by feature acceptance of 2026-11-08; refine before starting", and the journal has only "human: created". CLAUDE.md lists changing a test you did not write, beyond the standing leave to move shared helpers, under "Not without asking". This change needs that leave because it rewrites two sentences that earlier tests pin word for word:
+      - `_RECOMMENDATION` and `_NOTES` in `tests/agent_files/test_claude_agent_texts_review_leave.py`.
+      - The `untested_side_is_a_note` text in `test_the_rest_of_the_reviewer_body_is_unchanged`, in `tests/agent_files/test_claude_agent_texts_review_groups.py`. The proposed words name the test function but not this file.
+      - The reviewer's `Role` checksum in `PARTS_BEFORE` of `tests/support/shared_rules_support.py`. F0060-S0004 is still in `backlog/`, so the "if S0004 is not merged first" condition applies.
+
+      Options:
+      - (a) Confirm the proposed words as your leave, with `tests/agent_files/test_claude_agent_texts_review_groups.py` named as the file of `test_the_rest_of_the_reviewer_body_is_unchanged`. I would carry that wording into the Interface and drop the "proposed" and "refine before starting" lines. **This is the one I would choose.**
+      - (b) Merge F0060-S0004 first and narrow the leave to the two test files.
+      - (c) Reword the leave yourself.
+
+   **Already checked, for when you answer:**
+   - **Format check:** passed.
+   - **Before-it-starts condition:** met. `review` lists `next: [docs, doing, tests]` in `factory/pipeline.yml`.
+   - **Interface:** names the file, the section and the exact old and new sentences. The current `agents/agents/reviewer.md:35` and `:37` hold the old sentences as quoted.
+   - **Criteria:** 1 and 2 each check both sides (new text present exactly once, old text gone), each one parametrized test. Criterion 3 is a single unchanged check. All are testable without further decisions.
+   - **Smoke test:** both commands are runnable and both `Expect:` lines can be checked. The pytest command passes no `-q`, which is right because `pyproject.toml`'s `addopts` already sets it.
+   - **Docs criterion:** names what the reader must know and dictates no sentences.
+   - **Architecture:** agent text and tests only, with the new test under `tests/agent_files/`. No code change.
+   - **Scope:** within F0060 and not in its Out of scope.
+   - **Route:** once you answer, it would be `tests`, because `agents/agents/reviewer.md` is outside the documenter's paths.
