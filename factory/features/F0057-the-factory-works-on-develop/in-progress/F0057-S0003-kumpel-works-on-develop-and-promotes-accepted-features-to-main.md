@@ -1,17 +1,13 @@
 ---
-stage: review
+stage: doing
 blocked: null
-round: 1
+round: 2
 attempts: 1
 crashes: 0
 pull_request: 645
 comments_read: [6714658360, 6714963482]
 handed_over: null
-claim:
-  instance: vm
-  stage: review
-  started_at: '2026-11-08T00:38:21.442106Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -174,6 +170,12 @@ journal:
   kind: started
   at: '2026-11-08T00:38:21.442106Z'
   stage: review
+- number: 30
+  speaker: reviewer
+  kind: result
+  at: '2026-11-08T00:40:00.355391Z'
+  stage: review
+  run: 601a26bdccd94844a3d513d1e6d77229
 ---
 
 # Kumpel works on develop and promotes accepted features to main
@@ -202,7 +204,7 @@ After F0057-S0002 the factory works on `develop`, and `main` is protected. Kumpe
 2. `archive-feature.sh` moves a finished feature to `factory/archive/` on `develop` with the commit subject `<feature id>: archived` and Kumpel as author, and the remote's `develop` holds it; it refuses a feature with a story still in `backlog/` or `in-progress/`, and a feature whose acceptance is missing or whose last acceptance is not in `done/` (no acceptance report counts as not finished) (rows of one test).
 3. `promote.sh` refuses a feature not archived on `develop`; opens a pull request from `develop` to `main` with the title of the Interface and a body that lists the feature's stories with their titles; merges it with `merge_method: merge` and Kumpel's message when `promote` is on, and only prints its number when off (rows of one test with a recorded hosting API).
 4. `merge.sh` finds the archive commit on `develop`, not on the default branch (one test).
-5. A new settings file has `promote` off; `set promote on` then `get promote` prints `on`; another value is refused the way the other switches refuse one; a settings file without the `promote` key reads it as `off`.
+5. A new settings file has `promote` off; `set promote on` then `get promote` prints `on`; another value is refused the way the other switches refuse one; a settings file without the `promote` key reads it as `off`, and `set promote on` on it then `get promote` prints `on`; on that file an unknown switch is still refused, by `get` (`unknown key: <key>`) and by `set` (`unknown switch: <name> (known: merge, answer, start_next, promote)`).
 6. `next-story.sh`, `approval.sh` and `status.sh` work on `develop`, and `status.sh` finds the archive commit there (rows of one test).
 7. `reset-to-tag.sh` moves `develop` to the tag, leaves `main` unchanged, and its output says so (one test).
 8. The commands `operator/claude/commands/kumpel.md` and `operator/opencode/command/kumpel.md` list `promote` among the switches, and `references/standing-orders.md` says never push to `main` and that a fix goes to `develop` (rows of one test).
@@ -480,3 +482,21 @@ Expect: `off`
     `check`: check: green
     `duplicates`: duplicates: 6 new, 39 known, 4 gone
 29. factory: started review as vm.
+30. reviewer: Review, round 1. I read the work item and `git diff develop...HEAD -- . ':!factory'`, which covers the scripts, reference texts, commands, `operator/README.md` and the five test files. I checked the round 0 findings (journal 22) against the code. Finding 1 is fixed: `settings.sh` now has one `switches` table that `init`, `get` and `set` read, and `set` accepts a known switch the file lacks. Finding 2 is fixed: `remote_commit` is used, and `write_switches` takes the dict.
+
+    I went through every criterion and every rule of the Interface again. The coder's `make check` was green (journal 28). Group 2 is not affected: no `src/` change. Group 3: nothing found. Request bodies are built with `json.dumps`, and the diff adds no secrets and no markers. Documents: the three `operator/README.md` rows, `SKILL.md`, `approving.md` and `standing-orders.md` all match the scripts.
+
+    Findings:
+    1. `operator/skill/kumpel/scripts/promote.sh:30-31` (`pull_body`) takes a story's title from the first line of its file. A story in `done/` starts with its front matter (`---`), as `factory/archive/F0018-the-documents-name-the-handover/done/F0018-S0001-the-documents-name-the-handover.md` shows. So on a real repository every story in the body is listed as `F0001-S0001: ---`, which breaks criterion 3 ("a body that lists the feature's stories with their titles"). The test `tests/operator_scripts/test_operator_develop.py::test_promote_opens_the_promotion_and_merges_it_only_with_the_switch_on` passes only because its `FIRST` and `SECOND` fixtures (lines 28-29, through `finished_feature`) have no front matter. That goes against CLAUDE.md's rule that test data obeys the code already built. Fix: read the title from the first line that starts with `# `, skipping the front matter, and route `tests` so that the story files `finished_feature` writes into `done/` carry front matter as real done stories do.
+    2. criterion 5 extended, it needs its test: the Interface says `get` reads a *known* switch the file lacks as `off`, and round 1 made `set` accept a known switch the file lacks. Nothing tests the refused side: an unknown switch on such a file. The code refuses it (`settings.sh:78-83` exits with `unknown key: <key>`; `settings.sh:94-95` exits with `unknown switch: <name> (known: merge, answer, start_next, promote)`). I added this to criterion 5. Fix: the tester adds rows to `test_a_settings_file_without_the_promote_switch_reads_it_as_off` (rename it only if a row no longer fits the name): `get colour` and `set colour on` on the old-shape file are refused with those messages and leave the file unchanged.
+
+    Rejected: a finding for the lack of feature-id format checks in `archive-feature.sh` and `promote.sh`. The ids are quoted in every glob and command, as in `start-story.sh` before this story, and the Interface states no format rule.
+
+    Earlier tests:
+    - `tests/operator_scripts/test_operator_merge_reset.py`: changed under the human's leave of 2026-11-07, named in the Interface (branch name, lookup on `develop`). It also adds two new tests.
+    - `tests/operator_scripts/test_operator_skill_scripts.py`: changed under the human's leave of 2026-11-07 (the new switch, the lookup on `develop`).
+    - `tests/operator_scripts/test_operator_skill_signature.py`: changed under the standing leave to move a shared test helper (`KUMPEL` moved to `tests/support/operator_skill_support.py`).
+    - `tests/support/operator_skill_support.py`: changed under the human's leave of 2026-11-07 (`SCRIPTS_BRANCH`, the commits route, a remote whose `HEAD` is `main`). The `KUMPEL` move is under the standing leave.
+
+    Notes:
+    - `tests/operator_scripts/test_operator_develop.py:291` and `:316`: the promote switch's new-file rows and its old-file rows are two test functions for one switch. The setups differ (`init` against a hand-written file), so this is kept as a note.
