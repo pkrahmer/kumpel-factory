@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 672
 comments_read: [6723592271, 6723685612, 6723780619]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: docs
+  started_at: '2026-11-08T16:15:16.312396Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -153,6 +157,11 @@ journal:
   at: '2026-11-08T16:15:10.880828Z'
   stage: review
   run: 62dbdfddffff405fa4bdcbb6bbc7b927
+- number: 27
+  speaker: factory
+  kind: started
+  at: '2026-11-08T16:15:16.312396Z'
+  stage: docs
 ---
 
 # The coder starts from the tester's tests, and the guards that read the documents are marked
@@ -453,3 +462,4 @@ Expect: a line `<n> tests collected`, `<n>` greater than 0.
     - `tests/guards/test_work_branch_search.py`: the Interface's leave (marker line).
     - `tests/operator_scripts/test_operator_site_check.py`: the human's answer, entry 9 (marker line).
     - `tests/shared/domain/test_document_settings.py`: the human's answer, entry 18 (the one test moved out, and its now-unused imports removed).
+27. factory: started docs as vm.
