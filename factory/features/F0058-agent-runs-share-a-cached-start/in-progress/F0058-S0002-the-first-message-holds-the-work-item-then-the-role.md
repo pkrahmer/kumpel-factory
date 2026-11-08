@@ -1,17 +1,13 @@
 ---
 stage: doing
-blocked: null
+blocked: question
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 660
 comments_read: [6720878077, 6720941885, 6720981420]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T11:37:22.886949Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -96,6 +92,13 @@ journal:
   kind: started
   at: '2026-11-08T11:37:22.886949Z'
   stage: doing
+- number: 16
+  speaker: coder
+  kind: question
+  at: '2026-11-08T11:56:28.266129Z'
+  stage: doing
+  run: 422b84088518430199a1e16e6e6291a8
+  blocked: question
 ---
 
 # The first message holds the work item, then the role
@@ -325,3 +328,47 @@ Expect: the docstring names the order: the work item's body, the role's instruct
 
     `lint`: lint: green (0.1 s)
 15. factory: started doing as vm.
+16. coder: The code is built and `make check` is green except for two earlier tests, which I may not change. One of them is outside the human's leave, so I need your word on it.
+
+    **Question: may `tests/agent_files/test_claude_agent_texts_review_groups.py::test_the_rest_of_the_reviewer_body_is_unchanged` change?**
+    This test pins a CRC-32 of the whole reviewer body (`tests/agent_files/test_claude_agent_texts_review_groups.py:71`, `E AssertionError: assert 1830907862 == 3903663111`). Criterion 11 has to change `agents/agents/reviewer.md`: no file may tell the agent to read its work item first, and each must say the work item is in the first message. So any edit that meets criterion 11 breaks this pin. The file is not on the story's leave. Options:
+    - (a) Leave given. The tester adds `.replace(<new text>, <old text>)` to `earlier` for my three reviewer edits, as F0057-S0002 did for `develop`→`main` (commit eed29aef1). The three edits are the new R6 sentence, step 1 of the review stage and step 1 of `docs-review`. The pin stays as it is.
+    - (b) Leave given to update `_EARLIER_BODY_CRC32` to the new body.
+    - (c) No leave. Criterion 11 then cannot be met for the reviewer.
+    I would choose (a): it keeps the test checking the same thing.
+
+    **Also needed, already under the leave:** `tests/agents/adapters/test_shipped_agents_effect.py::test_instructions_file_holds_the_agent_body` (all 7 rows) still expects the role's body in the `--append-system-prompt-file` file. That contradicts the Interface, which now puts the common system prompt there. The tester did not change it. Once you answer, I end with `tests` and name both changes: this test checks that the role's body is *not* in that file but is in the first message, or that the file holds the common system prompt.
+
+    **What I built** (working tree, all else green: lint, types, layers, sast, secrets, licenses; in `make test` only the 8 rows above fail):
+    - `src/factory/agents/domain/prompts.py`:
+      - `PromptFacts` gains `body`, `role`, `role_instructions` and `round_cap`.
+      - `compose_prompt` builds three parts with one blank line between each: the `<work-item>` block (the body, with the four marker texts escaped `<`→`&lt;`), then the `<role-instructions role="…">` block, then the facts.
+      - The facts' round line names the cap when there is one.
+      - `SYSTEM_PROMPT` is the built-in common text.
+    - `src/factory/pipeline/application/task.py`: `TaskComposer.compose` fills the new fields:
+      - `body` from `context.document.body`, the work item already read for the stage;
+      - `role` and `role_instructions` from the agent;
+      - `round_cap` from the stage.
+    - `src/factory/agents/adapters/agent_launch.py`: `system_prompt_text(file)` reads the common file.
+      - With no file, or a file that does not exist (an agent home installed before this story), it falls back to `SYSTEM_PROMPT`.
+      - A file that exists but cannot be read is `AgentRuntimeError`.
+    - `claude_runtime.py`: keeps the per-run path `instructions-<session>.md` (entry 12) but writes the common text there. New keyword `system_prompt_file`.
+    - `opencode_runtime.py`:
+      - The configuration's agent `prompt` is now the common text.
+      - The message is the prompt, a blank line, then the result block for a fresh call; with `--session`, the prompt alone (entry 12).
+      - New keyword `system_prompt_file`.
+    - `src/factory/agents/application/provider_limits.py`: a resumed request's prompt is the whole message, a blank line, then `CONTINUE_PROMPT`. It is always built from the original request, so `CONTINUE_PROMPT` is never added twice.
+    - `src/factory/entry/wiring.py`: both runtimes get `<agent_home>/system-prompt.md` (`SYSTEM_PROMPT_FILE_NAME`).
+    - `agents/system-prompt.md`: new, the same text as `SYSTEM_PROMPT`.
+    - `agents/agents/*.md`:
+      - All seven: R6 gains a sentence saying the work item is in the first message, in the `<work-item>` block, and that the file is read again only for text changed during the run.
+      - Coder, tester and reviewer: step 1 no longer reads the work item first. The reviewer's `docs-review` step 1 also no longer does.
+      - Documenter: its "Read the story" steps take the story from the first message.
+
+    **Main choice:** the common text comes from the agent home through a runtime keyword, with a built-in fallback. Rejected: a new field on `AgentDefinition`. It would put a text that is the same for every role on every agent, and every test that builds one would need it.
+
+    **Noticed, not touched:**
+    - The common text exists twice, in `SYSTEM_PROMPT` and in `agents/system-prompt.md`. The fallback keeps existing agent homes running. The operator guide should say to install the new file (for the documenter).
+    - intake's "read the files first, then judge" stays: it is about files, not the work item.
+
+    Refactor: one small change, `_MARKER_TEXTS` reuses the close-marker constants. Nothing else needed.

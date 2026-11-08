@@ -24,7 +24,7 @@ R4. The work item is the memory. Everything the next stage needs is in the work 
 
 R5. Work item structure: the front matter and the `## Journal` section are the factory's; you never edit them, and an edit there is dropped. The `## Description` is the current meaning of the task and is rewritten when the journal changes it; a criterion the human's answer adds goes before the two closing ones (`make check` stays green, `docs:`), which stay last. No clock time in the work item: git has it. The folder is the lifecycle: `backlog/` is the human's, `in-progress/` is the pipeline's, `done/` the archive; you never move a work item.
 
-R6. Your prompt names the facts you need: the work item, the stage, the allowed decisions, the branch, the pull request, the round, and whatever your stage section says the factory tells you. Take them from the prompt; do not work them out from git or the hosting service.
+R6. Your prompt names the facts you need: the work item, the stage, the allowed decisions, the branch, the pull request, the round, and whatever your stage section says the factory tells you. Take them from the prompt; do not work them out from git or the hosting service. The work item itself, from its title to the end of its journal, is in your first message, in the `<work-item>` block, so you do not read it before you start; read its file again only for text you changed during the run.
 
 R7. The stage changes by your decision and nothing else. The factory checks it against the stage's `next` in the pipeline definition (`factory/pipeline.yml`). A forward decision waits for the stage's checks, which the factory runs itself after you (the project commands the stage lists under `checks`, such as `make check`, or `make lint` for the tests stage): red holds the work item at your stage and counts as a stall.
 
@@ -78,7 +78,7 @@ When the work item's `## Description` has gone stale against what the story buil
 
 ## Stage
 
-1. Review `git diff develop...HEAD -- . ':!factory'` as the role section describes; the work item is the only other input. Read both in your first command: the work item, the diff's `--stat`, and the diff without the generated files `CLAUDE.md` names and lock files (add `':!<path>'` for each; the stat still lists them). Do not read the Makefile, `pyproject.toml` or tool configuration unless the diff changes them; `CLAUDE.md` says what the checks enforce. Do not run `make check`: the factory ran it after the coder, the journal carries the result, and the factory runs it again after you.
+1. Review `git diff develop...HEAD -- . ':!factory'` as the role section describes; the work item in the first message is the only other input. Read the diff in your first command: its `--stat`, and the diff without the generated files `CLAUDE.md` names and lock files (add `':!<path>'` for each; the stat still lists them). Do not read the Makefile, `pyproject.toml` or tool configuration unless the diff changes them; `CLAUDE.md` says what the checks enforce. Do not run `make check`: the factory ran it after the coder, the journal carries the result, and the factory runs it again after you.
 2. Your entry is the findings as a numbered list (location, what is wrong, what would fix it, one line each), or "no findings".
 3. No findings: end with `docs`. Findings: end with `doing`. The factory counts the round and asks the human when the cap is passed.
 
@@ -88,7 +88,7 @@ You do not edit code, and you do not write any: no scratch copies, no seeded def
 
 On the docs route the documenter wrote the whole change; you review documents, not code. In the stage `docs-review`, this subsection replaces the Role's scope, its checklist (groups 1 to 6) and its decisions, and steps 1 to 3 above.
 
-1. Read the work item and `git diff develop...HEAD -- README.md docs operator/README.md` in your first command. Nothing else is under review.
+1. Read `git diff develop...HEAD -- README.md docs operator/README.md` in your first command. The work item is in your first message. Nothing else is under review.
 2. Judge the facts against the code and the criteria: every sentence the diff writes is true of the code on the branch, and the docs criterion is met.
 3. Judge the writing against `docs/project-guide/style.md`: its rules for all documents and the section for the kind of document the diff changes.
 4. No findings: end with `docs-approval`. Findings: write them as a numbered list (location, what is wrong, what would fix it, one line each) and end with `docs-only`, which sends the text back to the documenter.

@@ -97,6 +97,10 @@ class TaskComposer:
             branch=context.branch,
             pull_request=context.pull_request,
             round=self._round(context),
+            body=context.document.body,
+            role=self._role_name(context.stage),
+            role_instructions=agent.instructions,
+            round_cap=self._definition.stages[context.stage].round_cap,
             test_change_entry=self._test_change_entry(context),
             findings=self._findings(context),
         )

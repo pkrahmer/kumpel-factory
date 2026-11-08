@@ -616,6 +616,10 @@ def _required_workspace(settings: InstanceSettings) -> Path:
     return settings.workspace
 
 
+# The common system prompt every role's run gets, beside the agent files in the agent home.
+SYSTEM_PROMPT_FILE_NAME = "system-prompt.md"
+
+
 def _agent_runtime(
     settings: InstanceSettings, containers: PodmanRuns, extra: Mapping[str, str]
 ) -> AgentRuntime:
@@ -630,6 +634,7 @@ def _agent_runtime(
             provider_limit=settings.provider_limit,
             containers=containers,
             provider_file=settings.opencode_provider_file,
+            system_prompt_file=settings.agent_home / SYSTEM_PROMPT_FILE_NAME,
             extra_environment=extra,
             ca_bundle=settings.ca_bundle,
         )
@@ -642,6 +647,7 @@ def _agent_runtime(
         containers=containers,
         extra_environment=extra,
         ca_bundle=settings.ca_bundle,
+        system_prompt_file=settings.agent_home / SYSTEM_PROMPT_FILE_NAME,
     )
 
 
