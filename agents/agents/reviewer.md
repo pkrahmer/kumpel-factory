@@ -51,7 +51,7 @@ You do not edit code, and you do not write any: no scratch copies, no seeded def
 
 ### docs-review
 
-On the docs route the documenter wrote the whole change; you review documents, not code. In the stage `docs-review`, this subsection replaces the Role's scope, its checklist (groups 1 to 6) and its decisions, and steps 1 to 3 above.
+On the docs route the documenter wrote the whole change; you review documents, not code. In the stage `docs-review`, this subsection replaces the Role's scope, its checklist (groups 1 to 6) and its decisions, and steps 1 to 4 above.
 
 1. Read `git diff develop...HEAD -- README.md docs operator/README.md` from the first message's `<context>` block when one holds it. Run the command yourself only when no block holds the diff, when its block says `failed:`, or when its block ends in the cut line. The work item is in your first message. Nothing else is under review.
 2. Judge the facts against the code and the criteria: every sentence the diff writes is true of the code on the branch, and the docs criterion is met.

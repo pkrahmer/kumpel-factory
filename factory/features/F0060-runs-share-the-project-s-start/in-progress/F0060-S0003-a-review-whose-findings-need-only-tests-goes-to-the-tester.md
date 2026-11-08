@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: tests
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 680
 comments_read: [6727432579, 6727512748, 6727549619]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T21:50:41.871754Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -140,6 +136,12 @@ journal:
   kind: started
   at: '2026-11-08T21:50:41.871754Z'
   stage: doing
+- number: 24
+  speaker: coder
+  kind: result
+  at: '2026-11-08T21:51:16.821590Z'
+  stage: doing
+  run: 4996f868724d44dd81a56559382d9794
 ---
 
 # A review whose findings need only tests goes to the tester
@@ -351,3 +353,21 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     - `tests/pipeline/application/test_docs_route.py`: the standing leave to move a shared test helper. `_step`, `WRITES` and `MAKEFILE` moved to `tests/support/two_routes_support.py` as `decide`, `STAGE_WRITES` and `EVERY_TARGET_MAKEFILE`, and every test keeps its name and its checks.
     - `tests/support/two_routes_support.py`: the standing leave to move a shared test helper (it receives the moved helpers). `TWO_ROUTES` is unchanged.
 23. factory: started doing as vm.
+24. coder: Rework round 1. I fixed finding 1 and left findings 2 and 3, which are test changes, to the tester, along with the two pinned tests that the fix breaks.
+
+    Built:
+    - `agents/agents/reviewer.md:54` (`### docs-review`): "steps 1 to 3 above" now reads "steps 1 to 4 above". In `docs-review` the subsection now also replaces the new step 4, so step 4 can no longer send findings to `doing` there. This is the only change I made, and I changed no tests.
+
+    Test changes for the tester (`uv run pytest -q tests/agent_files`; these are the only two failures):
+    1. `tests/agent_files/test_claude_agent_texts_docs_route.py::test_the_reviewer_in_docs_review_replaces_its_code_review_and_judges_the_facts`, row `replaces-decisions-and-steps`: change the fragment `"its decisions, and steps 1 to 3"` to `"its decisions, and steps 1 to 4"`. This is under the human's leave in entry 16 (an earlier test whose only failure is this story's change of the reviewer's `## Stage`), and the test keeps its name and checks the same thing.
+    2. `tests/support/shared_rules_support.py`, `PARTS_BEFORE`: set the reviewer's `Stage` checksum to `3113525091`, the CRC32 of the new text, also under entry 16. It currently holds `1905995793`.
+    3. Reviewer finding 2: in `tests/agent_files/test_review_to_tests_agent_files.py::test_the_tester_answers_the_reviewers_test_findings_and_hands_to_the_coder`, add a row for the condition "latest result before your run is the reviewer's", and check the fragments against the sentence that starts with that condition, not against the whole of step 0.
+    4. Reviewer finding 3: drop `test_the_shipped_system_prompt_constant_equals_the_file` from `tests/agent_files/test_review_to_tests_agent_files.py`. The entry then names `tests/agents/adapters/test_claude_runtime_system_prompt.py`'s existing check for the second half of criterion 4.
+
+    `test_the_rest_of_the_reviewer_body_is_unchanged` still passes after the fix, so it needs no change.
+
+    Main choice: the smallest fix the finding names (step 4 joins the steps that `docs-review` replaces). Rejected: adding to step 4 itself that it does not apply in `docs-review`. That says the same thing twice, and the docs-review subsection already lists what it replaces.
+
+    `make check` is not run this round: it cannot be green until the tester changes the two pinned tests above. I run it after the tester hands the work item back.
+
+    Noticed, not touched: the Role's sentence "`docs` passes, `doing` sends the work item back" does not name `tests`. The reviewer noted it, and the Interface scopes the change to `## Stage`. Description: unchanged, because the findings do not change the task's meaning.
