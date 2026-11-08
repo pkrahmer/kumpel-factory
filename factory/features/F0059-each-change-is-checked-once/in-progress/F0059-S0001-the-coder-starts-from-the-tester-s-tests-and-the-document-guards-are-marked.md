@@ -1,11 +1,11 @@
 ---
 stage: tests
-blocked: question
+blocked: null
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 672
-comments_read: [6723592271]
+comments_read: [6723592271, 6723685612]
 handed_over: null
 claim: null
 journal:
@@ -54,6 +54,11 @@ journal:
   stage: tests
   run: ed4bb79b52904c8dbfad8cf8dbbfd356
   blocked: question
+- number: 9
+  speaker: human
+  kind: comment
+  at: '2026-11-08T15:58:43.455872Z'
+  stage: tests
 ---
 
 # The coder starts from the tester's tests, and the guards that read the documents are marked
@@ -134,3 +139,8 @@ Expect: a line `<n> tests collected`, `<n>` greater than 0.
    - criteria 5 and 6: `make check` and the docs stage
 
    Files created: `tests/guards/test_documents_marker.py`, `tests/agent_files/test_claude_agent_texts_first_tests.py`. Earlier test files changed under the leave: the ten modules above and `tests/conftest.py`. Every module imported. In the one run (`uv run pytest -q` on the new files and `tests/guards`), the marker tests pass, because the markers are this stage's work. The three role/step-one checks of criterion 4 fail, as they should until `agents/agents/coder.md` changes. `make lint` is green.
+9. 2026-11-08 human: Answers from the human:
+
+   (a). Leave to add `pytestmark = pytest.mark.documents` (and the `pytest` import if missing) to `tests/operator_scripts/test_operator_site_check.py`, the whole module, and nothing else in it.
+
+   Confirmed: `tests/guards/test_guide_index_problems.py` and `tests/guards/test_document_tests_write_their_documents.py` stay unmarked, since they read no document on the real checkout. The four modules your search added stay marked.
