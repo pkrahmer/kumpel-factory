@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 667
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: docs-review
+  started_at: '2026-11-08T15:07:48.161890Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -36,6 +40,11 @@ journal:
   at: '2026-11-08T15:07:43.220008Z'
   stage: docs-only
   run: cb49d678bdea4cb0890c969e68d17f2f
+- number: 6
+  speaker: factory
+  kind: started
+  at: '2026-11-08T15:07:48.161890Z'
+  stage: docs-review
 ---
 
 # The operator guide's start facts match the template
@@ -95,3 +104,4 @@ Expect: `0`.
    `check`: check: green
    `secrets`: secrets: green (0.3 s)
    `documents`: documents ok (59.5 s)
+6. factory: started docs-review as vm.
