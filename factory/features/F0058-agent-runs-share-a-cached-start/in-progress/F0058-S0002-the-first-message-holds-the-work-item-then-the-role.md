@@ -1,11 +1,11 @@
 ---
 stage: tests
-blocked: question
+blocked: null
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 660
-comments_read: [6720878077]
+comments_read: [6720878077, 6720941885]
 handed_over: null
 claim: null
 journal:
@@ -54,6 +54,11 @@ journal:
   stage: tests
   run: 8090ee754ed141eebc63b23958d83027
   blocked: question
+- number: 9
+  speaker: human
+  kind: comment
+  at: '2026-11-08T11:31:30.764647Z'
+  stage: tests
 ---
 
 # The first message holds the work item, then the role
@@ -202,3 +207,8 @@ Expect: the docstring names the order: the work item's body, the role's instruct
      - `tests/pipeline/application/test_task_acceptance.py`: `_base_prompt` fills the new fields.
 
    Still to change once answered: `tests/agents/adapters/test_claude_runtime.py`, line 288 (the system-prompt file's content), and the OpenCode and resume tests named above.
+9. 2026-11-08 human: As you recommend:
+   1. (a) A resumed request's prompt is the whole original message, then one blank line, then `CONTINUE_PROMPT`. Leave given for `tests/agents/application/test_patient_runs.py`.
+   2. (a) OpenCode's message is the request's prompt, then one blank line, then the result block; the configuration's agent `prompt` no longer holds the role's instructions. Leave given for `tests/agents/adapters/test_opencode_runtime_provider.py` and `tests/machine/adapters/test_opencode_runtime_lockdown.py` (through `tests/support/opencode_stand_in.py`).
+   3. The black-box test: two runs of different roles see equal text after `--append-system-prompt-file`, and it is neither role's instructions. The coder picks the source.
+   The same rule as before applies to every file under this leave: names stay, each checks otherwise the same thing, and your entry names each file you changed.
