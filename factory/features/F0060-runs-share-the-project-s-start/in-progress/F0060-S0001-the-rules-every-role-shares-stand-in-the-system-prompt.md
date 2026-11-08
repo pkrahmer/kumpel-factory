@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 678
 comments_read: [6726852112, 6726967345]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: smoke-test
+  started_at: '2026-11-08T20:57:56.774986Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -199,6 +203,11 @@ journal:
   at: '2026-11-08T20:57:51.704031Z'
   stage: docs
   run: 84729ca4d2f4418192bfcaa597f1593d
+- number: 35
+  speaker: factory
+  kind: started
+  at: '2026-11-08T20:57:56.774986Z'
+  stage: smoke-test
 ---
 
 # The rules every role shares stand in the system prompt
@@ -594,3 +603,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     `guides`: guides: green (10.0 s)
     `secrets`: secrets: green (2.2 s)
     `documents`: documents ok (65.8 s)
+35. factory: started smoke-test as vm.
