@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 647
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: docs-review
+  started_at: '2026-11-08T01:39:53.380311Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -58,6 +62,11 @@ journal:
   at: '2026-11-08T01:39:48.044112Z'
   stage: docs-only
   run: 11e2f1fdad65485f99f2c3547cc29eb6
+- number: 10
+  speaker: factory
+  kind: started
+  at: '2026-11-08T01:39:53.380311Z'
+  stage: docs-review
 ---
 
 # The project guide names develop and main
@@ -170,3 +179,4 @@ Expect: `documents ok (<seconds> s)`
    `check`: check: green
    `secrets`: secrets: green (2.0 s)
    `documents`: documents ok (57.9 s)
+10. factory: started docs-review as vm.
