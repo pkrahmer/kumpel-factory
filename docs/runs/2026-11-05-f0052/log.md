@@ -261,3 +261,4 @@ Times are UTC. The plan: `night-plan.md`.
 - 01:56Z: F0057-A0001 PR #648 merged: accepted with stories ($2.75). Feature $24.34, 69 runs, 14 answers, 0.5 h waited. Proposed S0006 (archive refuses a refused acceptance), S0007 (promote reuses an open promotion), S0008 (operator docs gaps), S0009 (code names by role). API spend since the switch: $27.09. F0057-S0006 started.
 - 01:58Z: F0057-S0006 PR #649 asked 5 at intake. Answered all as proposed.
 - 02:18Z: F0057-S0007 PR #650 asked 3 at intake. Answered all as proposed.
+- 02:42Z: F0057-S0007 PR #650 merged (11 runs, $2.24); promote.sh finds an open promotion and adds to it. No VM move. S0008, S0009 refined (leave given). F0057-S0008 (operator documents on archive, promotion and the default branch) started.
