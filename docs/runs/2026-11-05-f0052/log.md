@@ -296,3 +296,4 @@ Times are UTC. The plan: `night-plan.md`.
 - 15:15 UTC: F0058-S0007 (the operator guide's start facts match the template) approved, PR #667 merged (5 runs, $1.29). A0003 next; cosmetic proposals stay in the backlog (planning/later-topics.md).
 - 15:23 UTC: F0058-A0003 (third acceptance) approved, PR #668 merged ($1.82; feature 84 runs, $27.20). Its one proposal, S0008 (the reviewer starts from its start facts), closes a gap in the goal (the reviewer still ran the diff itself), so it started, with leave for the two tests it names.
 - 15:36 UTC: F0058-S0008 (the reviewer starts from its start facts) approved, PR #669 merged (6 runs, $1.87).
+- 15:46 UTC: F0058-A0004 (fourth acceptance) PR #670 merged: accepted, no stories ($1.11; feature 91 runs, $30.18). F0058 archived by hand.
