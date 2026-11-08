@@ -1,5 +1,5 @@
 ---
-stage: smoke-test
+stage: approval
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 661
 comments_read: [6721548904]
 handed_over: null
-claim:
-  instance: vm
-  stage: smoke-test
-  started_at: '2026-11-08T12:58:58.149510Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -139,6 +135,12 @@ journal:
   kind: started
   at: '2026-11-08T12:58:58.149510Z'
   stage: smoke-test
+- number: 24
+  speaker: smoke-tester
+  kind: result
+  at: '2026-11-08T12:59:16.649921Z'
+  stage: smoke-test
+  run: 1bc4dd8942dd450e94f1579fb2ab29d8
 ---
 
 # The bill shows how well the cache works
@@ -342,3 +344,26 @@ Expect: the help names the cache figures and the hit rate.
     `secrets`: secrets: green (0.6 s)
     `documents`: documents ok (59.4 s)
 23. factory: started smoke-test as vm.
+24. smoke-tester: Smoke test, round 1: I ran the one command under `## Smoke test` from the repository root, exactly as written.
+
+    Command: `uv run factory-bill --help` (exit status 0)
+    ```
+    Bytecode compiled 4164 files in 55ms
+    usage: factory-bill [<work item id>]
+
+    Print the bill of the work item, or of every work item in flight, one block each:
+    the table of its stages, the Cost: line, then its cache figures in a Cache: line
+    and a table by role. The cache figures are the tokens read from the cache (cache
+    read), the tokens written to it (cache written) and the hit rate: cache read
+    divided by every prompt token (cache read, cache written and uncached input), as
+    a whole percent, or - when there were no prompt tokens.
+    ```
+    Met its `Expect:` line: yes. The help names cache read, cache written and the hit rate. The first line is uv's own message on stderr, not the command's output.
+
+    Against the criteria:
+    - Criterion 6: the help prints the usage, names all three figures and exits 0. The smoke test confirms it.
+    - Criterion 7: this was an extra check beyond the smoke test. `factory-bill -h` exits 0, and its output matches `--help` except for uv's "Bytecode compiled … in N ms" timing line on stderr.
+    - The help's definition of the hit rate matches the Interface (read divided by read + written + uncached input, a whole percent, `-` with no prompt tokens). It does not mention rounding, but no criterion asks the help to.
+    - The smoke test contradicts none of the other criteria.
+
+    Findings: none.
