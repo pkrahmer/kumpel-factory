@@ -1,5 +1,5 @@
 ---
-stage: docs-approval
+stage: done
 blocked: null
 round: 1
 attempts: 0
@@ -69,6 +69,11 @@ journal:
   at: '2026-11-08T07:37:55.540075Z'
   stage: docs-review
   run: 39c5dbcb28c74ca9af395693a1232a78
+- number: 12
+  speaker: factory
+  kind: done
+  at: '2026-11-08T07:39:46.545063Z'
+  stage: docs-approval
 ---
 
 # The project guide names Kumpel's archive and promotion
@@ -188,3 +193,4 @@ Expect: `documents ok (<seconds> s)`
       - The new bullets hold more than one sentence each. That matches the bullets already in the section, such as the `reset-to-tag.sh` bullet.
 
     no findings
+12. factory: done (pull request merged); cost: 5 runs, 4.6 min, 31 turns, 147521 tokens in (600653 more from cache), 14375 out, $0.85
