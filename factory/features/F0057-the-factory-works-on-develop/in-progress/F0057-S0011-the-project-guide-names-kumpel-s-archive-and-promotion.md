@@ -1,5 +1,5 @@
 ---
-stage: docs-only
+stage: docs-review
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 655
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: docs-only
-  started_at: '2026-11-08T07:27:14.558846Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -34,6 +30,12 @@ journal:
   kind: started
   at: '2026-11-08T07:27:14.558846Z'
   stage: docs-only
+- number: 5
+  speaker: documenter
+  kind: result
+  at: '2026-11-08T07:31:51.991752Z'
+  stage: docs-only
+  run: 1e2b8def3903413d852d050cd43972ec
 ---
 
 # The project guide names Kumpel's archive and promotion
@@ -92,3 +94,21 @@ Expect: `documents ok (<seconds> s)`
    - Architecture: the Interface changes only a document that the documenter may write, so the story takes the docs route. No code or test changes.
    - Scope: F0057 adds this documentation as a follow-up to its second acceptance. It is not in the feature's "Out of scope" list.
 4. factory: started docs-only as vm.
+5. documenter: Changed one file, `docs/project-guide/operator.md`, from the code on the branch (`archive-feature.sh`, `promote.sh`, `kumpel-commit.sh`, `start-story.sh`, `tests/support/archive_feature_support.py` and the three test modules' docstrings):
+   - *The layout*: the skill's script list now names `archive-feature.sh`, `promote.sh` and the sourced helper `kumpel-commit.sh`.
+   - *The skill's scripts*: the usage block lists `archive-feature.sh <feature id>` and `promote.sh <feature id>`. `archive-feature.sh` gets its refusals (story left in `backlog/` or `in-progress/`, no acceptance, last acceptance not in `done/`, last acceptance without `outcome: accepted`, unknown feature, usage exit 2) and what it commits (`<id>: archived`) and pushes. `promote.sh` gets its refusal (feature not archived on `develop`), the pull request it opens or reuses, the `promote` switch, and the merge commit, never a squash or rebase. `kumpel-commit.sh` is named as the one way `archive-feature.sh` and `start-story.sh` commit, under Kumpel's name (decision 7 of F0057).
+   - *Tests of the scripts*: `tests/support/archive_feature_support.py` is added to the helper list, with what it holds.
+   - *Test modules by script*: a new row maps the three scripts to `test_operator_develop.py`, `test_operator_archive_outcome.py` and `test_operator_promote_reuse.py`.
+
+   Checks run:
+   - The story's grep loop printed no `missing` line.
+   - `make documents` ended with `documents ok (58.1 s)`.
+   - I did not run `make check`: only a document changed.
+
+   Cross-read and found current: the rest of `operator.md` (the site, hosting, job and sanitiser sections), and `docs/decisions.md` for the F0057 entry. `docs/decisions.md` is unchanged, as the criterion says: decisions 1 to 7 are already recorded there.
+
+   No stale text noticed. I wrote no "Why" or "Rejected" lines.
+
+   `check`: check: green
+   `secrets`: secrets: green (0.3 s)
+   `documents`: documents ok (58.8 s)
