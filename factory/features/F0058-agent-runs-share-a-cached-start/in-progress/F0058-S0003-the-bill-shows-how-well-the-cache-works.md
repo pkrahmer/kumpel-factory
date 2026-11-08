@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: tests
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 661
 comments_read: [6721548904]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T12:47:04.951407Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -84,6 +80,12 @@ journal:
   kind: started
   at: '2026-11-08T12:47:04.951407Z'
   stage: doing
+- number: 14
+  speaker: coder
+  kind: result
+  at: '2026-11-08T12:47:15.028460Z'
+  stage: doing
+  run: 308313753839450db9a5c3f5fdcb0cae
 ---
 
 # The bill shows how well the cache works
@@ -215,3 +217,8 @@ Expect: the help names the cache figures and the hit rate.
     Earlier tests:
     - `tests/entry/test_bill.py`: changed under the human's leave in the Interface (journal entry 4, carried in by intake in entry 6). Its four tests keep their names, and each still checks the same output with the cache section removed.
 13. factory: started doing as vm.
+14. coder: Round 1: the reviewer's only finding adds criterion 7: "`factory-bill -h` prints the same help as `factory-bill --help` and exits 0". The code already does this, because `_HELP_FLAGS = ("-h", "--help")` in `src/factory/entry/bill.py` covers both flags. The criterion only needs its test, so I changed no code and am sending the work item to the tester.
+
+    For the tester: pin `-h` as a parametrized row beside `--help` in `tests/entry/test_bill_cache.py::test_the_help_prints_the_usage_naming_the_cache_figures`, as the reviewer suggested.
+
+    The journal did not change the meaning of the task, so the Description stays as written. I did not run `make check` this round because nothing changed since round 0, when it was green.
