@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 655
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: docs-only
+  started_at: '2026-11-08T07:32:56.839125Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -47,6 +51,11 @@ journal:
   at: '2026-11-08T07:32:51.262092Z'
   stage: docs-review
   run: 498b3315ec2f4498bfff2899214e9d37
+- number: 8
+  speaker: factory
+  kind: started
+  at: '2026-11-08T07:32:56.839125Z'
+  stage: docs-only
 ---
 
 # The project guide names Kumpel's archive and promotion
@@ -134,3 +143,4 @@ Expect: `documents ok (<seconds> s)`
    2. `docs/project-guide/operator.md:138`, the second sentence of the `archive-feature.sh` bullet ("It refuses, with exit 1 and ... because the factory books a refused acceptance in `done/` too."): about 70 words in one sentence, against rule 2 (split at about 25 words). Fix: give the exit code and message in one sentence, list the four refusals as their own short sentences or a sub-list, and give the reason for the `outcome: accepted` check in a sentence of its own.
    3. `docs/project-guide/operator.md:139`, the sentence "With the switch `promote` (read through `settings.sh`) on, it merges ... (`open` for a reused one) and merges nothing.": about 45 words and two parentheses, against rule 2 (about 25 words, at most one parenthesis per sentence). Fix: split it into one sentence for the switch on (merge commit, never squash or rebase, prints `promoted #<n>`) and one for the switch off (prints the message, merges nothing). Say where the switch is read in one of them, without a second parenthesis.
    4. `docs/project-guide/operator.md:158`, the `archive_feature_support.py` bullet: three parentheses in one sentence ("(`ACCEPTANCE`, `DONE_FRONT_MATTER`)", "(the files of one feature by path)", "(the remote's file list on a branch)"), against rule 2's limit of one per sentence. Fix: write it as the other helper bullets do, naming each name with what it is and no parentheses, for example "`finished_feature`, the files of one finished feature by path, and `tree`, the files a branch of the remote holds". Split the sentence if needed.
+8. factory: started docs-only as vm.
