@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: tests
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 680
 comments_read: [6727432579, 6727512748]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T21:43:12.243461Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -79,6 +75,12 @@ journal:
   kind: started
   at: '2026-11-08T21:43:12.243461Z'
   stage: doing
+- number: 13
+  speaker: coder
+  kind: result
+  at: '2026-11-08T21:43:28.206691Z'
+  stage: doing
+  run: d9f3517b57f4404b9318547f217f248f
 ---
 
 # A review whose findings need only tests goes to the tester
@@ -208,3 +210,13 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     Noticed, not touched: the story's Description is unchanged, because no journal entry changed the task's meaning. The step 4 refactor is pending until `make check` is green.
 11. 2026-11-08 human: (a). Leave granted: the tester adds the new step-4 text as one more `.replace(..., "")` in `test_the_rest_of_the_reviewer_body_is_unchanged` (`tests/agent_files/test_claude_agent_texts_review_groups.py`), and sets the reviewer's and tester's `Stage` checksums in `PARTS_BEFORE` (`tests/support/shared_rules_support.py`) to the new texts; each test keeps its name and checks the same thing.
 12. factory: started doing as vm.
+13. coder: Test change for the tester, under the human's leave in entry 11. I changed no code this run. The agent texts and R12 from my last run are committed and unchanged. Two changes, each test keeping its name and checking the same thing:
+
+    1. `tests/agent_files/test_claude_agent_texts_review_groups.py::test_the_rest_of_the_reviewer_body_is_unchanged`: add one more `.replace(<line>, "")` to `earlier`, where `<line>` is step 4 of `agents/agents/reviewer.md` `## Stage`, from its start up to and including its newline: "4. When `tests` is among the allowed decisions and every finding needs only a change to the tests of the work item's own story, end with `tests` instead of `doing`: …The entry with the findings is the same either way.\n".
+    2. `tests/support/shared_rules_support.py`, `PARTS_BEFORE`: set the reviewer's `Stage` checksum to `1905995793` and the tester's `Stage` checksum to `1483730218`. These are the CRC32s of the current texts, measured in my last run.
+
+    After the tester's change, `make check` should be green: in my last run these three were the only failures in `make test`, and lint, types, layers, sast, secrets and licenses were green. The refactor step comes once the check is green.
+
+    Rejected: putting the new rule outside `## Stage`. The Interface names `## Stage`, and the reviewer's body checksum would break anyway.
+
+    Noticed, not touched: the Description is unchanged, because the human's answers change no meaning of the task.
