@@ -1,5 +1,5 @@
 ---
-stage: intake
+stage: tests
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 661
 comments_read: [6721548904]
 handed_over: null
-claim:
-  instance: vm
-  stage: intake
-  started_at: '2026-11-08T12:35:01.598179Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -40,6 +36,12 @@ journal:
   kind: started
   at: '2026-11-08T12:35:01.598179Z'
   stage: intake
+- number: 6
+  speaker: intake
+  kind: result
+  at: '2026-11-08T12:35:33.502332Z'
+  stage: intake
+  run: b6614815e06744afa492fbcbf9417f85
 ---
 
 # The bill shows how well the cache works
@@ -52,20 +54,25 @@ After this story, the bill shows for each work item, and in its total, the token
 
 ## Interface
 
-- `factory-bill <work item>` and `factory-bill` (the work items in flight) show, beside today's lines: cache read, cache written and hit rate, for each work item and in the total.
-- One line per role with the same three figures, in the work item's bill.
-- The hit rate is shown as a whole percent. A work item with no prompt tokens shows `-`.
+As answered by the human in journal entry 4:
+
+- `factory-bill <work item>` and `factory-bill` (each work item in flight, one block each) print, after each work item's `Cost: ...` line and nothing else changed before it: one line `Cache: <read> read, <written> written, <n> % hit` for the work item; then a table `| role | cache read | cache written | hit rate |` with one row per role (the cost record's `role` field), in the order each role first ran, and a **total** row whose three figures equal the `Cache:` line. There is no total across the work items in flight.
+- The hit rate is the tokens read from the cache divided by all prompt tokens (cache read + cache written + uncached input), shown as a whole percent rounded half up, as the bill's other figures are (2 of 3 gives `67 %`). A work item or role with no prompt tokens shows `-` in place of `<n> %`.
+- `factory-bill --help` prints the usage, names the cache read, cache written and hit rate figures, and exits 0.
+- Only `factory-bill` changes: the cost table posted on the pull request at the hand-over and the acceptance report stay unchanged. The change lies in `src/factory/watching/domain/bills.py` and `src/factory/entry/bill.py`.
 - Today's lines and their order stay as they are.
 - The human's leave for earlier tests: a test that pins the bill's whole output or its models may change to hold the new figures, keeping its name and checking otherwise the same thing: `tests/entry/test_bill.py`, `tests/watching/application/test_bill_service.py`, `tests/watching/domain/test_bills.py`, `tests/watching/domain/test_bills_model_time.py` and `tests/hosting/application/test_costs.py`. The tester's entry names each one it changed.
 
 ## Acceptance criteria
 
-1. A bill over cost records with known tokens shows the right cache read, cache written and hit rate for the work item and the total (rows of one test).
-2. The per-role lines add up to the work item's figures.
-3. A work item with no prompt tokens shows `-` for its hit rate.
-4. Every earlier line of the bill is unchanged.
-5. `make check` stays green.
-6. docs: the operator's documents that show the bill name the three new figures and how to read the hit rate.
+1. A bill over cost records with known tokens shows the right `Cache:` line (cache read, cache written and hit rate) after the `Cost:` line, for one work item and for each of several work items in flight (rows of one test).
+2. The role table has one row per role in the order each role first ran, and its rows add up to the **total** row, which equals the `Cache:` line.
+3. The hit rate rounds half up to a whole percent: 2 of 3 prompt tokens read from the cache shows `67 %`, and 1 of 3 shows `33 %` (rows of one test).
+4. A work item with no prompt tokens shows `-` for its hit rate.
+5. Every earlier line of the bill is unchanged, and the posted cost table and the acceptance report are unchanged.
+6. `factory-bill --help` prints the usage naming cache read, cache written and hit rate, and exits 0.
+7. `make check` stays green.
+8. docs: the operator's documents that show the bill name the three new figures and how to read the hit rate.
 
 ## Smoke test
 
@@ -96,3 +103,10 @@ Expect: the help names the cache figures and the hit rate.
    5. (a) `factory-bill --help` prints the usage, names the cache read, cache written and hit rate figures, and exits 0; add the criterion.
    6. Grouped by the record's `role`, in the order each role first ran; the role table has the **total** row of answer 1, which equals the `Cache:` line.
 5. factory: started intake as vm.
+6. intake: accepted (route `tests`). I carried the human's answers from journal entry 4 into the story: I rewrote `## Interface` and `## Acceptance criteria` in the work item file. The description still holds as written.
+   - Interface: it now gives the exact format. After each work item's `Cost:` line comes `Cache: <read> read, <written> written, <n> % hit`, then the table `| role | cache read | cache written | hit rate |`, with one row per record `role` in the order each role first ran, and a **total** row equal to the `Cache:` line. There is no total across the work items in flight. The hit rate is read / (read + written + uncached input), rounded half up to a whole percent, and `-` when there are no prompt tokens. `factory-bill --help` prints the usage naming the three figures and exits 0. The posted cost table (`hand_over.py`) and the acceptance report stay unchanged. The earlier-test leave is kept as the human wrote it.
+   - Criteria: there are now eight; the old 1 to 6 became 1, 2, 4, 5, 7 and 8. Answer 4 brought the rounding criterion (3, `67 %` and `33 %` as rows), and answer 5 brought the `--help` criterion (6). Both go before `make check` and `docs:`, which stay last. I widened criterion 1 to cover one work item and several in flight. Criterion 2 covers the role order and the total row. Criterion 5 now also says that the posted table and the acceptance report are unchanged. Each criterion can be tested by one test function. The refused or edge sides are covered by 3 (rounding), 4 (`-`) and 5 (unchanged lines).
+   - Smoke test: `uv run factory-bill --help` can be run once criterion 6 is built (today `--help` is read as an id and exits 2). Its `Expect:` line can be checked against the help text.
+   - Docs criterion: it names what the operator must know (the three figures and how to read the hit rate) and dictates no sentences.
+   - Architecture: the change lies in `src/factory/watching/domain/bills.py` (the domain's figures and table) and `src/factory/entry/bill.py` (the command line and `--help`). It needs no new interface, dependency or change under `factory/`.
+   - Scope: this is the feature's S0003 line, and none of it falls under the feature's Out of scope.
