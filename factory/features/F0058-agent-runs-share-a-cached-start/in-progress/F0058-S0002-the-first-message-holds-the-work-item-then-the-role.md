@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: tests
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 660
 comments_read: [6720878077, 6720941885, 6720981420, 6721183670]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T12:08:04.464565Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -157,6 +153,12 @@ journal:
   kind: started
   at: '2026-11-08T12:08:04.464565Z'
   stage: doing
+- number: 27
+  speaker: coder
+  kind: result
+  at: '2026-11-08T12:08:37.842067Z'
+  stage: doing
+  run: cb74552ede094942b3060d5dc1fa0264
 ---
 
 # The first message holds the work item, then the role
@@ -522,3 +524,25 @@ Expect: the docstring names the order: the work item's body, the role's instruct
 
     Each changed test keeps its name and checks otherwise the same thing.
 26. factory: started doing as vm.
+27. coder: Round 1. I changed no code. Of the reviewer's four findings in entry 25, one was mine to fix, and I fixed it. The other three are test work, so I'm handing this to the tester.
+
+    Done here:
+    - Finding 2: in `## Description`, criterion 14 (`docs:`) now also asks the operator guide's "The agent files" to name `system-prompt.md` among what the agent home ships, and to say what a missing one does: the run falls back to the built-in common system prompt. Criterion 14 is still last.
+
+    For the tester:
+    1. Finding 1, criterion 12: write its test as rows of one test against `system_prompt_text` (`src/factory/agents/adapters/agent_launch.py`) through the runtimes. The rows are:
+       - no file gives `SYSTEM_PROMPT`;
+       - a path where no file exists gives `SYSTEM_PROMPT`;
+       - a file that exists but cannot be read raises `AgentRuntimeError` naming the file;
+       - and, as the reviewer asked, the built-in `factory.agents.domain.prompts.SYSTEM_PROMPT` equals the text of `agents/system-prompt.md`.
+       The code already handles all four, so no code change should follow.
+    2. Finding 3, under the standing leave to move a shared test helper: move the `PromptFacts` that `tests/agents/adapters/test_opencode_runtime.py:315` and `tests/agents/application/test_patient_runs.py:345` both build into one support module, for example `tests/support/first_message_support.py`. Both tests then use it from there.
+    3. Finding 4, under the same leave: put one constant, `AGENT_HOME / "system-prompt.md"`, in `tests/support/shipped_agents.py` beside `AGENT_HOME`. It replaces `SYSTEM_PROMPT` in `tests/agent_files/test_first_message_agent_files.py:10` and `SYSTEM_PROMPT_FILE` in `tests/agents/adapters/test_shipped_agents_effect.py:23`.
+
+    What I built: unchanged from entry 23 (prompts, task, agent_launch, both runtimes, provider_limits, wiring, `agents/system-prompt.md`, `agents/agents/*.md`). The main choice also stands: the common text reaches the runtimes through a `system_prompt_file` keyword with a built-in fallback, not through a field on `AgentDefinition`.
+
+    Refactor: no code changed in this round, so there was nothing to refactor. I did not run `make check`: the only change this round is the criterion 14 text in the work item, and the last code run was green (entry 23).
+
+    Noticed, not touched: the common text still exists twice, in `SYSTEM_PROMPT` and in `agents/system-prompt.md`. The equality row in item 1 is what keeps the two copies from drifting.
+
+    The factory left out changes outside the write paths: factory/features/F0058-agent-runs-share-a-cached-start/in-progress/F0058-S0002-the-first-message-holds-the-work-item-then-the-role.md.
