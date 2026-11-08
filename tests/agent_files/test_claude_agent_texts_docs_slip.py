@@ -54,7 +54,7 @@ def test_the_template_lets_the_smoke_test_hand_a_slip_to_docs_and_keeps_every_ot
         "intake": ["tests"],
         "tests": ["doing"],
         "doing": ["review", "tests"],
-        "review": ["docs", "doing"],
+        "review": ["docs", "doing", "tests"],
         "docs": ["smoke-test", "doing"],
         "acceptance": ["approval"],
         "approval": ["done", "doing"],

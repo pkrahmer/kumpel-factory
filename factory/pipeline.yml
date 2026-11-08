@@ -35,7 +35,7 @@ stages:
   intake: {role: intake, next: [tests, docs-only]}
   tests: {role: tester, next: [doing], checks: [lint], context: [facts-files]}     # the new tests are red on purpose; no make test after it (the human, 2026-11-02)
   doing: {role: coder, next: [review, tests], reports: [duplicates], context: [facts-changes]}
-  review: {role: reviewer, next: [docs, doing], round_cap: 2, context: [facts-diff]}
+  review: {role: reviewer, next: [docs, doing, tests], round_cap: 2, context: [facts-diff]}
   docs: {role: documenter, next: [smoke-test, doing], checks: [guides, secrets, documents], round_cap: 2, context: [facts-changes]}
   smoke-test: {role: smoke-tester, next: [approval, doing, docs], checks: [check], round_cap: 2}   # the one full check (F0059)
   docs-only: {role: documenter, next: [docs-review, tests], checks: [check, guides, secrets, documents], context: [facts-changes]}   # the docs route (the human, 2026-11-05)
