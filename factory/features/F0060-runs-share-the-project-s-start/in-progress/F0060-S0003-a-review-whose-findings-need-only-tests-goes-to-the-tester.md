@@ -1,17 +1,13 @@
 ---
 stage: intake
-blocked: null
+blocked: question
 round: 0
 attempts: 0
 crashes: 0
-pull_request: null
+pull_request: 680
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: intake
-  started_at: '2026-11-08T21:33:18.434591Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -23,6 +19,13 @@ journal:
   kind: started
   at: '2026-11-08T21:33:18.434591Z'
   stage: intake
+- number: 3
+  speaker: intake
+  kind: question
+  at: '2026-11-08T21:33:55.543632Z'
+  stage: intake
+  run: 97603a93ed974bf0b6abea542a55d12c
+  blocked: question
 ---
 
 # A review whose findings need only tests goes to the tester
@@ -65,3 +68,20 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
 1. 2026-11-08 human: created.
 2. factory: started intake as vm.
+3. intake: Intake: the format check passed. I checked the rest of the story (Interface, criteria 1 to 5, smoke test, docs criterion, architecture, scope against F0060's feature.md and its decision 5). All of it is buildable except one point: the story changes R12, and tests from earlier stories pin R12's exact wording. Under `CLAUDE.md` ("Not without asking": a change to a test you did not write), that needs your leave.
+
+   1. Criterion 4 adds `review → tests` to R12 in `agents/system-prompt.md` and `SYSTEM_PROMPT`. Two places from earlier stories hold R12's current text word for word:
+      - `tests/agent_files/test_claude_agent_texts_docs_slip.py`: the constant `REWORK_RULE` (line 9), and the assertion `rules.count(REWORK_RULE) == 1` (line 67).
+      - `tests/support/shared_rules_support.py`: the R12 entry of the rules table (line 98), which `tests/agent_files/test_shared_rules_system_prompt.py` checks against the system prompt.
+      With the new R12 both fail, so `make check` (criterion 6) cannot be green unless they change. The story names neither, and the standing leave to move shared helpers does not cover changing their text. Options:
+      (a) Give leave for the tester to update R12's text in those two places to the new list (`review → doing, review → tests, docs → doing, …`, or wherever you want `review → tests` in the list), each still checking the same thing. Add this to the story as an Interface line, and say where in R12's list `review → tests` goes.
+      (b) Have this story leave R12 alone, and make the R12 change in a separate story.
+      I would choose (a). Please also say where in the list the new route goes, so the coder and the tester read it the same way. The `grep -c 'review → tests'` smoke test does not pin that.
+   2. Not for this story, but related: `test_the_template_lets_the_smoke_test_hand_a_slip_to_docs_and_keeps_every_other_next` in `test_claude_agent_texts_docs_slip.py` asserts that `operator/template/factory/pipeline.yml`'s `review` has `next == ["docs", "doing"]`. The change you plan to make by hand after this story (`next: [docs, doing, tests]` in the template) will break it on `develop`. Should this story also get leave to update that expectation now? Options: (a) yes, but only once the template changes, which means the test changes together with your commit; (b) you change the test yourself together with the template. I would choose (b), since this story must not change the template (R14).
+
+   Everything else is ready for the `tests` route once the answer is in:
+   - Interface: names the agent files, their sections, and `SYSTEM_PROMPT` in `prompts.py`, and says that no factory code changes. The pipeline already counts a decision other than a stage's first `next` as a rework round.
+   - Criteria: each can be tested by one function. Criterion 1 covers both sides of the choice and criterion 2 the case without `tests`. Criterion 5's two rows are one parametrized test.
+   - Smoke test: both commands can run. `addopts` already sets `-q` and the pytest command passes none, so the summary line prints.
+   - Docs criterion: names what the operator must know and dictates no sentences.
+   - Architecture and scope: agent files and the shipped prompt only. This is S0003 as the feature's Scope lists it.
