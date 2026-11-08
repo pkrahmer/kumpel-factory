@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 0
 attempts: 0
@@ -30,8 +30,13 @@ journal:
   at: '2026-11-08T16:53:19.701663Z'
   stage: acceptance
   run: 82c6964628204530a5fa2ce0ea369403
+- number: 5
+  speaker: factory
+  kind: done
+  at: '2026-11-08T16:54:08.515013Z'
+  stage: done
 stories: [F0059-S0001, F0059-S0002]
-outcome: null
+outcome: accepted
 ---
 
 # Acceptance of Each change is checked once
@@ -211,3 +216,4 @@ Human interventions: 3 questions answered, all of cause `question` and all in S0
    6. Decisions: the four from `feature.md`, the human's answers in S0001 (entries 4, 9 and 18) and the human's extra `base_ref` change are gathered. The guards that read both code and documents (licence headers, mount and branch searches) now run only in `make guides`. Every earlier test changed under a named leave.
    7. Slow checks: nothing beyond `make check`. The slowest test is the new unmarked `test_documents_marker.py` (20.1 s, three collections). Free space on the pool fell by 0.6 GB while the instance's own use shrank, which this text-only feature does not explain.
    8. Cost: 19 runs, $7.77. S0001 cost $6.02 of it: the tester's search missed two modules, which led to a review finding, a question and three coder runs that changed nothing. The stories had 3 human questions, all in S0001, with 0.1 h waited.
+5. factory: done (pull request merged); cost: 1 runs, 7.5 min, 35 turns, 92350 tokens in (1966742 more from cache), 24404 out, $1.62
