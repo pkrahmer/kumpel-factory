@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 654
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: docs
+  started_at: '2026-11-08T07:19:34.119764Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -102,6 +106,11 @@ journal:
   at: '2026-11-08T07:19:29.137820Z'
   stage: review
   run: 6b589adc5db846c39553fcfbeedd5628
+- number: 18
+  speaker: factory
+  kind: started
+  at: '2026-11-08T07:19:34.119764Z'
+  stage: docs
 ---
 
 # Kumpel's procedure after an acceptance that proposes stories
@@ -263,3 +272,4 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
     - `tests/operator_scripts/test_operator_approving_after_acceptance.py:27`: the name `text` in the dict comprehension shadows the section `text` read on line 17. A name such as `step_lines` would read more clearly. This only concerns the quality of a test file the diff adds.
 
     Earlier tests: none. The only test file in the diff is the new one (status `A`). No test file that `develop` holds is changed, renamed or deleted.
+18. factory: started docs as vm.
