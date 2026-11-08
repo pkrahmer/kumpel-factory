@@ -257,3 +257,4 @@ Times are UTC. The plan: `night-plan.md`.
 - 01:01Z: F0057-S0004 PR #646 asked at intake (2 criteria). Answered yes to both proposals.
 - 01:10Z: F0057-S0004 PR #646 asked at tests: promote/promoted are forbidden v1 words. Answered (a): both leave GLOSSARY_FORBIDDEN, leave for the pinned test; story now changes code.
 - 01:27Z: F0057-S0004 PR #646 merged (9 runs, $1.91; promote/promoted left the v1 words). factory-vm moved to 02cf60732. F0057-S0005 (the project guide names develop and main): started.
+- 01:43Z: F0057-S0005 PR #647 merged (docs route, 5 runs, $0.89). Acceptance F0057-A0001 opened as PR #648.
