@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 659
 comments_read: [6720500729, 6720585535]
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-08T10:54:01.785742Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -90,6 +86,12 @@ journal:
   kind: started
   at: '2026-11-08T10:54:01.785742Z'
   stage: tests
+- number: 15
+  speaker: tester
+  kind: result
+  at: '2026-11-08T10:54:25.661729Z'
+  stage: tests
+  run: 1d07528cd8d64d279f81965af1aa484b
 ---
 
 # Every role has the same tools and the same decision tool
@@ -218,3 +220,12 @@ Expect: exactly one line, `model: opus`
 
     The journal added nothing new to the Description. Entry 11 only picks option 1 from my question.
 14. factory: started tests as vm.
+15. tester: I made the test change the human approved in entry 11, which the coder named in entry 13. In `tests/agents/adapters/test_claude_runtime_shared_schema.py`, the helper `_arguments` (line 32) now calls `work.mkdir(parents=True)` instead of `work.mkdir()`. Before, `test_requests_with_different_decisions_get_the_same_json_schema` failed with `FileNotFoundError`, because it passes `tmp_path / "first"` and `tmp_path / "second"` to the helper and those folders did not exist. The helper can now create them. No test name or assertion changed, and every test checks the same thing as before.
+
+    Criterion → test mapping is unchanged from entry 8. The fix affects only criterion 3: tests/agents/adapters/test_claude_runtime_shared_schema.py::test_requests_with_different_decisions_get_the_same_json_schema.
+
+    Files changed: tests/agents/adapters/test_claude_runtime_shared_schema.py. Files created: none. Modules the test run could not import: none.
+
+    I ran `uv run pytest -q tests/agents/adapters/test_claude_runtime_shared_schema.py` once: all 4 tests pass with the coder's implementation. `make lint`: lint: green (0.1 s).
+
+    `lint`: lint: green (0.1 s)

@@ -29,7 +29,7 @@ REPLY = json.dumps(
 def _arguments(tmp_path: Path, decisions: list[str]) -> list[str]:
     """The arguments of the one call the runtime makes for a request allowing `decisions`."""
     work = tmp_path / "work"
-    work.mkdir()
+    work.mkdir(parents=True)
     executable = write_stand_in(tmp_path / "bin", [Step(stdout=REPLY)])
     request = AgentRunRequest(
         agent=AgentDefinition(
