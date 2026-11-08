@@ -5,6 +5,8 @@ from pathlib import Path
 
 import pytest
 
+pytestmark = pytest.mark.documents
+
 ROOT = Path(__file__).parents[2]
 SETUP = ROOT / "operator" / "vm" / "setup.sh"
 SEARCHED = (ROOT / "operator" / "vm", ROOT / "operator" / "skill")

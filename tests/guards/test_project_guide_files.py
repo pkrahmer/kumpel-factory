@@ -3,7 +3,11 @@
 import re
 from pathlib import Path
 
+import pytest
+
 from support.guide_files_support import index_problems, searched_files
+
+pytestmark = pytest.mark.documents
 
 ROOT = Path(__file__).parents[2]
 GUIDE = ROOT / "docs" / "project-guide"

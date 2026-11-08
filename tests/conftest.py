@@ -81,6 +81,13 @@ from support.wiring_support import HOSTED_URL, PODMAN_VERSION, with_dataset
 from support.zfs_support import DATASET, Answer, Zfs, write_zfs
 
 
+def pytest_configure(config: pytest.Config) -> None:
+    """Register the marker of the tests that read the documents on the real checkout."""
+    config.addinivalue_line(
+        "markers", "documents: reads the documents the docs stage keeps, on the real checkout"
+    )
+
+
 @pytest.fixture(autouse=True)
 def without_agent_login(monkeypatch: pytest.MonkeyPatch) -> None:
     """Remove the agent's login from every test's environment, so no child process sees it."""

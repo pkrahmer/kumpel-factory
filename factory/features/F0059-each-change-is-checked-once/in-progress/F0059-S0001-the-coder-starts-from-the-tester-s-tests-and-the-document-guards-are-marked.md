@@ -1,17 +1,13 @@
 ---
 stage: tests
-blocked: null
+blocked: question
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 672
 comments_read: [6723592271]
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-08T15:52:20.464760Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -51,6 +47,13 @@ journal:
   kind: started
   at: '2026-11-08T15:52:20.464760Z'
   stage: tests
+- number: 8
+  speaker: tester
+  kind: question
+  at: '2026-11-08T15:56:56.629309Z'
+  stage: tests
+  run: ed4bb79b52904c8dbfad8cf8dbbfd356
+  blocked: question
 ---
 
 # The coder starts from the tester's tests, and the guards that read the documents are marked
@@ -114,3 +117,20 @@ Expect: a line `<n> tests collected`, `<n>` greater than 0.
    - Scope: this matches the S0001 scope lines in `feature.md`. The Makefile, `factory/pipeline.yml` and `CLAUDE.md` changes stay among the human's changes. Nothing touches the out-of-scope items.
    - Route: `tests`, because `agents/` and `tests/` are outside the documenter's write paths.
 7. factory: started tests as vm.
+8. tester: Question: one more test module reads files the documenter keeps, but it is outside the human's leave, which covers only `tests/guards/`. `tests/operator_scripts/test_operator_site_check.py` reads `operator/README.md` on the real checkout (`test_the_operator_readme_names_every_script_and_library`, line 350) and `docs/operator-guide/site.md` (`test_the_guide_names_every_key_of_the_example_site_file`, line 510). The Interface says every such module carries the marker, so I need the human's word to change it. Options: (a) add `pytestmark = pytest.mark.documents` to the whole module. This keeps criteria 1 and 2 per module, but the module's many other operator-script tests then join the documents selection. (b) The tester moves the two tests into a new marked module under `tests/guards/`, keeping their function names. The rest of the module stays unmarked, but the two tests' node ids change, which comes close to "none is renamed". (c) Mark only those two test functions. This breaks criterion 1 as written ("every test of the marked modules and no other"). I'd choose (a).
+
+   Also for the human to confirm: I took two modules from the starting list out of the marked list, because neither reads a document on the real checkout. `tests/guards/test_guide_index_problems.py` works only on files it writes under `tmp_path`. `tests/guards/test_document_tests_write_their_documents.py` reads only `tests/entry/*.py`. If the human wants them marked anyway, that's one line in each.
+
+   Done so far (kept in the working tree):
+   - Marker registered in `tests/conftest.py` (`pytest_configure`, `config.addinivalue_line`), under the leave.
+   - `pytestmark = pytest.mark.documents` (plus the `pytest` import where it was missing), under the leave, in these tests/guards modules: `test_area_guides.py`, `test_folder_readmes.py`, `test_test_folder_readmes.py`, `test_operator_guide_files.py`, `test_operator_guide_pointers_search.py`, `test_project_guide_files.py`, and four that the search found: `test_license_headers.py` (reads every tracked file), `test_work_branch_search.py` (reads every file under `src/factory` and `tests`, their READMEs included), `test_root_operator_folders_removed.py` and `test_agent_folder_names.py` (both search `docs/` and `README.md`).
+   - Search for criterion 3: grep over `tests/` for paths built from the repository root (`Path(__file__).parents[...]`, `ROOT`, `REPOSITORY`, and the support modules' ROOT) and for documenter path names (`README.md`, `docs/`, `operator-guide`, `project-guide`, `checked-documents.txt`). Then I read each hit to see what it opens. Left out: modules that read only files they wrote under `tmp_path` (all the `test_check_documents_*` tests, through the minimal documents), and modules that read only `agents/agents`, `operator/template`, `operator/vm` scripts, `demo/` or `factory/pipeline.yml`. `test_tests_layout.py` and `test_old_layer_packages_removed.py` only list directory entry names (they check that `README.md` exists, not its text), so I left them unmarked.
+
+   Criterion → test:
+   - criterion 1: tests/guards/test_documents_marker.py::test_the_documents_marker_selects_every_test_of_the_marked_modules_and_no_other
+   - criterion 2: tests/guards/test_documents_marker.py::test_the_tests_without_the_marker_are_the_rest_of_the_suite
+   - criterion 3: the search above, no test function (the human's answer, entry 4)
+   - criterion 4: tests/agent_files/test_claude_agent_texts_first_tests.py::test_the_coder_starts_with_only_the_tester_s_named_test_files (rows role, step-one), ::test_the_coder_no_longer_starts_with_the_whole_suite, ::test_the_coder_still_finishes_with_make_check_green, ::test_the_coder_file_names_no_new_make_target_and_no_pytest_option
+   - criteria 5 and 6: `make check` and the docs stage
+
+   Files created: `tests/guards/test_documents_marker.py`, `tests/agent_files/test_claude_agent_texts_first_tests.py`. Earlier test files changed under the leave: the ten modules above and `tests/conftest.py`. Every module imported. In the one run (`uv run pytest -q` on the new files and `tests/guards`), the marker tests pass, because the markers are this stage's work. The three role/step-one checks of criterion 4 fail, as they should until `agents/agents/coder.md` changes. `make lint` is green.

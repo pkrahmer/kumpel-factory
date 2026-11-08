@@ -7,6 +7,8 @@ import pytest
 
 from support.guide_files_support import searched_files
 
+pytestmark = pytest.mark.documents
+
 ROOT = Path(__file__).parents[2]
 SEARCHED = (
     ROOT / "src",

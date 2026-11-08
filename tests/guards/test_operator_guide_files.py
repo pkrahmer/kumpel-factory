@@ -2,8 +2,12 @@
 
 from pathlib import Path
 
+import pytest
+
 from support.check_documents_support import TOPIC_FILES
 from support.guide_files_support import searched_files
+
+pytestmark = pytest.mark.documents
 
 ROOT = Path(__file__).parents[2]
 GUIDE = ROOT / "docs" / "operator-guide"
