@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 665
 comments_read: [6722914653]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: docs-review
+  started_at: '2026-11-08T14:53:00.577836Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -93,6 +97,11 @@ journal:
   at: '2026-11-08T14:52:55.643729Z'
   stage: docs-only
   run: 152fbf2b0c5f4de788af5c825043628c
+- number: 16
+  speaker: factory
+  kind: started
+  at: '2026-11-08T14:53:00.577836Z'
+  stage: docs-review
 ---
 
 # The operator guide says what keeps the cached start
@@ -185,3 +194,4 @@ Expect: at least one line in the section *A project's own agents*.
     `check`: check: green
     `secrets`: secrets: green (0.4 s)
     `documents`: documents ok (61.7 s)
+16. factory: started docs-review as vm.
