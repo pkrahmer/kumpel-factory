@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 664
 comments_read: [6722586434]
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-08T14:17:43.006578Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -73,6 +69,12 @@ journal:
   kind: started
   at: '2026-11-08T14:17:43.006578Z'
   stage: tests
+- number: 12
+  speaker: tester
+  kind: result
+  at: '2026-11-08T14:18:03.390205Z'
+  stage: tests
+  run: 43b6f83563b4486bbeb7baca7cbc446f
 ---
 
 # The context markers are escaped too
@@ -157,3 +159,16 @@ Expect: `1`
 
     The code is already on the branch from the last run (commit bae1a49ee). `_MARKER_TEXTS` in `src/factory/agents/domain/prompts.py:42` now also holds `"<context"` and `CONTEXT_CLOSE`. I changed no code this run, and the Description stays as it is: the answer keeps the Interface as written, with `<context` escaped as a prefix like the other markers. After the tester's change the work item comes back to doing. Then I run `make check` and do the refactor step.
 11. factory: started tests as vm.
+12. tester: Made the one test change the human approved in entry 8 (option A). In the `near` row of `test_a_text_without_a_marker_reaches_the_message_byte_for_byte` in `tests/agents/domain/test_prompts_context_markers.py`, I replaced `<context-free>` with `context-free`, so the row's text no longer holds the marker `<context`. The other near-misses are unchanged: `<div>`, `</contexts` and the umlaut. Nothing else changed in the file or in any other test file.
+
+    - criterion 1: tests/agents/domain/test_prompts_context_markers.py::test_a_context_marker_in_a_start_fact_output_is_escaped
+    - criterion 2: ::test_a_context_marker_in_the_body_is_escaped_and_opens_no_block
+    - criterion 3: ::test_a_context_marker_in_a_failure_reason_is_escaped
+    - criterion 4: ::test_a_text_without_a_marker_reaches_the_message_byte_for_byte (the only test changed in this run)
+    - criterion 5: ::test_the_role_instructions_reach_the_message_unescaped
+
+    I ran the file once, as CLAUDE.md says (`uv run pytest -q` on it), with the coder's code from commit bae1a49ee on the branch: all 8 tests pass. Every module imported. `make lint` is green.
+
+    `lint`: lint: green (0.2 s)
+
+    `lint`: lint: green (0.2 s)

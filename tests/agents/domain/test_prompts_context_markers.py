@@ -74,7 +74,7 @@ def test_a_context_marker_in_a_failure_reason_is_escaped() -> None:
 @pytest.mark.parametrize(
     "text",
     [
-        pytest.param("# Demo\n\nA <context-free> <div> and </contexts ümlaut.\n", id="near"),
+        pytest.param("# Demo\n\nA context-free <div> and </contexts ümlaut.\n", id="near"),
         pytest.param("# Demo\n\nPlain text.\n", id="plain"),
     ],
 )
