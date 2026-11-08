@@ -15,6 +15,7 @@ F0057 is archived and promoted (2026-11-08). No pull request is open.
 - Every role has the same tools, and the decision tool is the same in every stage; intake and the documenter run on Opus at medium effort, like the tester, the coder and the smoke tester (S0001).
 - The system prompt is the same for every role, and the first message holds the work item's body, then the role's instructions, then the run's facts (S0002).
 - The bill shows the cache's tokens and hit rate per work item and per role (S0003).
+- A stage's start facts (the diff, the file list, the status) come from project commands the factory runs before the agent, so the agent saves the turns it spends gathering them (S0004).
 
 ## Out of scope
 
@@ -29,9 +30,11 @@ F0057 is archived and promoted (2026-11-08). No pull request is open.
 - S0001: Every role has the same tools and the same decision tool
 - S0002: The first message holds the work item, then the role
 - S0003: The bill shows how well the cache works
+- S0004: Each stage's start facts come from the factory
 
 ## The human's changes
 
+- **After S0004's merge:** add the start-fact make targets to this repository's `Makefile` and their names to `project_commands`, and give the stages their `context` in `factory/pipeline.yml`: the reviewer's and the documenter's stages the diff against `develop` without `factory/` and `uv.lock` and its file list, the tester's the tracked files without `factory/`, the coder's the status and the last commits. Do the same in `demo/todo-service/project/` (its `Makefile` and `factory/pipeline.yml`) and in `operator/template/factory/pipeline.yml`.
 - **After the feature's acceptance:** move factory-vm and the demo2 instance to `develop`, and run demo-todo F0001 again on a new, empty repository, as on 2026-11-08. Compare it with the baseline:
 
   | Measure | Baseline (2026-11-08) |
@@ -51,4 +54,5 @@ F0057 is archived and promoted (2026-11-08). No pull request is open.
 2. The decision tool's schema no longer lists the stage's decisions; the decision is a string. The runtime still refuses a decision outside the stage's allowed ones, as it does today, and the message still names them.
 3. The cache is per model, and a change of effort between requests invalidates the cached messages (the API documentation). So intake (today Sonnet, low effort) and the documenter (today Sonnet, medium) move to Opus at medium effort. Then intake, the tester, the coder, the documenter and the smoke tester share one chain, about 30 of a feature's 40 runs. By the 2026-11-08 run's numbers, the move is about cost-neutral: about 0.10 USD per story saved on writing the shared start, about 0.08–0.09 USD more for their own work at Opus prices. The reviewer and the acceptance reviewer stay at high effort, because review quality matters more there; they share the tools and the system prompt only. The measurement run shows whether the effort split holds as documented.
 4. The role's instructions move from the system prompt into the first message, after the work item. The common system prompt tells the agent that these instructions are its rules.
+6. A stage's start facts are project commands, as the checks are, so the factory stays free of any project's tools. Their outputs come after the role's block, since they change from round to round and would break the shared start. Each is cut at 60,000 characters, and a failed one only says so: a start fact helps the agent and is never a gate.
 5. The work item enters the message without its front matter, which changes between runs (stage, round, claim). Its title, sections and journal enter as they are in the file.
