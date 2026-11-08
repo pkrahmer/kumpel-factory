@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 646
 comments_read: [6715370076, 6715449873]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: docs
+  started_at: '2026-11-08T01:18:47.855377Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -103,6 +107,11 @@ journal:
   at: '2026-11-08T01:18:42.755478Z'
   stage: review
   run: 98ef0014253e4e9c963c22489444f0e8
+- number: 18
+  speaker: factory
+  kind: started
+  at: '2026-11-08T01:18:47.855377Z'
+  stage: docs
 ---
 
 # The operator's documents name develop and main
@@ -301,3 +310,4 @@ Expect: `documents ok (<seconds> s)`
 
     Earlier tests:
     - `tests/pipeline/domain/test_documents.py`: changed under the human's leave, journal entry 11. Only the pinned-list test changed: its list and its name, from eighteen to sixteen.
+18. factory: started docs as vm.
