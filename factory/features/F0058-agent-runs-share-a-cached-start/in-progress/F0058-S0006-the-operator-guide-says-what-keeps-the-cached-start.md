@@ -1,17 +1,13 @@
 ---
-stage: intake
+stage: docs-only
 blocked: null
 round: 0
 attempts: 0
 crashes: 0
-pull_request: null
+pull_request: 665
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: intake
-  started_at: '2026-11-08T14:38:46.944671Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -23,6 +19,12 @@ journal:
   kind: started
   at: '2026-11-08T14:38:46.944671Z'
   stage: intake
+- number: 3
+  speaker: intake
+  kind: result
+  at: '2026-11-08T14:39:15.262805Z'
+  stage: intake
+  run: 7573b9f541154314961c9e65d0ae4017
 ---
 
 # The operator guide says what keeps the cached start
@@ -62,3 +64,10 @@ Expect: at least one line in the section *A project's own agents*.
 
 1. 2026-11-08 human: created.
 2. factory: started intake as vm.
+3. intake: accepted
+   - Interface: none; the story changes only `docs/operator-guide/agent-runtime.md`, which is inside the documenter's write paths (`docs/*`). So the route is docs-only. The facts it relies on hold. Every file in `agents/agents/` names `model: opus` and the same tools, `[Read, Grep, Glob, Edit, Bash, Write, Skill]`. Intake, tester, coder, documenter and smoke tester run at `effort: medium`, and the reviewer and acceptance reviewer at `high`. *The models* (line 212) still says the files name `opus`, `sonnet` and `haiku`. The example file (lines 317-321) has `model: sonnet`, `tools: [Read, Write]`, `effort: low`.
+   - Criteria: each of 1 to 4 can be checked against the document. 1 is the condition for sharing the cached start (shipped tools, matching model and effort) and what happens when an agent differs (a cache of its own). 2 is the place where the effect shows, with a link to the `factory-bill` section of `records.md`, which exists along with *The cache figures*. 3 is the reworded *The models*. 4 is an either/or about the example, and either side can be checked. No Interface rule needs a failing side. 5 and 6 are the closing two.
+   - Smoke test: both `grep` commands run as written. The first expects a count of at least 1 and the second a line inside *A project's own agents* (lines 328-339 now), so both can be checked.
+   - Docs criterion: it names what the operator must know: what keeps the shared start, what breaking it costs, where it shows and what the aliases mean. It quotes no sentences. It also says why the project guide and `docs/decisions.md` need no change.
+   - Architecture: no code, no change to `factory/`, no tests, no dependency. The operator guide is the right document for operator-facing guidance.
+   - Scope: within F0058. The feature's goal is that runs share one cached start, and decision 3 is the shared model and effort. The story writes down for operators what S0001 to S0003 built. It touches nothing the feature lists as out of scope.
