@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 678
 comments_read: [6726852112]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: docs
+  started_at: '2026-11-08T20:42:22.042825Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -158,6 +162,11 @@ journal:
   speaker: human
   kind: comment
   at: '2026-11-08T20:42:19.653270Z'
+  stage: docs
+- number: 28
+  speaker: factory
+  kind: started
+  at: '2026-11-08T20:42:22.042825Z'
   stage: docs
 ---
 
@@ -506,3 +515,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     Stale text noticed, not mine: none.
 27. 2026-11-08 human: (a) Retry. The cause is the package index's speed, not the documents: a cold `uv run` in a fresh copy took 99 s at one moment and 7 s a few minutes later on the VM. The fix (the examples share the check's uv cache) is F0061, kept in the backlog for later.
+28. factory: started docs as vm.
