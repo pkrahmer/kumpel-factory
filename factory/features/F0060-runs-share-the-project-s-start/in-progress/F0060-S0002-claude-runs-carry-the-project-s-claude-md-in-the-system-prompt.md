@@ -1,17 +1,13 @@
 ---
 stage: doing
-blocked: null
+blocked: question
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 679
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T21:04:16.654031Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -45,6 +41,13 @@ journal:
   kind: started
   at: '2026-11-08T21:04:16.654031Z'
   stage: doing
+- number: 7
+  speaker: coder
+  kind: question
+  at: '2026-11-08T21:08:31.089536Z'
+  stage: doing
+  run: 8721668f1cca4f1cb839dc86b6c2bdce
+  blocked: question
 ---
 
 # Claude runs carry the project's CLAUDE.md in the system prompt
@@ -116,3 +119,28 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
    `lint`: lint: green (0.1 s)
 6. factory: started doing as vm.
+7. coder: Stopped before review: the code is built, but one test from an earlier story fails because of the new switches, and I may not change it.
+
+   Built, left in the working tree: `src/factory/agents/adapters/claude_runtime.py`.
+   - `SWITCHES` gains `CLAUDE_CODE_DISABLE_CLAUDE_MDS: "1"` and `CLAUDE_CODE_PROMPT_CACHE_TTL: "5m"`. The comment above it now says why each is set.
+   - New `instructions_text(system_prompt, checkout)` with private `_project_instructions` and `_ended_line`. `_write_files` now takes the request's `working_directory` and writes the system prompt, a blank line, the introducing sentence and the root `CLAUDE.md` in its `<project-instructions>` block. A root `CLAUDE.md` that is absent or not a regular file (`is_file()`) adds nothing. An `OSError` or `UnicodeDecodeError` while reading it raises `AgentRuntimeError` naming the path. A resumed call reuses the file written once per run.
+   - Main choice: the text is read in the Claude adapter from the host checkout (`request.working_directory`) when the run starts. I rejected putting it into the shared `system_prompt_text` in `agent_launch`, because opencode must not get the block.
+
+   Result: all 9 tests in `tests/agents/adapters/test_claude_runtime_project_instructions.py` pass. In `make check`, lint, types, layers, sast, secrets and licenses are green. `make test` fails on exactly one test:
+
+   ```
+   FAILED tests/agents/adapters/test_claude_runtime.py::test_call_gets_only_the_requests_environment_and_the_switches
+   E   AssertionError: assert {'CLAUDE_CODE...YTECODE', ...} <= {'CLAUDE_CODE...'TOKEN_PROBE'}
+   E     Extra items in the left set:
+   E     'CLAUDE_CODE_PROMPT_CACHE_TTL'
+   E     'CLAUDE_CODE_DISABLE_CLAUDE_MDS'
+   ```
+
+   Cause: `tests/agents/adapters/test_claude_runtime.py:25` defines its own written-out `SWITCHES` dict with the three old switches. It does not import the runtime's `SWITCHES`. The intake entry assumed the existing tests use the runtime's name, but this one does not. The Interface requires the two new switches, so this test cannot pass without a change, and it is a test another story wrote. The standing leave covers only moving shared helpers, so this needs your leave.
+
+   Options:
+   (a) The tester adds `"CLAUDE_CODE_DISABLE_CLAUDE_MDS": "1"` and `"CLAUDE_CODE_PROMPT_CACHE_TTL": "5m"` to the local `SWITCHES` dict at `tests/agents/adapters/test_claude_runtime.py:25`. The test keeps pinning the exact values on its own. **I recommend this.**
+   (b) The tester replaces the local dict with an import of `SWITCHES` from `factory.agents.adapters.claude_runtime`. Simpler, but the test would then no longer pin the values independently.
+   (c) Drop the switches from the Interface. I would not, because the story depends on them.
+
+   With your answer for (a) or (b), I end with `tests`, naming that change.
