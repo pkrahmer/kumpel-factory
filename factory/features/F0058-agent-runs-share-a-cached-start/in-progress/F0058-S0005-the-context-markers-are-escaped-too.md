@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 664
 comments_read: [6722586434]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: review
+  started_at: '2026-11-08T14:29:52.418762Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -130,6 +134,11 @@ journal:
   at: '2026-11-08T14:29:47.154435Z'
   stage: doing
   run: e28dc69e6f7645df88b3440b00abf27f
+- number: 23
+  speaker: factory
+  kind: started
+  at: '2026-11-08T14:29:52.418762Z'
+  stage: review
 ---
 
 # The context markers are escaped too
@@ -306,3 +315,4 @@ Expect: `1`
 
     `check`: check: green
     `duplicates`: duplicates: 7 new, 39 known, 4 gone
+23. factory: started review as vm.
