@@ -1,17 +1,13 @@
 ---
 stage: tests
-blocked: null
+blocked: question
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 660
 comments_read: [6720878077, 6720941885]
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-08T11:31:33.254729Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -68,6 +64,13 @@ journal:
   kind: started
   at: '2026-11-08T11:31:33.254729Z'
   stage: tests
+- number: 11
+  speaker: tester
+  kind: question
+  at: '2026-11-08T11:34:44.529093Z'
+  stage: tests
+  run: 63f00b83d7724358bec7c8b48382683f
+  blocked: question
 ---
 
 # The first message holds the work item, then the role
@@ -222,3 +225,44 @@ Expect: the docstring names the order: the work item's body, the role's instruct
    3. The black-box test: two runs of different roles see equal text after `--append-system-prompt-file`, and it is neither role's instructions. The coder picks the source.
    The same rule as before applies to every file under this leave: names stay, each checks otherwise the same thing, and your entry names each file you changed.
 10. factory: started tests as vm.
+11. tester: I wrote the tests your answer in entry 9 called for: criterion 9, criterion 10 and the system-prompt half of criterion 1. Before I hand over I need one more answer, on a clash with a test outside the leave.
+
+    **Question: does OpenCode's result block also end a resumed call's message?**
+    Your answer makes OpenCode's message "the request's prompt, then one blank line, then the result block". Read literally, that covers every call. But `tests/agents/adapters/test_opencode_resumed_words.py::test_a_resumed_call_keeps_every_word_of_the_first_before_its_session` expects the last word of a resumed call to be the prompt alone, in both its rows:
+    - `resume-session`: `"Go on."`
+    - `budget-resume`: the runtime's own `FINISH_MESSAGE`
+
+    That file is not on the leave. The options:
+    - (a) Every call's message ends with the result block, resumed and finish calls too. `test_opencode_resumed_words.py` joins the leave, and its expected last words become prompt + blank line + result block.
+    - (b) Only a call that starts a session gets the result block. A call with `--session` sends its prompt as it is, because the session already holds the block from its first message. No other test changes.
+
+    I would choose (b). It keeps the existing test green, and a resumed session has already seen the block. My new tests check only a fresh call, so they hold either way.
+
+    **Criteria to tests** (criteria 12 and 13 are not the tester's):
+    - criterion 1: `tests/agents/domain/test_prompts.py::test_runs_of_different_roles_share_the_message_up_to_the_end_of_the_work_item` (the message) and `tests/agents/adapters/test_claude_runtime.py::test_runs_of_different_roles_get_the_same_system_prompt` (the system prompt, black-box: equal text after `--append-system-prompt-file`, neither role's instructions)
+    - criterion 2: `tests/agents/domain/test_prompts.py::test_a_new_journal_entry_keeps_the_earlier_work_item_part_as_a_prefix`
+    - criterion 3: `tests/agents/domain/test_prompts.py::test_the_message_holds_the_work_item_then_the_role_then_the_facts_one_blank_line_apart` and `tests/pipeline/application/test_task.py::test_the_message_starts_with_the_work_item_body_then_the_roles_instructions`
+    - criterion 4: `tests/agent_files/test_first_message_agent_files.py::test_the_system_prompt_names_both_blocks_and_what_each_one_is`
+    - criterion 5: `tests/agents/domain/test_prompts.py::test_a_marker_text_in_the_body_is_escaped_and_opens_no_block`
+    - criterion 6: `tests/agents/domain/test_prompts.py::test_a_body_without_a_marker_text_reaches_the_message_byte_for_byte`
+    - criterion 7: `tests/agents/domain/test_prompts.py::test_the_prompt_holds_the_facts_line_by_line_and_ends_with_the_end_line`
+    - criterion 8: `tests/agents/domain/test_prompts.py::test_the_round_line_names_the_stages_cap_when_it_has_one` and `tests/pipeline/application/test_task.py::test_the_request_names_the_round_cap_of_a_stage_that_has_one`; `round_cap` 0 (refused) and 1 (accepted) are rows of `test_prompt_facts_hold_their_limits_on_both_sides`
+    - criterion 9: `tests/agents/adapters/test_opencode_runtime.py::test_the_message_holds_the_work_item_then_the_role_then_the_facts_then_the_result_block`
+    - criterion 10: `tests/agents/application/test_patient_runs.py::test_a_resumed_run_gets_the_whole_message_again_then_the_word_to_continue`
+    - criterion 11: `tests/agent_files/test_first_message_agent_files.py::test_no_agent_file_reads_its_work_item_first_and_each_finds_it_in_the_first_message`
+
+    **Files**
+    - Created (previous run, committed): `tests/agent_files/test_first_message_agent_files.py`.
+    - Changed under the leave in this run. Names are kept and each test checks otherwise the same thing:
+      - `tests/agents/adapters/test_claude_runtime.py`: `test_call_sees_the_instructions_file_and_no_guard_or_hooks_file` now checks that the file is not empty and is not the role's instructions; I added the new criterion 1 test.
+      - `tests/agents/adapters/test_opencode_runtime.py`: the last argument is prompt + blank line + result block; the configuration is compared without its agent's prompt; I added the criterion 9 test.
+      - `tests/agents/adapters/test_opencode_runtime_provider.py`: the same two changes.
+      - `tests/machine/adapters/test_opencode_runtime_lockdown.py`: the configuration is compared without its agent's prompt.
+      - `tests/agents/application/test_patient_runs.py`: the resumed prompt is the whole message, a blank line, then `CONTINUE_PROMPT`; I added the criterion 10 test.
+      - `tests/support/opencode_stand_in.py`: `request_configuration()` no longer holds a prompt. It gains `configuration_without_prompt`, which drops the agent's prompt and asserts the role's instructions are not in it, and `opencode_message`.
+      - Changed in the previous run, also under the leave: `tests/agents/domain/test_prompts.py`, `tests/pipeline/application/test_task.py` and `tests/pipeline/application/test_task_acceptance.py`.
+    - Not changed: the tests that pin the system-prompt file's path (`state/instructions-<session>.md`, mounted read-only into the container) in `test_call_passes_every_flag_in_order`, `test_claude_runtime_resume_session.py`, `test_claude_runtime_container.py` and `test_wiring_boundaries.py`. Unless you say otherwise, the coder keeps writing a per-run file there that holds the common text.
+
+    **Left open on purpose:** your answer does not say whether OpenCode's configuration still gives its agent a `prompt` key, or whether that prompt still holds the result block. The tests check only that it does not hold the role's instructions.
+
+    **Run:** one run of the changed and created test files: the new and changed tests fail as failures, not collection errors, for example `test_task.py::test_the_request_names_the_round_cap_of_a_stage_that_has_one` and `test_task_acceptance.py`, because `PromptFacts` has no `body`, `role`, `role_instructions` or `round_cap` yet. Every module imported; nothing was missing. `make lint`: green. I skipped the type check, as the stage says.

@@ -1,6 +1,5 @@
 """The opencode runtime merges the provider file into the configuration of every run."""
 
-import json
 from collections.abc import Mapping
 from pathlib import Path
 
@@ -14,6 +13,8 @@ from support.opencode_stand_in import (
     MODELS,
     REPLY_EVENTS,
     configuration_text,
+    configuration_without_prompt,
+    opencode_message,
     opencode_request,
     request_configuration,
     write_opencode,
@@ -52,7 +53,7 @@ def test_without_a_provider_file_the_configuration_is_as_before(
 
     runtime.run(opencode_request(tmp_path / "work"))
 
-    assert _configuration_text(tmp_path) == json.dumps(request_configuration())
+    assert configuration_without_prompt(_configuration_text(tmp_path)) == request_configuration()
 
 
 def test_a_provider_file_adds_its_keys_beside_the_existing_ones(tmp_path: Path) -> None:
@@ -60,7 +61,7 @@ def test_a_provider_file_adds_its_keys_beside_the_existing_ones(tmp_path: Path) 
 
     runtime.run(opencode_request(tmp_path / "work"))
 
-    assert json.loads(_configuration_text(tmp_path)) == {
+    assert configuration_without_prompt(_configuration_text(tmp_path)) == {
         **request_configuration(),
         **CONFIGURATION,
         "enabled_providers": ["corp"],
@@ -120,5 +121,5 @@ def test_a_model_of_the_provider_file_is_passed_as_it_is(
         "corp/m",
         "--agent",
         "factory-coder",
-        "Stage: doing",
+        opencode_message("Stage: doing", ["doing", "question"]),
     ]

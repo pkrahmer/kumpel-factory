@@ -285,7 +285,9 @@ def test_call_sees_the_instructions_file_and_no_guard_or_hooks_file(
     call = _only_call(tmp_path)
     session = _after(call.arguments, "--session-id")
 
-    assert call.files[str(state / f"instructions-{session}.md")] == request.agent.instructions
+    system_prompt = call.files[str(state / f"instructions-{session}.md")]
+    assert system_prompt.strip() != ""
+    assert request.agent.instructions not in system_prompt
     assert str(state / f"guard-{session}.json") not in call.files
     assert str(state / f"hooks-{session}.json") not in call.files
 
@@ -560,3 +562,27 @@ def test_reply_with_negative_measures_removes_run_files_and_reaches_the_kill_poi
     assert _only_call(tmp_path).files
     assert _left_over(state) == []
     assert kill_points.reached(KillPoint.AGENT_RUN) == 1
+
+
+def test_runs_of_different_roles_get_the_same_system_prompt(tmp_path: Path) -> None:
+    coder = _request(tmp_path)
+    tester = coder.model_copy(
+        update={
+            "agent": coder.agent.model_copy(
+                update={"name": "tester", "instructions": "Write the tests.\nOne per criterion."}
+            )
+        }
+    )
+    runtime = _runtime(tmp_path, [Step(stdout=_reply()), Step(stdout=_reply())])
+
+    runtime.run(coder)
+    runtime.run(tester)
+    first, second = read_calls(tmp_path / "bin")
+
+    seen = [
+        call.files[_after(call.arguments, "--append-system-prompt-file")]
+        for call in (first, second)
+    ]
+    assert seen[0] == seen[1]
+    assert coder.agent.instructions not in seen[0]
+    assert tester.agent.instructions not in seen[0]

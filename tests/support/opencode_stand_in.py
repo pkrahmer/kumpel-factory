@@ -239,8 +239,11 @@ def opencode_request(
 
 
 def request_configuration() -> dict[str, object]:
-    """The configuration a run of `opencode_request`'s defaults gets without a provider file."""
-    instructions = result_instructions(["doing", "question"])
+    """The configuration a run of `opencode_request`'s defaults gets, without its agent's prompt.
+
+    The message holds the role's instructions; `configuration_without_prompt` reads a run's
+    configuration the same way.
+    """
     return {
         "autoupdate": False,
         "share": "disabled",
@@ -248,12 +251,32 @@ def request_configuration() -> dict[str, object]:
         "agent": {
             "factory-coder": {
                 "mode": "primary",
-                "prompt": f"Write the code.\n\n{instructions}",
                 "tools": {name: name in ("read", "bash") for name in OPENCODE_TOOLS},
                 "permission": {"edit": "allow", "bash": {"*": "allow"}},
             }
         },
     }
+
+
+def configuration_without_prompt(text_of_configuration: str) -> dict[str, object]:
+    """The configuration in this text without its agents' prompts, none of which holds a role's.
+
+    A role's instructions reach the agent in the message, so a prompt the configuration still
+    gives its agent does not hold the instructions of `opencode_request`.
+    """
+    configuration: dict[str, object] = json.loads(text_of_configuration)
+    agents = configuration.get("agent")
+    assert isinstance(agents, dict)
+    for definition in agents.values():
+        assert isinstance(definition, dict)
+        prompt = str(definition.pop("prompt", ""))
+        assert "Write the code." not in prompt
+    return configuration
+
+
+def opencode_message(prompt: str, allowed_decisions: list[str]) -> str:
+    """The message an opencode run gets for `prompt`: the prompt, a blank line, the result block."""
+    return f"{prompt}\n\n{result_instructions(allowed_decisions)}"
 
 
 def configuration_text(call: StandInCall) -> str:

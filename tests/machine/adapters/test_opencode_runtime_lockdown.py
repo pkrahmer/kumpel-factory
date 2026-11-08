@@ -16,6 +16,7 @@ from support.opencode_stand_in import (
     REQUEST_ENVIRONMENT,
     RESUME_REPLY,
     configuration_text,
+    configuration_without_prompt,
     opencode_request,
     over_budget,
     request_configuration,
@@ -70,7 +71,7 @@ def test_without_a_provider_file_the_configuration_and_environment_are_as_before
     environment, expected, call = _call_environment(tmp_path, fake, None, in_container=in_container)
 
     assert environment == expected
-    assert configuration_text(call) == json.dumps(request_configuration())
+    assert configuration_without_prompt(configuration_text(call)) == request_configuration()
 
 
 @pytest.mark.parametrize("provider_id", [pytest.param("corp"), pytest.param("corp-1")])
