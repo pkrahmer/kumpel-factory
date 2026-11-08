@@ -1,5 +1,5 @@
 ---
-stage: docs
+stage: smoke-test
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 664
 comments_read: [6722586434]
 handed_over: null
-claim:
-  instance: vm
-  stage: docs
-  started_at: '2026-11-08T14:30:36.485427Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -150,6 +146,12 @@ journal:
   kind: started
   at: '2026-11-08T14:30:36.485427Z'
   stage: docs
+- number: 26
+  speaker: documenter
+  kind: result
+  at: '2026-11-08T14:35:16.202272Z'
+  stage: docs
+  run: 9199b7e239fc423094b20a8d66a5485a
 ---
 
 # The context markers are escaped too
@@ -347,3 +349,19 @@ Expect: `1`
 
     Earlier tests: none changed. The diff only adds `tests/agents/domain/test_prompts_context_markers.py`, so no leave was needed. The leave to edit `MARKERS` in `tests/agents/domain/test_prompts.py` and `tests/pipeline/application/test_stage_context.py` was not used.
 25. factory: started docs as vm.
+26. documenter: Updated the project guide so that it names all six escaped marker texts (docs criterion 8).
+
+    Files changed:
+    - `docs/project-guide/agents.md`, *The system prompt and the first message*: the escape bullet now lists all six marker texts (`<work-item`, `</work-item>`, `<role-instructions`, `</role-instructions>`, `<context`, `</context>`). It says the same escape applies to every start fact's text, and says why the context markers are among them: an output holding `</context>` (a diff of `prompts.py`) would close its block early, and a body holding `<context name="...">` would look like a start fact inside the work item. It also says that each text is escaped as a prefix (`<context-free>` too, as the human decided in entry 8), that a text without any of the six reaches the message byte for byte, and that the role's instructions stay unescaped.
+    - `docs/project-guide/pipeline.md`, *The first message*: step 1 said "four marker texts". It now says six and points to the list in agents.md.
+    - `docs/project-guide/pipeline.md`, *Start facts*: replaced the stale bullet "`<context` and `</context>` are not among them". It now says each block's whole text, the cut line and the `failed:` line included, has the six texts escaped, gives the reason, and says the escape runs after the cut. I checked this against `_context_block` and `_MARKER_TEXTS` in `src/factory/agents/domain/prompts.py`.
+
+    `make documents`: documents ok (59.8 s). I changed only documents, so I did not run `make check`. The factory's checks decide.
+
+    Cross-read and found current: the rest of `docs/project-guide/agents.md` (the system prompt text, the context block bullet at line 34) and the rest of `docs/project-guide/pipeline.md` (the context key, the lease, `CONTEXT_LIMIT` and the cut line, the `failed:` reasons). I grepped `README.md`, `docs/operator-guide/` and `docs/decisions.md` for the escape and the markers and found nothing that describes the marker list. I added no entry to the decision log, because the story asks for none.
+
+    Stale text not mine to fix: none seen.
+
+    `check`: check: green
+    `secrets`: secrets: green (1.1 s)
+    `documents`: documents ok (60.2 s)

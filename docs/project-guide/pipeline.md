@@ -182,7 +182,7 @@ The caller gives `TaskComposer` the `Boundaries`, the `PipelineDefinition` and t
 
 `compose_prompt(PromptFacts)` is the run's whole first message: three parts, and between the second and the third one block per start fact, all separated by one blank line each. What the system prompt says about them, and why they come in this order, is in *The system prompt and the first message* in [agents.md](agents.md).
 
-1. The `<work-item>` block: `<work-item>`, a newline, `body` with its four marker texts escaped (`<` as `&lt;`), a newline unless the body ends with one, `</work-item>`.
+1. The `<work-item>` block: `<work-item>`, a newline, `body` with its six marker texts escaped (`<` as `&lt;`; the list is in [agents.md](agents.md), *The system prompt and the first message*), a newline unless the body ends with one, `</work-item>`.
 2. The `<role-instructions role="<role>">` block, built the same way from `role_instructions`, unescaped, and closed by `</role-instructions>`.
    - Then one `<context name="<command>">` block per item of `start_facts`, in the order of the stage's `context`, built the same way and closed by `</context>` (*Start facts* below). A stage without `context` has none, and its message is the three parts alone.
 3. The run's facts, these lines joined with one newline, no trailing newline:
@@ -210,7 +210,7 @@ A stage may name project commands under `context`. Their outputs are the stage's
 - A file a command writes on the dataset is gone when the agent starts: `ContainerEnvironment.run_agent` rolls the dataset back to its base first, so neither the agent nor the take sees it.
 - A green command gives its whole output. An output longer than `CONTEXT_LIMIT` (60,000 characters) is cut to its first 60,000, followed by the line `[<n> more characters cut here; run the project command <command> yourself for its whole output]`.
 - A command that fails, runs out of its time limit or cannot start gives a block holding one line `failed: <reason>`, and the run goes ahead: a start fact is a help, not a gate. The reasons are `exit status <n>: <last line>` (or `exit status <n>` without a last line), `ran out of its time limit of <n> min`, and the message of the `ProjectCommandError`.
-- Each block's text has the marker texts escaped as in the work item; `<context` and `</context>` are not among them.
+- Each block's whole text, the cut line and the `failed:` line included, has the six marker texts escaped as in the work item, `<context` and `</context>` among them: an output that holds `</context>` (a diff of `prompts.py` does) would otherwise close its block early. The escape runs after the cut, so a marker in the kept part is escaped.
 - The commands count toward the lease (rule 7 and *The lease* in *The rules of the definition*).
 - Why: see *A stage's start facts come from project commands the factory runs* in the decision log.
 
