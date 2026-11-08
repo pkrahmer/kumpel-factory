@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 656
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T07:41:31.366834Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -36,6 +40,11 @@ journal:
   at: '2026-11-08T07:41:26.490229Z'
   stage: tests
   run: 67a05ae60de84b59b4d1460138224dd0
+- number: 6
+  speaker: factory
+  kind: started
+  at: '2026-11-08T07:41:31.366834Z'
+  stage: doing
 ---
 
 # The working branch's remote ref is one constant
@@ -126,3 +135,4 @@ Expect: `origin/develop`
    Files created: tests/shared/domain/test_paths_work_ref.py and tests/guards/test_work_ref_search.py. No earlier test changed.
 
    `lint`: lint: green (0.2 s)
+6. factory: started doing as vm.
