@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 1
 attempts: 0
@@ -197,6 +197,11 @@ journal:
   at: '2026-11-08T11:14:55.523316Z'
   stage: smoke-test
   run: 1166a3eb691c491db648fdc40991c8d0
+- number: 35
+  speaker: factory
+  kind: done
+  at: '2026-11-08T11:18:49.161956Z'
+  stage: approval
 ---
 
 # Every role has the same tools and the same decision tool
@@ -517,3 +522,4 @@ Expect: exactly one line, `model: opus`
     Checked against the acceptance criteria: nothing in the output contradicts any criterion. To check criterion 2 I also read the `effort:` lines (`grep -H '^effort:' agents/agents/*.md`). They give acceptance-reviewer high, coder medium, documenter medium, intake medium, reviewer high, smoke-tester medium and tester medium, which is what the criterion asks for. The smoke test does not reach criteria 3 to 8 (the runtime's `--json-schema`, refusing a decision outside the allowed ones, the write-path verdict, the message, the launch arguments), 9 (`make check`) or 10 (docs). The factory's checks and the earlier stages cover those.
 
     Findings: none.
+35. factory: done (pull request merged); cost: 15 runs, 16.7 min, 109 turns, 405567 tokens in (2529204 more from cache), 46318 out, $3.21
