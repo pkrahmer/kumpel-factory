@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 0
 attempts: 0
@@ -20,8 +20,13 @@ journal:
   at: '2026-11-08T03:31:42.319049Z'
   stage: acceptance
   run: b83a59bab6e94c448e2bbdbebcc18b0d
+- number: 3
+  speaker: factory
+  kind: done
+  at: '2026-11-08T03:33:35.679506Z'
+  stage: done
 stories: [F0057-S0001, F0057-S0002, F0057-S0003, F0057-S0004, F0057-S0005, F0057-S0006, F0057-S0007, F0057-S0008, F0057-S0009]
-outcome: null
+outcome: accepted
 ---
 
 # Acceptance of The factory works on develop
@@ -255,3 +260,4 @@ The human answered 17 questions, all of cause `question`, and the stories waited
    6 Decisions: the human's answers in S0006 j4, S0007 j4 and S0009 j4. Defaults nobody asked about: a reused promotion keeps its first feature's title; criterion 4 of S0007 still says "exits non-zero"; `main` stays the default branch; S0009 renamed beyond its list. Open for the human: whether an acceptance that proposes stories should defer the promotion, and the coder's missing write path for Description corrections. Every earlier test change names its leave.
    7 Slow checks: nothing beyond `make check`, which is green (`test: green (109.6 s)`, 99.22 %, 11004 tests). The slowest are the 10 s `ROOMY_LIMIT` tests. Free disk fell another 0.5 GB with used space unchanged (1.2 GB over the feature). No dependency or image change explains it.
    8 Cost: $31.15 over 103 runs. S0006 to S0009 cost $6.81 over 34 runs, and S0007 the most of them ($2.24, one review round). S0003 is still the costliest of the feature ($9.68). 17 questions were answered and the stories waited 0.6 h; the 3 new questions were one intake question each in S0006, S0007 and S0009. S0002 needed the human most (7 questions).
+3. factory: done (pull request merged); cost: 1 runs, 8.6 min, 37 turns, 137125 tokens in (3150870 more from cache), 37805 out, $2.07
