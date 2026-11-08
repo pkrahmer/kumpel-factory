@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 680
 comments_read: [6727432579, 6727512748, 6727549619]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: docs
+  started_at: '2026-11-08T21:55:30.851545Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -175,6 +179,11 @@ journal:
   at: '2026-11-08T21:55:25.754269Z'
   stage: review
   run: 7fafba04e83345c4893ccf69e41ed262
+- number: 31
+  speaker: factory
+  kind: started
+  at: '2026-11-08T21:55:30.851545Z'
+  stage: docs
 ---
 
 # A review whose findings need only tests goes to the tester
@@ -490,3 +499,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     Notes:
     - `src/factory/agents/domain/prompts.py:121-123`: the R12 line wrap is uneven (a short "`round`, capped by " fragment). This is cosmetic and the text is correct.
     - `agents/agents/reviewer.md` Role, "`docs` passes, `doing` sends the work item back": it does not name `tests`. The Interface limits the change to `## Stage`, so this is left for a later story if the human wants it.
+31. factory: started docs as vm.
