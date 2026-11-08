@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 673
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-08T16:28:58.632262Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -34,6 +30,12 @@ journal:
   kind: started
   at: '2026-11-08T16:28:58.632262Z'
   stage: tests
+- number: 5
+  speaker: tester
+  kind: result
+  at: '2026-11-08T16:29:54.503814Z'
+  stage: tests
+  run: a4eee1da7f504230bf71ebd6a4678a47
 ---
 
 # The smoke tester routes a red check
@@ -83,3 +85,25 @@ Expect: a count of 1 or more.
    - Scope: this is the feature's third scope line (S0002) and decision 4. It adds no new factory rule, which the feature lists as out of scope. The pipeline's own `smoke-test: checks: [check]` is the human's later change, not this story's.
    - Route: `tests`. The changed path, `agents/agents/smoke-tester.md`, is outside the documenter's write paths.
 4. factory: started tests as vm.
+5. tester: Wrote the tests for the smoke tester's `check_red` rule. They read the shipped agent file through `tests/support/shipped_agents.py`.
+   - criterion 1: `tests/agent_files/test_claude_agent_texts_check_red.py::test_the_smoke_tester_routes_a_red_check_without_running_the_smoke_test_again`. It is one parametrized test over the rule's sentences. The rule is the paragraph (the lines between blank lines) of the smoke tester's `## Stage` section that holds `check_red`; a sentence is a line, or the text between full stops. Its rows check:
+     - the stall is named;
+     - one sentence says the smoke test is not or never run again;
+     - one sentence names the "failing lines";
+     - one sentence pairs `doing` with each of test, type, lint, layer, security, licence and "cannot place";
+     - one sentence pairs `docs` with each of documenter, README, guide, "document check" and secrets;
+     - one sentence names the entry, naming and the file;
+     - every `make <target>` in the rule is `make check`, and the rule holds no `uv run`.
+   - criterion 2: `tests/agent_files/test_claude_agent_texts_check_red.py::test_the_red_check_rule_sits_in_the_smoke_testers_stage_and_in_no_shared_rule`. It runs over every shipped agent: no `## Rules` section holds `check_red`, the smoke tester holds it only in its Stage section, and no other agent holds it.
+   - criterion 3: the coder's `make check`.
+   - criterion 4 (docs): the documenter's, not tested.
+
+   Files created: `tests/agent_files/test_claude_agent_texts_check_red.py`. Every module imported; no collection errors.
+
+   The run of the new file failed as intended. Every row except `only-make-check` failed, and so did the `smoke-tester` row of the placement test, because the rule is not in the file yet. `only-make-check` passes on an empty rule; it only constrains what the coder writes. `make lint` is green (I ran `ruff format` once on the new file).
+
+   I did not pin exact wording, because the Interface dictates none. The rows check only the facts the Interface lists.
+
+   Note for the coder: `tests/agent_files/test_claude_agent_texts_docs_slip.py` requires "end with `docs`" and "end with `approval`" to each appear exactly once in the smoke tester's Stage section. Write the new routes as "decides `doing`" and "decides `docs`" (as the Interface does), and leave steps 5 and 6 as they are.
+
+   `lint`: lint: green (0.2 s)
