@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 659
 comments_read: [6720500729, 6720585535]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T10:53:41.983215Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -69,6 +73,11 @@ journal:
   speaker: human
   kind: comment
   at: '2026-11-08T10:53:39.699791Z'
+  stage: doing
+- number: 12
+  speaker: factory
+  kind: started
+  at: '2026-11-08T10:53:41.983215Z'
   stage: doing
 ---
 
@@ -191,3 +200,4 @@ Expect: exactly one line, `model: opus`
 
     Noticed but not touched: the comment above `__all__` in `claude_runtime.py` keeps old names exported for earlier callers. It is unrelated to this story. The journal changed nothing in the Description; it only added criteria 6 to 8, which intake already carried in.
 11. 2026-11-08 human: Option 1: the tester changes the helper's `work.mkdir()` to `work.mkdir(parents=True)`; the test keeps checking the same thing.
+12. factory: started doing as vm.
