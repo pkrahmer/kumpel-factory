@@ -10,12 +10,11 @@ from factory.pipeline.application.boundaries import Boundaries
 from factory.pipeline.application.stops import StopService
 from factory.pipeline.domain.stops import RepositoryStop, RepositoryStopReason
 from factory.shared.domain.errors import GitError
-from factory.shared.domain.paths import PIPELINE_DEFINITION_FILE, REMOTE, WORK_BRANCH
+from factory.shared.domain.paths import PIPELINE_DEFINITION_FILE, WORK_BRANCH, WORK_REF
 from factory.shared.domain.settings import InstanceSettings
 from factory.watching.application.machine import FactoryLog
 
 _UNAVAILABLE: RepositoryStopReason = "repository_unavailable"
-_WORK_REF = f"{REMOTE}/{WORK_BRANCH}"
 
 FIRST_IDLE_PAUSE = timedelta(seconds=30)
 MAX_PAUSE = timedelta(seconds=120)
@@ -131,10 +130,10 @@ class RepositoryWaiter:
 
     def _work_branch_fault(self) -> str | None:
         git = self._boundaries.git
-        if git.resolve(_WORK_REF) is None:
+        if git.resolve(WORK_REF) is None:
             return f"the repository has no {WORK_BRANCH} branch yet"
-        if git.show_file(_WORK_REF, PIPELINE_DEFINITION_FILE) is None:
-            return f"{_WORK_REF} has no {PIPELINE_DEFINITION_FILE} yet"
+        if git.show_file(WORK_REF, PIPELINE_DEFINITION_FILE) is None:
+            return f"{WORK_REF} has no {PIPELINE_DEFINITION_FILE} yet"
         return None
 
     def _unavailable(self, detail: str) -> bool:

@@ -93,7 +93,7 @@ from factory.shared.adapters.clock import SleepingWaiter, SystemClock
 from factory.shared.application.files import PipelineDefinitionReader, WorkItemReader
 from factory.shared.domain.errors import ContainerError, GitError, SettingsInvalid
 from factory.shared.domain.identifiers import Name
-from factory.shared.domain.paths import REMOTE, WORK_BRANCH
+from factory.shared.domain.paths import WORK_REF
 from factory.shared.domain.settings import (
     CREDENTIAL_FILE_VARIABLE,
     DATASET_VARIABLE,
@@ -181,7 +181,6 @@ _RESULT_RECORDS_PATH = Path("records", "known-results.jsonl")
 _MISSING = "missing"
 _USER_SLICES = Path("/sys/fs/cgroup/user.slice")
 _MEMINFO = Path("/proc/meminfo")
-_WORK_REF = f"{REMOTE}/{WORK_BRANCH}"
 _STAGE_IMAGE_FAILED: RepositoryStopReason = "stage_image_failed"
 _SHORT_COMMIT_LENGTH = 12
 # Room for curl's own five seconds and the container's start.
@@ -428,15 +427,15 @@ def stage_image_report(git: Git, log: FactoryLog, clock: Clock) -> StageImageRep
 
     `GitError` when `origin/<working branch>` does not exist.
     """
-    commit = git.resolve(_WORK_REF)
+    commit = git.resolve(WORK_REF)
     if commit is None:
-        raise GitError(f"resolve {_WORK_REF}", None, "no such ref")
+        raise GitError(f"resolve {WORK_REF}", None, "no such ref")
     return StageImageReport(log=log, clock=clock, commit=commit[:_SHORT_COMMIT_LENGTH])
 
 
 def stage_file_on_work_branch(git: Git) -> str | None:
     """Return the text of the stage file on `origin/<working branch>`, or `None` without one."""
-    return git.show_file(_WORK_REF, STAGE_FILE)
+    return git.show_file(WORK_REF, STAGE_FILE)
 
 
 @dataclass(frozen=True)

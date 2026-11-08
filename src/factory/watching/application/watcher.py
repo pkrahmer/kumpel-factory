@@ -9,13 +9,11 @@ from factory.pipeline.domain.events import Event
 from factory.pipeline.domain.pipeline_definition import PipelineDefinition
 from factory.shared.domain.errors import GitError
 from factory.shared.domain.identifiers import Name
-from factory.shared.domain.paths import REMOTE, WORK_BRANCH
+from factory.shared.domain.paths import WORK_REF
 from factory.work.application.acceptance_reading import AcceptanceReader, running_work_items
 from factory.work.application.work_items import RemoteWorkItems
 from factory.work.domain.move_rule import IllegalChange, is_legal_change
 from factory.work.domain.work_item import WorkItemSnapshot
-
-_WORK_REF = f"{REMOTE}/{WORK_BRANCH}"
 
 
 class Watcher:
@@ -51,9 +49,9 @@ class Watcher:
         return evaluate(facts, self._lookup, status_of)
 
     def _work_commit(self) -> CommitId:
-        commit = self._boundaries.git.resolve(_WORK_REF)
+        commit = self._boundaries.git.resolve(WORK_REF)
         if commit is None:
-            raise GitError(f"resolve {_WORK_REF}", None, f"{_WORK_REF} does not resolve")
+            raise GitError(f"resolve {WORK_REF}", None, f"{WORK_REF} does not resolve")
         return commit
 
     def _lookup(self, number: int) -> PullRequestObservation:
