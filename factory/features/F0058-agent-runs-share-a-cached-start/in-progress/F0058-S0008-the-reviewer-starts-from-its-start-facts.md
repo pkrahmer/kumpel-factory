@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 669
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T15:25:52.843653Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -45,6 +41,12 @@ journal:
   kind: started
   at: '2026-11-08T15:25:52.843653Z'
   stage: doing
+- number: 7
+  speaker: coder
+  kind: result
+  at: '2026-11-08T15:30:11.401752Z'
+  stage: doing
+  run: 47a53dec652d4fc2a34644eebd29695a
 ---
 
 # The reviewer starts from its start facts
@@ -119,3 +121,16 @@ Expect: a line ending in `passed` with no `failed`.
 
    `lint`: lint: green (0.2 s)
 6. factory: started doing as vm.
+7. coder: Rewrote the two diff-reading steps in `agents/agents/reviewer.md`. No other file changed, and no file under `src/` changed.
+      - *Stage* step 1 keeps its diff scope (`git diff develop...HEAD -- . ':!factory'`). It now says the diff is in the first message's `<context>` block when one holds it, and that the reviewer reads it there. The reviewer runs the command itself (its `--stat` and the diff) only in three cases: no block holds the diff, the block says `failed:`, or the block ends in the cut line. The rule on generated and lock files is unchanged ("Leave out of the diff the generated files ... and lock files"), and so are the sentences on the Makefile and `make check`.
+      - *docs-review* step 1 says the same for `git diff develop...HEAD -- README.md docs operator/README.md` and no longer says "in your first command".
+      - Neither step names a project command such as `facts-diff`.
+      - Main choice: I kept *Stage* step 1 on one line from `1. Review ` up to its sentence `Do not read the Makefile`. The tester's pattern in `test_claude_agent_texts_review_groups.py` matches that line without DOTALL, so it rebuilds the earlier text only when the step does not wrap. Rejected: splitting the fallback into its own sub-bullet. It would read more clearly, but it would break that pattern and the "next numbered step / blank line" bound in the new test.
+      - Refactor: I read the diff again and nothing needed changing.
+      - The journal did not change the meaning of the task.
+      - Noticed and left alone: as intake noted, `docs/project-guide/agents.md` has no `reviewer | review` row in its docs-route table. Placing the `review` side of criterion 5 is the documenter's choice.
+
+      `make check`: check: green (test: green (110.0 s)).
+
+   `check`: check: green
+   `duplicates`: duplicates: 7 new, 39 known, 4 gone
