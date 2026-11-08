@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 678
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T19:59:27.078510Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -58,6 +62,11 @@ journal:
   at: '2026-11-08T19:59:22.156363Z'
   stage: tests
   run: 6a2b8433f41b4594a9cc3bc4500d0321
+- number: 10
+  speaker: factory
+  kind: started
+  at: '2026-11-08T19:59:27.078510Z'
+  stage: doing
 ---
 
 # The rules every role shares stand in the system prompt
@@ -198,3 +207,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    Open: none. The coder's entry says no code needs to change after these tests.
 
    `lint`: lint: green (0.1 s)
+10. factory: started doing as vm.
