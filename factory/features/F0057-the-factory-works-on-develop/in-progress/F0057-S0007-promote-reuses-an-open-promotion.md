@@ -1,17 +1,13 @@
 ---
-stage: review
+stage: doing
 blocked: null
-round: 0
+round: 1
 attempts: 0
 crashes: 0
 pull_request: 650
 comments_read: [6716086925]
 handed_over: null
-claim:
-  instance: vm
-  stage: review
-  started_at: '2026-11-08T02:26:30.362346Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -73,6 +69,12 @@ journal:
   kind: started
   at: '2026-11-08T02:26:30.362346Z'
   stage: review
+- number: 12
+  speaker: reviewer
+  kind: result
+  at: '2026-11-08T02:27:27.066287Z'
+  stage: review
+  run: e65d4893af09494c811e8ad630f98ccc
 ---
 
 # promote.sh reuses an open promotion
@@ -172,3 +174,20 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
     `check`: check: green
     `duplicates`: duplicates: 6 new, 39 known, 4 gone
 11. factory: started review as vm.
+12. reviewer: Reviewed `git diff develop...HEAD -- . ':!factory'`, which covers `operator/skill/kumpel/scripts/promote.sh`, the new `tests/operator_scripts/test_operator_promote_reuse.py`, `tests/operator_scripts/test_operator_develop.py` and `tests/support/operator_skill_support.py`, against the work item. I also read `operator/lib/hosting.sh` to find the hosting client's exit status. The script does what the Interface says:
+    - It sends the GET with the exact query and takes the owner from `${SITE_REPOSITORY%%/*}`.
+    - It plans `open`, `patch` or `keep` in one `python3 -I` step and passes the JSON as quoted arguments, so no shell string is built from input.
+    - Its PATCH carries only `body`.
+    - It prints `promotion opened`/`promotion open`, and the merge path is unchanged.
+
+    Every criterion from 1 to 4 has a test that checks what the criterion says. The coder's journal shows `make check` green. The Description matches what was built, and docs criterion 6 is still right for the documenter.
+
+    Findings:
+    1. `tests/operator_scripts/test_operator_promote_reuse.py:28-29`: `PULL_NUMBER = 4711` and `SWITCHES = {"merge": False, "answer": True, "start_next": True}` copy `PULL_NUMBER` and `OLD_SWITCHES` from `tests/operator_scripts/test_operator_develop.py:35-36`. CLAUDE.md *Tests* says a constant that two test modules share lives in `tests/support/`. Fix: the tester moves both into `tests/support/operator_skill_support.py` under the standing leave, and both modules import them from there.
+    2. `tests/operator_scripts/test_operator_promote_reuse.py:166` (`test_promote_stops_when_the_query_for_the_open_promotion_fails`): the Interface says a failed GET stops the script "with the hosting client's message and exit status". The test only checks `exit_status != 0`, so a script ending with `|| exit 1` would also pass. `hosting_api` returns 22 for an HTTP error (`operator/lib/hosting.sh:48`), and `promote.sh` passes it on with `|| exit $?`. Fix: assert `result.exit_status == 22`. This is also a gap in the story: criterion 4 says only "exits non-zero", so the coder sends it to the tester as a test change and states the status in criterion 4.
+
+    Earlier tests:
+    - `tests/operator_scripts/test_operator_develop.py`, changed under two leaves:
+      - The standing leave to move a shared test helper: `write_switches` and `requests_that_change` moved to `tests/support/operator_skill_support.py`, and their names and what they check are unchanged.
+      - The human's leave in journal entry 4: `test_promote_opens_the_promotion_and_merges_it_only_with_the_switch_on` now answers `OPEN_PROMOTION` with `[]`.
+    - `tests/support/operator_skill_support.py`: no leave needed, the change only adds `OPEN_PROMOTION` and the two moved helpers.
