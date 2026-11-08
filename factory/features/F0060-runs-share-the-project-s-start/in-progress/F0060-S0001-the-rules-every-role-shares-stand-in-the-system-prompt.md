@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 678
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T19:59:27.078510Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -67,6 +63,12 @@ journal:
   kind: started
   at: '2026-11-08T19:59:27.078510Z'
   stage: doing
+- number: 11
+  speaker: coder
+  kind: result
+  at: '2026-11-08T20:01:50.401924Z'
+  stage: doing
+  run: 2e4965ab7028488982ad51be96a1a32d
 ---
 
 # The rules every role shares stand in the system prompt
@@ -208,3 +210,25 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
    `lint`: lint: green (0.1 s)
 10. factory: started doing as vm.
+11. coder: The build from entry 7 is unchanged and was already committed on the branch. The tester's four test changes from entry 9 now pass against it, and no code needed to change.
+
+    What I built (from entry 7, checked again in this run):
+    - `agents/system-prompt.md`: the orientation, then `## Rules` with the opening paragraphs and R1 to R15, word for word as the coder's file held them. The one exception is the opening sentence, which now reads: "Stage-specific instructions are under `Stage`, role-specific instructions under `Role`, both in the `<role-instructions>` block of your first message."
+    - `src/factory/agents/domain/prompts.py`: `SYSTEM_PROMPT` matches the file byte for byte (checked with `diff` against the imported constant).
+    - `agents/agents/{intake,tester,coder,reviewer,documenter,smoke-tester,acceptance-reviewer}.md`: the `## Rules` section is removed and nothing else changed.
+
+    Run:
+    - `uv run pytest -q tests/agent_files/ tests/agents/adapters/test_shipped_agents_effect.py`: all passed.
+    - `make check`: green (lint, types, layers, sast, secrets, licenses, test at 99.21 % coverage).
+
+    Main choice (from entry 7): the orientation's role sentence says the role's instructions "add to these rules: follow them with the same weight". That way one sentence names both blocks, and `test_first_message_agent_files.py::test_the_system_prompt_names_both_blocks_and_what_each_one_is` keeps passing unchanged. Rejected: "follow them with the same weight as these rules" after a colon, because it would have broken that test outside the leave.
+
+    Refactor: nothing to change. The diff is the moved section, the constant generated from the file and the reworded orientation.
+
+    Noticed, not touched:
+    - The orientation now says "The rules below apply to every agent in every stage." The rules' first paragraph, kept word for word, repeats "These rules apply to every agent in every stage." The repetition is deliberate: criteria 4 and 5 each ask for one of the two sentences.
+    - `docs/operator-guide/agent-runtime.md` and `docs/project-guide/agents.md` still say every agent file holds `## Rules`. Criterion 9 leaves that to the documenter.
+
+    The journal did not change the meaning of the task, so `## Description` stays as it is.
+
+    `duplicates`: duplicates: 7 new, 39 known, 4 gone
