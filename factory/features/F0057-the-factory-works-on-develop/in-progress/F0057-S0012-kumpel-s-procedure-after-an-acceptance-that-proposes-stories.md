@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 654
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-08T07:14:10.556131Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -69,6 +73,11 @@ journal:
   at: '2026-11-08T07:14:05.590554Z'
   stage: doing
   run: c418071a3e884fe981f0da4c398240b2
+- number: 12
+  speaker: factory
+  kind: started
+  at: '2026-11-08T07:14:10.556131Z'
+  stage: tests
 ---
 
 # Kumpel's procedure after an acceptance that proposes stories
@@ -166,3 +175,4 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
     `operator/skill/kumpel/references/approving.md` stays as it was in entry 7. The journal did not change the task's meaning, so the Description stays as it is. I did not run `make check` this round because nothing in the working tree changed.
 
     Noticed, not touched: `tests/operator_scripts/test_operator_archive_outcome.py:121-124` still finds the section with its own inline lines. Changing that test would need the human's leave or the standing leave to move a shared helper, and this story says no earlier test changes.
+12. factory: started tests as vm.
