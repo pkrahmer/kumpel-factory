@@ -5,6 +5,7 @@ import zlib
 
 import pytest
 
+from support.shared_rules_support import RULES_BEFORE
 from support.shipped_agents import SHIPPED_NAMES, agent_body
 
 _ALL_GROUPS = (
@@ -45,7 +46,12 @@ def test_no_other_agent_asks_for_all_five_groups(name: str) -> None:
 
 
 def test_the_rest_of_the_reviewer_body_is_unchanged() -> None:
-    body = _DOCUMENTS_ITEM.sub("", _DOCS_REVIEW_SUBSECTION.sub("", agent_body("reviewer")))
+    # A later story moved the shared rules into the system prompt: the earlier body held them, as
+    # they stood before that move, in a `## Rules` section right before `## Role`.
+    with_rules = agent_body("reviewer").replace(
+        "\n## Role\n", "\n## Rules\n\n" + "\n\n".join(RULES_BEFORE) + "\n\n## Role\n", 1
+    )
+    body = _DOCUMENTS_ITEM.sub("", _DOCS_REVIEW_SUBSECTION.sub("", with_rules))
     assert body.count(_ALL_GROUPS) == 1
 
     untested_side_is_a_note = (

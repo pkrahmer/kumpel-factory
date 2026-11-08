@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 678
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-08T19:58:27.527037Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -56,6 +52,12 @@ journal:
   kind: started
   at: '2026-11-08T19:58:27.527037Z'
   stage: tests
+- number: 9
+  speaker: tester
+  kind: result
+  at: '2026-11-08T19:59:22.156363Z'
+  stage: tests
+  run: 6a2b8433f41b4594a9cc3bc4500d0321
 ---
 
 # The rules every role shares stand in the system prompt
@@ -181,3 +183,18 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
    Noticed, not touched: `docs/project-guide/agents.md` and `docs/operator-guide/agent-runtime.md` still describe `## Rules` in every agent file. The documenter handles that under criterion 9.
 8. factory: started tests as vm.
+9. tester: Made the four test changes that the coder's entry 7 names, under the human's leave (decision 1 in `feature.md`, "any other test whose only failure is this move"). Every test keeps its name and checks the same text. The only difference is that the shared rules are now read from `agents/system-prompt.md`, through `shared_rules()` in `tests/support/shipped_agents.py`.
+
+   Earlier test files changed:
+   - `tests/agent_files/test_shipped_agents_r14.py::test_each_agent_holds_the_take_s_r14_once_and_no_kernel_promise`: `WRITE_PATHS_RULE` must now appear exactly once in `shared_rules()`. The checks for no kernel promise and no `$TMPDIR` run on each agent file and on the shared rules, so they cover the same text as before.
+   - `tests/agent_files/test_first_message_agent_files.py::test_no_agent_file_reads_its_work_item_first_and_each_finds_it_in_the_first_message`: the `READ_FIRST` patterns are still checked on each agent file. The sentence naming "work item" and "first message", which came from R6, is now looked for in `shared_rules()`.
+   - `tests/agent_files/test_claude_agent_texts.py::test_body_names_every_decision_of_its_stage_in_inline_code`: a decision counts as named when it appears in inline code in the agent's body or in `shared_rules()`.
+   - `tests/agent_files/test_claude_agent_texts_review_groups.py::test_the_rest_of_the_reviewer_body_is_unchanged`: before the earlier body is rebuilt, the pre-move `## Rules` section (`RULES_BEFORE` from `tests/support/shared_rules_support.py`) is put back right before `## Role`. The pinned CRC-32 (3903663111) did not change and still matches.
+
+   Rejected: pinning a new CRC value for the reviewer body. Putting the old rules back keeps the test checking against the same earlier text.
+
+   Run: `uv run pytest -q tests/agent_files/ tests/agents/adapters/test_shipped_agents_effect.py` all passed. `make lint` is green. No files were created, and no module failed to import.
+
+   Open: none. The coder's entry says no code needs to change after these tests.
+
+   `lint`: lint: green (0.1 s)

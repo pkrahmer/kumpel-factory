@@ -191,9 +191,13 @@ def test_body_uses_no_word_the_rename_table_replaces(name: str) -> None:
 
 @pytest.mark.parametrize("name", SHIPPED_NAMES)
 def test_body_names_every_decision_of_its_stage_in_inline_code(name: str) -> None:
-    body = agent_body(name)
+    texts = (agent_body(name), shared_rules())
 
-    missing = [decision for decision in _decisions(name) if f"`{decision}`" not in body]
+    missing = [
+        decision
+        for decision in _decisions(name)
+        if not any(f"`{decision}`" in text for text in texts)
+    ]
 
     assert missing == []
 
