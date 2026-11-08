@@ -2,16 +2,12 @@
 stage: intake
 blocked: null
 round: 0
-attempts: 0
+attempts: 1
 crashes: 0
 pull_request: 649
 comments_read: [6715900227]
 handed_over: null
-claim:
-  instance: vm
-  stage: intake
-  started_at: '2026-11-08T01:58:50.365369Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -40,6 +36,19 @@ journal:
   kind: started
   at: '2026-11-08T01:58:50.365369Z'
   stage: intake
+- number: 6
+  speaker: intake
+  kind: result
+  at: '2026-11-08T01:59:13.879411Z'
+  stage: intake
+  run: 4a5a383a98e54aeabede6cd574789432
+- number: 7
+  speaker: factory
+  kind: stall
+  at: '2026-11-08T01:59:13.976515Z'
+  stage: intake
+  run: 4a5a383a98e54aeabede6cd574789432
+  reason: form_invalid
 ---
 
 # archive-feature.sh refuses a feature whose acceptance was refused
@@ -56,7 +65,7 @@ journal:
 - The existing refusals and their texts stay: a story in `backlog/` or `in-progress/`, no acceptance, and a last acceptance outside `done/`.
 - `operator/skill/kumpel/references/approving.md`, *After a feature's acceptance*, step 1 names the new refusal among the ones Kumpel reports to the human.
 - Tests: a new module `tests/operator_scripts/test_operator_archive_outcome.py`, on a fake remote through the `operator` fixture.
-- The human's leave, to be given when refining: `tests/operator_scripts/test_operator_develop.py`, whose `finished_feature` writes an acceptance report without front matter. The tester gives that text the front matter of a booked acceptance (`stage: done`, `outcome: accepted`), so far as the new rule requires. Every changed test keeps its name and what it checks.
+- The human's leave, given in journal entry 4: `tests/operator_scripts/test_operator_develop.py`, whose `finished_feature` writes an acceptance report without front matter. The tester gives that text the front matter of a booked acceptance (`stage: done`, `outcome: accepted`), so far as the new rule requires. Every changed test keeps its name and what it checks.
 
 ## Acceptance criteria
 
@@ -65,9 +74,13 @@ journal:
    - Last report has `outcome: refused`: exits 1 with `archive-feature.sh: F0001 is not finished: its last acceptance <path> is not accepted`, and the remote's `develop` is unchanged.
    - Last report has front matter but no `outcome` line: refused the same way.
    - Last report has no front matter: refused the same way.
+   - Last report has an opening `---` but no closing one: refused the same way.
+   - Last report has `outcome: accepted` only in its body, after the front matter's closing `---`: refused the same way.
    - `F0001-A0001` refused and `F0001-A0002` accepted, both in `done/`: exits 0, since the last one counts.
-2. The earlier refusals keep their texts and exit statuses (the earlier tests of `test_operator_develop.py` pass, changed only under the leave).
-3. `make check` stays green.
+   Every refused row also checks that the local checkout is still on `develop` with a clean working tree.
+2. The earlier refusals keep their texts and exit statuses, each a row of a test in the new module (the existing test only checks a non-zero status, not the texts): a story in `backlog/`, a story in `in-progress/`, no acceptance, a last acceptance outside `done/`; each exits 1 with its existing text on stderr (the texts as the script has them), and the remote's `develop` is unchanged. The earlier tests of `test_operator_develop.py` pass, changed only under the leave given in journal entry 4.
+3. `operator/skill/kumpel/references/approving.md`, *After a feature's acceptance*, step 1 contains the refusal text `is not finished: its last acceptance` (a test in the new module reads the file; the coder writes it).
+4. `make check` stays green.
 4. docs: `operator/README.md` and `docs/operator-guide/install.md` (*The promotion*) say that only a feature whose last acceptance was accepted is archived and promoted; `docs/decisions.md`: none.
 
 ## Smoke test
@@ -100,3 +113,12 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
    4. Yes, both rows, refused the same way.
    5. Yes: confirm, and add a row to the new module for any that is missing.
 5. factory: started intake as vm.
+6. intake: accepted, with the human's answers (journal entry 4) carried into the story.
+   - Interface: names `archive-feature.sh`, its refusal text and exit status, and `approving.md` step 1. The leave for `test_operator_develop.py` is now stated as given (entry 4, answer 1).
+   - Criteria: criterion 1 gains two rows (opening `---` with no closing one; `outcome: accepted` only in the body) and a clean-`develop`-checkout check on every refused row (answers 3 and 4). Criterion 2 now has its own rows in the new module for the four earlier refusals. I checked the existing test: it asserts only a non-zero exit status, not the texts, so they were not pinned (answer 5). New criterion 3 tests that `approving.md` step 1 holds the refusal text (answer 2, option a). `make check` and `docs:` stay last, and the docs criterion names what the reader must know. Every rule has a failing side.
+   - Smoke test: runnable. The command has no `-q`, and its Expect line is checkable.
+   - Docs criterion: names the files and what they must say, with no sentences dictated.
+   - Architecture: the change is in an operator script and its tests. It belongs in `operator/skill/kumpel`, and `promote.sh` is unchanged.
+   - Scope: S0006 is not in `feature.md`'s Stories list, but it comes from the feature's acceptance, so I treat it as in scope.
+   - Route: `tests`. The Interface changes the script and `approving.md`, which are outside the documenter's paths.
+7. factory: Stage intake stalled (attempt 1 of 2): the work item's form broke during the stage: criterion numbered 4 where 5 is expected
