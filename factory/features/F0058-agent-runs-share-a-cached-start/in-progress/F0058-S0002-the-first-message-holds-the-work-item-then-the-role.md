@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 660
 comments_read: [6720878077, 6720941885, 6720981420, 6721183670]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T11:58:17.530901Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -103,6 +107,11 @@ journal:
   speaker: human
   kind: comment
   at: '2026-11-08T11:58:15.055377Z'
+  stage: doing
+- number: 18
+  speaker: factory
+  kind: started
+  at: '2026-11-08T11:58:17.530901Z'
   stage: doing
 ---
 
@@ -378,3 +387,4 @@ Expect: the docstring names the order: the work item's body, the role's instruct
 
     Refactor: one small change, `_MARKER_TEXTS` reuses the close-marker constants. Nothing else needed.
 17. 2026-11-08 human: (a): leave given for `tests/agent_files/test_claude_agent_texts_review_groups.py`. The tester adds `.replace(<new text>, <old text>)` to `earlier` for your three reviewer edits, and the CRC-32 pin stays. And yes to the change of `test_shipped_agents_effect.py::test_instructions_file_holds_the_agent_body`: it checks that the file holds the common system prompt and that the role's body is in the first message instead, keeping its name.
+18. factory: started doing as vm.
