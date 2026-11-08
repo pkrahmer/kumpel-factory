@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: tests
 blocked: null
 round: 1
 attempts: 1
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 645
 comments_read: [6714658360, 6714963482]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T00:30:21.323816Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -141,6 +137,12 @@ journal:
   kind: started
   at: '2026-11-08T00:30:21.323816Z'
   stage: doing
+- number: 24
+  speaker: coder
+  kind: result
+  at: '2026-11-08T00:33:04.457447Z'
+  stage: doing
+  run: d2bf7b4e132e4bdab9a844375f4eaff1
 ---
 
 # Kumpel works on develop and promotes accepted features to main
@@ -383,3 +385,28 @@ Expect: `off`
     - `tests/operator_scripts/test_operator_skill_signature.py`: the standing leave to move a shared test helper (`KUMPEL` moved to `tests/support/operator_skill_support.py`).
     - `tests/support/operator_skill_support.py`: the human's leave of 2026-11-07 (`SCRIPTS_BRANCH`, the commits route, a remote whose `HEAD` is `main`). The `KUMPEL` move is under the standing leave.
 23. factory: started doing as vm.
+24. coder: Round 1. This run handles the reviewer's findings in journal 22.
+
+    Finding 1 (code, done): `operator/skill/kumpel/scripts/settings.sh` now has a single table of the known switches and their defaults, the shell variable `switches` (a JSON object). It is passed as an argument into the Python heredocs of `init`, `get` and `set`:
+    - `init` writes the table as the new file's switches.
+    - `get` reads a known switch that the file lacks as `off`, as before.
+    - `set` accepts a known switch that the file lacks and writes it into the file. An unknown switch is still refused with `unknown switch: <name> (known: merge, answer, start_next, promote)`. The list now comes from the table, not from the file.
+
+    I checked this by hand on a file with only `merge`, `answer` and `start_next`:
+    - `get promote` printed `off`.
+    - `set promote on` printed `promote on`, and then `get promote` printed `on`.
+    - `set colour on` exited 1 with the unknown-switch message.
+
+    `make check`: green (`test: green (108.0 s)`, coverage 99.22 %).
+
+    Main choice: the table is one JSON string in shell, handed to each heredoc as an argument. I rejected making `get` and `set` write the missing defaults into the file on every read, because a read should not write. I also rejected keeping a Python tuple next to the defaults dict, which is the duplication the finding names.
+
+    Refactor: the diff is the table and its three uses. I found nothing more to change.
+
+    Test changes for the tester:
+    1. Finding 1's row, in `tests/operator_scripts/test_operator_develop.py`: take a settings file without a `promote` key, run `settings.sh set promote on`, then check that `settings.sh get promote` prints `on`.
+    2. Finding 2:
+       - In `tests/operator_scripts/test_operator_develop.py`, `head()` (line 51) should use `remote_commit` from `tests/support/git_support.py` instead of copying it.
+       - `write_switches` (lines 139-143) should take the switches dict, so that the old-file test (lines 329-331) calls it instead of repeating its body.
+
+    Noticed, not touched: the Description already carries the criteria from journals 4 and 14 (the reviewer added them in journal 22). Nothing in this round changes the meaning of the task.

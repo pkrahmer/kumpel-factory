@@ -17,6 +17,8 @@ if [ -f "$(site_path)" ]; then
 fi
 file=${KUMPEL_SETTINGS:-$HOME/.config/kumpel/settings.json}
 command=${1:-show}
+# The known switches and the values a new file starts with; init, get and set all read this one table.
+switches='{"merge": false, "answer": true, "start_next": true, "promote": false}'
 
 # The site's value for repository or checkout, nothing when it gives none.
 site_answer() {
@@ -41,11 +43,11 @@ case "$command" in
       echo "usage: settings.sh init <owner/name> <checkout>" >&2; exit 2
     fi
     mkdir -p "$(dirname "$file")"
-    python3 -I - "$file" "$repository" "$checkout" <<'PY'
+    python3 -I - "$file" "$repository" "$checkout" "$switches" <<'PY'
 import json, sys
-path, repository, checkout = sys.argv[1:]
+path, repository, checkout, switches = sys.argv[1:]
 settings = {"repository": repository, "checkout": checkout} if repository else {}
-settings["switches"] = {"merge": False, "answer": True, "start_next": True, "promote": False}
+settings["switches"] = json.loads(switches)
 with open(path, "w", encoding="utf-8") as f:
     json.dump(settings, f, indent=2)
     f.write("\n")
@@ -68,12 +70,12 @@ PY
       printf '%s\n' "$answer"
       exit 0
     fi
-    python3 -I - "$file" "$2" <<'PY'
+    python3 -I - "$file" "$2" "$switches" <<'PY'
 import json, sys
 s = json.load(open(sys.argv[1], encoding="utf-8"))
 key = sys.argv[2]
 # A file written before a switch existed lacks it; the missing switch counts as off.
-if key in s["switches"] or key in ("merge", "answer", "start_next", "promote"):
+if key in s["switches"] or key in json.loads(sys.argv[3]):
     print("on" if s["switches"].get(key, False) else "off")
 elif key in ("repository", "checkout"):
     print(s[key])
@@ -84,12 +86,14 @@ PY
   set)
     [ $# -eq 3 ] || { echo "usage: settings.sh set <switch> on|off" >&2; exit 2; }
     case "$3" in on|off) ;; *) echo "settings.sh: $3 is neither on nor off" >&2; exit 2 ;; esac
-    python3 -I - "$file" "$2" "$3" <<'PY'
+    python3 -I - "$file" "$2" "$3" "$switches" <<'PY'
 import json, sys
-path, switch, value = sys.argv[1:]
+path, switch, value, switches = sys.argv[1:]
 s = json.load(open(path, encoding="utf-8"))
-if switch not in s["switches"]:
-    sys.exit(f"unknown switch: {switch} (known: {', '.join(s['switches'])})")
+known = json.loads(switches)
+# A file written before a switch existed lacks it; setting a known switch adds it.
+if switch not in s["switches"] and switch not in known:
+    sys.exit(f"unknown switch: {switch} (known: {', '.join(known)})")
 s["switches"][switch] = value == "on"
 with open(path, "w", encoding="utf-8") as f:
     json.dump(s, f, indent=2)
