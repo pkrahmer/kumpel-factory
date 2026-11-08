@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 651
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: docs-only
+  started_at: '2026-11-08T02:47:07.492345Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -43,6 +47,11 @@ journal:
   stage: docs-only
   run: 948fd1c27eb94f77b123856951ac1020
   reason: check_red
+- number: 7
+  speaker: factory
+  kind: started
+  at: '2026-11-08T02:47:07.492345Z'
+  stage: docs-only
 ---
 
 # The operator's documents on the archive, the promotion and the default branch
@@ -120,3 +129,4 @@ Expect: `documents ok (<seconds> s)`
    ======================================================================================= short test summary info ========================================================================================
    FAILED tests/guards/test_project_guide_files.py::test_no_file_names_a_removed_guide_file - AssertionError: assert ['docs/operat...ork-items.md'] == []
    make: *** [Makefile:89: test] Error 1
+7. factory: started docs-only as vm.
