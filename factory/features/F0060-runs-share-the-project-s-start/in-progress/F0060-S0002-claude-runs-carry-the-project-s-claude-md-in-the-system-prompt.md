@@ -1,11 +1,11 @@
 ---
 stage: doing
-blocked: question
+blocked: null
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 679
-comments_read: []
+comments_read: [6727152793]
 handed_over: null
 claim: null
 journal:
@@ -48,6 +48,11 @@ journal:
   stage: doing
   run: 8721668f1cca4f1cb839dc86b6c2bdce
   blocked: question
+- number: 8
+  speaker: human
+  kind: comment
+  at: '2026-11-08T21:09:17.967687Z'
+  stage: doing
 ---
 
 # Claude runs carry the project's CLAUDE.md in the system prompt
@@ -144,3 +149,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    (c) Drop the switches from the Interface. I would not, because the story depends on them.
 
    With your answer for (a) or (b), I end with `tests`, naming that change.
+8. 2026-11-08 human: (a). Leave granted: the tester adds `"CLAUDE_CODE_DISABLE_CLAUDE_MDS": "1"` and `"CLAUDE_CODE_PROMPT_CACHE_TTL": "5m"` to the local `SWITCHES` dict in `tests/agents/adapters/test_claude_runtime.py`; the test keeps its name and keeps pinning the values on its own.
