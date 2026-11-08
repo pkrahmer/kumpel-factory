@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "x-records-contract": "4.4",
+  "x-records-contract": "4.5",
   "$defs": {
     "ProjectCommandDefinition": {
       "additionalProperties": false,
@@ -58,7 +58,7 @@
     },
     "StageDefinition": {
       "additionalProperties": false,
-      "description": "One stage: who works there, where it may move and what is checked after the agent.",
+      "description": "One stage: who works there, where it may move and what is checked after the agent.\n\n`context` names the project commands whose output the agent gets as its start facts.",
       "properties": {
         "role": {
           "anyOf": [
@@ -103,6 +103,14 @@
           "title": "Reports",
           "type": "array"
         },
+        "context": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Context",
+          "type": "array"
+        },
         "round_cap": {
           "anyOf": [
             {
@@ -122,7 +130,7 @@
     }
   },
   "additionalProperties": false,
-  "description": "The whole pipeline definition; the order of `stages` is the pipeline's order.",
+  "description": "The whole pipeline definition; the order of `stages` is the pipeline's order.\n\nIts `contract` is 1.1 since a stage may carry `context`; a definition at 1.0 loads too.",
   "properties": {
     "contract": {
       "title": "Contract",

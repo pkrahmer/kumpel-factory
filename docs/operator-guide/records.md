@@ -37,7 +37,7 @@ With two or more arguments the command prints `usage: python -m factory.entry.co
 
 **The approval.** A work item enters the [approval](../project-guide/glossary.md) with its last `result` record in the journal. No record marks the entry, so a reader takes the approval's start from that record's `at` and its end from the `done` record's `at`.
 
-**The version.** Each schema carries the records contract's version in `x-records-contract`, now `4.4`. The major version rises for a change that can break a reader: a field removed or renamed, a type narrowed, a meaning changed. The minor version rises for an added optional field or value. This version is not the `contract` of the [pipeline definition](../project-guide/glossary.md), which is the version of the definition's own format (see "The pipeline definition" in [pipeline.md](pipeline.md)). Why the contract changed is in [the decision log](../decisions.md).
+**The version.** Each schema carries the records contract's version in `x-records-contract`, now `4.5`. The major version rises for a change that can break a reader: a field removed or renamed, a type narrowed, a meaning changed. The minor version rises for an added optional field or value. This version is not the `contract` of the [pipeline definition](../project-guide/glossary.md), which is the version of the definition's own format (see "The pipeline definition" in [pipeline.md](pipeline.md)). Why the contract changed is in [the decision log](../decisions.md).
 
 **Unknown properties.** The schemas say `additionalProperties: false` for what this version of the factory writes. A reader still ignores a property it does not know, since a later minor version may add one.
 

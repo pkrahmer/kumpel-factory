@@ -115,6 +115,10 @@ class StageLauncher:
         agent = self._composer.agent(stage)
         findings = StoryFormChecker(self._boundaries).findings(prepared.document)
         started = self._start(prepared, stage, findings)
+        self._stage_environment.prepare(
+            started.stage_start.commit, started.branch, sync_time_limit=self._sync_time_limit()
+        )
+        # The start facts run on the prepared base, so they see what the agent will see.
         context = TaskContext(
             work_item=started.work_item,
             path=started.path,
@@ -123,11 +127,9 @@ class StageLauncher:
             branch=started.branch,
             pull_request=started.pull_request.number,
             findings=started.findings,
+            start_facts=self._composer.start_facts(stage),
         )
         request = self._composer.compose(context, agent)
-        self._stage_environment.prepare(
-            started.stage_start.commit, started.branch, sync_time_limit=self._sync_time_limit()
-        )
         begun = self._costs.begin(started, _role_of(self._definition, stage))
         result = self._stage_environment.run_agent(request, run=PatientRuns(self._boundaries).run)
         transcript, tools = self._read_transcript(started.work_item, begun.run, result)

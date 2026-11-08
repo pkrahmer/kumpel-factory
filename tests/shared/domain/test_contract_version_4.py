@@ -9,7 +9,7 @@ from support.contract_support import committed_is_generated, schemas_naming
 
 
 def _version() -> None:
-    assert RECORDS_CONTRACT == "4.4"
+    assert RECORDS_CONTRACT == "4.5"
 
 
 def _no_left_branch() -> None:
@@ -20,7 +20,7 @@ def _no_left_branch() -> None:
     "check",
     [
         pytest.param(_version, id="version"),
-        *[pytest.param(committed_is_generated(entry, "4.4"), id=entry.name) for entry in CONTRACT],
+        *[pytest.param(committed_is_generated(entry, "4.5"), id=entry.name) for entry in CONTRACT],
         pytest.param(_no_left_branch, id="no-left-branch"),
     ],
 )

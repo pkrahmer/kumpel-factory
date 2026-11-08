@@ -19,6 +19,7 @@ from factory.pipeline.domain.checks import (
     COMMAND_NAME_PATTERN,
     OUTPUT_TAIL_LINES,
     CheckResult,
+    CommandOutput,
     last_line,
     status_of,
     target_times,
@@ -34,6 +35,8 @@ CHECK_ENVIRONMENT = dict(SYNC_ENVIRONMENT)
 
 # The command's name is an argument, never part of the script, so the shell never parses it.
 _CHECK_SCRIPT = '"$1" sync && "$1" --no-print-directory "$2"'
+# A start fact runs on the base the stage's start has just synced, so only its own output shows.
+_START_FACT_SCRIPT = '"$1" --no-print-directory "$2"'
 _CHECK_SCRIPT_NAME = "factory-check"
 
 # An outer make (the tests run under `make check`) exports these, and an inner make that
@@ -69,11 +72,15 @@ class MakeProjectCommands(ProjectCommands):
 
     def run(self, command: str, *, time_limit: timedelta) -> CheckResult:
         """Run `make --no-print-directory <command>` and judge its result by its exit status."""
+        return self.start_fact(command, time_limit=time_limit)
+
+    def start_fact(self, command: str, *, time_limit: timedelta) -> CommandOutput:
+        """Run `make --no-print-directory <command>`, keeping its whole output."""
         _check_call(command, time_limit)
         argv = [self._executable, "--no-print-directory", command]
         started = Launch(argv=argv, env=_without_outer_make(os.environ), time_limit=time_limit)
         result = self._start(command, started, self._directory)
-        return _check_result(command, result)
+        return _read_result(command, result.exit_status, result.stdout, result.duration)
 
     @staticmethod
     def _start(command: str, started: Launch, cwd: Path) -> ProcessResult:
@@ -91,7 +98,11 @@ class MakeProjectCommands(ProjectCommands):
 
 
 class ContainerMakeCommands(ProjectCommands):
-    """Runs `make sync && make <command>` in a check container on the base with the taken files."""
+    """Runs a project command in a check container on the base with the taken files.
+
+    A check runs `make sync && make <command>`; a start fact runs `make <command>` alone,
+    on the base the stage's preparation has just synced.
+    """
 
     def __init__(
         self,
@@ -123,6 +134,16 @@ class ContainerMakeCommands(ProjectCommands):
         A fault of the reset or of the container raises `ProjectCommandError`; a `GitError`
         or a `ValueError` of the copy propagates as it is.
         """
+        return self._run_script(_CHECK_SCRIPT, command, time_limit)
+
+    def start_fact(self, command: str, *, time_limit: timedelta) -> CommandOutput:
+        """Run `command` without `sync` in a container on the base with the host's changes.
+
+        The faults are those of `run`.
+        """
+        return self._run_script(_START_FACT_SCRIPT, command, time_limit)
+
+    def _run_script(self, script: str, command: str, time_limit: timedelta) -> CommandOutput:
         _check_call(command, time_limit)
         try:
             self._snapshots.reset()
@@ -136,7 +157,7 @@ class ContainerMakeCommands(ProjectCommands):
         )
         try:
             result = self._containers.run(
-                [SHELL_EXECUTABLE, "-c", _CHECK_SCRIPT, _CHECK_SCRIPT_NAME, "make", command],
+                [SHELL_EXECUTABLE, "-c", script, _CHECK_SCRIPT_NAME, "make", command],
                 mounts=self._mounts,
                 environment=self._environment,
                 time_limit=time_limit,
@@ -154,20 +175,17 @@ def _check_call(command: str, time_limit: timedelta) -> None:
         raise ProjectCommandError(command, f"invalid command name {command!r}")
 
 
-def _check_result(command: str, result: ProcessResult) -> CheckResult:
-    return _read_result(command, result.exit_status, result.stdout, result.duration)
-
-
 def _read_result(
     command: str, exit_status: int | None, output: str, duration: timedelta
-) -> CheckResult:
+) -> CommandOutput:
     lines = output.splitlines()
-    return CheckResult(
+    return CommandOutput(
         command=command,
         status=status_of(exit_status),
         exit_status=exit_status,
         duration=duration,
         last_line=last_line(lines),
         output_tail=_tail(lines),
+        output=output,
         targets=target_times(output),
     )

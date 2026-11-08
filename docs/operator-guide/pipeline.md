@@ -37,13 +37,42 @@ A refused definition [stops](../project-guide/glossary.md) the factory with `pip
 - The stage `done` must exist, with no role and no `next`. Write it `done: {}`; `done:` alone is refused.
 - The contract major must be 1. Any minor is read.
 - Every stage other than `done` needs a non-empty `next` and either a role or `approval: true`. Every name in `next` must be a stage.
-- The lease: for each stage with a role, the role's `time_limit` plus the `time_limit` of every command in the stage's `checks` and `reports` must be at most the role's `lease_duration`. With the defaults, 40 + 10 (one check) + 10 (one report) = 60 fits. A stage with two checks and a report adds up to 70 and is refused. Raise the `lease_duration` or lower a limit.
+- The lease: for each stage with a role, the role's `time_limit` plus the `time_limit` of every command in the stage's `checks`, `reports` and `context` must be at most the role's `lease_duration`. With the defaults, 40 + 10 (one check) + 10 (one report) = 60 fits. A stage with two checks and a report adds up to 70 and is refused. Raise the `lease_duration` or lower a limit.
 - Values are taken only in their YAML type. A limit is an integer (not `'30'`, `30.0` or `true`). `approval` is `true` or `false` (not `'yes'` or `1`). Names and [write paths](../project-guide/glossary.md) are text.
 - A key that is not listed is refused, so a misspelt key is never ignored. That holds for `tool_paths` too. An agent run may write only its write paths, and there is no folder for tool state.
 - A given `project_commands` replaces the default set as a whole. List `check`, `lint` and `test` again if you still want them.
 - Every role needs an agent file, a project's own or the installed one (see "The agent files" in [agent-runtime.md](agent-runtime.md)).
 
 [docs/project-guide/pipeline.md](../project-guide/pipeline.md), "The rules of the definition", lists every fault.
+
+### Start facts
+
+Most agent runs begin by gathering the same facts: the diff, the list of changed files, the recent log. Each such call costs the agent a turn. A stage's `context` names project commands that gather these facts instead; the factory runs them before the agent, and the agent starts with their outputs. Your Makefile decides what each command shows.
+
+```yaml
+project_commands:
+  check: {time_limit: 10}
+  lint: {time_limit: 2}
+  test: {time_limit: 5}
+  diff: {time_limit: 1}
+stages:
+  review: {role: reviewer, next: [docs, doing], checks: [check], context: [diff]}
+```
+
+with a target such as this in the project's `Makefile`:
+
+```make
+diff:
+	@git diff --stat develop...HEAD
+```
+
+- The commands run in order, each under its own `time_limit`, in the check container on the stage's base, like a check but without `make sync` first. Each output becomes a `<context name="diff">` block of the first message, after the role's instructions.
+- An output longer than 60,000 characters is cut to its first 60,000, followed by a line naming how many characters were cut and telling the agent to run the command itself.
+- A command that fails or runs out of time gives the block the line `failed: <reason>`, and the agent's run starts anyway. A start fact never holds a stage.
+- The commands' `time_limit`s count toward the lease.
+- `context` came with the definition's contract 1.1; a definition at `'1.0'` may carry it too.
+
+The full rules are under *Start facts* in [the project guide's pipeline.md](../project-guide/pipeline.md).
 
 ### More than one route
 
@@ -119,6 +148,7 @@ The keys of a stage:
 | `approval` | the human decides in this stage; it has no role | `false` | `approval: true` |
 | `checks` | project commands that must pass after the agent | empty | `checks: [check]` |
 | `reports` | project commands run after green and only recorded | empty | `reports: [duplicates]` |
+| `context` | project commands run before the agent; each output goes into the agent's first message as a start fact | empty | `context: [diff]` |
 | `round_cap` | rounds the stage allows before the human is asked | none (no cap) | `round_cap: 3` |
 
 The keys of a role:

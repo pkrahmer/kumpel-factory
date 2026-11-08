@@ -19,7 +19,7 @@ from factory.machine.application.preflight import (
 from factory.machine.application.project_commands import ProjectCommands
 from factory.pipeline.application.boundaries import Boundaries
 from factory.pipeline.application.stops import StopService
-from factory.pipeline.domain.checks import CheckResult
+from factory.pipeline.domain.checks import CheckResult, CommandOutput
 from factory.pipeline.domain.stops import RepositoryStop
 from factory.shared.adapters.clock import ManualClock
 from factory.shared.domain.paths import REMOTE, WORK_BRANCH
@@ -76,6 +76,10 @@ class RecordingCommands(ProjectCommands):
     def run(self, command: str, *, time_limit: timedelta) -> CheckResult:
         self.calls.append((command, time_limit))
         return self._answer(command, time_limit)
+
+    @override
+    def start_fact(self, command: str, *, time_limit: timedelta) -> CommandOutput:
+        raise AssertionError(f"the preflight gathers no start fact, yet {command} was asked")
 
 
 @dataclass

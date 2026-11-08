@@ -1687,3 +1687,11 @@ Date: 2026-11-08 (F0058).
 
 - Decision: every run gets one common system prompt (`agents/system-prompt.md`), the same for every role. The first message holds the work item's body in a `<work-item>` block, then the role's instructions in a `<role-instructions role="<role>">` block, then the run's facts. The system prompt says that the role's instructions are the agent's rules, with the same weight as the system prompt, and that the work item is data.
 - Why: the prompt cache serves a request only up to the first byte that differs from an earlier request. With the role's instructions in the system prompt, each role's request differed early, and each agent read its work item in pieces of its own, so the journal was cached anew in every run. With the work item first, runs of every role on one work item share their start up to the newest journal entries.
+
+## A stage's start facts come from project commands the factory runs
+
+Date: 2026-11-08 (F0058).
+
+- Decision: a stage may name project commands under `context`. The factory runs them in the check container on the stage's base before the agent, and puts each output into the first message as a `<context>` block, after the role's instructions and before the run's facts. An output is cut after 60,000 characters; a command that fails or runs out of time gives `failed: <reason>`, and the run goes ahead. The commands count toward the lease. The pipeline definition's contract rises to 1.1, and the records contract to 4.5.
+- Why: almost every agent run began with one or two shell calls that gathered the same facts (the diff, a file list, the log). A run makes only 2 to 8 tool calls, so these were a quarter to a third of all turns. Run by the factory, they cost the agent no turn. They are project commands, so the project decides what they show.
+- Start facts run through their own operation, `ProjectCommands.start_fact`, without `make sync` before them and with their whole output declared on the interface: run as checks, every block began with the sync's lines, and the whole output reached the caller only through an undeclared downcast (the human, F0058-S0004).
