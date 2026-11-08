@@ -1,17 +1,13 @@
 ---
-stage: intake
+stage: docs-only
 blocked: null
 round: 0
 attempts: 0
 crashes: 0
-pull_request: null
+pull_request: 651
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: intake
-  started_at: '2026-11-08T02:43:14.652576Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -23,6 +19,12 @@ journal:
   kind: started
   at: '2026-11-08T02:43:14.652576Z'
   stage: intake
+- number: 3
+  speaker: intake
+  kind: result
+  at: '2026-11-08T02:43:33.009475Z'
+  stage: intake
+  run: 1a36392f8680469c85735dc04423d368
 ---
 
 # The operator's documents on the archive, the promotion and the default branch
@@ -64,3 +66,10 @@ Expect: `documents ok (<seconds> s)`
 
 1. 2026-11-08 human: created.
 2. factory: started intake as vm.
+3. intake: accepted
+   - Interface: names three concrete documents (`docs/operator-playbook.md`, `docs/operator-guide/work-items.md`, `docs/operator-guide/install.md`), all writable by the documenter; it changes no code. The default branch is stated as `main`, which matches F0057's decisions.
+   - Criteria: criteria 1 to 4 are each testable by reading one document (`archive-feature.sh` replaces `git mv` at playbook line 203; the promotion with `promote.sh` and the switch `promote`; the auto-delete warning near work-items.md line 224; the default branch; the stop detail). Both sides of each rule are covered because they are text statements. I checked that the files and anchors exist: `archive-feature.sh` and `promote.sh` are in `operator/skill/kumpel/scripts/`, and health.md line 187 holds the row for `the repository has no develop branch yet`.
+   - Smoke test: `uv run python -m factory.entry.check_documents | tail -1` is runnable (the module exists). It passes no pytest flags. The Expect line `documents ok (<seconds> s)` can be checked against the output.
+   - Docs criterion: it names what the reader must know (archive and promotion, why auto-delete stays off, the default branch, what a project without `develop` shows). It dictates no sentences.
+   - Architecture: documents only, so there is no layer or area impact.
+   - Scope: it fits F0057's goal of the operator's documents naming `develop` and `main`. It touches no "Out of scope" item. It is a follow-up gap found at acceptance, and it is not a new feature.
