@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 659
 comments_read: [6720500729, 6720585535]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-08T10:54:01.785742Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -81,6 +85,11 @@ journal:
   at: '2026-11-08T10:53:56.852963Z'
   stage: doing
   run: f4cab83a8891427fb6efd955e90255c5
+- number: 14
+  speaker: factory
+  kind: started
+  at: '2026-11-08T10:54:01.785742Z'
+  stage: tests
 ---
 
 # Every role has the same tools and the same decision tool
@@ -208,3 +217,4 @@ Expect: exactly one line, `model: opus`
     I changed no code in this round. The implementation from the last round is already committed: the four agent files under `agents/agents/` and the shared `_DECISION_SCHEMA` constant in `src/factory/agents/adapters/claude_runtime.py`. In that round's `make check`, this test was the only failure. When the tester sends the work item back, I will run `make check` and hand it to review.
 
     The journal added nothing new to the Description. Entry 11 only picks option 1 from my question.
+14. factory: started tests as vm.
