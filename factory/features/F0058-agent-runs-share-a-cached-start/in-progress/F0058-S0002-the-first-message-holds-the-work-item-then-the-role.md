@@ -1,11 +1,11 @@
 ---
 stage: doing
-blocked: question
+blocked: null
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 660
-comments_read: [6720878077, 6720941885, 6720981420]
+comments_read: [6720878077, 6720941885, 6720981420, 6721183670]
 handed_over: null
 claim: null
 journal:
@@ -99,6 +99,11 @@ journal:
   stage: doing
   run: 422b84088518430199a1e16e6e6291a8
   blocked: question
+- number: 17
+  speaker: human
+  kind: comment
+  at: '2026-11-08T11:58:15.055377Z'
+  stage: doing
 ---
 
 # The first message holds the work item, then the role
@@ -372,3 +377,4 @@ Expect: the docstring names the order: the work item's body, the role's instruct
     - intake's "read the files first, then judge" stays: it is about files, not the work item.
 
     Refactor: one small change, `_MARKER_TEXTS` reuses the close-marker constants. Nothing else needed.
+17. 2026-11-08 human: (a): leave given for `tests/agent_files/test_claude_agent_texts_review_groups.py`. The tester adds `.replace(<new text>, <old text>)` to `earlier` for your three reviewer edits, and the CRC-32 pin stays. And yes to the change of `test_shipped_agents_effect.py::test_instructions_file_holds_the_agent_body`: it checks that the file holds the common system prompt and that the role's body is in the first message instead, keeping its name.
