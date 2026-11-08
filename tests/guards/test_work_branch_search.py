@@ -6,6 +6,8 @@ from pathlib import Path
 
 import pytest
 
+pytestmark = pytest.mark.documents
+
 ROOT = Path(__file__).parents[2]
 SCOPE = ("src/factory", "tests")
 LITERALS = ("origin/main", "heads/main", "-b main", "--initial-branch=main")

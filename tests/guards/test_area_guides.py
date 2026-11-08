@@ -5,6 +5,8 @@ from pathlib import Path
 
 import pytest
 
+pytestmark = pytest.mark.documents
+
 ROOT = Path(__file__).parents[2]
 GUIDE = Path("docs") / "project-guide"
 PAGES = (

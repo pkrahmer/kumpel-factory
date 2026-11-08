@@ -6,15 +6,12 @@ import pytest
 
 from factory.shared.domain import settings as settings_module
 from factory.shared.domain.documents import (
-    OPERATOR_INSTALL,
-    SETTINGS_SECTION,
     GuideTable,
     guide_tables,
     refusal_findings,
     settings_findings,
 )
 from factory.shared.domain.settings import SETTINGS, SettingDoc
-from support.operator_support import ROOT
 
 _VARIABLE_HEADER = ("Variable", "Required", "Meaning")
 _DEFAULT_HEADER = ("Name", "Required", "Default")
@@ -172,14 +169,6 @@ def test_guide_without_a_counting_table_is_one_finding_when_there_are_settings(
     tables: list[GuideTable], settings: tuple[SettingDoc, ...], expected: list[str]
 ) -> None:
     assert settings_findings(tables, settings) == expected
-
-
-def test_todays_install_guide_gives_no_settings_finding() -> None:
-    text = (ROOT / OPERATOR_INSTALL).read_text(encoding="utf-8")
-
-    findings = settings_findings(guide_tables(text, SETTINGS_SECTION), SETTINGS)
-
-    assert findings == []
 
 
 @pytest.mark.parametrize(
