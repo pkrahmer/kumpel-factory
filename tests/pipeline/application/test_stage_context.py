@@ -4,7 +4,7 @@ import re
 from dataclasses import replace
 from datetime import timedelta
 from pathlib import Path
-from typing import override
+from typing import ClassVar, override
 
 import pytest
 
@@ -58,6 +58,17 @@ class _SlowCommands(ContainerMakeCommands):
         return super().start_fact(command, time_limit=time_limit)
 
 
+class _LimitNotingCommands(ContainerMakeCommands):
+    """Container commands that note the time limit each start fact reaches them with."""
+
+    limits: ClassVar[dict[str, timedelta]] = {}
+
+    @override
+    def start_fact(self, command: str, *, time_limit: timedelta) -> CommandOutput:
+        type(self).limits[command] = time_limit
+        return super().start_fact(command, time_limit=time_limit)
+
+
 class _LookingRuntime(WorkspaceRuntime):
     """Notes whether a file is in the dataset's checkout when the agent's run starts."""
 
@@ -72,10 +83,10 @@ class _LookingRuntime(WorkspaceRuntime):
         return super().run(request)
 
 
-def _pipeline(context: list[str]) -> str:
+def _pipeline(context: list[str], limits: dict[str, int]) -> str:
     if not context:
         return PIPELINE_YAML
-    commands = "".join(f"  {name}: {{time_limit: 1}}\n" for name in context)
+    commands = "".join(f"  {name}: {{time_limit: {limits.get(name, 1)}}}\n" for name in context)
     test_line = "  test: {time_limit: 10}\n"
     text = PIPELINE_YAML.replace(test_line, test_line + commands)
     stage = TESTS_STAGE.removesuffix("}") + f", context: [{', '.join(context)}]}}"
@@ -110,9 +121,11 @@ class _Started:
         *,
         sync: str = SYNC_TARGET,
         looked_for: str | None = None,
+        limits: dict[str, int] | None = None,
     ) -> str:
         """The first message of the stage's agent run, `sync` its Makefile's sync target.
 
+        `limits` gives a `context` command a `time_limit` other than one minute.
         With `looked_for`, `looking` notes whether that file was on the dataset at the run's start.
         """
         boundaries = self._boundaries
@@ -125,7 +138,7 @@ class _Started:
             dataset.snapshots, dataset.containers, boundaries.git, checkout=boundaries.checkout
         )
         self._agent_runtime.queue(ScriptedRun(result=completed("doing")))
-        definition = boundaries.pipeline_reader.parse(_pipeline(context))
+        definition = boundaries.pipeline_reader.parse(_pipeline(context, limits or {}))
         staged = replace(dataset.boundaries, project_commands=project_commands)
         if looked_for is not None:
             self.looking = _LookingRuntime(
@@ -270,3 +283,17 @@ def test_a_file_a_context_command_writes_is_gone_at_the_agent_s_start_and_not_ta
     assert started.looking.found is False
     assert started.report is not None
     assert boundaries.git.show_file(started.report.commit, LEFT_BEHIND) is None
+
+
+def test_each_context_command_runs_under_its_own_time_limit(started: _Started) -> None:
+    targets = {FACTS_A: "@echo 'a'", FACTS_B: "@echo 'b'"}
+    _LimitNotingCommands.limits = {}
+
+    started.prompt(
+        targets, [FACTS_A, FACTS_B], _LimitNotingCommands, limits={FACTS_A: 1, FACTS_B: 3}
+    )
+
+    assert _LimitNotingCommands.limits == {
+        FACTS_A: timedelta(minutes=1),
+        FACTS_B: timedelta(minutes=3),
+    }

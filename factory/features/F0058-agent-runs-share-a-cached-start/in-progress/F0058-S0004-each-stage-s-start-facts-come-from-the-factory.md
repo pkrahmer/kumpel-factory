@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 2
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 662
 comments_read: [6721852631, 6722094144]
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-08T13:42:12.311862Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -156,6 +152,12 @@ journal:
   kind: started
   at: '2026-11-08T13:42:12.311862Z'
   stage: tests
+- number: 27
+  speaker: tester
+  kind: result
+  at: '2026-11-08T13:43:36.756536Z'
+  stage: tests
+  run: 501c682f43d34680a8c53877418860aa
 ---
 
 # Each stage's start facts come from the factory
@@ -475,3 +477,17 @@ Expect: `True`
 
     `check`: check: green
 26. factory: started tests as vm.
+27. tester: Wrote the tests for criteria 12 and 13, which the reviewer added in entry 23 and the coder passed on in entry 25. The code for both was already there, so both tests pass now. One run of the two files gave 13 passed. `make lint` is green. I also ran `make types`, which is green.
+
+    - criterion 12: `tests/pipeline/application/test_stage_context.py::test_each_context_command_runs_under_its_own_time_limit`. Two `context` commands get `time_limit` 1 and 3 in `project_commands`. A `ContainerMakeCommands` subclass (`_LimitNotingCommands`) notes the limit each `start_fact` call receives. The test checks that one command got 1 minute and the other got 3. With both commands, the tests stage still fits its lease: 40 + 5 + 10 + 1 + 3 = 59, under 60.
+    - criterion 13: `tests/machine/application/test_recording_start_fact.py::test_a_start_fact_reaches_the_inner_commands_and_is_recorded`. A start fact is run through `RecordingProjectCommands.start_fact` with an inner `ProjectCommands` whose `run` raises. The test checks three things: the inner `start_fact` gets the command and its limit, the whole output comes back, and one `CommandRecord` is written the way a check's run is recorded. The test calls the recorder directly rather than building it through the wiring; it is the same class the wiring puts around the container commands (`src/factory/entry/wiring.py`).
+    - The other criteria keep the tests named in entries 8 and 19.
+
+    Files created: `tests/machine/application/test_recording_start_fact.py`.
+    Changed: my own `tests/pipeline/application/test_stage_context.py`. `_pipeline` and `_Started.prompt` take an optional `limits` for each command (the default stays 1 minute), and the file gains `_LimitNotingCommands` and the new test. I changed no other story's test.
+
+    Every module imported.
+
+    `lint`: lint: green (0.1 s)
+
+    `lint`: lint: green (0.2 s)
