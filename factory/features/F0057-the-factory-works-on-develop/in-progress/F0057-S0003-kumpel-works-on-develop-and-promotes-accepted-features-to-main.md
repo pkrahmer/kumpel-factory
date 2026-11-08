@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 1
 attempts: 1
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 645
 comments_read: [6714658360, 6714963482]
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-08T00:33:09.639750Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -152,6 +148,12 @@ journal:
   kind: started
   at: '2026-11-08T00:33:09.639750Z'
   stage: tests
+- number: 26
+  speaker: tester
+  kind: result
+  at: '2026-11-08T00:33:50.347731Z'
+  stage: tests
+  run: cb8d69dcdc3b4a3783c80c4a64b4f046
 ---
 
 # Kumpel works on develop and promotes accepted features to main
@@ -420,3 +422,25 @@ Expect: `off`
 
     Noticed, not touched: the Description already carries the criteria from journals 4 and 14 (the reviewer added them in journal 22). Nothing in this round changes the meaning of the task.
 25. factory: started tests as vm.
+26. tester: Tester, round 1. I made the test changes the coder named in journal 24 (the reviewer's findings 1 and 2 in journal 22). Every change is in `tests/operator_scripts/test_operator_develop.py`, a file this story wrote. No other test file changed.
+
+    What changed:
+    - Finding 1 (row): `test_a_settings_file_without_the_promote_switch_reads_it_as_off` is now parametrized with two rows:
+      - `read`: a settings file without the `promote` key, then `get promote` prints `off`. This is what the test checked before.
+      - `set-on` (new): on the same file, `set promote on`, then `get promote` prints `on`.
+      The test keeps its name.
+    - Finding 2:
+      - I removed the local `head()`. Its callers now use `remote_commit` from `tests/support/git_support.py`.
+      - `write_switches(operator, switches)` now takes the dict of switches.
+      - A new constant, `OLD_SWITCHES`, holds the three switches from before this story. The promote test calls `write_switches(operator, {**OLD_SWITCHES, "promote": promote})`. The old-file test calls `write_switches(operator, OLD_SWITCHES)` instead of repeating its body.
+
+    Criteria mapping is unchanged from journal 22. The changed tests:
+    - criterion 5: `tests/operator_scripts/test_operator_develop.py::test_the_promote_switch_is_off_in_a_new_file_and_set_like_the_others` and `::test_a_settings_file_without_the_promote_switch_reads_it_as_off`.
+
+    Files created: none. Files changed: `tests/operator_scripts/test_operator_develop.py`.
+
+    Modules the test run could not import: none.
+
+    Test run: `uv run pytest -q tests/operator_scripts/test_operator_develop.py`: all 23 tests pass, since the coder's change to `settings.sh` is already in place. `make lint`: green.
+
+    `lint`: lint: green (0.1 s)

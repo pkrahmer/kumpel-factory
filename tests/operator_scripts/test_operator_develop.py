@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from support.git_support import clone, commit_all, run_git, write_files
+from support.git_support import clone, commit_all, remote_commit, run_git, write_files
 from support.operator_skill_support import (
     DEFAULT_BRANCH,
     KUMPEL,
@@ -31,6 +31,7 @@ THIRD = "# Third story\n\n## Journal\n\n1. human: created.\n"
 ACCEPTANCE = "# Acceptance of F0001\n\n## Journal\n\n1. factory: created.\n"
 LOG_FORMAT = "%s%n%an <%ae>%n%cn <%ce>"
 PULL_NUMBER = 4711
+OLD_SWITCHES = {"merge": False, "answer": True, "start_next": True}
 
 
 def finished_feature(folder: str) -> dict[str, str]:
@@ -48,11 +49,6 @@ def tree(remote: Path, branch: str) -> list[str]:
     return run_git(remote, "ls-tree", "-r", "--name-only", branch).splitlines()
 
 
-def head(remote: Path, branch: str) -> str:
-    """The commit `branch` of `remote` names."""
-    return run_git(remote, "rev-parse", branch).strip()
-
-
 def test_start_story_commits_on_develop_as_kumpel(operator: Operator) -> None:
     files = {
         "README.md": "# Project\n",
@@ -61,7 +57,7 @@ def test_start_story_commits_on_develop_as_kumpel(operator: Operator) -> None:
     }
     bare, _seed = make_bare_remote(operator.tmp_path / "hosting", files)
     clone(bare, operator.checkout)
-    main_before = head(bare, DEFAULT_BRANCH)
+    main_before = remote_commit(bare, DEFAULT_BRANCH)
 
     result = operator.run("start-story.sh", "F0001-S0001")
 
@@ -69,7 +65,7 @@ def test_start_story_commits_on_develop_as_kumpel(operator: Operator) -> None:
     pushed = run_git(bare, "log", "-1", f"--format={LOG_FORMAT}", SCRIPTS_BRANCH)
     assert pushed.splitlines() == ["F0001-S0001: start", KUMPEL, KUMPEL]
     assert f"{FEATURE}/in-progress/F0001-S0001-first.md" in tree(bare, SCRIPTS_BRANCH)
-    assert head(bare, DEFAULT_BRANCH) == main_before
+    assert remote_commit(bare, DEFAULT_BRANCH) == main_before
 
 
 @pytest.mark.parametrize(
@@ -115,15 +111,15 @@ def test_archive_feature_moves_only_a_finished_feature_to_the_archive_on_develop
         {name: text for name, text in files.items() if text is not None},
     )
     clone(bare, operator.checkout)
-    develop_before = head(bare, SCRIPTS_BRANCH)
-    main_before = head(bare, DEFAULT_BRANCH)
+    develop_before = remote_commit(bare, SCRIPTS_BRANCH)
+    main_before = remote_commit(bare, DEFAULT_BRANCH)
 
     result = operator.run("archive-feature.sh", "F0001")
 
-    assert head(bare, DEFAULT_BRANCH) == main_before
+    assert remote_commit(bare, DEFAULT_BRANCH) == main_before
     if not archived:
         assert result.exit_status != 0, result.stdout
-        assert head(bare, SCRIPTS_BRANCH) == develop_before
+        assert remote_commit(bare, SCRIPTS_BRANCH) == develop_before
         return
     assert result.exit_status == 0, result.stderr
     pushed = run_git(bare, "log", "-1", f"--format={LOG_FORMAT}", SCRIPTS_BRANCH)
@@ -136,10 +132,9 @@ def test_archive_feature_moves_only_a_finished_feature_to_the_archive_on_develop
     assert f"{OTHER}/backlog/F0002-S0001-first.md" in files_after
 
 
-def write_switches(operator: Operator, promote: bool) -> None:
-    """A settings file with the four switches, `promote` as given."""
+def write_switches(operator: Operator, switches: dict[str, bool]) -> None:
+    """A settings file that holds `switches`."""
     operator.settings_file.parent.mkdir(parents=True)
-    switches = {"merge": False, "answer": True, "start_next": True, "promote": promote}
     operator.settings_file.write_text(json.dumps({"switches": switches}), encoding="utf-8")
 
 
@@ -162,7 +157,7 @@ def test_promote_opens_the_promotion_and_merges_it_only_with_the_switch_on(
     files = {"README.md": "# Project\n", **finished_feature(folder)}
     bare, _seed = make_bare_remote(operator.tmp_path / "hosting", files)
     clone(bare, operator.checkout)
-    write_switches(operator, promote)
+    write_switches(operator, {**OLD_SWITCHES, "promote": promote})
     operator.answer(
         {
             f"{PREFIX}/pulls": {"number": PULL_NUMBER, "state": "open"},
@@ -325,12 +320,22 @@ def test_the_promote_switch_is_off_in_a_new_file_and_set_like_the_others(
     assert (answer.exit_status, answer.stdout) == (0, f"{value}\n"), answer.stderr
 
 
-def test_a_settings_file_without_the_promote_switch_reads_it_as_off(operator: Operator) -> None:
-    operator.settings_file.parent.mkdir(parents=True)
-    switches = {"merge": False, "answer": True, "start_next": True}
-    operator.settings_file.write_text(json.dumps({"switches": switches}), encoding="utf-8")
+@pytest.mark.parametrize(
+    ("changes", "value"),
+    [
+        pytest.param([], "off", id="read"),
+        pytest.param([["on"]], "on", id="set-on"),
+    ],
+)
+def test_a_settings_file_without_the_promote_switch_reads_it_as_off(
+    operator: Operator, changes: list[list[str]], value: str
+) -> None:
+    write_switches(operator, OLD_SWITCHES)
+    for words in changes:
+        result = operator.run("settings.sh", "set", "promote", *words)
+        assert result.exit_status == 0, result.stderr
     answer = operator.run("settings.sh", "get", "promote")
-    assert (answer.exit_status, answer.stdout) == (0, "off\n"), answer.stderr
+    assert (answer.exit_status, answer.stdout) == (0, f"{value}\n"), answer.stderr
 
 
 @pytest.mark.parametrize(
