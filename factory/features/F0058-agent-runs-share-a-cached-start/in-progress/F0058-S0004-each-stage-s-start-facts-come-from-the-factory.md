@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 662
 comments_read: [6721852631, 6722094144]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T13:43:42.098989Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -158,6 +162,11 @@ journal:
   at: '2026-11-08T13:43:36.756536Z'
   stage: tests
   run: 501c682f43d34680a8c53877418860aa
+- number: 28
+  speaker: factory
+  kind: started
+  at: '2026-11-08T13:43:42.098989Z'
+  stage: doing
 ---
 
 # Each stage's start facts come from the factory
@@ -491,3 +500,4 @@ Expect: `True`
     `lint`: lint: green (0.1 s)
 
     `lint`: lint: green (0.2 s)
+28. factory: started doing as vm.
