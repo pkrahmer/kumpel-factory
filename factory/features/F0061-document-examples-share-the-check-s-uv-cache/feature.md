@@ -24,4 +24,4 @@ None: the story changes `src/` and `tests/` and the project guide; `Makefile`, `
 ## Decisions taken for the human
 
 1. Sharing the cache does not change what an example prints: uv's cache is content-addressed and safe for concurrent use, and the example still builds its own virtual environment in its own copy (the human, 2026-11-08, when choosing a fix story over a longer limit).
-2. Started while F0060-S0001 is blocked on this failure, as a separate feature, because its goal is not F0060's.
+2. A separate feature, because its goal is not F0060's; kept in the backlog for later, since the package index was fast again when F0060-S0001 retried (the human, 2026-11-08).
