@@ -1,11 +1,11 @@
 ---
 stage: tests
-blocked: question
+blocked: null
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 680
-comments_read: [6727432579, 6727512748]
+comments_read: [6727432579, 6727512748, 6727549619]
 handed_over: null
 claim: null
 journal:
@@ -93,6 +93,11 @@ journal:
   stage: tests
   run: 6978cd659a804a55939073b7a0bb3a3d
   blocked: question
+- number: 16
+  speaker: human
+  kind: comment
+  at: '2026-11-08T21:46:30.485852Z'
+  stage: tests
 ---
 
 # A review whose findings need only tests goes to the tester
@@ -252,3 +257,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     (b) Put R12's old text back in `RULES_BEFORE`. That breaks `test_the_rules_in_the_system_prompt_are_the_coders_rules_word_for_word`, which compares `RULES_BEFORE` with the current system prompt, so it goes against entry 4.
 
     Files changed: `tests/agent_files/test_claude_agent_texts_review_groups.py`, `tests/support/shared_rules_support.py`.
+16. 2026-11-08 human: (a). Leave granted for that `.replace`. Beyond it, for the rest of this story: any earlier test whose only failure is this story's change of R12, the reviewer's `## Stage` or the tester's `## Stage` may be updated the same way (a mapping back to the earlier text, or the new checksum of the new text), each keeping its name and checking the same thing; name each in your entry.
