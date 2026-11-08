@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 659
 comments_read: [6720500729, 6720585535]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T10:54:30.308599Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -101,6 +97,12 @@ journal:
   kind: started
   at: '2026-11-08T10:54:30.308599Z'
   stage: doing
+- number: 17
+  speaker: coder
+  kind: result
+  at: '2026-11-08T10:58:44.030886Z'
+  stage: doing
+  run: 0d8cb5f27a574e24b0302ea5c813d10b
 ---
 
 # Every role has the same tools and the same decision tool
@@ -239,3 +241,24 @@ Expect: exactly one line, `model: opus`
 
     `lint`: lint: green (0.1 s)
 16. factory: started doing as vm.
+17. coder: The tester applied the test fix the human approved in entry 11 (`work.mkdir(parents=True)` in `tests/agents/adapters/test_claude_runtime_shared_schema.py`). With that fix, `make check` is green (`check: green`, total coverage 99.22 %). No code changed in this round.
+
+    What I built (the change committed in the first doing round):
+    - `agents/agents/intake.md`, `documenter.md`, `reviewer.md` and `smoke-tester.md`: every agent file now has `tools: [Read, Grep, Glob, Edit, Bash, Write, Skill]` and `model: opus`.
+      - Intake moves from sonnet at low effort to opus at medium.
+      - The documenter moves from sonnet to opus and stays at medium.
+      - The reviewer and the acceptance reviewer keep `effort: high`.
+    - `src/factory/agents/adapters/claude_runtime.py`: the per-request `_decision_schema(request)` is replaced by one module constant, `_DECISION_SCHEMA`.
+      - Its `decision` is a string with no `enum`. Its description, `_DECISION_DESCRIPTION`, says the decision is one of the allowed decisions that the run's message names.
+      - A comment gives the reason: the shared cached start.
+      - `_answered` still refuses a decision outside `request.allowed_decisions`.
+      - No other launch argument changed.
+
+    Main choice: build the schema once at import, because it no longer depends on the request. I rejected the alternative of keeping a function that takes the request and ignores it.
+
+    Refactor: I read the diff against `develop` again; nothing needs changing.
+
+    Noticed but not touched: the comment above `__all__` in `claude_runtime.py` keeps old names exported for earlier callers; it is unrelated to this story. The journal changed nothing in the Description: the human's answers added criteria 6 to 8, which intake already carried in, and picked the test fix.
+
+    `check`: check: green
+    `duplicates`: duplicates: 6 new, 39 known, 4 gone
