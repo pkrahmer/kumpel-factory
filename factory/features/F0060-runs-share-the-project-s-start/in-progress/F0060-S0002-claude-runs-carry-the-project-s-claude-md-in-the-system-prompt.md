@@ -1,11 +1,11 @@
 ---
 stage: doing
-blocked: question
+blocked: null
 round: 2
 attempts: 0
 crashes: 0
 pull_request: 679
-comments_read: [6727152793]
+comments_read: [6727152793, 6727304331]
 handed_over: null
 claim: null
 journal:
@@ -153,6 +153,11 @@ journal:
   stage: doing
   run: 58970ee53d36459a956d700ddfaaeb18
   blocked: question
+- number: 27
+  speaker: human
+  kind: comment
+  at: '2026-11-08T21:23:11.684127Z'
+  stage: doing
 ---
 
 # Claude runs carry the project's CLAUDE.md in the system prompt
@@ -384,3 +389,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     (a) You add this text to criterion 9 yourself, or tell me to add it and name the work item's path as a write path for this run. **I recommend this.** After that I end with `review`, and no code changes.
     (b) I end with `review` now, without the change, and the reviewer adds the text to criterion 9. The work item is in the reviewer's write paths. This is quicker, but it goes against how entry 24 assigned the work.
     (c) Leave criterion 9 as it is. I would not choose this: operators whose `CLAUDE.md` is a link would lose their instructions and not know why.
+27. 2026-11-08 human: (b). End with `review`; the reviewer adds your text to criterion 9's operator-guide part (a root `CLAUDE.md` that is a symbolic link or not a regular file is not read, why, and that a project keeps it a regular file). Not following a link is right.
