@@ -1,17 +1,13 @@
 ---
-stage: docs-review
+stage: docs-only
 blocked: null
-round: 0
+round: 1
 attempts: 1
 crashes: 0
 pull_request: 651
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: docs-review
-  started_at: '2026-11-08T02:51:31.988869Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -63,6 +59,12 @@ journal:
   kind: started
   at: '2026-11-08T02:51:31.988869Z'
   stage: docs-review
+- number: 10
+  speaker: reviewer
+  kind: result
+  at: '2026-11-08T02:52:25.877976Z'
+  stage: docs-review
+  run: 971ef6222f4e4ab2ae66ba1eadc4984c
 ---
 
 # The operator's documents on the archive, the promotion and the default branch
@@ -158,3 +160,20 @@ Expect: `documents ok (<seconds> s)`
    `secrets`: secrets: green (0.6 s)
    `documents`: documents ok (59.1 s)
 9. factory: started docs-review as vm.
+10. reviewer: Reviewed `git diff develop...HEAD -- README.md docs operator/README.md` (install.md, work-items.md, operator-playbook.md) against the work item, `archive-feature.sh`, `promote.sh`, `scheduler.py`, the factory's checkout of `develop` (`tick.py:197`), health.md and `docs/project-guide/style.md`.
+
+    What I confirmed is true:
+    - The stop `repository_unavailable` and its detail `the repository has no develop branch yet` (`scheduler.py:135`, with `WORK_BRANCH = "develop"`).
+    - What `promote.sh` does: it opens a pull request from `develop` to `main` or adds to the open one, and the switch `promote` decides who merges.
+    - The commit `<id>: archived` on `develop`.
+    - That the factory and Kumpel check out `develop` themselves.
+    - The health.md row, under *The wait for a repository that is not ready*.
+
+    Criteria 2 and 3 are met.
+
+    Findings:
+    1. `docs/operator-playbook.md:31`: the promotion text says "(see [the operator guide](operator-guide/work-items.md), *The branches*)". work-items.md has no section *The branches*. That section, and the promotion under it, is in `docs/operator-guide/install.md` (*The branches*, line 41; *The promotion*, line 59). The document check missed this because the reference is not written in the form "*heading* in [link]". Fix: write `(see *The promotion* in [the operator guide](operator-guide/install.md))`. This keeps the bare file name out of the text, so the guard that failed the first run stays green.
+    2. `docs/operator-guide/install.md:11`: the link `[health.md](health.md#the-wait-for-a-repository-that-is-not-ready)` uses an anchor. Style rule 8 says a section of another page is named by its heading in italics, then `in`, then the link, so that the document check looks the heading up. Fix: write `see its row under *The wait for a repository that is not ready* in [health.md](health.md)`. That still meets criterion 4's "linked to its row in health.md".
+    3. `docs/operator-playbook.md:203`: the new text says the script "refuses unless the last acceptance in `done/` says `outcome: accepted`". `archive-feature.sh:27-35` also refuses while a story file is still in the feature's `backlog/` or `in-progress/`, and when the feature has no acceptance. The sentence also runs to about 60 words, against style rule 2. Fix: split it into sentences of at most about 25 words. Name both refusals, for example: "It refuses while a story is left in `backlog/` or `in-progress/`, or while the last acceptance in `done/` does not say `outcome: accepted`."
+
+    No docs/decisions.md entry was expected, and none was written.
