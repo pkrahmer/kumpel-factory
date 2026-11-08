@@ -1,5 +1,5 @@
 ---
-stage: intake
+stage: tests
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 680
 comments_read: [6727432579]
 handed_over: null
-claim:
-  instance: vm
-  stage: intake
-  started_at: '2026-11-08T21:34:45.259023Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -40,6 +36,12 @@ journal:
   kind: started
   at: '2026-11-08T21:34:45.259023Z'
   stage: intake
+- number: 6
+  speaker: intake
+  kind: result
+  at: '2026-11-08T21:35:08.115134Z'
+  stage: intake
+  run: d2507eff746449e19223e935164122a4
 ---
 
 # A review whose findings need only tests goes to the tester
@@ -52,7 +54,8 @@ Most review findings are missing tests: an untested side of a rule, a criterion 
 
 - `agents/agents/reviewer.md`, `## Stage`: the choice between `tests` and `doing`, as the Description says; the entry with the findings is the same in both cases.
 - `agents/agents/tester.md`, `## Stage`, step 0: the case where the latest result before the tester's run is the reviewer's: the tester writes or changes exactly the tests the reviewer's findings name, only in the tests of its own story (or under the standing leave of `CLAUDE.md`), runs those test files once, and ends with `doing`; its entry names each finding and the test that answers it.
-- `agents/system-prompt.md` and `SYSTEM_PROMPT` in `src/factory/agents/domain/prompts.py`: R12's list of rework rounds gains `review → tests`; both texts stay equal.
+- `agents/system-prompt.md` and `SYSTEM_PROMPT` in `src/factory/agents/domain/prompts.py`: R12's list of rework rounds gains `review → tests`, right after `review → doing`: "Rework rounds (review → doing, review → tests, docs → doing, smoke-test → doing, smoke-test → docs, and the human's close at the approval) …"; both texts stay equal.
+- Tests from earlier stories that pin R12's text (the human's leave, journal entry 4): the tester updates R12's text in `REWORK_RULE` of `tests/agent_files/test_claude_agent_texts_docs_slip.py` and in the R12 entry of `tests/support/shared_rules_support.py` to the new list; each keeps checking the same thing.
 - No code of the factory changes: a decision other than the first of a stage's `next` already counts as a rework round against the stage's `round_cap`.
 - Tests: `tests/agent_files/test_review_to_tests_agent_files.py` for the criteria below.
 
@@ -61,7 +64,7 @@ Most review findings are missing tests: an untested side of a rule, a criterion 
 1. The reviewer's `## Stage` says to decide `tests` when `tests` is among the allowed decisions and every finding needs only a change to the tests of the work item's own story, and to decide `doing` with all findings when any finding needs a change outside them.
 2. The reviewer's `## Stage` says that without `tests` among the allowed decisions, findings go to `doing` as before.
 3. The tester's step 0 says that when the latest result before its run is the reviewer's, it writes or changes exactly the tests the findings name, only in its own story's tests or under the standing leave, runs those test files once and ends with `doing`, naming each finding and its test in the entry.
-4. R12 in `agents/system-prompt.md` lists `review → tests` among the rework rounds, and `SYSTEM_PROMPT` equals the file.
+4. R12 in `agents/system-prompt.md` lists `review → tests` among the rework rounds, right after `review → doing`, and `SYSTEM_PROMPT` equals the file.
 5. A pipeline definition whose `review` stage has `next: [docs, doing, tests]` and `round_cap: 2` moves a work item from `review` to `tests` on the decision `tests` and counts one round; a third rework from `review` is held at `round_cap`: rows of one parametrized test.
 6. `make check` stays green.
 7. docs: the operator guide (`docs/operator-guide/pipeline.md`, the stages and their routes) says that the review stage may send a work item to the tester when its findings need only tests, that this needs `tests` in `review`'s `next`, and that it counts as a rework round.
@@ -102,3 +105,15 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 4. 2026-11-08 human: 1. (a). Leave granted: the tester updates R12's text in `REWORK_RULE` of `tests/agent_files/test_claude_agent_texts_docs_slip.py` and in the R12 entry of `tests/support/shared_rules_support.py` to the new list; each keeps checking the same thing. `review → tests` goes right after `review → doing`: "Rework rounds (review → doing, review → tests, docs → doing, smoke-test → doing, smoke-test → docs, and the human's close at the approval) …". Please write this into the Interface.
    2. (b). I change `test_the_template_lets_the_smoke_test_hand_a_slip_to_docs_and_keeps_every_other_next` myself, in the same commit as the template's pipeline change after this story.
 5. factory: started intake as vm.
+6. intake: accepted
+
+   Carried in from journal entry 4 (the human's answer): the R12 Interface line now gives where `review → tests` goes (right after `review → doing`) and quotes the new list. A new Interface line gives the tester leave to update R12's text in `REWORK_RULE` of `tests/agent_files/test_claude_agent_texts_docs_slip.py` and in the R12 entry of `tests/support/shared_rules_support.py`, with each still checking the same thing. Criterion 4 now also says "right after `review → doing`", so the order the answer sets has a criterion. Point 2 of that answer needs nothing from this story: the human changes the template's `next` test in their own commit.
+
+   - Interface: names `agents/agents/reviewer.md` `## Stage`, `agents/agents/tester.md` step 0, `agents/system-prompt.md` with `SYSTEM_PROMPT` in `src/factory/agents/domain/prompts.py` (R12's exact new text), the two earlier tests the human gave leave to change, and the new test file. No factory code changes, because a decision other than a stage's first `next` already counts as a rework round.
+   - Criteria: each can be tested by one function. Criterion 1 covers both sides of the reviewer's choice (`tests` when every finding needs only test changes, `doing` with all findings otherwise). Criterion 2 covers `tests` missing from the allowed decisions. Criterion 3 covers the tester's case. Criterion 4 checks the R12 text, its order and that both texts are equal. Criterion 5 has two rows of one parametrized test: the `tests` move counted as a round, and holding at `round_cap`.
+   - Smoke test: both commands can run. `addopts` already sets `-q` and the pytest command passes none, so the summary line prints. The expectations (`1`; a summary with only `passed`) can be checked.
+   - Docs criterion: names what the operator must know (review may send to the tester, it needs `tests` in `review`'s `next`, and it counts as a rework round). It dictates no sentences.
+   - Architecture: the agent files and the shipped prompt constant in `factory.agents.domain`, which is where they belong. Tests go under `tests/agent_files/`. The pipeline definition (`factory/`, the template) is not touched (R14).
+   - Scope: within F0060 as its Scope lists S0003, and nothing in its Out of scope.
+
+   Route: `tests`, because the Interface changes agent files, `src/` and tests.
