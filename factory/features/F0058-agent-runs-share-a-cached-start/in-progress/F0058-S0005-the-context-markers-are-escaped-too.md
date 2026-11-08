@@ -14,6 +14,8 @@ The first message escapes four marker texts inside the work item's body and insi
 - `compose_prompt(facts: PromptFacts) -> str` keeps its signature; `PromptFacts` and `StartFact` keep their fields.
 - Tests: `tests/agents/domain/test_prompts_context_markers.py`. No earlier test changes; if one pins the list of four markers, the human names it here with its leave before the story starts.
 
+The human's leave for earlier tests: this story may add `<context` and `</context>` to the lists `MARKERS` in `tests/agents/domain/test_prompts.py` and `tests/pipeline/application/test_stage_context.py`, and change the tests that read those lists only as far as the two new markers need, and nothing else.
+
 ## Acceptance criteria
 
 1. A start fact whose output holds `<context name="x">`, or `</context>`, gives a message with exactly one `<context name="` opening and one `</context>` closing per start fact; the marker text reaches the message with its `<` as `&lt;` (rows of one test).
