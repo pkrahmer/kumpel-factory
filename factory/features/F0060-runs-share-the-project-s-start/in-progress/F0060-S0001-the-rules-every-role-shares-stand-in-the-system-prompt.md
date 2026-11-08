@@ -1,5 +1,5 @@
 ---
-stage: review
+stage: docs
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 678
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: review
-  started_at: '2026-11-08T20:06:52.410837Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -122,6 +118,12 @@ journal:
   kind: started
   at: '2026-11-08T20:06:52.410837Z'
   stage: review
+- number: 21
+  speaker: reviewer
+  kind: result
+  at: '2026-11-08T20:07:27.596050Z'
+  stage: review
+  run: b60e354c7e9e44e59338285c2a7e0808
 ---
 
 # The rules every role shares stand in the system prompt
@@ -383,3 +385,28 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     `duplicates`: duplicates: 7 new, 39 known, 4 gone
 20. factory: started review as vm.
+21. reviewer: Round 1 review of `git diff develop...HEAD -- . ':!factory'`. I read the full diff of `src/`, the new test module, `tests/support/` and every earlier test file the diff changes.
+
+    no findings
+
+    - Round 0 findings (entry 13): all three are fixed. `tests/agent_files/test_shared_rules_system_prompt.py` now uses `shared_rules()`, `headings()` and `WITHOUT_ROLE` from `tests/support/shipped_agents.py`. It also imports `REPLY` from `tests/support/claude_stand_in.py` and `tests/support/opencode_stand_in.py` under aliases. The local copies are gone, and `test_claude_agent_texts.py` uses the moved helpers too.
+    - Group 1 (criteria): criteria 1 to 7 still each have their test, and each test checks what its criterion says. `SYSTEM_PROMPT` in `src/factory/agents/domain/prompts.py` is the same text as `agents/system-prompt.md`: the orientation, then `## Rules`, with only the Stage/Role sentence reworded. Entry 19 records `make check` green after the coder.
+    - Group 2 (architecture): nothing to report. The constant stays in `factory.agents.domain`, and no runtime, interface or wiring changed.
+    - Group 3 (security): nothing to report. There are no markers and no secrets, and the checksums are crc32 integers.
+    - Group 4 (quality): nothing to report. The comment at `prompts.py:29` is still true.
+    - Group 5 (hygiene): nothing to report. The journal names the main choice (the "add to these rules" wording) and the wording that was rejected. The Description matches what was built. Criterion 9 still says what the documenter must write, and `docs/project-guide/agents.md:280-281,352` still describes `## Rules` in every body for the documenter to change.
+
+    Notes:
+    1. `tests/agent_files/test_shared_rules_system_prompt.py:59` `_sentences`: a near-copy of `_sentences` in `tests/agent_files/test_first_message_agent_files.py:17` and `tests/agent_files/test_context_system_prompt.py:11`. It splits only at `.`, where the others also split at `;` and `:`. That is needed because the kept `<work-item>` sentence contains a colon, so this is a variant, not a second copy.
+
+    Earlier tests changed by the diff:
+    - `tests/agent_files/test_claude_agent_refusal.py`: the human's leave (story Interface, decision 1 in `feature.md`).
+    - `tests/agent_files/test_claude_agent_skills.py`: the human's leave (same).
+    - `tests/agent_files/test_claude_agent_texts.py`: the human's leave (same), and the standing leave to move a shared test helper for `headings` and `WITHOUT_ROLE` (entry 17).
+    - `tests/agent_files/test_claude_agent_texts_check_red.py`: the human's leave (same).
+    - `tests/agent_files/test_claude_agent_texts_docs_slip.py`: the human's leave (same).
+    - `tests/agent_files/test_claude_agent_texts_review_groups.py`: the human's leave, "any other test whose only failure is this move" (entries 7 and 9).
+    - `tests/agent_files/test_claude_settings_git.py`: the human's leave, "any other test whose only failure is this move" (entry 5).
+    - `tests/agent_files/test_first_message_agent_files.py`: the human's leave, "any other test whose only failure is this move" (entries 7 and 9).
+    - `tests/agent_files/test_shipped_agents_r14.py`: the human's leave, "any other test whose only failure is this move" (entries 7 and 9).
+    - `tests/support/shipped_agents.py`: the standing leave to move a shared test helper (it gains `headings`, `WITHOUT_ROLE` and the new `shared_rules()`; no earlier test it held changed).
