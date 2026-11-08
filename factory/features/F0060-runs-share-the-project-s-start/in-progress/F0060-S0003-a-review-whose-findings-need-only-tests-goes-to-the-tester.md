@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 680
 comments_read: [6727432579, 6727512748, 6727549619]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-08T21:46:32.943978Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -97,6 +101,11 @@ journal:
   speaker: human
   kind: comment
   at: '2026-11-08T21:46:30.485852Z'
+  stage: tests
+- number: 17
+  speaker: factory
+  kind: started
+  at: '2026-11-08T21:46:32.943978Z'
   stage: tests
 ---
 
@@ -258,3 +267,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     Files changed: `tests/agent_files/test_claude_agent_texts_review_groups.py`, `tests/support/shared_rules_support.py`.
 16. 2026-11-08 human: (a). Leave granted for that `.replace`. Beyond it, for the rest of this story: any earlier test whose only failure is this story's change of R12, the reviewer's `## Stage` or the tester's `## Stage` may be updated the same way (a mapping back to the earlier text, or the new checksum of the new text), each keeping its name and checking the same thing; name each in your entry.
+17. factory: started tests as vm.
