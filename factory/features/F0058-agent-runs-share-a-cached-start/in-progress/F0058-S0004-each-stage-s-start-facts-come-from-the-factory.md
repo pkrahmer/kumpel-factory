@@ -1,5 +1,5 @@
 ---
-stage: review
+stage: docs
 blocked: null
 round: 2
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 662
 comments_read: [6721852631, 6722094144]
 handed_over: null
-claim:
-  instance: vm
-  stage: review
-  started_at: '2026-11-08T13:48:08.858413Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -178,6 +174,12 @@ journal:
   kind: started
   at: '2026-11-08T13:48:08.858413Z'
   stage: review
+- number: 31
+  speaker: reviewer
+  kind: result
+  at: '2026-11-08T13:49:02.602138Z'
+  stage: review
+  run: c1b99d70106d43288640f207310f9255
 ---
 
 # Each stage's start facts come from the factory
@@ -205,7 +207,7 @@ The commands are project commands, so the project decides what they show; the fa
 - An output longer than 60,000 characters is cut to its first 60,000, followed by a line saying how many characters were cut and that the agent can run the command itself.
 - A command that fails or runs out of time gives a block holding the line `failed: <reason>`; the run goes ahead. A start fact is a help, not a gate.
 - The marker texts of S0002 are escaped inside a context block, as inside the work item.
-- The common system prompt says that the `<context>` blocks are facts the factory gathered at the start, which the agent need not gather again, in the shipped agent files and the operator template alike.
+- The common system prompt says that the `<context>` blocks are facts the factory gathered at the start, which the agent need not gather again, in the shipped `agents/system-prompt.md` and the built-in fallback `SYSTEM_PROMPT` alike.
 - The `context` commands count toward the lease: loading refuses a stage whose role's `time_limit` plus the `time_limit`s of its `checks`, `reports` and `context` exceed its `lease_duration`.
 - A stage without `context` gets a message as before.
 - The pipeline definition's version rule applies to the new key (`docs/decisions.md`): the pipeline definition's contract rises to 1.1, and the generated schema with it. A definition with `contract: "1.0"` and one with `"1.1"` both load, and both may carry `context`. This story does not change `factory/pipeline.yml`; the human raises it to 1.1, with its `context` lines, after this story.
@@ -228,7 +230,7 @@ The human's leave for earlier tests: this story may change these earlier tests w
 5. A marker text inside a command's output reaches the message escaped.
 6. A stage without `context` gets the same message as without this story.
 7. The commands run in the check container on the stage's base, never on the host.
-8. The common system prompt names the `<context>` blocks as start facts the agent need not gather again, in the shipped agent files and the operator template alike.
+8. The common system prompt names the `<context>` blocks as start facts the agent need not gather again, in the shipped `agents/system-prompt.md` and the built-in fallback `SYSTEM_PROMPT` alike.
 9. Loading refuses a stage whose `context` time limits push the role's `time_limit` plus its checks', reports' and context's `time_limit`s past its `lease_duration`, and accepts one that fits (rows of one test).
 10. A definition with `contract: "1.0"` and one with `contract: "1.1"` both load, each with a stage carrying `context` (rows of one test).
 11. A file a `context` command writes on the dataset is not there when the agent's run starts, and the take after the run does not carry it.
@@ -527,3 +529,33 @@ Expect: `True`
     `check`: check: green
     `duplicates`: duplicates: 7 new, 39 known, 4 gone
 30. factory: started review as vm.
+31. reviewer: Reviewed `git diff develop...HEAD -- . ':!factory'` against the work item, without the generated schemas under `src/factory/contract/`. I checked those through the stat and the records contract constant.
+
+    no findings
+
+    The three findings from entry 23 are fixed:
+    - Finding 1 (criterion 12): `tests/pipeline/application/test_stage_context.py::test_each_context_command_runs_under_its_own_time_limit` gives two `context` commands the limits 1 and 3. Through `_LimitNotingCommands`, it checks that each limit reaches `start_fact`. That is the value `TaskComposer._start_fact` reads from `project_commands[command].time_limit` (`src/factory/pipeline/application/task.py:129`).
+    - Finding 2 (criterion 13): `tests/machine/application/test_recording_start_fact.py::test_a_start_fact_reaches_the_inner_commands_and_is_recorded` covers `RecordingProjectCommands.start_fact`. It checks that the inner `start_fact` gets the command and its limit, that the whole output comes back, and that one `CommandRecord` is written the way `run` writes one. The inner `run` raises, so a start fact can never run as a check.
+    - Finding 3: the class docstring of `ContainerMakeCommands` (`src/factory/machine/adapters/make_commands.py:101`) now covers both operations.
+
+    I went through every group again:
+    - **Criteria 1 to 13:** each has a test that checks what it says. Both sides of every stated limit are tested: an unknown and a known name, 60,000 and 60,001 characters, a lease that fits and one that is exceeded, contract 1.0 and 1.1, and both kinds of failure.
+    - **Architecture:** `ProjectCommands.start_fact` is an `@abstractmethod` whose body is its docstring. The `isinstance` downcast is gone. The command name stays an argument (`"$2"`) and is never part of the script.
+    - **Contract:** `RECORDS_CONTRACT` is "4.5" and the schemas were regenerated.
+    - **Security:** nothing silences a check.
+    - **`make check`:** green after the coder (entry 29).
+
+    description corrected: "in the shipped agent files and the operator template alike" (Interface line and criterion 8) -> "in the shipped `agents/system-prompt.md` and the built-in fallback `SYSTEM_PROMPT` alike". This follows the human's answer in entry 15 that the operator template is void.
+
+    Notes:
+    - `tests/pipeline/application/test_stage_context.py` (`_LimitNotingCommands.limits`): the class-level mutable dict holds state across tests. The test resets it before it uses it, but a fixture would make that reset impossible to forget.
+    - `tests/machine/application/test_recording_start_fact.py`: the test builds `RecordingProjectCommands` directly and not through `factory.entry.wiring`. It is the same class the wiring puts around `ContainerMakeCommands` (`src/factory/entry/wiring.py:327`).
+
+    Earlier tests:
+    - `tests/machine/application/test_interfaces.py`: the human's leave, entry 15.
+    - `tests/pipeline/application/test_stage_finish.py`: the human's leave, entry 15.
+    - `tests/pipeline/application/test_stage_time_limited_report.py`: the human's leave, entry 15.
+    - `tests/support/preflight_support.py`: the human's leave, entry 15.
+    - `tests/pipeline/domain/test_contract.py`: the human's leave, entry 15.
+    - `tests/shared/domain/test_contract_version_4.py`: the human's leave, entry 15.
+    - `tests/shared/domain/test_contract_version_4_2.py`: the human's leave, entry 15.
