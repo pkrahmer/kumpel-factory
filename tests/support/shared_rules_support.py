@@ -95,11 +95,12 @@ RULES_BEFORE = (
         "machine before it starts."
     ),
     (
-        "R12. Rework rounds (review → doing, docs → doing, smoke-test → doing, smoke-test → "
-        "docs, and the human's close at the approval) share the work item's `round`, capped "
-        "by the stage's `round_cap` in the pipeline definition. Your prompt names the round; "
-        "on a rework round the latest entries name the findings. When the cap is passed, the "
-        "factory asks the human instead of looping."
+        "R12. Rework rounds (review → doing, review → tests, docs → doing, "
+        "smoke-test → doing, smoke-test → docs, and the human's close at the approval) "
+        "share the work item's `round`, capped by the stage's `round_cap` in the "
+        "pipeline definition. Your prompt names the round; on a rework round the latest "
+        "entries name the findings. When the cap is passed, the factory asks the human "
+        "instead of looping."
     ),
     (
         "R13. Nothing is started without the human: no story enters `in-progress/` but by "
@@ -160,14 +161,14 @@ PARTS_BEFORE: dict[str, dict[str, int]] = {
     "tester": {
         "opening": 3972991499,
         "Role": 126951652,
-        "Stage": 1826633319,
+        "Stage": 1483730218,
         "Lessons": 1459710826,
     },
     "coder": {"opening": 2541228184, "Role": 536293745, "Stage": 3093711021, "Lessons": 974268139},
     "reviewer": {
         "opening": 715436559,
         "Role": 992493990,
-        "Stage": 3369024944,
+        "Stage": 3113525091,
         "Lessons": 1263948714,
     },
     "documenter": {

@@ -16,26 +16,15 @@ from factory.work.domain.work_item import WorkItemDocument, WorkItemState
 from support.git_support import remote_commit
 from support.proof_support import (
     FEATURE,
-    PASSING_TEST,
-    SOURCE,
     World,
-    completed,
     head_state,
     posts,
     pull_request_of,
     start_story,
     work_item_file,
 )
-from support.two_routes_support import TWO_ROUTES
+from support.two_routes_support import EVERY_TARGET_MAKEFILE, TWO_ROUTES, decide
 
-MAKEFILE: Final[str] = "".join(
-    f"{target}:\n\t@:\n"
-    for target in ("sync", "check", "lint", "test", "duplicates", "documents", "secrets")
-)
-WRITES: Final[dict[str, dict[str, str]]] = {
-    "tests": {"tests/test_example.py": PASSING_TEST},
-    "doing": {"src/example.py": SOURCE},
-}
 DOCS_ROUTE: Final[tuple[str, ...]] = ("docs-only", "docs-review", "docs-approval")
 CODE_ROUTE: Final[tuple[str, ...]] = ("doing", "review", "docs", "smoke-test", "approval")
 CLOSE_REASON = "The second paragraph is wrong."
@@ -44,7 +33,9 @@ CLOSE_REASON = "The second paragraph is wrong."
 @pytest.fixture
 def two_routes(world: World) -> World:
     """The world with the two-route definition and a Makefile of every target on `main`."""
-    world.human.push_files(WORK_BRANCH, {"factory/pipeline.yml": TWO_ROUTES, "Makefile": MAKEFILE})
+    world.human.push_files(
+        WORK_BRANCH, {"factory/pipeline.yml": TWO_ROUTES, "Makefile": EVERY_TARGET_MAKEFILE}
+    )
     return world
 
 
@@ -52,14 +43,6 @@ def two_routes(world: World) -> World:
 def story(two_routes: World) -> WorkItemId:
     """A story started in the two-route world."""
     return start_story(two_routes)
-
-
-def _step(world: World, work_item: WorkItemId, decision: str, stage: str) -> WorkItemState:
-    """One tick in which the agent of `stage` ends with `decision`; the state after it."""
-    run = completed(decision, f"{stage}: {decision}.", writes=WRITES.get(stage))
-    world.agent_runtime.queue(run)
-    world.tick.run()
-    return head_state(world, work_item)
 
 
 def _hand_over(world: World, work_item: WorkItemId) -> WorkItemState:
@@ -72,9 +55,9 @@ def _labels(world: World, work_item: WorkItemId) -> list[str]:
 
 
 def _walk_docs_route(world: World, work_item: WorkItemId) -> WorkItemState:
-    _step(world, work_item, "docs-only", "intake")
-    _step(world, work_item, "docs-review", "docs-only")
-    _step(world, work_item, "docs-approval", "docs-review")
+    decide(world, work_item, "docs-only", "intake")
+    decide(world, work_item, "docs-review", "docs-only")
+    decide(world, work_item, "docs-approval", "docs-review")
     return _hand_over(world, work_item)
 
 
@@ -83,7 +66,7 @@ def _walk_code_route(world: World, work_item: WorkItemId, first: str) -> list[st
     reached: list[str] = []
     stage = first
     for following in CODE_ROUTE:
-        reached.append(_step(world, work_item, following, stage).stage)
+        reached.append(decide(world, work_item, following, stage).stage)
         stage = following
     return reached
 
@@ -113,7 +96,7 @@ def test_an_intake_decision_docs_only_walks_the_docs_route_to_a_hand_over_at_doc
         ("docs-only", "docs-review"),
         ("docs-review", "docs-approval"),
     ):
-        state = _step(two_routes, story, decision, stage)
+        state = decide(two_routes, story, decision, stage)
         reached.append(state.stage)
         labelled.append(f"stage:{decision}" in _labels(two_routes, story))
     handed = _hand_over(two_routes, story)
@@ -180,8 +163,8 @@ def test_a_close_at_docs_approval_takes_the_round_cap_of_docs_review(
     state = _walk_docs_route(two_routes, story)
     for closed in range(1, closes + 1):
         if closed > 1:
-            _step(two_routes, story, "docs-review", "docs-only")
-            _step(two_routes, story, "docs-approval", "docs-review")
+            decide(two_routes, story, "docs-review", "docs-only")
+            decide(two_routes, story, "docs-approval", "docs-review")
             _hand_over(two_routes, story)
         state = _close_with_reason(two_routes, story)
     two_routes.tick.run()
@@ -207,13 +190,13 @@ def test_a_send_back_at_docs_review_counts_a_round_and_the_third_asks_the_human(
     round_number: int,
     blocked: str | None,
 ) -> None:
-    _step(two_routes, story, "docs-only", "intake")
-    _step(two_routes, story, "docs-review", "docs-only")
+    decide(two_routes, story, "docs-only", "intake")
+    decide(two_routes, story, "docs-review", "docs-only")
     state = head_state(two_routes, story)
     for sent in range(1, send_backs + 1):
-        state = _step(two_routes, story, "docs-only", "docs-review")
+        state = decide(two_routes, story, "docs-only", "docs-review")
         if sent < send_backs:
-            state = _step(two_routes, story, "docs-review", "docs-only")
+            state = decide(two_routes, story, "docs-review", "docs-only")
     if blocked is not None:
         two_routes.tick.run()
 
@@ -224,8 +207,8 @@ def test_a_send_back_at_docs_review_counts_a_round_and_the_third_asks_the_human(
 def test_a_documenter_decision_tests_takes_the_code_route_whose_close_sends_back_to_doing(
     two_routes: World, story: WorkItemId
 ) -> None:
-    _step(two_routes, story, "docs-only", "intake")
-    moved = _step(two_routes, story, "tests", "docs-only")
+    decide(two_routes, story, "docs-only", "intake")
+    moved = decide(two_routes, story, "tests", "docs-only")
     reached = _walk_code_route(two_routes, story, "tests")
     handed = _hand_over(two_routes, story)
     sent_back = _close_with_reason(two_routes, story)
@@ -240,7 +223,7 @@ def test_a_documenter_decision_tests_takes_the_code_route_whose_close_sends_back
 def test_an_intake_decision_tests_still_takes_todays_route_to_approval(
     two_routes: World, story: WorkItemId
 ) -> None:
-    moved = _step(two_routes, story, "tests", "intake")
+    moved = decide(two_routes, story, "tests", "intake")
     reached = _walk_code_route(two_routes, story, "tests")
     handed = _hand_over(two_routes, story)
 

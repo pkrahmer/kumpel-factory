@@ -131,7 +131,7 @@ def test_the_documenter_back_from_docs_review_fixes_exactly_the_findings_and_han
             id="replaces-the-scope",
         ),
         pytest.param("its checklist", id="replaces-the-checklist"),
-        pytest.param("its decisions, and steps 1 to 3", id="replaces-decisions-and-steps"),
+        pytest.param("its decisions, and steps 1 to 4", id="replaces-decisions-and-steps"),
         pytest.param("Judge the facts against the code and the criteria", id="judges-the-facts"),
     ],
 )

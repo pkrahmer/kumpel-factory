@@ -1,6 +1,19 @@
-"""A pipeline definition of two routes to two approval stages, in the shipped order."""
+"""A pipeline definition of two routes to two approval stages, and one stage's decision in it."""
 
 from typing import Final
+
+from factory.shared.domain.identifiers import WorkItemId
+from factory.work.domain.work_item import WorkItemState
+from support.proof_support import PASSING_TEST, SOURCE, World, completed, head_state
+
+EVERY_TARGET_MAKEFILE: Final[str] = "".join(
+    f"{target}:\n\t@:\n"
+    for target in ("sync", "check", "lint", "test", "duplicates", "documents", "secrets")
+)
+STAGE_WRITES: Final[dict[str, dict[str, str]]] = {
+    "tests": {"tests/test_example.py": PASSING_TEST},
+    "doing": {"src/example.py": SOURCE},
+}
 
 TWO_ROUTES: Final[str] = """\
 contract: "1.0"
@@ -44,3 +57,11 @@ stages:
   approval: {approval: true, next: [done, doing]}
   done: {}
 """
+
+
+def decide(world: World, work_item: WorkItemId, decision: str, stage: str) -> WorkItemState:
+    """One tick in which the agent of `stage` ends with `decision`; the state after it."""
+    run = completed(decision, f"{stage}: {decision}.", writes=STAGE_WRITES.get(stage))
+    world.agent_runtime.queue(run)
+    world.tick.run()
+    return head_state(world, work_item)
