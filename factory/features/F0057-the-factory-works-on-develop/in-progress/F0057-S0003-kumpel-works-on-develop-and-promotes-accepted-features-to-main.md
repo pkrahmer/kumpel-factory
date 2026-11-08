@@ -1,5 +1,5 @@
 ---
-stage: review
+stage: docs
 blocked: null
 round: 2
 attempts: 1
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 645
 comments_read: [6714658360, 6714963482]
 handed_over: null
-claim:
-  instance: vm
-  stage: review
-  started_at: '2026-11-08T00:48:27.949200Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -218,6 +214,12 @@ journal:
   kind: started
   at: '2026-11-08T00:48:27.949200Z'
   stage: review
+- number: 38
+  speaker: reviewer
+  kind: result
+  at: '2026-11-08T00:49:45.871762Z'
+  stage: review
+  run: da72aa6de22a404eb720550d622fc212
 ---
 
 # Kumpel works on develop and promotes accepted features to main
@@ -591,3 +593,42 @@ Expect: `off`
     `check`: check: green
     `duplicates`: duplicates: 6 new, 39 known, 4 gone
 37. factory: started review as vm.
+38. reviewer: Review, round 2. I read the work item and `git diff develop...HEAD -- . ':!factory'`: the scripts under `operator/skill/kumpel/scripts/`, `SKILL.md`, the four reference texts, both kumpel commands, `operator/README.md`, the new test file and four earlier test files. I checked both round 1 findings (journal 30) against the code:
+    - Finding 1 is fixed. `promote.sh:301-317` (`pull_body`) takes a story's title from its first `# ` heading. The `done/` stories that `finished_feature` writes now open with front matter (`DONE_FRONT_MATTER`), so `test_promote_opens_the_promotion_and_merges_it_only_with_the_switch_on` checks the titles against files shaped like real done stories.
+    - Finding 2 is fixed. On a settings file without `promote`, the rows `get-unknown` and `set-unknown` of `test_a_settings_file_without_the_promote_switch_reads_it_as_off` check that `get colour` and `set colour on` are refused with the messages in criterion 5 and leave the file unchanged.
+
+    Group 1 (criteria). I checked every criterion and every rule of the Interface again:
+    - Criterion 1: author, committer, push to `develop`, and `main` unchanged.
+    - Criterion 2: the finished row plus five refusal rows (story in `backlog/`, story in `in-progress/`, no acceptance, acceptance in `in-progress/`, a later acceptance in `in-progress/`). Each refusal leaves `develop` unchanged.
+    - Criterion 3: not archived, switch off and switch on, with head, base, title, the story ids and titles in the body, `merge_method: merge` and the commit message.
+    - Criterion 4: both sides.
+    - Criterion 5: a new file and an old file, with the refusals.
+    - Criterion 6: the rows tell the branches apart. `develop` is one commit ahead of `main`, so reading `main` gives a different next story, a different test list and a different archive line.
+    - Criteria 7 and 8: covered.
+    - The coder's `make check` was green (journal 36).
+
+    Group 2 (architecture): nothing under `src/` changed. The one commit function lives in `kumpel-commit.sh`, as journal 4 item 7 settled, and nothing else sets Kumpel's identity by hand any more.
+
+    Group 3 (security): request bodies in `promote.sh` and `settings.sh` are built with `json.dumps` or `json.loads`. No secrets, no markers.
+
+    Group 4 (quality): the scripts' header comments say why. The four switches are now one table (`settings.sh:20`).
+
+    Group 5 (hygiene): the Description, Interface and criteria match what was built.
+
+    Documents: the three new rows in the `operator/README.md` file table match `archive-feature.sh`, `promote.sh` and `kumpel-commit.sh`. `approving.md`, `standing-orders.md`, `answering.md`, `shaping.md` and `SKILL.md` match the scripts. No "on `main`" is left for Kumpel's own writes.
+
+    no findings
+
+    Rejected:
+    - A finding that the reset test checks only that some line names `main`. Criterion 7 asks that the output says so, and `reset-to-tag.sh:78,93` prints the line both in the plan and after the move.
+    - A finding that the Interface still says "`operator/lib/` (or the skill's scripts)". What was built is one of the options it gives, so the text is not contradicted.
+
+    Earlier tests:
+    - `tests/operator_scripts/test_operator_merge_reset.py`: the human's leave of 2026-11-07 in the Interface (branch name, lookup on `develop`). `ALLOWED_CHANGE`, the routes and the move lines change. The only-moves test now skips the new line about `main`, which the branch change requires. Every test keeps its name. The two tests at the end are new.
+    - `tests/operator_scripts/test_operator_skill_scripts.py`: the human's leave of 2026-11-07 (the new switch, the lookup on `develop`).
+    - `tests/operator_scripts/test_operator_skill_signature.py`: the standing leave to move a shared test helper (`KUMPEL` moved to `tests/support/operator_skill_support.py`).
+    - `tests/support/operator_skill_support.py`: the human's leave of 2026-11-07 (`SCRIPTS_BRANCH`, `DEFAULT_BRANCH`, the commits route, a remote whose `HEAD` is `main`). The `KUMPEL` move is under the standing leave.
+
+    Notes:
+    - `tests/operator_scripts/test_operator_develop.py:322` `test_a_settings_file_without_the_promote_switch_reads_it_as_off`: the name now covers only the `read` row. `set-on`, `get-unknown` and `set-unknown` would fit a name like "an old settings file knows the promote switch and nothing more".
+    - `tests/operator_scripts/test_operator_develop.py:291` and `:322`: the switch's new-file rows and old-file rows are still two functions. The setups differ, as noted in round 1.
