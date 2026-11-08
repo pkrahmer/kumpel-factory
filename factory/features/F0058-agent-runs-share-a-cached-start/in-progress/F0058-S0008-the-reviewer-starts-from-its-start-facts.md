@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 669
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T15:25:52.843653Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -36,6 +40,11 @@ journal:
   at: '2026-11-08T15:25:47.676763Z'
   stage: tests
   run: c2418a9285b24e2d93d0f12d47970e23
+- number: 6
+  speaker: factory
+  kind: started
+  at: '2026-11-08T15:25:52.843653Z'
+  stage: doing
 ---
 
 # The reviewer starts from its start facts
@@ -109,3 +118,4 @@ Expect: a line ending in `passed` with no `failed`.
       - Modules the runner could not import: none.
 
    `lint`: lint: green (0.2 s)
+6. factory: started doing as vm.
