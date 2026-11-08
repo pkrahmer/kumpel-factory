@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 647
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: docs-only
+  started_at: '2026-11-08T01:28:29.396342Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -25,6 +29,11 @@ journal:
   at: '2026-11-08T01:28:24.740341Z'
   stage: intake
   run: 58d18eff216448f4a4d1421409871cb2
+- number: 4
+  speaker: factory
+  kind: started
+  at: '2026-11-08T01:28:29.396342Z'
+  stage: docs-only
 ---
 
 # The project guide names develop and main
@@ -66,3 +75,4 @@ Expect: `documents ok (<seconds> s)`
    - Docs criterion: it names the files and what the reader must know (a developer reads the branch the code uses). It dictates no sentences.
    - Architecture: nothing under `src/` changes. The paths are in `docs/`, which the documenter may write.
    - Scope: this is S0005 of F0057, which lists the project guide in its scope. It keeps `main_branch_failing` as decision 6 says. No code or test change, so the route is docs-only.
+4. factory: started docs-only as vm.
