@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 662
 comments_read: [6721852631]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T13:27:28.524336Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -75,6 +79,11 @@ journal:
   at: '2026-11-08T13:27:23.021841Z'
   stage: review
   run: f086326a90a4400b9df29a601127f96a
+- number: 13
+  speaker: factory
+  kind: started
+  at: '2026-11-08T13:27:28.524336Z'
+  stage: doing
 ---
 
 # Each stage's start facts come from the factory
@@ -250,3 +259,4 @@ Expect: `True`
     Open, for the human, not a finding: criteria 8 and the Interface name "the operator template". No system prompt exists under `operator/template`. The two copies are the shipped `agents/system-prompt.md` and the built-in fallback `SYSTEM_PROMPT` (`src/factory/agents/domain/prompts.py:31`), which `docs/operator-guide/agent-runtime.md:353` describes as the same text. Both carry the sentence, and the tests cover both. If the human meant the fallback, the wording of criterion 8 can say so. I did not change it, because the journal does not settle it.
 
     Earlier tests: none changed. Every test file in the diff is new (status `A`).
+13. factory: started doing as vm.
