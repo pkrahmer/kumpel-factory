@@ -36,32 +36,32 @@ class PipelineLoader:
         raises its stop and a success first clears it. `GitError` propagates and touches no
         stop.
         """
-        on_main = ref == PIPELINE_REF
-        definition = self._load_definition(ref, on_main)
-        self._check_agent_files(definition, on_main)
+        on_work_branch = ref == PIPELINE_REF
+        definition = self._load_definition(ref, on_work_branch)
+        self._check_agent_files(definition, on_work_branch)
         return definition
 
-    def _load_definition(self, ref: str, on_main: bool) -> PipelineDefinition:
+    def _load_definition(self, ref: str, on_work_branch: bool) -> PipelineDefinition:
         try:
             definition = self._read(ref)
         except PipelineDefinitionInvalid as error:
-            if on_main:
+            if on_work_branch:
                 self._stops.raise_stop(self._stop("pipeline_definition_invalid", error.fault))
             raise
-        if on_main:
+        if on_work_branch:
             self._stops.clear_stop("pipeline_definition_invalid")
         return definition
 
-    def _check_agent_files(self, definition: PipelineDefinition, on_main: bool) -> None:
+    def _check_agent_files(self, definition: PipelineDefinition, on_work_branch: bool) -> None:
         try:
             for role in definition.roles:
                 self._boundaries.agent_definitions.read(role)
         except AgentDefinitionInvalid as error:
-            if on_main:
+            if on_work_branch:
                 detail = f"{error.name}: {error.fault}"
                 self._stops.raise_stop(self._stop("agent_definition_invalid", detail))
             raise
-        if on_main:
+        if on_work_branch:
             self._stops.clear_stop("agent_definition_invalid")
 
     def _read(self, ref: str) -> PipelineDefinition:

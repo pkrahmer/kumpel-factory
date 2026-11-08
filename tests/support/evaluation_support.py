@@ -175,7 +175,7 @@ class _ClaimStatus:
 
 
 def _facts(*snapshots: WorkItemSnapshot) -> EvaluationInput:
-    return EvaluationInput(definition=DEFINITION, snapshots=list(snapshots), main_commit=MAIN)
+    return EvaluationInput(definition=DEFINITION, snapshots=list(snapshots), work_commit=MAIN)
 
 
 def _evaluate(

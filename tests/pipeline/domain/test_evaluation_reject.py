@@ -160,7 +160,7 @@ def _evaluate(
     facts = EvaluationInput(
         definition=DEFINITION,
         snapshots=list(snapshots),
-        main_commit=MAIN,
+        work_commit=MAIN,
         illegal_changes=list(illegal_changes),
     )
     return evaluate(facts, _Lookup() if lookup is None else lookup, lambda _state: claim_status)
@@ -281,6 +281,6 @@ def test_no_lookup_when_no_work_item_waits() -> None:
 
 
 def test_evaluation_input_has_no_illegal_changes_by_default() -> None:
-    facts = EvaluationInput(definition=DEFINITION, snapshots=[], main_commit=MAIN)
+    facts = EvaluationInput(definition=DEFINITION, snapshots=[], work_commit=MAIN)
 
     assert facts.illegal_changes == []

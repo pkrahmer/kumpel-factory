@@ -720,13 +720,13 @@ The refusals of `read_settings`:
 ### How the stage file is followed
 
 - `_ProjectImageStart` in [run.py](../../src/factory/entry/run.py) (`factory.entry.run`) calls `chosen_image` once the checkout is ready, after a fetch, and again whenever the stage file changes on a new `origin/develop`.
-- `_ProjectImageStart.prepare` fetches before every tick, beside where the preflight probes `develop`. It reads the file with `stage_file_on_main` and compares its text with the one last handled. Equal text is equal digest, and it also covers a refused file, which has none.
+- `_ProjectImageStart.prepare` fetches before every tick, beside where the preflight probes `develop`. It reads the file with `stage_file_on_work_branch` and compares its text with the one last handled. Equal text is equal digest, and it also covers a refused file, which has none.
 - The same text builds nothing and does not retry a failed one.
 - A different text calls `chosen_image`. It passes a `StageImageReport` (`stage_image_report`: log, clock, the commit's first 12 hex digits) when a stage file exists or at the start. A later follow without a stage file passes none. Given a report, `chosen_image` writes the `stage image:` lines and puts `at <commit>: ` before the stop's detail.
 - A passed build gives a new tick on boundaries built from the chosen settings (image, identity and `Boundaries.image_path` change together). A tick that is running keeps its own, so the change takes effect between stages.
-- `prepare` guards its fetch. `_follow_main` catches `FetchFailed` (any other `GitError` is not caught and reaches the scheduler's `iteration failed`), raises the repository stop `fetch_failed` with `str(error)` as its detail through `StopService`, and returns `False`. Then `prepare` returns `False` and no tick runs in that iteration. It reads no stage file then and leaves the image, identity, `PATH` and the stage file last handled as they were.
+- `prepare` guards its fetch. `_follow_work_branch` catches `FetchFailed` (any other `GitError` is not caught and reaches the scheduler's `iteration failed`), raises the repository stop `fetch_failed` with `str(error)` as its detail through `StopService`, and returns `False`. Then `prepare` returns `False` and no tick runs in that iteration. It reads no stage file then and leaves the image, identity, `PATH` and the stage file last handled as they were.
 - A fetch that passes calls `clear_stop("fetch_failed")` and compares as above.
-- This is the one fetch of the iteration. `_choose` builds the tick with `fetched=True` (`activity_tick(..., fetched=True)`), so `Tick.run` does not fetch again and does not raise or clear `fetch_failed` itself. `_follow_main` is the only place that does in `factory-run`.
+- This is the one fetch of the iteration. `_choose` builds the tick with `fetched=True` (`activity_tick(..., fetched=True)`), so `Tick.run` does not fetch again and does not raise or clear `fetch_failed` itself. `_follow_work_branch` is the only place that does in `factory-run`.
 - A failed build drops the tick: no tick runs while the stop stands.
 - A removed file returns to the base and logs `back to the base`.
 - `Images.build` removes the untagged images, so the previous project image goes.

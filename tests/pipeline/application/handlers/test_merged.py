@@ -1,4 +1,7 @@
-"""The merged handler: a merged story is archived on main with its bill, then its branch goes."""
+"""The merged handler: a merged story is archived on the working branch with its bill.
+
+Then its branch goes.
+"""
 
 from collections.abc import Callable
 from datetime import UTC, datetime

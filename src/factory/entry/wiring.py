@@ -162,7 +162,7 @@ __all__ = [
     "read_environment_settings",
     "read_hosting_token",
     "repository_name",
-    "stage_file_on_main",
+    "stage_file_on_work_branch",
     "stage_image_report",
     "system_clock",
 ]
@@ -434,7 +434,7 @@ def stage_image_report(git: Git, log: FactoryLog, clock: Clock) -> StageImageRep
     return StageImageReport(log=log, clock=clock, commit=commit[:_SHORT_COMMIT_LENGTH])
 
 
-def stage_file_on_main(git: Git) -> str | None:
+def stage_file_on_work_branch(git: Git) -> str | None:
     """Return the text of the stage file on `origin/<working branch>`, or `None` without one."""
     return git.show_file(_WORK_REF, STAGE_FILE)
 
@@ -479,7 +479,7 @@ def chosen_image(
     report: StageImageReport | None = None,
 ) -> ChosenImage | None:
     """Return the image `project_image_settings` chooses, with its sizes measured once."""
-    text = stage_file_on_main(git)
+    text = stage_file_on_work_branch(git)
     if text is None:
         stops.clear_stop(_STAGE_IMAGE_FAILED)
         return _base_image(settings, images, report)
