@@ -34,7 +34,7 @@ F0059 is archived and promoted. Measured on 2026-11-08 under Claude Code 2.1.318
 
 After S0001 is merged, on `develop`: `CLAUDE.md`, first paragraph, "(the shipped agent files under `agents/agents/`)" becomes "(the shared system prompt `agents/system-prompt.md` and the shipped agent files under `agents/agents/`)".
 
-After S0002 is merged, on the VM (not in the repository): the trial lines `CLAUDE_CODE_PROMPT_CACHE_TTL=5m` and `FACTORY_CONTAINER_ENV=CLAUDE_CODE_PROMPT_CACHE_TTL` leave `factory.local.env` of the instances `vm` and `demo3`, and both restart. Then the next story's transcripts show `ephemeral_5m` writes and a first request that reads more than 6,683 tokens.
+Once an instance runs code with S0002 (for `vm`, when it moves to the promoted F0060; `demo3` is not moved, and `demo4` is set up without them), on the VM (not in the repository): the trial lines `CLAUDE_CODE_PROMPT_CACHE_TTL=5m` and `FACTORY_CONTAINER_ENV=CLAUDE_CODE_PROMPT_CACHE_TTL` leave `factory.local.env` of the instances `vm` and `demo3`, and both restart. Then the next story's transcripts show `ephemeral_5m` writes and a first request that reads more than 6,683 tokens.
 
 After S0003 is merged, on `develop`: `review` gains `tests` as its third `next` in `factory/pipeline.yml`, `demo/todo-service/project/factory/pipeline.yml` and `operator/template/factory/pipeline.yml` (`next: [docs, doing, tests]`; `round_cap` and the leases stay).
 
