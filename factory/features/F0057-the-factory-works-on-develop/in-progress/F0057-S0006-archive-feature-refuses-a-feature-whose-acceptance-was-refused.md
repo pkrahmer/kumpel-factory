@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 649
 comments_read: [6715900227]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T02:01:23.633164Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -71,6 +75,11 @@ journal:
   at: '2026-11-08T02:01:18.489759Z'
   stage: tests
   run: 0d1497c0fff544059754de59bcd675f2
+- number: 12
+  speaker: factory
+  kind: started
+  at: '2026-11-08T02:01:23.633164Z'
+  stage: doing
 ---
 
 # archive-feature.sh refuses a feature whose acceptance was refused
@@ -183,3 +192,4 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
     `make lint` is green. Nothing in the criteria needed interpreting.
 
     `lint`: lint: green (0.2 s)
+12. factory: started doing as vm.
