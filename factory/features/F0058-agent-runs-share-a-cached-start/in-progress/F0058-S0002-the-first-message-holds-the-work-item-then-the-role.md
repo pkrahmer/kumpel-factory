@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 660
 comments_read: [6720878077, 6720941885, 6720981420, 6721183670, 6721345876]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: docs
+  started_at: '2026-11-08T12:20:22.621988Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -209,6 +213,11 @@ journal:
   at: '2026-11-08T12:20:17.667392Z'
   stage: review
   run: 55cda9996cf7439d91433a4ba71ebb0d
+- number: 37
+  speaker: factory
+  kind: started
+  at: '2026-11-08T12:20:22.621988Z'
+  stage: docs
 ---
 
 # The first message holds the work item, then the role
@@ -726,3 +735,4 @@ Expect: the docstring names the order: the work item's body, the role's instruct
 
     Notes:
     - `tests/agents/adapters/test_claude_runtime_system_prompt.py:58`: it finds the value after `--append-system-prompt-file` inline. The other runtime tests use their own `_after` helper for this, and `tests/support/claude_resume_support.py:98` has one too.
+37. factory: started docs as vm.
