@@ -1,5 +1,5 @@
 ---
-stage: review
+stage: docs
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 646
 comments_read: [6715370076, 6715449873]
 handed_over: null
-claim:
-  instance: vm
-  stage: review
-  started_at: '2026-11-08T01:17:01.678738Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -101,13 +97,19 @@ journal:
   kind: started
   at: '2026-11-08T01:17:01.678738Z'
   stage: review
+- number: 17
+  speaker: reviewer
+  kind: result
+  at: '2026-11-08T01:18:42.755478Z'
+  stage: review
+  run: 98ef0014253e4e9c963c22489444f0e8
 ---
 
 # The operator's documents name develop and main
 
 ## Description
 
-After F0057-S0002 and S0003 the factory and Kumpel work on `develop`, and `main` is the protected line of accepted features. The operator's documents still name `main` as the branch the factory works on, about 130 times. This story corrects them, so that an operator knows which branch holds what, how to create `develop` for a new project, how to protect `main`, and how a feature reaches `main`. It changes no code and no test.
+After F0057-S0002 and S0003 the factory and Kumpel work on `develop`, and `main` is the protected line of accepted features. The operator's documents still name `main` as the branch the factory works on, about 130 times. This story corrects them, so that an operator knows which branch holds what, how to create `develop` for a new project, how to protect `main`, and how a feature reaches `main`. Its one code change, decided by the human (journal entry 11), takes `promote` and `promoted` out of the v1 words of the document check (`GLOSSARY_FORBIDDEN` in `src/factory/shared/domain/documents.py`), so that the guide can name the switch `promote`; the earlier test that pins that list changes with the human's leave.
 
 ## Interface
 
@@ -115,7 +117,7 @@ After F0057-S0002 and S0003 the factory and Kumpel work on `develop`, and `main`
 - `docs/operator-guide/install.md`: a new project needs `develop`, created from `main`; the preflight names a missing `origin/develop`.
 - A section, in the operator guide page the documenter judges right, on protecting `main`: a ruleset that requires a pull request with zero approvals and blocks force pushes and deletion, and why zero (one identity for the factory, Kumpel and the human; GitHub refuses an author's own approval). The promotion: after a feature's acceptance, Kumpel archives the feature and promotes `develop` to `main` with a merge commit, behind the switch `promote`; `main` is never fixed directly.
 - The stop `main_branch_failing` keeps its name and means the working branch (F0057 decision 6); `docs/operator-guide/stops.md` says so.
-- The documenter finds the mentions by script (`grep -nE` for `main` as a branch in the files above) and quotes the script's list of the mentions left as `main` in its entry, each meaning the line of accepted features; the reviewer checks with the same script. No test changes; the story takes the docs route.
+- The documenter finds the mentions by script (`grep -nE` for `main` as a branch in the files above) and quotes the script's list of the mentions left as `main` in its entry, each meaning the line of accepted features; the reviewer checks with the same script. The story took the docs route; the one code change and its tests are those of journal entry 11.
 
 ## Acceptance criteria
 
@@ -126,8 +128,9 @@ After F0057-S0002 and S0003 the factory and Kumpel work on `develop`, and `main`
 5. The operator guide tells that `main` is never fixed directly: a fix goes to `develop` and reaches `main` with the next promotion.
 6. `stops.md` says that `main_branch_failing` means the working branch.
 7. `make documents` ends with `documents ok (<seconds> s)`.
-8. `make check` stays green.
-9. docs: the files of the Interface; the reader knows which branch holds what, how to set up and protect them, and how a feature is promoted.
+8. `promote` and `promoted` are no longer v1 words: the document check accepts them in a checked document, and the other v1 words stay forbidden.
+9. `make check` stays green.
+10. docs: the files of the Interface; the reader knows which branch holds what, how to set up and protect them, and how a feature is promoted.
 
 ## Smoke test
 
@@ -261,3 +264,40 @@ Expect: `documents ok (<seconds> s)`
     `check`: check: green
     `duplicates`: duplicates: 6 new, 39 known, 4 gone
 16. factory: started review as vm.
+17. reviewer: no findings
+
+    What I reviewed: `git diff develop...HEAD -- . ':!factory'` (eleven documents, `src/factory/shared/domain/documents.py`, two test files) and the work item.
+
+    - Criterion 1: I ran the Interface's script myself, `grep -nwE "main" docs/operator-guide/*.md docs/operator-playbook.md README.md operator/README.md`. Every hit left is one of these:
+      - the code repository's own ref: `cloud-run.md:54`, `site.md:99`, `machine.md:297` and `machine.md:314`;
+      - accepted code: `records.md:25`;
+      - the stop's name: `stops.md:20`;
+      - `main` left alone by the reset: `site.md:237`;
+      - a branch the tick never touches: `work-items.md:139`;
+      - the new text on branches, protection and promotion: `install.md:11`, `45`, `47`, `49`, `55`, `59` and `63`;
+      - the promotion: `operator/README.md:84`, `111` and `131`.
+      None of them names the working branch.
+    - Criteria 2 to 6: the new section of `install.md` (*The branches*, *Protect `main`*, *The promotion*, *Fixes go to `develop`*) and the `main-branch-failing` row of `stops.md` cover each criterion. I checked the claims against the code:
+      - `operator/skill/kumpel/scripts/promote.sh`: the pull request from `develop` to `main`, `merge_method: merge`, and with the switch off the pull request is left for the human;
+      - `operator/README.md:131`: `/kumpel promote on`;
+      - `operator/skill/kumpel/scripts/reset-to-tag.sh:77-93`: the `moved develop to` and `left main alone` lines;
+      - `operator/skill/kumpel/scripts/merge.sh:38`: it polls `develop`;
+      - `preflight.py`: `_NO_WORK_BRANCH_TO_PREPARE`, `find_open_pull_request(WORK_BRANCH)` and the messages of the `develop` probe;
+      - `scheduler.py:135-137`;
+      - `post_texts.py:37`;
+      - `acceptance.py:298` and `acceptance.py:353`.
+      Every quoted message the documents changed matches the code.
+    - Criterion 7: the coder's journal entry 15 reports `make documents` as `documents ok (58.2 s)`. Criterion 9: the factory's `make check` after the coder was `check: green`.
+    - Criterion 8 (the human's, journal entry 11): `src/factory/shared/domain/documents.py` drops only `promote` and `promoted`, and the other sixteen words keep their order. The test `tests/shared/domain/test_documents_promotion_words.py::test_the_words_of_a_promotion_are_no_v1_words` is one parametrized test with these rows:
+      - `promote`, `` `promote` `` and `promoted` give no finding;
+      - the control row `ticket` still gives a finding.
+      `tests/pipeline/domain/test_documents.py::test_the_v1_words_are_the_sixteen_in_their_order` pins the new list. Both sides of the rule are tested.
+    - Architecture, security, quality: the code change deletes two entries from a constant. It adds no marker that silences a check, no secret and no new helper.
+
+    Work item corrected (the tester's rewrite, journal entry 13, was left out by the factory; journal entry 11 settles what it should say):
+    - description corrected: "It changes no code and no test." -> the one code change (`promote` and `promoted` out of `GLOSSARY_FORBIDDEN`) and the human's leave for the pinned test, journal entry 11.
+    - description corrected (Interface): "No test changes; the story takes the docs route." -> "The story took the docs route; the one code change and its tests are those of journal entry 11."
+    - description corrected (criteria): the human's criterion from journal entry 11 is now criterion 8, "`promote` and `promoted` are no longer v1 words: the document check accepts them in a checked document, and the other v1 words stay forbidden". `make check` is renumbered 9 and docs 10. Its test already exists (see above), so it is no finding.
+
+    Earlier tests:
+    - `tests/pipeline/domain/test_documents.py`: changed under the human's leave, journal entry 11. Only the pinned-list test changed: its list and its name, from eighteen to sixteen.
