@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 659
 comments_read: [6720500729, 6720585535, 6720667293]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-08T11:03:07.318514Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -142,6 +146,11 @@ journal:
   at: '2026-11-08T11:03:02.111047Z'
   stage: doing
   run: 96608464d6504ed6aaf11e87e2305996
+- number: 25
+  speaker: factory
+  kind: started
+  at: '2026-11-08T11:03:07.318514Z'
+  stage: tests
 ---
 
 # Every role has the same tools and the same decision tool
@@ -360,3 +369,4 @@ Expect: exactly one line, `model: opus`
     State of the code: unchanged since the first doing round, and the reviewer judged it sound. It covers the four agent files under `agents/agents/` and the `_DECISION_SCHEMA` constant in `src/factory/agents/adapters/claude_runtime.py`. `make check` was green in entry 17. When the tester sends the work item back, I will run `make check` and hand it to review.
 
     The journal changed nothing in the Description: entry 22 only gives leave for an existing test change.
+25. factory: started tests as vm.
