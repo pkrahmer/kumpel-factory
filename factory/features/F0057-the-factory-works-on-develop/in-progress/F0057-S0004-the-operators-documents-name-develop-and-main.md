@@ -1,11 +1,11 @@
 ---
 stage: intake
-blocked: question
+blocked: null
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 646
-comments_read: []
+comments_read: [6715370076]
 handed_over: null
 claim: null
 journal:
@@ -26,6 +26,11 @@ journal:
   stage: intake
   run: 666d05e36618439fa27c8bb4c515b704
   blocked: question
+- number: 4
+  speaker: human
+  kind: comment
+  at: '2026-11-08T01:03:40.357080Z'
+  stage: intake
 ---
 
 # The operator's documents name develop and main
@@ -70,3 +75,4 @@ Expect: `documents ok (<seconds> s)`
    2. The Interface lists several separate behaviours of the promotion section: the ruleset blocks force pushes and deletion, the promotion is a merge commit, it runs behind the switch `promote`, Kumpel archives the feature first, and `main` is never fixed directly (a fix goes to `develop`). Criterion 3 says only "how to protect `main`, why zero approvals, how a feature reaches `main`". Each stated behaviour needs its own checkable criterion, or the documenter and reviewer will read criterion 3 two ways. I would choose to split criterion 3 into: (a) protecting `main`, with the ruleset's three rules and why zero approvals; (b) promotion after acceptance, as a merge commit behind the switch `promote`, after Kumpel archives the feature; (c) `main` is never fixed directly.
 
    Everything else is accepted as written. The smoke test is runnable and its Expect line is checkable. The docs criterion names what the reader must know and dictates no sentences. The story is within F0057's scope.
+4. 2026-11-08 human: 1. Yes. 2. Yes, split criterion 3 into (a), (b) and (c) as you wrote them.
