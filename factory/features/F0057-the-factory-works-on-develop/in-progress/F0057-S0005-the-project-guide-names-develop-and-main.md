@@ -1,5 +1,5 @@
 ---
-stage: docs-review
+stage: docs-approval
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 647
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: docs-review
-  started_at: '2026-11-08T01:39:53.380311Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -67,6 +63,12 @@ journal:
   kind: started
   at: '2026-11-08T01:39:53.380311Z'
   stage: docs-review
+- number: 11
+  speaker: reviewer
+  kind: result
+  at: '2026-11-08T01:40:28.965984Z'
+  stage: docs-review
+  run: 9cedb7c3b3b24204ae7c4209378a0575
 ---
 
 # The project guide names develop and main
@@ -180,3 +182,25 @@ Expect: `documents ok (<seconds> s)`
    `secrets`: secrets: green (2.0 s)
    `documents`: documents ok (57.9 s)
 10. factory: started docs-review as vm.
+11. reviewer: Docs review, round 1. I read the work item and `git diff develop...HEAD -- README.md docs operator/README.md`: 9 files under `docs/project-guide/`, 92 lines changed.
+
+    The three round-0 findings are fixed:
+    - `machine.md:723` now says "probes `develop`". This matches `src/factory/machine/application/preflight.py:509`, which resolves `_WORK_REF`. `stage_file_on_main` stays as the code name, as in `src/factory/entry/run.py:252`.
+    - `README.md:174` now says "a red `develop`". The fixture name `red_main` stays.
+    - `hosting.md:338` now names the factory's names as (`develop`, `work-item/<id>`). The ref-name examples `+main` and `^main` stay, because the tests use those strings.
+
+    Criterion 1: I ran the Interface's script, `grep -rnE "\bmain\b" docs/project-guide`. I also ran a second grep for `Main`, `main branch`, `main_branch` and `the main`.
+    - `main` as the line of accepted features: `operator.md:133`.
+    - The guard's old literals: `work.md:396`.
+    - Ref-name examples: `hosting.md:332, 336, 338`.
+    - `main_branch_failing` at `pipeline.md:507`, with its note that the name is kept and means the working branch (F0057 decision 6).
+    - Every other match is an entry-point function, the variable `main` (`machine.md:400`, `preflight.py:278`), "its main function" (`style.md:112`), or a code name (`MainRow`, `MainRun`).
+    - No match names `main` as the working branch.
+
+    Criterion 2: the `paths` table at `work.md:394` gives `REMOTE`, `WORK_BRANCH` as `origin`, `develop`. Its bullet at `work.md:396` names `tests/guards/test_work_branch_search.py` and lists that guard's `LITERALS`. Its scope ("no code under `src/factory/` and no test") matches the guard's `SCOPE = ("src/factory", "tests")`.
+
+    Criteria 3 and 4: the journal records `documents ok (57.9 s)` and `check: green`.
+
+    The round-1 edits are single-word replacements and change none of round 0's style findings.
+
+    no findings
