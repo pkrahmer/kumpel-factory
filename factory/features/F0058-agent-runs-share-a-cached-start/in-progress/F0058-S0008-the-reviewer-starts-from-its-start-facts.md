@@ -1,5 +1,5 @@
 ---
-stage: review
+stage: docs
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 669
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: review
-  started_at: '2026-11-08T15:30:16.540413Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -56,6 +52,12 @@ journal:
   kind: started
   at: '2026-11-08T15:30:16.540413Z'
   stage: review
+- number: 9
+  speaker: reviewer
+  kind: result
+  at: '2026-11-08T15:30:59.535842Z'
+  stage: review
+  run: e7f538f354544572b2cba7b93506e0c6
 ---
 
 # The reviewer starts from its start facts
@@ -144,3 +146,16 @@ Expect: a line ending in `passed` with no `failed`.
    `check`: check: green
    `duplicates`: duplicates: 7 new, 39 known, 4 gone
 8. factory: started review as vm.
+9. reviewer: no findings
+
+   I read the diff from the `facts-diff` start fact, which was neither failed nor cut. Then I checked the real bytes and ran the story's tests.
+   - Criteria 1-3: `agents/agents/reviewer.md:81` (*Stage* step 1) and `:91` (*docs-review* step 1) each name the literal `<context>` block as where the diff is. Each names the three fallback cases: no block, `failed:`, and a block that ends in the cut line. Each keeps its own diff command and no longer says "in your first command". Neither names `facts-diff`. Step 1 keeps its rules on generated and lock files, the Makefile and `make check`, as the Interface asks. `tests/agent_files/test_reviewer_start_facts.py` checks all of this in one parametrized test with two rows (`review`, `docs-review`), as criterion 2 asks. Its `"facts-"` check is a fair reading of criterion 3, because the Interface keeps step 1's `make check` sentence.
+   - Criterion 4: the journal records `check: green` after the coder. I re-ran the new test and the two earlier agent-text test files: 36 passed.
+   - Smoke test: `grep -c 'in your first command'` gives 0 and `grep -c '<context>'` gives 2. The pytest run passes.
+   - Architecture, security: no module under `src/` changed and no silencing marker was added. Only the coder's path `agents/*` and test files changed.
+   - Quality: the new test's helper `_first_step` builds on `support.shipped_agents.stage_section` and copies no existing helper.
+   - Hygiene: the coder's entry gives the main choice (step 1 kept on one line) and what it rejected (a sub-bullet). The Description matches what was built. Criterion 5 still says what the documenter must write. As intake noted, `docs/project-guide/agents.md` has a `reviewer | docs-review` row but no `reviewer | review` row, so the documenter chooses where the `review` side goes.
+   - Checked and left alone: `docs_review_reads_the_diff` in `test_claude_agent_texts_review_groups.py` is dead. The test removes the docs-review subsection before it replaces anything, so the string never matches. It was dead before this story. The new docs-review wording is pinned by the new test, not by the CRC test.
+
+   Earlier tests:
+   - tests/agent_files/test_claude_agent_texts_review_groups.py: the human's leave written in the story's Interface ("may change ... the strings `review_reads_the_diff` and `docs_review_reads_the_diff` ... as far as the reviewer's new wording needs"). The tester made `review_reads_the_diff` a regex over the whole of step 1. It also had to rewrite its replacement partner `review_reads_both` and move that `.sub` to the front of the chain. The new wording differs from the earlier text over a longer stretch, so the old pair could not rebuild it. I judge both changes within "as far as the reviewer's new wording needs". The CRC test still checks the same earlier body.
