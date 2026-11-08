@@ -1,17 +1,13 @@
 ---
 stage: intake
-blocked: null
+blocked: question
 round: 0
 attempts: 0
 crashes: 0
-pull_request: null
+pull_request: 660
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: intake
-  started_at: '2026-11-08T11:21:13.923679Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -23,6 +19,13 @@ journal:
   kind: started
   at: '2026-11-08T11:21:13.923679Z'
   stage: intake
+- number: 3
+  speaker: intake
+  kind: question
+  at: '2026-11-08T11:22:03.379255Z'
+  stage: intake
+  run: bc9bd05655764478a08406de9e9a3aa9
+  blocked: question
 ---
 
 # The first message holds the work item, then the role
@@ -77,3 +80,30 @@ Expect: the docstring names the order: the work item's body, the role's instruct
 
 1. 2026-11-08 human: created.
 2. factory: started intake as vm.
+3. intake: The format check passed. Before the story can be built I need these answered:
+
+   1. **The Interface doesn't name concrete modules or signatures.** Three things are left for the coder to decide:
+      - the common system prompt's file name under `agents/`;
+      - how `compose_prompt` (`src/factory/agents/domain/prompts.py`) gets the body, the role and its instructions, and the round cap. Today it takes only `PromptFacts`, which has no such fields;
+      - which module reads the work item's body for the message, and from which state (the committed file on the branch at the stage's start?). Also how `claude_runtime._arguments` passes the common file in place of `files.instructions`.
+
+      I'd suggest: `agents/system-prompt.md`; `PromptFacts` gains `body: str`, `role: Name`, `role_instructions: str` and `round_cap: PositiveInt | None = None`; and `compose_prompt(facts)` keeps its signature. Please confirm, or name your own.
+   2. **"Separated by one blank line each" has no criterion.** Criterion 3 checks only the order. I'd add to criterion 3: "…in this order, each separated from the next by exactly one blank line."
+   3. **The escaping is a conversion whose form isn't named, and only one side is tested.** Criterion 5 checks only that no extra block appears.
+      - Please name the escaped form. I'd suggest `<` of a marker becomes `&lt;`, so `<work-item` reads `&lt;work-item`.
+      - The other side needs a criterion too. I'd add: "a body without any marker text reaches the message byte for byte as in the file."
+      - Should the role's instructions also be escaped? I'd say no, since they are the factory's own files.
+   4. **Resumed runs aren't covered.** Today a run can `--resume` an earlier session (`_session_arguments` in `claude_runtime.py`), and the story doesn't say what such a run's message holds. The options are the whole new message again (work item, role, facts) or only the run's facts. I'd choose the whole message, since the journal has grown since the earlier session. Either way it needs a criterion.
+   5. **No criterion covers the Interface line that the agent files stop telling the agent to read its work item first and say it is in the first message.** The options:
+      - a criterion such as "no shipped agent file under `agents/agents/` tells the agent to read its work item before it starts, and each says the work item is in the first message", checked by a test over the shipped files;
+      - or drop the line from the Interface and leave it to the docs criterion.
+
+      I'd choose the criterion.
+
+   Everything else checked out:
+   - **Criteria:** 1, 2, 4, 6, 7 and 8 are each testable by one test. Criterion 7 covers both sides of the round cap.
+   - **Smoke test:** runnable. It passes no `-q`, and its `Expect:` can be checked against the docstring.
+   - **Docs criterion:** it names what the reader must know and dictates no sentences. `agents/README.md` is in the documenter's write paths.
+   - **Architecture:** composing the prompt belongs in `factory.agents.domain.prompts` and the argument change in `factory.agents.adapters`. The new file under `agents/` is in the coder's write paths. The leave for earlier tests names each test file.
+   - **Scope:** this is the feature's S0002 and matches decisions 4 and 5. OpenCode only follows the new order, as the feature's "Out of scope" says.
+   - **Route, once answered:** `tests`, since the Interface changes `src/` and `agents/`.
