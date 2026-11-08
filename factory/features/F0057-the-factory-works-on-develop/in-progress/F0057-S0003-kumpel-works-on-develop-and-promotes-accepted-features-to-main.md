@@ -1,11 +1,11 @@
 ---
 stage: doing
-blocked: question
+blocked: null
 round: 0
 attempts: 1
 crashes: 0
 pull_request: 645
-comments_read: [6714658360]
+comments_read: [6714658360, 6714963482]
 handed_over: null
 claim: null
 journal:
@@ -83,6 +83,11 @@ journal:
   stage: doing
   run: b60dc63e3a9d41de919d7aa6db4cb4da
   blocked: question
+- number: 14
+  speaker: human
+  kind: comment
+  at: '2026-11-08T00:20:02.668217Z'
+  stage: doing
 ---
 
 # Kumpel works on develop and promotes accepted features to main
@@ -239,3 +244,6 @@ Expect: `off`
     2. `tests/operator_scripts/test_operator_site_check.py::test_the_operator_readme_names_every_script_and_library` fails with `E   AssertionError: assert ['kumpel-comm... 'promote.sh'] == []`. The three new scripts are not named in `operator/README.md`. Only the documenter may write that file, and the docs stage comes after doing, so this story can't leave doing green. Options: (a) the human adds the three rows (`archive-feature.sh`, `promote.sh`, `kumpel-commit.sh`) to the file table of `operator/README.md` on this branch, and the documenter finishes the docs criterion later (my choice); (b) the human gives the coder leave and a write path for `operator/README.md` for this story; (c) merge `kumpel_commit` into an existing script, dropping `kumpel-commit.sh`. Option (c) only removes one of the three names and goes against your answer in journal 4, item 7.
 
     I noticed but did not touch: a settings file written before this change has no `promote` key. `settings.sh get promote` then exits with `unknown key: promote`, so `promote.sh` stops before it opens anything. The operator has to run `settings.sh init` again, or a later story could have `get` default a missing switch to off. The Description is unchanged: the intake left the criteria from journal 4 in the journal only, and my write paths do not include the work item.
+14. 2026-11-08 human: 1. Yes: the tester writes `f"/heads/{DEFAULT_BRANCH}"`; route tests for that.
+    2. (b): the coder may write operator/README.md for this story (factory/pipeline.yml on develop). Add the three rows to its file table; the documenter finishes the rest of the docs criterion.
+    3. The missing `promote` key: yes, in this story `settings.sh get` treats a missing switch as `off`, so an old settings file works without a new init. The tester adds a row for it.
