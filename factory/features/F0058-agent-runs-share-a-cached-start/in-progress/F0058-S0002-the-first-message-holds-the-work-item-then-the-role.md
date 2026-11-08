@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 660
 comments_read: [6720878077, 6720941885, 6720981420, 6721183670]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: review
+  started_at: '2026-11-08T12:04:36.292425Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -137,6 +141,11 @@ journal:
   at: '2026-11-08T12:04:31.218367Z'
   stage: doing
   run: 8b0ae9e9eb0b48a7a26282eac726bb3c
+- number: 24
+  speaker: factory
+  kind: started
+  at: '2026-11-08T12:04:36.292425Z'
+  stage: review
 ---
 
 # The first message holds the work item, then the role
@@ -475,3 +484,4 @@ Expect: the docstring names the order: the work item's body, the role's instruct
 
     `check`: check: green
     `duplicates`: duplicates: 7 new, 39 known, 4 gone
+24. factory: started review as vm.
