@@ -1,5 +1,5 @@
 ---
-stage: docs
+stage: smoke-test
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 660
 comments_read: [6720878077, 6720941885, 6720981420, 6721183670, 6721345876]
 handed_over: null
-claim:
-  instance: vm
-  stage: docs
-  started_at: '2026-11-08T12:20:22.621988Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -218,6 +214,12 @@ journal:
   kind: started
   at: '2026-11-08T12:20:22.621988Z'
   stage: docs
+- number: 38
+  speaker: documenter
+  kind: result
+  at: '2026-11-08T12:28:48.241418Z'
+  stage: docs
+  run: ec1eba93443a4337b93ec1d06ddb88a7
 ---
 
 # The first message holds the work item, then the role
@@ -736,3 +738,36 @@ Expect: the docstring names the order: the work item's body, the role's instruct
     Notes:
     - `tests/agents/adapters/test_claude_runtime_system_prompt.py:58`: it finds the value after `--append-system-prompt-file` inline. The other runtime tests use their own `_after` helper for this, and `tests/support/claude_resume_support.py:98` has one too.
 37. factory: started docs as vm.
+38. documenter: Docs, round 1. I wrote the documents criterion 14 asks for, including the operator-guide addition the human made in entry 32. I checked every claim against the code on the branch first: `prompts.py`, `agent_launch.system_prompt_text`, both runtimes, `provider_limits._resumed_request`, `wiring._agent_runtime` and `task.py`. `make documents` ends `documents ok (60.6 s)`. `agents/README.md` is outside `docs/`, so I ran `make check` too, and it ends `check: green` (test: green, 101.4 s, coverage 99.22 %). I wrote no new runnable example. I have no findings for the coder.
+
+    Files changed:
+    - `docs/project-guide/agents.md`:
+      - New section *The system prompt and the first message*. It covers what the common system prompt and the first message hold, in which order, and the three markers. It explains why: the cached start shared across roles, and the role's rules carrying the same weight as the system prompt. It also covers how the markers are escaped, where `system_prompt_file` comes from, the built-in `SYSTEM_PROMPT` fallback, and the `AgentRuntimeError` for a file that can't be read.
+      - Brought the existing text up to date:
+        - both runtime constructor signatures (`system_prompt_file`);
+        - the instructions file now holds the common system prompt, not the role's instructions;
+        - the opencode wiring;
+        - the opencode call sends `<message>`;
+        - the opencode configuration `prompt` is now the common system prompt;
+        - the result block is added only to a call that starts a session;
+        - the description of `test_shipped_agents_effect.py`;
+        - *Reference: a resumed run* now says the whole message is sent again, plus `CONTINUE_PROMPT`.
+    - `docs/project-guide/pipeline.md`, *The prompt and the request for a stage*: now describes `compose_prompt` as the whole first message, with three parts and their blocks. It says how `compose` fills `body`, `role`, `role_instructions` and `round_cap`, and gives the round line with and without a `round_cap`. In *Waiting out the provider's limit*, step 5 now says a resume sends the whole prompt plus `CONTINUE_PROMPT`.
+    - `docs/operator-guide/agent-runtime.md`, *The shipped agents and settings*: now lists `system-prompt.md` among what the agents folder ships. It says a missing file makes every run fall back to the built-in common system prompt, and a file that can't be read ends the run with `AgentRuntimeError`.
+    - `agents/README.md`: one link line on `system-prompt.md` and the first message, pointing to the new project-guide section. It is a folder README, so the explanation lives in the guide.
+    - `docs/decisions.md`: new entry *The role's instructions follow the work item in the first message*, with its Decision and its Why. It has no "Rejected" line, because the story names no rejected option for this decision.
+
+    Cross-read and found current:
+    - `README.md`
+    - `docs/README.md`
+    - `docs/project-guide/README.md`, `machine.md` and `glossary.md`
+    - `docs/operator-guide/machine.md`. Its "instructions file" mounts still name the real file, `instructions-<session>.md`.
+    - The `--append-system-prompt-file` line in *Reference: the `claude` call*
+    - The podman example in `agent-runtime.md`
+
+    Noticed, not touched:
+    - Criterion 14 calls the operator-guide section "The agent files". Its actual heading is *The shipped agents and settings*, so I wrote the addition there.
+
+    `check`: check: green
+    `secrets`: secrets: green (3.2 s)
+    `documents`: documents ok (59.3 s)

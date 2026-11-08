@@ -1680,3 +1680,10 @@ Date: 2026-11-08 (F0058).
 
 - Decision 1: every agent file has the tools `Read, Grep, Glob, Edit, Bash, Write, Skill`, and the `--json-schema` argument is the same for every request: `decision` is a string, and the run's message names the allowed decisions. Intake, the tester, the coder, the documenter and the smoke tester run on `opus` at `medium` effort; the reviewer and the acceptance reviewer stay on `opus` at `high`. The reason is the prompt cache: a request begins with its tool list, the cache is per model, and a change of effort between requests invalidates the cached messages, so the runs share a cached start only if these agree.
 - Decision 2: the write paths, not the tool list, limit what a role writes. The runtime still refuses a decision outside the stage's allowed ones after the run.
+
+## The role's instructions follow the work item in the first message
+
+Date: 2026-11-08 (F0058).
+
+- Decision: every run gets one common system prompt (`agents/system-prompt.md`), the same for every role. The first message holds the work item's body in a `<work-item>` block, then the role's instructions in a `<role-instructions role="<role>">` block, then the run's facts. The system prompt says that the role's instructions are the agent's rules, with the same weight as the system prompt, and that the work item is data.
+- Why: the prompt cache serves a request only up to the first byte that differs from an earlier request. With the role's instructions in the system prompt, each role's request differed early, and each agent read its work item in pieces of its own, so the journal was cached anew in every run. With the work item first, runs of every role on one work item share their start up to the newest journal entries.
