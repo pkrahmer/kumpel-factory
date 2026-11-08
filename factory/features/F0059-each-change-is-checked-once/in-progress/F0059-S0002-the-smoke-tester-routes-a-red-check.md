@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 673
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-08T16:28:58.632262Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -25,6 +29,11 @@ journal:
   at: '2026-11-08T16:28:53.708736Z'
   stage: intake
   run: 89275cf376904e7587057fca2ed7badf
+- number: 4
+  speaker: factory
+  kind: started
+  at: '2026-11-08T16:28:58.632262Z'
+  stage: tests
 ---
 
 # The smoke tester routes a red check
@@ -73,3 +82,4 @@ Expect: a count of 1 or more.
    - Architecture: the change is to a shipped agent file only, and the new test module goes under `tests/agent_files/` as the project's test layout says. No dependency, no change under `factory/`, no change to another story's test. The existing docs-slip test pins steps 5 and 6, so the new rule must be added beside them without rewording them.
    - Scope: this is the feature's third scope line (S0002) and decision 4. It adds no new factory rule, which the feature lists as out of scope. The pipeline's own `smoke-test: checks: [check]` is the human's later change, not this story's.
    - Route: `tests`. The changed path, `agents/agents/smoke-tester.md`, is outside the documenter's write paths.
+4. factory: started tests as vm.
