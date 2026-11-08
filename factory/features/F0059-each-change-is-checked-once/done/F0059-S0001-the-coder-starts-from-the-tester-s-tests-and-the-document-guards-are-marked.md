@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 1
 attempts: 0
@@ -175,6 +175,11 @@ journal:
   at: '2026-11-08T16:25:26.294732Z'
   stage: smoke-test
   run: e5392c6d81d7433581b56ad33ae65ff9
+- number: 31
+  speaker: factory
+  kind: done
+  at: '2026-11-08T16:27:18.412055Z'
+  stage: approval
 ---
 
 # The coder starts from the tester's tests, and the guards that read the documents are marked
@@ -517,3 +522,4 @@ Expect: a line `<n> tests collected`, `<n>` greater than 0.
     Check against the criteria: I also ran the other side, `uv run pytest --strict-markers -m "not documents" --collect-only 2>&1 | tail -1`, which gave `10982/11158 tests collected (176 deselected) in 4.57s`. 176 + 10982 = 11158, so the two selections together make up the whole suite (criteria 1 and 2). The smoke test contradicts no criterion.
 
     Findings: none.
+31. factory: done (pull request merged); cost: 13 runs, 21.3 min, 110 turns, 515267 tokens in (4643698 more from cache), 48389 out, $6.02
