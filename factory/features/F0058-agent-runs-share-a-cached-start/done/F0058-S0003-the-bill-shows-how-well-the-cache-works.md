@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 1
 attempts: 0
@@ -141,6 +141,11 @@ journal:
   at: '2026-11-08T12:59:16.649921Z'
   stage: smoke-test
   run: 1bc4dd8942dd450e94f1579fb2ab29d8
+- number: 25
+  speaker: factory
+  kind: done
+  at: '2026-11-08T13:01:08.090797Z'
+  stage: approval
 ---
 
 # The bill shows how well the cache works
@@ -367,3 +372,4 @@ Expect: the help names the cache figures and the hit rate.
     - The smoke test contradicts none of the other criteria.
 
     Findings: none.
+25. factory: done (pull request merged); cost: 11 runs, 16.3 min, 64 turns, 331285 tokens in (1492085 more from cache), 40646 out, $2.77
