@@ -1,5 +1,5 @@
 ---
-stage: docs
+stage: smoke-test
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 659
 comments_read: [6720500729, 6720585535, 6720667293]
 handed_over: null
-claim:
-  instance: vm
-  stage: docs
-  started_at: '2026-11-08T11:09:50.950682Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -184,6 +180,12 @@ journal:
   kind: started
   at: '2026-11-08T11:09:50.950682Z'
   stage: docs
+- number: 32
+  speaker: documenter
+  kind: result
+  at: '2026-11-08T11:14:31.774076Z'
+  stage: docs
+  run: 35151118c05d4f1bab52e2672bf76003
 ---
 
 # Every role has the same tools and the same decision tool
@@ -470,3 +472,19 @@ Expect: exactly one line, `model: opus`
     Notes:
     - `tests/agents/adapters/test_claude_runtime.py:218-248`: the expected argument list in `test_the_other_launch_arguments_do_not_depend_on_the_decisions` repeats the one in `test_call_passes_every_flag_in_order` (lines 118-150). It is a test-quality point only. That unchanged earlier test already pins the arguments as they were before this story.
 31. factory: started docs as vm.
+32. documenter: I updated the two documents the docs criterion names. `make documents` ends with `documents ok (61.2 s)`. I did not run `make check`, because I changed only documents.
+
+    Files changed:
+    - `docs/project-guide/agents.md`, *The seven agents*:
+      - The table now shows every agent with `opus` and the tools `Read, Grep, Glob, Edit, Bash, Write, Skill`. Intake and the documenter were on `sonnet`, and intake was at `low` effort.
+      - A new paragraph says every role has the same tools, one model, and `medium` effort except the two reviewers at `high`. It gives the reason: the shared cached start. It also says the write paths limit what a role writes, so `Write` and `Edit` are refused alike outside them. It names the guard test `tests/agent_files/test_shared_start_agent_files.py`.
+    - `docs/project-guide/agents.md`, *Reference: the `claude` call*: the schema is now described as `decision` being a string with no `enum`, the same for every request. The text says the runtime refuses a decision outside `allowed_decisions` after the run, and that the message lists them.
+    - `docs/decisions.md`: one new entry, "Every role has the same tools, and five roles share one model and one effort", dated 2026-11-08 (F0058). It gives the cache reason and says the write paths limit what a role writes. I wrote no "Rejected" line, because the story names no rejected option for this decision. The feature's decision 3 (reviewers stay on `high`) is the only related choice, and the story states it as given.
+
+    Cross-read and found current against the code in `claude_runtime.py` (`_DECISION_SCHEMA`) and the agent files: the rest of `docs/project-guide/agents.md`, the operator guide's `agent-runtime.md` (its `model: sonnet` example is a generic sample file, not a shipped agent), and `README.md`.
+
+    I saw no stale text unrelated to this story, and I found nothing for the coder.
+
+    `check`: check: green
+    `secrets`: secrets: green (2.0 s)
+    `documents`: documents ok (62.2 s)

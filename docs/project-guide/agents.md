@@ -243,14 +243,16 @@ A project may carry its own agents. They are read from `origin/develop`, never f
 
 `agents/agents/<role>.md` holds one agent for each role of the starting pipeline definition. Each file's front matter has exactly the four keys the runner applies (see *The agent definition reader*).
 
+Every agent has the same tools, and every agent runs on `opus`. Five of them share `effort: medium`; the two reviewers run at `high`. A Claude Code request begins with its tool list, and the prompt cache is per model and is cut by a change of effort, so runs share a cached start only where tools, model and effort agree. The tool list does not limit what a role writes: the [write paths](glossary.md) do, through the take, so `Write` and `Edit` are refused alike outside them. [test_shared_start_agent_files.py](../../tests/agent_files/test_shared_start_agent_files.py) pins the tools, the model and the effort of every file.
+
 | Agent | model | effort | budget_usd | tools |
 |---|---|---|---|---|
-| `intake` | sonnet | low | 1 | Read, Grep, Glob, Edit, Bash, Skill |
+| `intake` | opus | medium | 1 | Read, Grep, Glob, Edit, Bash, Write, Skill |
 | `tester` | opus | medium | 2 | Read, Grep, Glob, Edit, Bash, Write, Skill |
 | `coder` | opus | medium | 4 | Read, Grep, Glob, Edit, Bash, Write, Skill |
-| `reviewer` | opus | high | 3 | Read, Grep, Glob, Edit, Bash, Skill |
-| `documenter` | sonnet | medium | 1.5 | Read, Grep, Glob, Edit, Bash, Write, Skill |
-| `smoke-tester` | opus | medium | 2 | Read, Grep, Glob, Edit, Bash, Skill |
+| `reviewer` | opus | high | 3 | Read, Grep, Glob, Edit, Bash, Write, Skill |
+| `documenter` | opus | medium | 1.5 | Read, Grep, Glob, Edit, Bash, Write, Skill |
+| `smoke-tester` | opus | medium | 2 | Read, Grep, Glob, Edit, Bash, Write, Skill |
 | `acceptance-reviewer` | opus | high | 8 | Read, Grep, Glob, Edit, Bash, Write, Skill |
 
 Each body starts with two paragraphs: the role's boundary as one sentence, a blank line, and one sentence on what the role's [journal](glossary.md) entry contains. After them come these `## ` sections and no other `## ` heading, in this order:
@@ -462,7 +464,7 @@ The arguments, in this order (`<session>` is a new `uuid4` per run):
 --strict-mcp-config  --max-budget-usd <budget as plain decimal>  --output-format json  --json-schema <schema>
 ```
 
-The preflight's `agent-run-probe` makes one call with these flags, so a flag the pinned `claude` rejects stops the machine. The schema asks for an object with `decision` (an enum of `allowed_decisions`, in the request's order) and `entry` (described by `ENTRY_DESCRIPTION`), both required, nothing else.
+The preflight's `agent-run-probe` makes one call with these flags, so a flag the pinned `claude` rejects stops the machine. The schema asks for an object with `decision` (a string with no `enum`; its description says the run's message names the allowed decisions) and `entry` (described by `ENTRY_DESCRIPTION`), both required, nothing else. The schema is the same for every request, so it does not end the shared cached start; the runtime refuses a decision outside `allowed_decisions` after the run, and the run's message lists them.
 
 **End reason**, first rule that applies:
 

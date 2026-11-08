@@ -1673,3 +1673,10 @@ Date: 2026-11-07 (F0057).
 - Decision 6: the stop reason `main_branch_failing` keeps its name, for the records contract and the history of `factory/stops.jsonl`.
 - Decision 7: every commit Kumpel makes names Kumpel (`Kumpel <kumpel@noreply.invalid>`) as its author, not only the start (the human, 2026-11-07).
 - Why: the human's wording is the "Decision" lines above; no further reason is recorded for decisions 2 to 7 beyond what they state. Rejected options are written only where the human named them (decisions 1 and 4).
+
+## Every role has the same tools, and five roles share one model and one effort
+
+Date: 2026-11-08 (F0058).
+
+- Decision 1: every agent file has the tools `Read, Grep, Glob, Edit, Bash, Write, Skill`, and the `--json-schema` argument is the same for every request: `decision` is a string, and the run's message names the allowed decisions. Intake, the tester, the coder, the documenter and the smoke tester run on `opus` at `medium` effort; the reviewer and the acceptance reviewer stay on `opus` at `high`. The reason is the prompt cache: a request begins with its tool list, the cache is per model, and a change of effort between requests invalidates the cached messages, so the runs share a cached start only if these agree.
+- Decision 2: the write paths, not the tool list, limit what a role writes. The runtime still refuses a decision outside the stage's allowed ones after the run.
