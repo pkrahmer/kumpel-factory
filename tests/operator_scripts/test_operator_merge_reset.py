@@ -10,7 +10,12 @@ import pytest
 
 from factory.shared.adapters.process import ProcessResult
 from support.git_support import write_executable
-from support.operator_skill_support import SCRIPTS_BRANCH, Request, recorded_requests
+from support.operator_skill_support import (
+    DEFAULT_BRANCH,
+    SCRIPTS_BRANCH,
+    Request,
+    recorded_requests,
+)
 from support.operator_support import CURL_STAND_IN, ROOT, hosting_env, run_script
 from support.vm_support import in_order
 
@@ -653,6 +658,8 @@ def test_the_reset_moves_develop_and_says_that_main_is_left_alone(machine: Machi
     assert machine.changes()[-1] == Request(
         "PATCH", "/git/refs/heads/develop", {"sha": COMMIT, "force": True}
     )
-    assert [request for request in machine.requests() if "/heads/main" in request.route] == []
+    assert [
+        request for request in machine.requests() if f"/heads/{DEFAULT_BRANCH}" in request.route
+    ] == []
     assert f"moved develop to {SHORT}" in printed(result)
     assert any("main" in line for line in printed(result)), printed(result)

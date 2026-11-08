@@ -325,6 +325,14 @@ def test_the_promote_switch_is_off_in_a_new_file_and_set_like_the_others(
     assert (answer.exit_status, answer.stdout) == (0, f"{value}\n"), answer.stderr
 
 
+def test_a_settings_file_without_the_promote_switch_reads_it_as_off(operator: Operator) -> None:
+    operator.settings_file.parent.mkdir(parents=True)
+    switches = {"merge": False, "answer": True, "start_next": True}
+    operator.settings_file.write_text(json.dumps({"switches": switches}), encoding="utf-8")
+    answer = operator.run("settings.sh", "get", "promote")
+    assert (answer.exit_status, answer.stdout) == (0, "off\n"), answer.stderr
+
+
 @pytest.mark.parametrize(
     ("path", "phrase"),
     [

@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 0
 attempts: 1
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 645
 comments_read: [6714658360, 6714963482]
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-08T00:22:41.574100Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -108,6 +104,12 @@ journal:
   kind: started
   at: '2026-11-08T00:22:41.574100Z'
   stage: tests
+- number: 18
+  speaker: tester
+  kind: result
+  at: '2026-11-08T00:23:22.528085Z'
+  stage: tests
+  run: 7f7b295fc93e4010b80215138928c654
 ---
 
 # Kumpel works on develop and promotes accepted features to main
@@ -286,3 +288,17 @@ Expect: `off`
 
     Noticed, not touched: `settings.sh set promote on` on an old file still fails with `unknown switch: promote`, because the human's answer covers only `get`. The operator can run `init` again, or a later story can make `set` add a known switch. The journal did not change the meaning of the task beyond these items. The Description stays as it is: the work item is outside my write paths.
 17. factory: started tests as vm.
+18. tester: Approved test change. This entry covers the two changes the coder's journal entry 16 names, as the human answered them in journal 14, items 1 and 3.
+
+    1. tests/operator_scripts/test_operator_merge_reset.py::test_the_reset_moves_develop_and_says_that_main_is_left_alone: the check that no request touches `main` now matches `f"/heads/{DEFAULT_BRANCH}"` instead of the literal `"/heads/main"`. `DEFAULT_BRANCH` is imported from tests/support/operator_skill_support.py. The test still checks the same thing, and the guard `tests/guards/test_work_branch_search.py` no longer finds the literal. `ruff format` rewrapped the assertion.
+    2. The new test tests/operator_scripts/test_operator_develop.py::test_a_settings_file_without_the_promote_switch_reads_it_as_off writes a settings file that has only `merge`, `answer` and `start_next`, and checks that `settings.sh get promote` exits 0 and prints `off`. I made it a test of its own, not a row of test_the_promote_switch_is_off_in_a_new_file_and_set_like_the_others, because its setup is a hand-written old file rather than `settings.sh init`.
+
+    Criterion mapping (journal 14 item 3 → test_a_settings_file_without_the_promote_switch_reads_it_as_off). The rest is unchanged from journal 11.
+
+    Files created: none. Files changed: the two test files above, both from this story.
+
+    Modules the test run could not import: none.
+
+    Test run: `uv run pytest -q` on the two files: all 66 tests pass, since the coder's code is already in place. `make lint`: green.
+
+    `lint`: lint: green (0.2 s)
