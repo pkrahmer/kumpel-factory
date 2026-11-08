@@ -72,8 +72,9 @@ PY
 import json, sys
 s = json.load(open(sys.argv[1], encoding="utf-8"))
 key = sys.argv[2]
-if key in s["switches"]:
-    print("on" if s["switches"][key] else "off")
+# A file written before a switch existed lacks it; the missing switch counts as off.
+if key in s["switches"] or key in ("merge", "answer", "start_next", "promote"):
+    print("on" if s["switches"].get(key, False) else "off")
 elif key in ("repository", "checkout"):
     print(s[key])
 else:

@@ -107,6 +107,9 @@ Kumpel works with your token, so it signs everything it does. A reader of the pu
 | `operator/skill/kumpel/scripts/comment.sh` | posts a signed comment |
 | `operator/skill/kumpel/scripts/merge.sh` | merges an approved story and waits for its archive |
 | `operator/skill/kumpel/scripts/reset-to-tag.sh` | resets a trial repository to a tag |
+| `operator/skill/kumpel/scripts/archive-feature.sh` | moves a finished feature to `factory/archive/` on `develop` |
+| `operator/skill/kumpel/scripts/promote.sh` | opens the promotion of `develop` to `main` after a feature's acceptance, and merges it when `promote` is on |
+| `operator/skill/kumpel/scripts/kumpel-commit.sh` | `kumpel_commit`: commits with Kumpel as author and committer |
 | `operator/opencode/command/kumpel.md` | the command `/kumpel [<switch> on\|off]` for opencode |
 | `operator/claude/commands/kumpel.md` | the same command for Claude Code |
 | `operator/vm/setup.sh` | prepares a fresh Ubuntu machine and installs the factory's service |

@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: tests
 blocked: null
 round: 0
 attempts: 1
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 645
 comments_read: [6714658360, 6714963482]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T00:20:05.057425Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -97,6 +93,12 @@ journal:
   kind: started
   at: '2026-11-08T00:20:05.057425Z'
   stage: doing
+- number: 16
+  speaker: coder
+  kind: result
+  at: '2026-11-08T00:22:36.450878Z'
+  stage: doing
+  run: 0c406c74e000496fa33a66ee45130216
 ---
 
 # Kumpel works on develop and promotes accepted features to main
@@ -257,3 +259,20 @@ Expect: `off`
     2. (b): the coder may write operator/README.md for this story (factory/pipeline.yml on develop). Add the three rows to its file table; the documenter finishes the rest of the docs criterion.
     3. The missing `promote` key: yes, in this story `settings.sh get` treats a missing switch as `off`, so an old settings file works without a new init. The tester adds a row for it.
 15. factory: started doing as vm.
+16. coder: Round 0, after the human's answer (journal 14). I changed code for items 2 and 3. Two test changes are open for the tester.
+
+    What I built (left in the working tree; the earlier work from journal 13 is already committed):
+    - `operator/README.md` (the human's leave for this story, item 2): three rows in the file table, for `archive-feature.sh`, `promote.sh` and `kumpel-commit.sh`. The documenter finishes the rest of the docs criterion.
+    - `operator/skill/kumpel/scripts/settings.sh` (item 3): `get` treats a known switch (`merge`, `answer`, `start_next`, `promote`) that the file lacks as `off`, so a settings file from before this change works without a new `init`. An unknown key still exits with `unknown key: <key>`. I checked this by hand on an old-shape file: `get promote` prints `off`.
+
+    Changes for the tester:
+    1. In `tests/operator_scripts/test_operator_merge_reset.py::test_the_reset_moves_develop_and_says_that_main_is_left_alone`, write `f"/heads/{DEFAULT_BRANCH}"` instead of the literal `"/heads/main"` (journal 14, item 1).
+    2. In `tests/operator_scripts/test_operator_develop.py::test_the_promote_switch_is_off_in_a_new_file_and_set_like_the_others` (or a test of its own), add a row: a settings file without a `promote` key gives `off` from `settings.sh get promote` (journal 14, item 3).
+
+    `make check`: lint, types, layers, sast, secrets and licenses are green. `test` is red on one test only: `tests/guards/test_work_branch_search.py::test_no_file_in_the_source_or_the_tests_writes_the_working_branch_by_name` (`E   Left contains one more item: 'tests/operator_scripts/test_operator_merge_reset.py: heads/main'`). Change 1 fixes it. The README test now passes.
+
+    Main choice: `get` recognises the missing switch by a fixed list of the four known switches. The alternative I rejected was adding the missing key to the file whenever the script reads it, which would make a read write the file.
+
+    Refactor: the list of the four switches now appears twice in `settings.sh`, in the defaults that `init` writes and in `get`. Both are in separate Python heredocs, and sharing the list would need an extra variable passed into both, so I kept it as it is.
+
+    Noticed, not touched: `settings.sh set promote on` on an old file still fails with `unknown switch: promote`, because the human's answer covers only `get`. The operator can run `init` again, or a later story can make `set` add a known switch. The journal did not change the meaning of the task beyond these items. The Description stays as it is: the work item is outside my write paths.
