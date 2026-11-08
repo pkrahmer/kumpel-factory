@@ -1,17 +1,13 @@
 ---
-stage: review
+stage: doing
 blocked: null
-round: 0
+round: 1
 attempts: 0
 crashes: 0
 pull_request: 664
 comments_read: [6722586434]
 handed_over: null
-claim:
-  instance: vm
-  stage: review
-  started_at: '2026-11-08T14:23:23.944600Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -95,6 +91,12 @@ journal:
   kind: started
   at: '2026-11-08T14:23:23.944600Z'
   stage: review
+- number: 16
+  speaker: reviewer
+  kind: result
+  at: '2026-11-08T14:24:19.487014Z'
+  stage: review
+  run: 2ab3c60d76694b1ab42300f8a169da50
 ---
 
 # The context markers are escaped too
@@ -122,8 +124,9 @@ The human's leave for earlier tests: this story may add `<context` and `</contex
 3. A start fact whose failure reason holds `</context>` gives a block whose line reads `failed: ` followed by the reason with `&lt;/context>`, and the message holds one `</context>` for that fact.
 4. A body and a start fact output without any of the six marker texts reach the message byte for byte (rows of one test).
 5. The role's instructions reach the message unescaped, also when they hold `</context>`.
-6. `make check` stays green.
-7. docs: the project guide's description of the first message (`docs/project-guide/agents.md` and *Start facts* in `docs/project-guide/pipeline.md`) names all six escaped marker texts and why the context markers are among them.
+6. A start fact whose output is longer than `CONTEXT_LIMIT` and holds `</context>` in the part kept before the cut gives a block with that marker as `&lt;/context>`, the line that names the cut, and one `</context>` for that fact.
+7. `make check` stays green.
+8. docs: the project guide's description of the first message (`docs/project-guide/agents.md` and *Start facts* in `docs/project-guide/pipeline.md`) names all six escaped marker texts and why the context markers are among them.
 
 ## Smoke test
 
@@ -208,3 +211,17 @@ Expect: `1`
     `check`: check: green
     `duplicates`: duplicates: 7 new, 39 known, 4 gone
 15. factory: started review as vm.
+16. reviewer: Findings:
+
+    1. criterion 6 added: it needs its test. The Interface says the escape applies to "the line that names a cut", and no criterion or test covers the cut path. The code handles it: `_context_block` (`src/factory/agents/domain/prompts.py:137`) escapes the whole text that `_cut` returns. Every test in `tests/agents/domain/test_prompts_context_markers.py` uses an output shorter than `CONTEXT_LIMIT`. Fix: the tester adds a test for the new criterion 6, an output longer than `CONTEXT_LIMIT` that holds `</context>` before the cut. The test expects `&lt;/context>`, the cut line, and one `</context>` for that fact. The old criteria 6 (`make check`) and 7 (docs) are now 7 and 8.
+    2. `tests/agents/domain/test_prompts_context_markers.py:16-31`: `VALID` and `_facts` copy `VALID` and `_facts` from `tests/agents/domain/test_prompts.py:29-52`. A shared base already exists in `tests/support/first_message_support.py` (`CODER_FACTS`). Fix: the tester builds the facts from `CODER_FACTS` (for example `CODER_FACTS.model_copy(update=...)`), or moves `VALID`/`_facts` into `tests/support/first_message_support.py` under the standing leave and has both test files use them from there.
+
+    Checked and fine:
+    - Code: `_MARKER_TEXTS` (`src/factory/agents/domain/prompts.py:42-49`) now holds six markers, and `_escape_markers` applies them to the body and to the whole context text (output, cut line, `failed:` line). The role's instructions go through `_block` unescaped.
+    - Overlaps: `<context` cannot match inside `</context>`, and an `&lt;` that is already escaped is never matched again.
+    - Criteria 1–5 each have a test that checks what they name, with parametrized rows where the criterion asks for them.
+    - The coder's `make check` was green (entry 14).
+    - Architecture: domain-only change, no I/O, no markers that silence a check.
+    - The Description and the docs criterion match what was built. Entry 7 and the human's answer in entry 8 record the main choice (`<context` escaped as a prefix) and the rejected matcher.
+
+    Earlier tests: none changed. The diff only adds `tests/agents/domain/test_prompts_context_markers.py`, and the leave to edit `MARKERS` in the two earlier test files was not used.
