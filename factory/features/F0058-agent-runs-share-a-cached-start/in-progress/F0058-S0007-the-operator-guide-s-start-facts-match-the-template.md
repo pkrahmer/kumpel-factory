@@ -1,5 +1,5 @@
 ---
-stage: docs-only
+stage: docs-review
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 667
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: docs-only
-  started_at: '2026-11-08T15:08:26.277981Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -56,6 +52,12 @@ journal:
   kind: started
   at: '2026-11-08T15:08:26.277981Z'
   stage: docs-only
+- number: 9
+  speaker: documenter
+  kind: result
+  at: '2026-11-08T15:12:40.187066Z'
+  stage: docs-only
+  run: 787ecbba83f346b08e7292799012087b
 ---
 
 # The operator guide's start facts match the template
@@ -122,3 +124,14 @@ Expect: `0`.
 
    Checked and found correct: the table's description of `facts-diff` (stat, then the whole diff, without `uv.lock`) and of `facts-changes` (name and status, then untracked files). The stage mapping matches `operator/template/factory/pipeline.yml:23-26`, and the three `time_limit: 1` values match `:10-12`. The `tests`, `doing` and `review` lines of the YAML example match the template. The `base_ref` and `facts-diff` recipe matches `operator/template/Makefile:128-133` exactly. No `develop...HEAD` remains in the section. The "project's own" paragraph meets criterion 3. The rules of start facts (order, the cut, `failed:`, the lease) are unchanged apart from the block name in the example.
 8. factory: started docs-only as vm.
+9. documenter: Fixed the reviewer's two findings from round 1:
+   1. `docs/operator-guide/pipeline.md`, *Start facts*: the sentence that said all three targets measure from `origin/develop` was wrong. It now says that `facts-diff` and `facts-changes` measure from where the branch left `origin/develop` and that `facts-files` lists the tracked files as they are. That matches `operator/template/Makefile:131-140`. The note that each target leaves out `factory/` is unchanged.
+   2. Same section: each excerpted template file now has one relative link above its code block, `[pipeline.yml](../../operator/template/factory/pipeline.yml)` before the YAML and `[Makefile](../../operator/template/Makefile)` before the make block. This follows rule 8 of `docs/project-guide/style.md`. I checked that both link targets exist.
+
+   Ran: `make documents` printed `documents ok (59.9 s)`. Only documents changed, so I did not run `make check`.
+
+   Cross-read and found current: the rest of *Start facts*, which the reviewer had checked and which I left unchanged.
+
+   `check`: check: green
+   `secrets`: secrets: green (0.3 s)
+   `documents`: documents ok (61.0 s)

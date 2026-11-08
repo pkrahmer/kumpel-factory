@@ -49,7 +49,7 @@ A refused definition [stops](../project-guide/glossary.md) the factory with `pip
 
 Most agent runs begin by gathering the same facts: the diff, the list of changed files, the recent log. Each such call costs the agent a turn. A stage's `context` names project commands that gather these facts instead; the factory runs them before the agent, and the agent starts with their outputs. Your Makefile decides what each command shows.
 
-The template (`operator/template/Makefile` and `operator/template/factory/pipeline.yml`) ships three such targets. Each measures from the point where the branch left `origin/develop`, and each leaves out the factory's own files under `factory/`.
+The template (`operator/template/Makefile` and `operator/template/factory/pipeline.yml`) ships three such targets. `facts-diff` and `facts-changes` measure from the point where the branch left `origin/develop`; `facts-files` lists the tracked files as they are. Each leaves out the factory's own files under `factory/`.
 
 | Target | What it shows | Stages in the template |
 |---|---|---|
@@ -57,7 +57,7 @@ The template (`operator/template/Makefile` and `operator/template/factory/pipeli
 | `facts-changes` | the changed files by name and status, then the new untracked files | `doing`, `docs` |
 | `facts-files` | every tracked file | `tests` |
 
-The template's definition lists them like this:
+The template's [pipeline.yml](../../operator/template/factory/pipeline.yml) lists them like this:
 
 ```yaml
 project_commands:
@@ -70,7 +70,7 @@ stages:
   review: {role: reviewer, next: [docs, doing], round_cap: 3, context: [facts-diff]}
 ```
 
-Its `Makefile` finds the base with `git merge-base`, so a checkout without a local `develop` branch works too:
+Its [Makefile](../../operator/template/Makefile) finds the base with `git merge-base`, so a checkout without a local `develop` branch works too:
 
 ```make
 base_ref = $$(git merge-base HEAD origin/develop 2>/dev/null || git rev-parse HEAD)
