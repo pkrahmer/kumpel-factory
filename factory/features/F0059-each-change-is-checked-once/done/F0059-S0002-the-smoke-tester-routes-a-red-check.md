@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 0
 attempts: 0
@@ -80,6 +80,11 @@ journal:
   at: '2026-11-08T16:40:57.167570Z'
   stage: smoke-test
   run: b950e93910a14bd789b0baba4105fb27
+- number: 14
+  speaker: factory
+  kind: done
+  at: '2026-11-08T16:42:49.724432Z'
+  stage: approval
 ---
 
 # The smoke tester routes a red check
@@ -230,3 +235,4 @@ Expect: a count of 1 or more.
     - Criterion 2: the rule sits in the `## Stage` section, after steps 5 and 6, which are unchanged. `grep -rl check_red agents/agents/` lists only `smoke-tester.md`, so no other agent file has it.
     - Criterion 3: the factory's `make check` after the coder and after the documenter was green (journal entries 7 and 11). I did not run it again.
     - Criterion 4: `docs/project-guide/agents.md:366` describes the rule in one sentence and links the test module.
+14. factory: done (pull request merged); cost: 6 runs, 6.1 min, 33 turns, 166598 tokens in (654831 more from cache), 14434 out, $1.75
