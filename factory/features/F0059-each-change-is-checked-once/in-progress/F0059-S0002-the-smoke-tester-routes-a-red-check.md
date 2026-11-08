@@ -1,17 +1,13 @@
 ---
-stage: intake
+stage: tests
 blocked: null
 round: 0
 attempts: 0
 crashes: 0
-pull_request: null
+pull_request: 673
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: intake
-  started_at: '2026-11-08T16:28:24.046470Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -23,6 +19,12 @@ journal:
   kind: started
   at: '2026-11-08T16:28:24.046470Z'
   stage: intake
+- number: 3
+  speaker: intake
+  kind: result
+  at: '2026-11-08T16:28:53.708736Z'
+  stage: intake
+  run: 89275cf376904e7587057fca2ed7badf
 ---
 
 # The smoke tester routes a red check
@@ -63,3 +65,11 @@ Expect: a count of 1 or more.
 
 1. 2026-11-08 human: created.
 2. factory: started intake as vm.
+3. intake: accepted
+   - Interface: concrete. One file, `agents/agents/smoke-tester.md`, gets a rule in its `## Stage` section for a run whose latest journal record is a `check_red` stall: do not run the smoke test again, read the failing lines, decide `doing` (failures in code, types, lint, layers, security or licences, or a failure it cannot place) or `docs` (a failure only in a file the documenter writes), and name each failure and the file it points to. `check_red` exists as a `StallReason` (`docs/project-guide/pipeline.md`, *Stalls*), and the stall detail holds the check's last 15 lines. `smoke-test`'s `next` is already `[approval, doing, docs]` in `factory/pipeline.yml`. No code changes.
+   - Criteria: each one can be tested. Criterion 1 is one parametrized test with a row per sentence of the rule (no rerun, `doing`, `docs`, naming the failures). The rows also cover the "cannot place → doing" branch and the "names no command beyond `make check`" constraint, because they pin the rule's exact sentences. Criterion 2 can be tested with the existing `stage_section("smoke-tester")` helper (`tests/agent_files/test_claude_agent_texts_docs_slip.py`): the rule sits in the Stage section and in no shared R1–R15 text. The rule is a routing table, not a validation, so its failing side is the other route, and criterion 1 covers both routes. Criterion 3 is the standard one.
+   - Smoke test: `grep -c 'check_red' agents/agents/smoke-tester.md` runs from the repository root, and today it prints 0, so the expectation "1 or more" can be checked and is red until the story is built.
+   - Docs criterion: it says what the reader must know (that the project guide's account of the smoke tester's stage, `docs/project-guide/agents.md` near the steps 5/6 lines, names the rule) and dictates no sentences.
+   - Architecture: the change is to a shipped agent file only, and the new test module goes under `tests/agent_files/` as the project's test layout says. No dependency, no change under `factory/`, no change to another story's test. The existing docs-slip test pins steps 5 and 6, so the new rule must be added beside them without rewording them.
+   - Scope: this is the feature's third scope line (S0002) and decision 4. It adds no new factory rule, which the feature lists as out of scope. The pipeline's own `smoke-test: checks: [check]` is the human's later change, not this story's.
+   - Route: `tests`. The changed path, `agents/agents/smoke-tester.md`, is outside the documenter's write paths.
