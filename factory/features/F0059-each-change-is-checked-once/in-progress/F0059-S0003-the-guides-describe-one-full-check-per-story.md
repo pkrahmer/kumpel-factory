@@ -1,17 +1,13 @@
 ---
-stage: intake
+stage: docs-only
 blocked: null
 round: 0
 attempts: 0
 crashes: 0
-pull_request: null
+pull_request: 675
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: intake
-  started_at: '2026-11-08T16:54:47.182111Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -23,6 +19,12 @@ journal:
   kind: started
   at: '2026-11-08T16:54:47.182111Z'
   stage: intake
+- number: 3
+  speaker: intake
+  kind: result
+  at: '2026-11-08T16:55:10.923524Z'
+  stage: intake
+  run: 594970d673e940baa1eba21e1321388b
 ---
 
 # The guides describe one full check per story
@@ -85,3 +87,11 @@ Expect: `0`
 
 1. 2026-11-08 human: created.
 2. factory: started intake as vm.
+3. intake: accepted
+   - Interface: names the two documents and the passages to change: in `docs/operator-guide/pipeline.md` the template's `doing` quote (line 69), the `base_ref` quote (line 76), the `smoke-test` quote under *More than one route* (line 96), *The docs route* step 3, and the paragraph and YAML block on kumpel-factory's `not_read` (lines 131–135); in `docs/project-guide/README.md` the paragraph on the marker at line 231. I checked each against the files it quotes. `operator/template/factory/pipeline.yml:24` has `doing` with no `checks`, and `:27` has `smoke-test` with `checks: [check], round_cap: 3`. `operator/template/Makefile:128` is `base_ref = $$(git merge-base HEAD origin/develop)`. `factory/pipeline.yml` has `guides` (line 12), `docs` and `docs-only` with `guides` among their checks (lines 39 and 41), and `check`'s `not_read` with `README.md`, `docs/*` and the other README paths (line 10). `pyproject.toml` sets `-m "not documents"` nowhere, but the feature's list of the human's changes says the Makefile's `test` runs it; the documenter takes it from the `Makefile`. The minimal example at `docs/operator-guide/pipeline.md:20` (`doing: {role: coder, next: [review], checks: [check]}`) is an illustration, not a quote of any of the three files, so criterion 1 does not reach it.
+   - Criteria: each can be checked on the documents. Criterion 1 by comparing each presented quote with its file. Criteria 2 and 3 by the sentence that is gone and the sentence that names `make guides` and where it runs. Criteria 4 and 5 by their commands. Criterion 6 is the docs criterion. The failing sides are the stale quotes and sentences that must be gone, and smoke tests 1, 2, 3 and 5 pin them.
+   - Smoke test: five `grep -c` commands that run from the repository root, each with an exact count to expect. I checked them against the current files: today they give 1, 1, 1, 0 and 1. The escaped brackets match the literal YAML. No pytest command, so the `-q` rule does not apply.
+   - Docs criterion: it names what the reader must know (where the one full `make check` runs after F0059, and which command checks the documents) and points to criteria 1 to 3 for the details. The Interface quotes only lines of the files the guide quotes, to be matched, and dictates no prose.
+   - Architecture: documents only, inside the documenter's write paths (`README.md`, `docs/*`). No code, test, contract or pipeline file changes. `factory/pipeline.yml`, `operator/template/*` and `CLAUDE.md` stay as they are.
+   - Scope: this is the follow-up to the human's changes listed in F0059's `feature.md` (*The human's changes*, decisions 1 and 2). It keeps the guides true to them and does not touch the feature's *Out of scope*.
+   - Route: `docs-only`, because every path the Interface changes is under `docs/`.
