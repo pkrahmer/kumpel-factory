@@ -1,5 +1,5 @@
 ---
-stage: review
+stage: docs
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 661
 comments_read: [6721548904]
 handed_over: null
-claim:
-  instance: vm
-  stage: review
-  started_at: '2026-11-08T12:52:14.684793Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -117,6 +113,12 @@ journal:
   kind: started
   at: '2026-11-08T12:52:14.684793Z'
   stage: review
+- number: 20
+  speaker: reviewer
+  kind: result
+  at: '2026-11-08T12:52:39.452438Z'
+  stage: review
+  run: b07dcf28f7cb4b79b9b4ba337b20ceb6
 ---
 
 # The bill shows how well the cache works
@@ -278,3 +280,21 @@ Expect: the help names the cache figures and the hit rate.
     `check`: check: green
     `duplicates`: duplicates: 7 new, 39 known, 4 gone
 19. factory: started review as vm.
+20. reviewer: Round 1: I reviewed `git diff develop...HEAD -- . ':!factory'`. It changes `src/factory/entry/bill.py`, `src/factory/watching/application/costs.py`, `src/factory/watching/domain/bills.py`, `tests/entry/test_bill.py`, `tests/entry/test_bill_cache.py` and `tests/support/bill_cache_support.py`.
+
+    no findings
+
+    What I checked:
+    - Group 1:
+      - Criterion 7 (my round 0 finding) is now pinned. `tests/entry/test_bill_cache.py::test_the_help_prints_the_usage_naming_the_cache_figures` is parametrized over `--help` and `-h`. Each row checks that the text starts with `usage: factory-bill`, that it names cache read, cache written and hit rate, that it equals the `--help` output, and that the call returns 0. `_HELP_FLAGS` in `src/factory/entry/bill.py` covers both flags, and the help check sits after the `len(argv) > 1` check.
+      - Criteria 1 to 6 keep the tests named in entry 8, and each test checks what its criterion says. I recomputed the mixed case: tester 60/100 = 60 %, coder 340/400 = 85 %, reviewer 90/100 = 90 %, total 490/578 = 84.8 %. The total row's 82 % comes from this as well: 490/(490+88+22) = 490/600 = 81.7 %, which rounds to 82 %. Both are right.
+      - Half up is pinned at 2/3, 1/3 and the exact halves 1/8 and 1/200. The `-` side is tested for the work item and for one role.
+      - Criterion 5: `cost_table` and `cost_line` are untouched, so the hand-over table and the acceptance report stay unchanged.
+      - Entry 18 records `make check` green after the coder.
+    - Group 2: the domain stays pure. `bills_by_role`, `hit_rate`, `cache_line` and `cache_table` live in `factory.watching.domain.bills`, and `_groups` is shared with `bills_by_stage` rather than copied. `WorkItemBill` gains two text fields. Only `factory.entry.bill` reads them, and they are not part of the records contract.
+    - Group 3: no markers, secrets or command strings. An unknown argument still goes through the work item id check.
+    - Group 4: the new public names have docstrings. Rounding uses `Decimal` with `ROUND_HALF_UP`, like the bill's other figures. There is no dead code.
+    - Group 5: entry 10 gives the main choice and the two alternatives it rejected. The Description matches what was built. Criterion 9 (docs) still says what the operator must know.
+
+    Earlier tests:
+    - `tests/entry/test_bill.py`: changed under the human's leave in the story's Interface, which names this file. The human's answers are in journal entry 4, and intake carried the leave into the story in entry 6. Its four tests keep their names and check the same output with the cache section removed.
