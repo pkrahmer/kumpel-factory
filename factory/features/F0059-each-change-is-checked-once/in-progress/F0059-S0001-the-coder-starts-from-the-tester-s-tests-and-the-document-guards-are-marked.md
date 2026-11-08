@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 672
 comments_read: [6723592271, 6723685612, 6723780619]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T16:08:53.530769Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -140,6 +136,12 @@ journal:
   kind: started
   at: '2026-11-08T16:08:53.530769Z'
   stage: doing
+- number: 24
+  speaker: coder
+  kind: result
+  at: '2026-11-08T16:13:37.177558Z'
+  stage: doing
+  run: a051eb64110b46ee97ecdbf70813efc7
 ---
 
 # The coder starts from the tester's tests, and the guards that read the documents are marked
@@ -375,3 +377,24 @@ Expect: a line `<n> tests collected`, `<n>` greater than 0.
 
     `lint`: lint: green (0.1 s)
 23. factory: started doing as vm.
+24. coder: Round 1, after the tester's change (entry 22). Both review findings from entry 15 are now dealt with in the tests:
+    - `tests/guards/test_mount_program_search.py` carries the marker.
+    - `test_todays_install_guide_gives_no_settings_finding` moved into the marked module `tests/guards/test_install_guide_settings.py`, as the human's answer in entry 18 asked.
+
+    Built this round: nothing. Neither finding needed a code change. `agents/agents/coder.md` is still as entry 13 left it.
+
+    Main choice: send the work item to `review` without touching any code. The other option was to rework the coder text again, which I rejected because no finding was about it.
+
+    Checks:
+    - `make check`: check: green (test: green, 109.3 s, coverage 99.21 %).
+    - The story's tests (`tests/guards/test_documents_marker.py` and `tests/agent_files/test_claude_agent_texts_first_tests.py`): 7 passed.
+    - The smoke test command ends with `176/11158 tests collected (10982 deselected) in 4.78s`. That is the format intake expected for a `-m` selection (entry 6), and 176 is greater than 0.
+
+    Refactor: there is no new code diff this round, so nothing to change.
+
+    Description: the journal has not changed its meaning since intake. The human's answers in entries 9 and 18 only widened which modules are marked or moved.
+
+    Noticed but not touched: `CLAUDE.md` still names the single-test-file command only in the tester's words (as entry 13 noted). Changing that is up to the human.
+
+    `check`: check: green
+    `duplicates`: duplicates: 7 new, 39 known, 4 gone
