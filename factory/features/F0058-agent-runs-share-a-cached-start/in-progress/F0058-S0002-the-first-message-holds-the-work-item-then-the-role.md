@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 660
 comments_read: [6720878077, 6720941885, 6720981420, 6721183670]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T12:00:02.958832Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -126,6 +130,11 @@ journal:
   at: '2026-11-08T11:59:57.533495Z'
   stage: tests
   run: 0aec414b6527439291e392ce46c55406
+- number: 22
+  speaker: factory
+  kind: started
+  at: '2026-11-08T12:00:02.958832Z'
+  stage: doing
 ---
 
 # The first message holds the work item, then the role
@@ -433,3 +442,4 @@ Expect: the docstring names the order: the work item's body, the role's instruct
     Files changed: `tests/agent_files/test_claude_agent_texts_review_groups.py`, `tests/agents/adapters/test_shipped_agents_effect.py`. No files created. Every module imported.
 
     `lint`: lint: green (0.2 s)
+22. factory: started doing as vm.
