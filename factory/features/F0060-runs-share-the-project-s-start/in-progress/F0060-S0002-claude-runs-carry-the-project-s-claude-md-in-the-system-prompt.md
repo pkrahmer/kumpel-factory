@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 679
 comments_read: [6727152793]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-08T21:09:36.552719Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -64,6 +68,11 @@ journal:
   at: '2026-11-08T21:09:31.683613Z'
   stage: doing
   run: 79126f0bc1c94dcaad634bd0f6c7669b
+- number: 11
+  speaker: factory
+  kind: started
+  at: '2026-11-08T21:09:36.552719Z'
+  stage: tests
 ---
 
 # Claude runs carry the project's CLAUDE.md in the system prompt
@@ -167,3 +176,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     I made no code change in this run. The implementation in `src/factory/agents/adapters/claude_runtime.py` from entry 7 is already on the branch. The human's answer changes no meaning of the task, so `## Description` stays as it is.
 
     Once that test is updated I expect `make check` to be green, but that is not yet checked. Entry 7 is the last run: every target except `make test` was green, and `make test` failed only on this test.
+11. factory: started tests as vm.
