@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 650
 comments_read: [6716086925]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T02:20:58.296499Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -53,6 +57,11 @@ journal:
   at: '2026-11-08T02:20:53.337784Z'
   stage: tests
   run: a69a5b7f309f44cf915e3ddd96fda161
+- number: 9
+  speaker: factory
+  kind: started
+  at: '2026-11-08T02:20:58.296499Z'
+  stage: doing
 ---
 
 # promote.sh reuses an open promotion
@@ -138,3 +147,4 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
    Open: nothing.
 
    `lint`: lint: green (0.1 s)
+9. factory: started doing as vm.
