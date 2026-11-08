@@ -1,17 +1,13 @@
 ---
-stage: review
+stage: doing
 blocked: null
-round: 0
+round: 1
 attempts: 1
 crashes: 0
 pull_request: 645
 comments_read: [6714658360, 6714963482]
 handed_over: null
-claim:
-  instance: vm
-  stage: review
-  started_at: '2026-11-08T00:27:52.148719Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -130,6 +126,12 @@ journal:
   kind: started
   at: '2026-11-08T00:27:52.148719Z'
   stage: review
+- number: 22
+  speaker: reviewer
+  kind: result
+  at: '2026-11-08T00:30:15.630909Z'
+  stage: review
+  run: 44ea7d2e3f1f479d8aa9f7d82e9d8a47
 ---
 
 # Kumpel works on develop and promotes accepted features to main
@@ -146,7 +148,7 @@ After F0057-S0002 the factory works on `develop`, and `main` is protected. Kumpe
   - `reset-to-tag.sh`: moves `develop` to the tag by force; `main` is left alone and the script says so.
   - `archive-feature.sh <feature id>` (new): refuses a feature whose `backlog/` or `in-progress/` holds a story file, or whose last acceptance is not in `done/`; otherwise moves `factory/features/<feature>/` to `factory/archive/` on `develop` with the commit `<feature id>: archived`, pulls and pushes.
   - `promote.sh <feature id>` (new): refuses unless the feature is in `factory/archive/` on `develop`; opens a pull request from `develop` to `main` titled `<feature id>: promoted to main`, whose body lists the feature's stories with their titles; with the switch `promote` on, merges it with `merge_method: merge` and the message `Promoted by Kumpel after <feature id>'s acceptance.`; with it off, prints the pull request's number for the human. Never squash, never rebase.
-  - `settings.sh`: a fourth switch `promote`, off in a new settings file (`settings.sh set promote on|off`).
+  - `settings.sh`: a fourth switch `promote`, off in a new settings file (`settings.sh set promote on|off`); `get` reads a known switch that the file lacks as `off`, so a settings file from before this story works without a new `init`.
 - `operator/lib/` (or the skill's scripts): one shell function that commits with `Kumpel <kumpel@noreply.invalid>` as author and committer, used by `start-story.sh` and `archive-feature.sh`. `references/standing-orders.md` tells Kumpel to commit its log and its fixes through it.
 - `operator/skill/kumpel/references/`: every "on `main`" for Kumpel's own writes says `develop`. `approving.md` gains the step after a feature's acceptance: archive the feature, then promote it (or open the promotion for the human). `standing-orders.md`, *Safety*: never push to `main`; never fix `main` directly, a fix goes to `develop` and reaches `main` with the next promotion.
 - `operator/claude/commands/kumpel.md` and the opencode command: the switch `promote` among the switches.
@@ -155,12 +157,15 @@ After F0057-S0002 the factory works on `develop`, and `main` is protected. Kumpe
 ## Acceptance criteria
 
 1. `start-story.sh` commits the move on `develop` with Kumpel as author and committer, and pushes `develop` (one test on a fake remote).
-2. `archive-feature.sh` moves a finished feature to `factory/archive/` on `develop` with Kumpel as author, and refuses a feature with a story still in `backlog/` or `in-progress/` (rows of one test).
-3. `promote.sh` refuses a feature not archived on `develop`; opens a pull request from `develop` to `main` with the title of the Interface; merges it with a merge commit and Kumpel's message when `promote` is on, and only prints its number when off (rows of one test with a recorded hosting API).
+2. `archive-feature.sh` moves a finished feature to `factory/archive/` on `develop` with the commit subject `<feature id>: archived` and Kumpel as author, and the remote's `develop` holds it; it refuses a feature with a story still in `backlog/` or `in-progress/`, and a feature whose acceptance is missing or whose last acceptance is not in `done/` (no acceptance report counts as not finished) (rows of one test).
+3. `promote.sh` refuses a feature not archived on `develop`; opens a pull request from `develop` to `main` with the title of the Interface and a body that lists the feature's stories with their titles; merges it with `merge_method: merge` and Kumpel's message when `promote` is on, and only prints its number when off (rows of one test with a recorded hosting API).
 4. `merge.sh` finds the archive commit on `develop`, not on the default branch (one test).
-5. A new settings file has `promote` off (one test).
-6. `make check` stays green.
-7. docs: `operator/README.md`: the switch `promote`, the two new scripts in its file table, and that Kumpel never pushes to `main`. `docs/decisions.md`: none.
+5. A new settings file has `promote` off; `set promote on` then `get promote` prints `on`; another value is refused the way the other switches refuse one; a settings file without the `promote` key reads it as `off`.
+6. `next-story.sh`, `approval.sh` and `status.sh` work on `develop`, and `status.sh` finds the archive commit there (rows of one test).
+7. `reset-to-tag.sh` moves `develop` to the tag, leaves `main` unchanged, and its output says so (one test).
+8. The commands `operator/claude/commands/kumpel.md` and `operator/opencode/command/kumpel.md` list `promote` among the switches, and `references/standing-orders.md` says never push to `main` and that a fix goes to `develop` (rows of one test).
+9. `make check` stays green.
+10. docs: `operator/README.md`: the switch `promote`, the two new scripts in its file table, and that Kumpel never pushes to `main`. `docs/decisions.md`: none.
 
 ## Smoke test
 
@@ -343,3 +348,28 @@ Expect: `off`
     `check`: check: green
     `duplicates`: duplicates: 6 new, 39 known, 4 gone
 21. factory: started review as vm.
+22. reviewer: Review, round 0. I read the work item, then `git diff develop...HEAD -- . ':!factory'`: the scripts under `operator/skill/kumpel/scripts/`, the reference texts, both commands, `operator/README.md`, the new `tests/operator_scripts/test_operator_develop.py` and the four earlier test files. I checked each criterion, including the ones the human added in journals 4 and 14, against its test.
+
+    Group 1 (criteria): every criterion has a test that checks what it names, and the coder's `make check` was green (journal 20). Group 2 (architecture): the change sits in shell scripts under `operator/`, so the `src/` layer rules don't apply. Group 3 (security): request bodies are built with `json.dumps`, not by joining strings, and the diff has no secrets and no markers. Documents: I checked the three new `operator/README.md` rows, `approving.md`, `standing-orders.md` and `SKILL.md` against the scripts, and every claim matches.
+
+    Findings:
+    1. `operator/skill/kumpel/scripts/settings.sh:89-92` (`set`): on a settings file from before this story, `settings.sh set promote on` (and so `/kumpel promote on`) exits with `unknown switch: promote`. That is every existing operator's file, which goes against the reason the human gave in journal 14 item 3 ("so an old settings file works without a new init"). The list of known switches is also now written twice, as the defaults dict at line 48 and the tuple at line 76. Fix: keep one table of the known switches and their defaults, and use it in `init`, `get` and `set`, where `set` accepts a known switch the file lacks and writes it. Then route `tests` for one row: an old-shape file, `set promote on`, then `get promote` prints `on`.
+    2. `tests/operator_scripts/test_operator_develop.py:51` `head()` copies `remote_commit` from `tests/support/git_support.py:178`. Lines 329-331 repeat the body of `write_switches` (lines 139-143). Fix: use `remote_commit`, and give `write_switches` the switches dict so the old-file test calls it.
+
+    Description corrected (only the reviewer can write the work item, and the coder and tester said so in journals 13, 16, 18 and 20):
+    - Interface `settings.sh`: "off in a new settings file" -> also says `get` reads a known switch the file lacks as `off` (journal 14 item 3).
+    - Criterion 2: rows for a story in backlog/in-progress -> also the subject `<feature id>: archived`, that the remote's `develop` holds it, and the refusal of a missing or unfinished last acceptance (journal 4 items 1-2). Test: `test_archive_feature_moves_only_a_finished_feature_to_the_archive_on_develop`.
+    - Criterion 3: title and merge commit -> also the body listing stories with titles, and `merge_method: merge` (journal 4 item 3). Test: `test_promote_opens_the_promotion_and_merges_it_only_with_the_switch_on`.
+    - Criterion 5: only `promote` off in a new file -> also `set on`, another value refused, and a missing key reads `off` (journal 4 item 6, journal 14 item 3). Tests: `test_the_promote_switch_is_off_in_a_new_file_and_set_like_the_others`, `test_a_settings_file_without_the_promote_switch_reads_it_as_off`.
+    - New criterion 6, `next-story.sh`, `approval.sh` and `status.sh` on `develop` (journal 4 item 4). Test: `test_next_story_approval_and_status_read_develop_not_main`.
+    - New criterion 7, `reset-to-tag.sh` (journal 4 item 5). Test: `test_the_reset_moves_develop_and_says_that_main_is_left_alone`.
+    - New criterion 8, the command and standing-orders texts (journal 4 item 8). Test: `test_the_texts_name_the_promote_switch_and_keep_kumpel_off_main`.
+    - The closing criteria are renumbered to 9 (`make check`) and 10 (docs). Each added criterion already has its test, so none of them needs a new one.
+
+    Rejected: counting the old-file test as a separate function where a row was required. A file without the key is a different rule from `set`, and its setup differs. I also did not ask the human about finding 1: the Interface names `set promote on|off`, and journal 14 states the goal that an old file keeps working.
+
+    Earlier tests:
+    - `tests/operator_scripts/test_operator_merge_reset.py`: the human's leave of 2026-11-07, named in the Interface (branch name, lookup on `develop`). It also adds two new tests.
+    - `tests/operator_scripts/test_operator_skill_scripts.py`: the human's leave of 2026-11-07 (the new switch, lookup on `develop`).
+    - `tests/operator_scripts/test_operator_skill_signature.py`: the standing leave to move a shared test helper (`KUMPEL` moved to `tests/support/operator_skill_support.py`).
+    - `tests/support/operator_skill_support.py`: the human's leave of 2026-11-07 (`SCRIPTS_BRANCH`, the commits route, a remote whose `HEAD` is `main`). The `KUMPEL` move is under the standing leave.
