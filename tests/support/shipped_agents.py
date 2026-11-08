@@ -165,3 +165,9 @@ def stage_section(name: str) -> str:
 def template_definition() -> PipelineDefinition:
     """The pipeline definition the template ships, parsed by the factory's reader."""
     return RuamelPipelineDefinitionReader().parse(TEMPLATE_PIPELINE.read_text(encoding="utf-8"))
+
+
+def shared_rules() -> str:
+    """The `## Rules` section of the shipped system prompt, the rules every role shares."""
+    text = SYSTEM_PROMPT_FILE.read_text(encoding="utf-8")
+    return section_text(text, "Rules") or ""

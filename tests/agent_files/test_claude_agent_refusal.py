@@ -2,8 +2,7 @@
 
 import pytest
 
-from factory.shared.domain.sections import section_text
-from support.shipped_agents import SHIPPED_NAMES, WRITE_PATHS_RULE, agent_body
+from support.shipped_agents import SHIPPED_NAMES, WRITE_PATHS_RULE, agent_body, shared_rules
 
 _OLD_ENDING = (
     "the kernel refuses every other write, by any tool and any command you run, and the factory "
@@ -11,11 +10,8 @@ _OLD_ENDING = (
 )
 
 
-@pytest.mark.parametrize("name", SHIPPED_NAMES)
-def test_rules_hold_the_write_paths_rule_as_one_line(name: str) -> None:
-    rules = section_text(agent_body(name), "Rules") or ""
-
-    assert WRITE_PATHS_RULE in rules.splitlines()
+def test_rules_hold_the_write_paths_rule_as_one_line() -> None:
+    assert WRITE_PATHS_RULE in shared_rules().splitlines()
 
 
 @pytest.mark.parametrize("name", SHIPPED_NAMES)
@@ -23,8 +19,7 @@ def test_old_ending_of_the_write_paths_rule_is_gone(name: str) -> None:
     assert _OLD_ENDING not in agent_body(name)
 
 
-@pytest.mark.parametrize("name", SHIPPED_NAMES)
-def test_write_paths_rule_appears_once(name: str) -> None:
-    lines = [line for line in agent_body(name).splitlines() if line.startswith("R14. ")]
+def test_write_paths_rule_appears_once() -> None:
+    lines = [line for line in shared_rules().splitlines() if line.startswith("R14. ")]
 
     assert len(lines) == 1

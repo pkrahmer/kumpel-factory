@@ -4,8 +4,7 @@ import json
 
 import pytest
 
-from factory.shared.domain.sections import section_text
-from support.shipped_agents import AGENT_HOME, SHIPPED_NAMES, front_matter_and_body
+from support.shipped_agents import AGENT_HOME, shared_rules
 
 
 def _permissions(kind: str) -> list[str]:
@@ -46,8 +45,5 @@ def test_deny_list_holds_git_add_and_commit_beside_push_and_gh(entry: str) -> No
     assert entry in _permissions("deny")
 
 
-@pytest.mark.parametrize("name", SHIPPED_NAMES)
-def test_rules_section_still_forbids_the_agent_to_commit(name: str) -> None:
-    _, body = front_matter_and_body(name)
-
-    assert "You do not commit either" in (section_text(body, "Rules") or "")
+def test_rules_section_still_forbids_the_agent_to_commit() -> None:
+    assert "You do not commit either" in shared_rules()

@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 678
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-08T19:45:42.085191Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -34,6 +30,12 @@ journal:
   kind: started
   at: '2026-11-08T19:45:42.085191Z'
   stage: tests
+- number: 5
+  speaker: tester
+  kind: result
+  at: '2026-11-08T19:48:43.831153Z'
+  stage: tests
+  run: 733b412fd5fe4a4fab2a3aeddf2ead65
 ---
 
 # The rules every role shares stand in the system prompt
@@ -97,3 +99,44 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    - Architecture: the text constant stays in the `agents` area's `domain` layer, and the shipped files stay in `agents/`. No new interface, dependency or wiring is needed; `wiring.py` already passes `agent_home / system-prompt.md` to both runtimes. The change to `CLAUDE.md`'s first paragraph is listed in `feature.md` as the human's own change after the merge, so it is not part of this story.
    - Scope: within F0060's first scope line (S0001). It does not touch the out-of-scope items: no story text in the system prompt and no `CLAUDE.md` carrying, which is S0002's. Route: `tests`, because the Interface changes `src/` and `agents/`, which the documenter may not write.
 4. factory: started tests as vm.
+5. tester: Wrote the tests for the shared rules moving into the system prompt. I also moved the earlier rule tests to read from `agents/system-prompt.md`, under the human's leave (decision 1 in `feature.md`).
+
+   Criteria → tests (all in `tests/agent_files/test_shared_rules_system_prompt.py`):
+   - criterion 1: `test_the_system_prompt_holds_each_rule_once_in_order_after_the_orientation`
+   - criterion 2: `test_no_shipped_agent_file_holds_the_shared_rules` (one row per agent file)
+   - criterion 3: `test_every_agent_file_keeps_its_own_sections_word_for_word_in_order` (one row per agent file). It checks the headings are `## Role` (where present), `## Stage`, `## Lessons`. It also checks a crc32 checksum of the text before the first section and of each section the file keeps, against values computed from the files before this story. I used crc32 integers rather than hex digests so that `make secrets` stays green without a baseline entry.
+   - criterion 4: `test_the_rules_in_the_system_prompt_are_the_coders_rules_word_for_word`. Every paragraph after the first must equal the coder's pre-story `## Rules` text. In the first paragraph, everything before and after the old sentence ("Stage-specific instructions are under `Stage` below; …") must be unchanged. The old sentence must be gone, and the sentence that replaces it must name `Stage`, `Role` and `<role-instructions>`.
+   - criterion 5: `test_the_orientation_says_whom_the_rules_bind_and_where_the_role_stands`, four rows:
+     - a sentence says the rules apply to every agent in every stage;
+     - a sentence says the `<role-instructions>` block holds the role's instructions with the same weight;
+     - the `<work-item>` sentence is kept word for word;
+     - the `<context>` sentence is kept word for word.
+   - criterion 6: `test_the_fallback_system_prompt_equals_the_shipped_file`. It passes today, since both texts are still the old ones, and it pins the change.
+   - criterion 7: `test_a_run_gets_the_rules_in_the_system_prompt_and_none_in_its_first_message`, rows `claude` and `opencode`. Both use stand-ins, the shipped coder file and `system_prompt_file=SYSTEM_PROMPT_FILE`. The Claude row reads the instructions file and `-p`; the opencode row reads the agent `prompt` in the configuration and the message argument.
+   - criteria 8 and 9: no test (`make check`; docs).
+
+   Files created:
+   - `tests/agent_files/test_shared_rules_system_prompt.py`
+   - `tests/support/shared_rules_support.py`: the coder's `## Rules` paragraphs before the story, the old sentence, and the checksums of each agent file's own parts.
+
+   Earlier tests changed under the leave. Each reads the rules from the system prompt through a new helper, `shared_rules()` in `tests/support/shipped_agents.py`, and checks the same text. Where a test was parametrized by agent name only to read the rules, it now takes no parameter and keeps its name.
+   - `tests/agent_files/test_claude_agent_refusal.py` (the R14 line, once)
+   - `tests/agent_files/test_claude_agent_skills.py` (R15 right after R14)
+   - `tests/agent_files/test_claude_agent_texts.py`: the section order loses `## Rules`, and the two anchor tests now read the system prompt.
+   - `tests/agent_files/test_claude_agent_texts_check_red.py` (no `check_red` in the shared rules)
+   - `tests/agent_files/test_claude_agent_texts_docs_slip.py` (the R12 text, once)
+   - `tests/agent_files/test_claude_settings_git.py` (the "You do not commit either" rule; the leave covers it as a test whose only failure is this move)
+
+   `tests/agents/adapters/test_shipped_agents_effect.py` still passes after the move, so I did not change it.
+
+   Test run (`uv run pytest -q` on the new file and the six changed files): the failures are what the coder must fix.
+   - The agent files still hold `## Rules`.
+   - The section order still includes `## Rules`.
+   - The checksums don't match, because the opening text currently runs into the rules.
+   - The system prompt has no `## Rules` section yet; in both runtime rows the system prompt's headings are `[]`.
+
+   Every module imported; there were no collection errors. `make lint` is green. I skipped the type check, as the stage allows.
+
+   Open: none.
+
+   `lint`: lint: green (0.1 s)

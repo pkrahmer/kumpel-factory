@@ -10,6 +10,7 @@ from support.shipped_agents import (
     SHIPPED_NAMES,
     ShippedAgent,
     agent_body,
+    shared_rules,
     template_definition,
 )
 
@@ -167,9 +168,9 @@ def test_body_still_opens_with_the_boundary_and_the_entry_sentence(agent: Shippe
 
 @pytest.mark.parametrize("name", SHIPPED_NAMES)
 def test_body_has_rules_role_stage_and_lessons_sections_in_order(name: str) -> None:
-    expected = ["## Rules", "## Stage", "## Lessons"]
+    expected = ["## Stage", "## Lessons"]
     if name not in _WITHOUT_ROLE:
-        expected.insert(1, "## Role")
+        expected.insert(0, "## Role")
 
     assert _headings(agent_body(name)) == expected
 
@@ -205,11 +206,8 @@ def test_body_names_every_decision_of_its_stage_in_inline_code(name: str) -> Non
         "one of the `Allowed decisions` your prompt lists",
     ],
 )
-@pytest.mark.parametrize("name", SHIPPED_NAMES)
-def test_rules_section_carries_the_pipeline_rules_with_the_decision_contract(
-    name: str, anchor: str
-) -> None:
-    assert anchor in (section_text(agent_body(name), "Rules") or "")
+def test_rules_section_carries_the_pipeline_rules_with_the_decision_contract(anchor: str) -> None:
+    assert anchor in shared_rules()
 
 
 @pytest.mark.parametrize(
@@ -219,9 +217,8 @@ def test_rules_section_carries_the_pipeline_rules_with_the_decision_contract(
         "You never push, check out, switch, merge, pull or call `gh`.",
     ],
 )
-@pytest.mark.parametrize("name", SHIPPED_NAMES)
-def test_rules_section_leaves_commit_push_and_move_to_the_factory(name: str, anchor: str) -> None:
-    assert anchor in (section_text(agent_body(name), "Rules") or "")
+def test_rules_section_leaves_commit_push_and_move_to_the_factory(anchor: str) -> None:
+    assert anchor in shared_rules()
 
 
 @pytest.mark.parametrize("name", SHIPPED_NAMES)
