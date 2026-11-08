@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 662
 comments_read: [6721852631]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T13:11:14.753564Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -53,6 +57,11 @@ journal:
   at: '2026-11-08T13:11:09.845180Z'
   stage: tests
   run: a3f54b09525a4b139bd898a37a9df388
+- number: 9
+  speaker: factory
+  kind: started
+  at: '2026-11-08T13:11:14.753564Z'
+  stage: doing
 ---
 
 # Each stage's start facts come from the factory
@@ -182,3 +191,4 @@ Expect: `True`
    Open, for the reviewer and the human: criterion 8 names "the operator template". No system prompt exists under `operator/template` (nor anywhere under `operator/`); the only two are the shipped `agents/system-prompt.md` and the `SYSTEM_PROMPT` fallback, which says the same. I tested those two and did not invent a template file. If the human meant another file, its row is missing.
 
    `lint`: lint: green (0.1 s)
+9. factory: started doing as vm.
