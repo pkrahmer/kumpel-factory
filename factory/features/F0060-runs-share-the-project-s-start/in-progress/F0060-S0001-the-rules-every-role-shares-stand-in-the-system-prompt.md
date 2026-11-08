@@ -1,17 +1,13 @@
 ---
-stage: review
+stage: doing
 blocked: null
-round: 0
+round: 1
 attempts: 0
 crashes: 0
 pull_request: 678
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: review
-  started_at: '2026-11-08T20:01:55.535722Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -78,6 +74,12 @@ journal:
   kind: started
   at: '2026-11-08T20:01:55.535722Z'
   stage: review
+- number: 13
+  speaker: reviewer
+  kind: result
+  at: '2026-11-08T20:03:09.771809Z'
+  stage: review
+  run: 370e643accc546d8b8c1849bc04300b4
 ---
 
 # The rules every role shares stand in the system prompt
@@ -242,3 +244,40 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     `duplicates`: duplicates: 7 new, 39 known, 4 gone
 12. factory: started review as vm.
+13. reviewer: Round 0 review of `git diff develop...HEAD -- . ':!factory'`. Groups 1 to 5 and item 6 are all checked below.
+
+    Group 1 (criteria): each of criteria 1 to 7 has a test in `tests/agent_files/test_shared_rules_system_prompt.py`, and each test checks the criterion it is named after:
+    - Criterion 1: R1 to R15 appear once, in order, after a non-empty orientation.
+    - Criterion 2: one row per agent file.
+    - Criterion 3: the section order, plus a crc32 of the opening and of each section the file keeps.
+    - Criterion 4: the paragraphs after the first are equal to `RULES_BEFORE`, and the first paragraph is checked around the replaced sentence.
+    - Criterion 5: four rows.
+    - Criterion 6: the fallback text equals the file.
+    - Criterion 7: one parametrized test with a `claude` row and an `opencode` row.
+
+    I checked the pinned data against `develop`. For all seven files, `own_parts` of each body on `develop` equals `PARTS_BEFORE`, and each file's `## Rules` section on `develop` equals `"\n\n".join(RULES_BEFORE)`. So criteria 3 and 4 pin the real earlier text. The "exactly once" limit fails on both sides through `numbers == list(range(1, 16))`. The journal (entry 11) says `make check` was green after the coder.
+
+    Group 2 (architecture): `SYSTEM_PROMPT` stays a constant in `factory.agents.domain.prompts`. There is no new import, interface or wiring, and no runtime changes. Nothing to report.
+
+    Group 3 (security): no markers, secrets or command building. The hex-like values are crc32 integers. Nothing to report.
+
+    Group 4 (quality), `src/`: the constant matches the file, and the comment at `prompts.py:29` is still true. Nothing to report.
+
+    Group 5 (hygiene): the journal names the main choice for the role sentence and the rejected wording. The Description matches what was built, and criterion 9 still says what the documenter must write.
+
+    Findings (round 0, so copied helpers in the new test module still count):
+    1. `tests/agent_files/test_shared_rules_system_prompt.py:71` `_rules()`: a second copy of `shared_rules()` in `tests/support/shipped_agents.py:170`, which this same diff adds. Fix: drop `_rules()` and use `shared_rules()`.
+    2. `tests/agent_files/test_shared_rules_system_prompt.py:83` `_headings` and `:36` `_WITHOUT_ROLE`: copies of `_headings` (`tests/agent_files/test_claude_agent_texts.py:151`) and `_WITHOUT_ROLE` (`test_claude_agent_texts.py:17`). Fix: move both to `tests/support/shipped_agents.py` under the standing leave, and use them from there in both modules.
+    3. `tests/agent_files/test_shared_rules_system_prompt.py:47` `_CLAUDE_REPLY` copies `REPLY` from `tests/support/claude_stand_in.py:16`; only the numbers differ, and the test does not depend on them. In the same file, `:208` `Step(stdout=REPLY_EVENTS)` is `REPLY` from `tests/support/opencode_stand_in.py:364`. Fix: import `REPLY` from each support module, as `tests/support/container_extra_support.py:17,22` does.
+
+    Earlier tests changed by the diff:
+    - `tests/agent_files/test_claude_agent_refusal.py`: the human's leave (story Interface, decision 1 of `feature.md`).
+    - `tests/agent_files/test_claude_agent_skills.py`: the human's leave (same).
+    - `tests/agent_files/test_claude_agent_texts.py`: the human's leave (same).
+    - `tests/agent_files/test_claude_agent_texts_check_red.py`: the human's leave (same).
+    - `tests/agent_files/test_claude_agent_texts_docs_slip.py`: the human's leave (same).
+    - `tests/agent_files/test_claude_agent_texts_review_groups.py`: the human's leave, "any other test whose only failure is this move" (journal entries 7 and 9).
+    - `tests/agent_files/test_claude_settings_git.py`: the human's leave, "any other test whose only failure is this move" (journal entry 5).
+    - `tests/agent_files/test_first_message_agent_files.py`: the human's leave, "any other test whose only failure is this move" (journal entries 7 and 9).
+    - `tests/agent_files/test_shipped_agents_r14.py`: the human's leave, "any other test whose only failure is this move" (journal entries 7 and 9).
+    - `tests/support/shipped_agents.py`: none needed; it only adds the helper `shared_rules()`.
