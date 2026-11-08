@@ -111,7 +111,13 @@ The shares add up to a little more than 100 %, because the cost records also hol
 
 - **Running tests and checks is about half of all the time.** The coder spent 57 of its 77 minutes in tools, mostly its own `make check`, and the factory then runs `make check` again after the coder (34 minutes over 26 runs). The documenter spent 23 of its 30 minutes in tools, and the docs stages' checks (`make check`, `make secrets`, `make documents`) took another 46 minutes over 17 runs, about 2.7 minutes each. The tester spent 26 minutes running tests.
 - **The model itself is only about a quarter.** The reviewer and intake are almost pure model time and are fast.
-- **Waits are the other big part.** F0057-S0002 alone waited 36 minutes between stages, mostly for answers.
+- **The time between stages is mostly not waiting.** A closer look at its 101 minutes:
+  - 27 minutes are agent runs that ended with a question instead of a result, so they are agent time;
+  - 28 minutes are the factory's final check before the approval, about 3.9 minutes for every story;
+  - 8 minutes are the hand-overs between stages, about 5 seconds each;
+  - only 37 minutes are the human answering 17 questions, about 2.2 minutes each, most of it the session's watcher, which looks every 3 minutes.
+
+  So the human's share is about 11 %, and checks of all kinds take more than half of the time.
 - **Container start-up is small.** The tests stage, whose only check is `make lint`, shows 1.4 minutes over 19 runs beyond the agent's own time.
 
 So the shared cache will lower the cost, but the time is in the checks and the waits. The biggest time levers:
