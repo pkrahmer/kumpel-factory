@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 680
 comments_read: [6727432579, 6727512748, 6727549619]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T21:52:04.393259Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -153,6 +157,11 @@ journal:
   at: '2026-11-08T21:51:59.159093Z'
   stage: tests
   run: 84700a7eee6046fbbd212702f2815765
+- number: 27
+  speaker: factory
+  kind: started
+  at: '2026-11-08T21:52:04.393259Z'
+  stage: doing
 ---
 
 # A review whose findings need only tests goes to the tester
@@ -417,3 +426,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     No files created. Next is the coder's `make check`.
 
     `lint`: lint: green (0.1 s)
+27. factory: started doing as vm.
