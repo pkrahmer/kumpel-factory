@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 652
 comments_read: [6716487122]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-08T03:04:41.566523Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -42,6 +46,11 @@ journal:
   at: '2026-11-08T03:04:36.563626Z'
   stage: intake
   run: 9e1344fa69f44ac0b5af308488b02266
+- number: 7
+  speaker: factory
+  kind: started
+  at: '2026-11-08T03:04:41.566523Z'
+  stage: tests
 ---
 
 # The code names the working branch by its role
@@ -112,3 +121,4 @@ Expect: `0`
    - Docs criterion: it names the two project-guide files and what they must say, and dictates no sentences.
    - Architecture: renames only, no layer changes. `main_failed` and `main_probed` stay because they are stored in a stamp. `REMOTE` is used the way the other modules use it.
    - Scope: within F0057 (the working branch's name in code). It leaves out the stop `main_branch_failing`, as decision 6 says. The earlier tests it changes are named and covered by the human's leave of 2026-11-08.
+7. factory: started tests as vm.
