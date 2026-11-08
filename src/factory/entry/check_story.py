@@ -65,7 +65,7 @@ def _read_started(reader: WorkItemReader, text: str, folder: LifecycleFolder) ->
     except WorkItemFormatError as error:
         if error.fault != _NO_FRONT_MATTER:
             raise
-    # On main a started story is the human's moved file; its state lives on the
+    # On the working branch a started story is the human's moved file; its state lives on the
     # work item's branch, so it is checked as a specification.
     return _Read(document=reader.parse_specification(text), folder="backlog")
 

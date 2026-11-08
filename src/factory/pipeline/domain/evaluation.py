@@ -36,7 +36,7 @@ class EvaluationInput(BaseModel):
 
     definition: PipelineDefinition
     snapshots: list[WorkItemSnapshot]
-    main_commit: CommitId
+    work_commit: CommitId
     illegal_changes: list[IllegalChange] = []
     due: list[FeatureId] = []
 
@@ -102,7 +102,7 @@ def evaluate(
         or _human_signal(facts, waiting_pair, looked_up)
         or _agent_at_work(facts, pairs, claim_status)
         or _new_work(facts, pairs)
-        or Event(kind="idle", work_item=None, remote_state=facts.main_commit)
+        or Event(kind="idle", work_item=None, remote_state=facts.work_commit)
     )
 
 
@@ -112,7 +112,7 @@ def _duplicate(facts: EvaluationInput) -> Event | None:
         first = first_of.setdefault(snapshot.id, snapshot)
         if first is not snapshot:
             detail = f"{snapshot.id} at {first.path} and {snapshot.path}"
-            return _event("duplicate", first, facts.main_commit, detail=detail)
+            return _event("duplicate", first, facts.work_commit, detail=detail)
     return None
 
 
@@ -158,7 +158,7 @@ def _reject(
             f"stage changed from {change.from_stage} to {change.to_stage},"
             " which the pipeline definition does not allow"
         )
-        return _event("reject", snapshot, facts.main_commit, detail=detail)
+        return _event("reject", snapshot, facts.work_commit, detail=detail)
     return None
 
 
@@ -170,11 +170,11 @@ def _human_signal(
     if waiting_pair is None:
         return None
     snapshot, state = waiting_pair
-    main = facts.main_commit
+    work = facts.work_commit
     if looked_up is None:
-        return _event("ask", snapshot, main, detail="no pull request")
+        return _event("ask", snapshot, work, detail="no pull request")
     if isinstance(looked_up, HostingServiceError):
-        return _event("pull_request_lookup", snapshot, main, detail=str(looked_up))
+        return _event("pull_request_lookup", snapshot, work, detail=str(looked_up))
     view = looked_up.view
     kind, detail = _signal_of_observation(facts.definition, snapshot, state, looked_up)
     if kind is None:
@@ -182,10 +182,10 @@ def _human_signal(
             kind="idle",
             work_item=None,
             pull_request=view,
-            remote_state=main,
+            remote_state=work,
             detail=f"{snapshot.id} waits for the human",
         )
-    return _event(kind, snapshot, main, pull_request=view, detail=detail)
+    return _event(kind, snapshot, work, pull_request=view, detail=detail)
 
 
 def _signal_of_observation(
@@ -224,9 +224,9 @@ def _agent_at_work(
     status = claim_status(state)
     if status == "held" and state.claim is not None:
         detail = f"{snapshot.id} is held by {state.claim.instance}"
-        return Event(kind="idle", work_item=None, remote_state=facts.main_commit, detail=detail)
+        return Event(kind="idle", work_item=None, remote_state=facts.work_commit, detail=detail)
     kind = CLAIM_EVENTS.get(status)
-    return None if kind is None else _event(kind, snapshot, facts.main_commit)
+    return None if kind is None else _event(kind, snapshot, facts.work_commit)
 
 
 def _new_work(facts: EvaluationInput, pairs: _Pairs) -> Event | None:
@@ -248,13 +248,13 @@ def _new_work(facts: EvaluationInput, pairs: _Pairs) -> Event | None:
             kind="acceptance_due",
             work_item=None,
             feature=first,
-            remote_state=facts.main_commit,
+            remote_state=facts.work_commit,
             detail=f"acceptance of {first} is due",
         )
     snapshot, state = first
     if state.attempts >= definition.attempts_cap:
-        return _event("ask", snapshot, facts.main_commit, detail="attempts cap")
-    return _event("run", snapshot, facts.main_commit)
+        return _event("ask", snapshot, facts.work_commit, detail="attempts cap")
+    return _event("run", snapshot, facts.work_commit)
 
 
 def _due_order(feature: FeatureId) -> tuple[str, int, str]:
@@ -265,12 +265,12 @@ def _due_order(feature: FeatureId) -> tuple[str, int, str]:
 def _event(
     kind: EventKind,
     snapshot: WorkItemSnapshot,
-    main_commit: CommitId,
+    work_commit: CommitId,
     *,
     pull_request: PullRequestView | None = None,
     detail: str = "",
 ) -> Event:
-    remote_state = main_commit if snapshot.branch_commit is None else snapshot.branch_commit
+    remote_state = work_commit if snapshot.branch_commit is None else snapshot.branch_commit
     return Event(
         kind=kind,
         work_item=snapshot,

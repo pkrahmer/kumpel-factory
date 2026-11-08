@@ -33,7 +33,7 @@ class Watcher:
         Raises `GitError`, also when the working branch does not resolve, and `WorkItemFormatError`
         for a work item file that cannot be read.
         """
-        main_commit = self._main_commit()
+        work_commit = self._work_commit()
         boundaries = self._boundaries
         work_items = RemoteWorkItems(boundaries.git, boundaries.work_item_reader)
         acceptances = AcceptanceReader(boundaries, definition)
@@ -41,7 +41,7 @@ class Watcher:
         facts = EvaluationInput(
             definition=definition,
             snapshots=snapshots,
-            main_commit=main_commit,
+            work_commit=work_commit,
             illegal_changes=_illegal_changes(work_items, snapshots, definition),
             due=acceptances.due_features(),
         )
@@ -50,7 +50,7 @@ class Watcher:
         status_of = claims.observed_status if self._observer else claims.status
         return evaluate(facts, self._lookup, status_of)
 
-    def _main_commit(self) -> CommitId:
+    def _work_commit(self) -> CommitId:
         commit = self._boundaries.git.resolve(_WORK_REF)
         if commit is None:
             raise GitError(f"resolve {_WORK_REF}", None, f"{_WORK_REF} does not resolve")

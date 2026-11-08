@@ -165,24 +165,24 @@ def story_file_ids(names: Iterable[str]) -> list[WorkItemId]:
 
 def acceptance_status(files: FeatureFiles, reports: Sequence[ReportFacts]) -> AcceptanceStatus:
     """The status of the feature's acceptance from its folders and every report of it."""
-    on_main = [report for report in reports if not report.on_branch]
-    merged_ids = {report.id for report in on_main}
+    on_work_branch = [report for report in reports if not report.on_branch]
+    merged_ids = {report.id for report in on_work_branch}
     if any(report.on_branch and report.id not in merged_ids for report in reports):
         return "in_flight"
-    if any(report.state.stage != DONE_STAGE for report in on_main):
+    if any(report.state.stage != DONE_STAGE for report in on_work_branch):
         return "merged_unrecorded"
     archived = story_file_ids(files.done)
     if not archived or story_file_ids(files.backlog) or story_file_ids(files.in_progress):
         return "incomplete"
-    return _recorded_outcome(on_main, archived) or "due"
+    return _recorded_outcome(on_work_branch, archived) or "due"
 
 
 def _recorded_outcome(
-    on_main: Sequence[ReportFacts], archived: list[WorkItemId]
+    on_work_branch: Sequence[ReportFacts], archived: list[WorkItemId]
 ) -> AcceptanceOutcome | None:
     covering = [
         report
-        for report in on_main
+        for report in on_work_branch
         if set(report.state.stories) == set(archived) and report.state.outcome is not None
     ]
     if not covering:

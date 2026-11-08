@@ -99,13 +99,13 @@ class AcceptanceReader:
         directories = self._directories(_WORK_REF)
         paths = self._branch_report_paths(directories)
         # The working branch's path wins: a merged report not yet recorded is where it lies.
-        paths.update(self._main_report_paths(directories))
+        paths.update(self._work_report_paths(directories))
         return [
             self._snapshot(work_item, path)
             for work_item, path in sorted(paths.items(), key=lambda item: work_item_order(item[0]))
         ]
 
-    def _main_report_paths(self, directories: dict[FeatureId, str]) -> dict[WorkItemId, str]:
+    def _work_report_paths(self, directories: dict[FeatureId, str]) -> dict[WorkItemId, str]:
         paths: dict[WorkItemId, str] = {}
         for feature, directory in directories.items():
             for file_name in self._names(_WORK_REF, directory, "in-progress"):
@@ -188,7 +188,7 @@ class AcceptanceReader:
     ) -> FeatureAcceptance:
         files = self._files(feature, directory, _WORK_REF)
         reports = [
-            *self._main_reports(directory, files),
+            *self._work_reports(directory, files),
             *self._branch_reports(feature, directory, branches),
         ]
         return FeatureAcceptance(
@@ -199,7 +199,7 @@ class AcceptanceReader:
             next_acceptance=next_acceptance_id(feature, (report.id for report in reports)),
         )
 
-    def _main_reports(self, directory: str, files: FeatureFiles) -> list[ReportFacts]:
+    def _work_reports(self, directory: str, files: FeatureFiles) -> list[ReportFacts]:
         folders: list[tuple[LifecycleFolder, list[str]]] = [
             ("in-progress", files.in_progress),
             ("done", files.done),

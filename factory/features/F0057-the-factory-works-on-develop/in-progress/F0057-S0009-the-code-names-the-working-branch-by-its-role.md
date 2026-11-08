@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 652
 comments_read: [6716487122]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T03:06:31.800646Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -62,6 +58,12 @@ journal:
   kind: started
   at: '2026-11-08T03:06:31.800646Z'
   stage: doing
+- number: 10
+  speaker: coder
+  kind: result
+  at: '2026-11-08T03:13:26.567487Z'
+  stage: doing
+  run: c171b7441dea4f87bc4dc0e06b6a8370
 ---
 
 # The code names the working branch by its role
@@ -164,3 +166,25 @@ Expect: `0`
 
    `lint`: lint: green (0.1 s)
 9. factory: started doing as vm.
+10. coder: Renamed every identifier that said `main` for the working branch. The behaviour is unchanged. `make check` is green (test: green 108 s, check: green) and the smoke-test grep gives `0`.
+
+    What I built (paths):
+    - `src/factory/entry/wiring.py` and `src/factory/entry/run.py`: `stage_file_on_main` is now `stage_file_on_work_branch`. The private `_follow_main` in `run.py` is now `_follow_work_branch`, and the comment that names it is re-wrapped to fit the line limit.
+    - `src/factory/work/application/acceptance_reading.py`: `_main_report_paths` and `_main_reports` are now `_work_report_paths` and `_work_reports`.
+    - `src/factory/watching/application/watcher.py`: `_main_commit` is now `_work_commit`, and its local `main_commit` is now `work_commit`.
+    - `src/factory/pipeline/domain/evaluation.py`: `EvaluationInput.main_commit` is now `work_commit`, along with the parameter of the same name and the local `main`, which is now `work`. The watcher is the field's only other writer in `src/`.
+    - `src/factory/machine/application/preflight.py`: the locals and parameters named `main` are now `work`. The stamp fields `main_failed` and `main_probed` and the constant `_MAIN_FAILING` stay as they were.
+    - `src/factory/entry/check_story.py`: the comment now says "On the working branch".
+    - `src/factory/pipeline/application/handlers/hand_over.py` and `src/factory/pipeline/application/stage.py`: `origin/` is now built from `REMOTE`. In `hand_over.py` this also covers the branch side, `f"{REMOTE}/{snapshot.branch}"`, so the two halves of one call read alike.
+    - Beyond the Interface's list, three more renames were needed for the new guard to pass on the repository. Two are the ones the tester named: `on_main` became `on_work_branch` in `src/factory/pipeline/application/pipeline_loading.py` and `src/factory/work/domain/acceptance.py`. The third the tester did not name: the module constant `_MAIN` in `src/factory/hosting/application/opening.py` became `_WORK_REF`, the name the other eight modules use for the same value.
+
+    Main decision: I renamed by whole-word substitution, one file at a time, and kept to the names the Interface and the guard require. For the `_MAIN` constant I took the existing `_WORK_REF` name instead of a new one such as `_WORK_BRANCH_REF`. I rejected moving it into a shared constant, because that is a restructuring beyond this story.
+
+    Refactor pass: I read the diff. It is mechanical and needed nothing more.
+
+    Noticed, not touched:
+    - `_WORK_REF = f"{REMOTE}/{WORK_BRANCH}"` is defined again in nine modules: `tick`, `scheduler`, `preflight`, `work_items`, `acceptance`, `acceptance_reading`, `wiring`, `watcher`, and now `opening`. One shared constant in `factory.shared.domain.paths` would end the copies; that would be a story of its own.
+    - The docs criterion still has to be met by the documenter. `docs/project-guide/watching.md:13` names `main_commit`, and `docs/project-guide/machine.md:723,727,729` name `stage_file_on_main` and `_follow_main`. `docs/project-guide/pipeline.md:468` also names `_ProjectImageStart._follow_main`, though the docs criterion lists only `machine.md` and `watching.md`.
+
+    `check`: check: green
+    `duplicates`: duplicates: 6 new, 39 known, 4 gone
