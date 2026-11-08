@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 645
 comments_read: [6714658360, 6714963482]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-08T00:42:45.595373Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -187,6 +191,11 @@ journal:
   at: '2026-11-08T00:42:40.399141Z'
   stage: doing
   run: 54b59435261f4c9e870ac89c442a2148
+- number: 33
+  speaker: factory
+  kind: started
+  at: '2026-11-08T00:42:45.595373Z'
+  stage: tests
 ---
 
 # Kumpel works on develop and promotes accepted features to main
@@ -525,3 +534,4 @@ Expect: `off`
     Refactor: the diff is two lines and a comment. I found nothing to change.
 
     Noticed, not touched: nothing new. Criterion 5 in the Description already carries the reviewer's extension.
+33. factory: started tests as vm.
