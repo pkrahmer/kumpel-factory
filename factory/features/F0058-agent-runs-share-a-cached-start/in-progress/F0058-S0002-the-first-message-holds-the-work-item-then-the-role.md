@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 660
 comments_read: [6720878077, 6720941885, 6720981420]
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-08T11:36:33.658437Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -85,6 +81,12 @@ journal:
   kind: started
   at: '2026-11-08T11:36:33.658437Z'
   stage: tests
+- number: 14
+  speaker: tester
+  kind: result
+  at: '2026-11-08T11:37:17.727997Z'
+  stage: tests
+  run: c515dc5c38c748cc9303806059b98117
 ---
 
 # The first message holds the work item, then the role
@@ -282,3 +284,34 @@ Expect: the docstring names the order: the work item's body, the role's instruct
     **Run:** one run of the changed and created test files: the new and changed tests fail as failures, not collection errors, for example `test_task.py::test_the_request_names_the_round_cap_of_a_stage_that_has_one` and `test_task_acceptance.py`, because `PromptFacts` has no `body`, `role`, `role_instructions` or `round_cap` yet. Every module imported; nothing was missing. `make lint`: green. I skipped the type check, as the stage says.
 12. 2026-11-08 human: (b): only a call that starts a session gets the result block; a call with `--session` sends its prompt as it is. Keeping the per-run system-prompt file path as it is, holding the common text, is fine. OpenCode's configuration prompt: the coder decides, as long as it does not hold the role's instructions.
 13. factory: started tests as vm.
+14. tester: In entry 12 you chose (b): only a call that starts an OpenCode session gets the result block, and a call with `--session` sends its prompt as it is. The tests needed no change for that. The tests I wrote that use the result block (`opencode_message` in `tests/support/opencode_stand_in.py`, and the criterion 9 test) check only fresh calls. `tests/agents/adapters/test_opencode_resumed_words.py`, which is outside the leave, already checks the resumed side and stays as it is. You also said two things are fine: the per-run system-prompt file keeps its path, holding the common text, and the coder decides the OpenCode configuration prompt as long as it does not hold the role's instructions. The existing tests already match both, so this run changed no files.
+
+    Which test checks each criterion (criteria 12 and 13 are not the tester's):
+    - criterion 1: `tests/agents/domain/test_prompts.py::test_runs_of_different_roles_share_the_message_up_to_the_end_of_the_work_item` (the first message) and `tests/agents/adapters/test_claude_runtime.py::test_runs_of_different_roles_get_the_same_system_prompt` (the system prompt)
+    - criterion 2: `tests/agents/domain/test_prompts.py::test_a_new_journal_entry_keeps_the_earlier_work_item_part_as_a_prefix`
+    - criterion 3: `tests/agents/domain/test_prompts.py::test_the_message_holds_the_work_item_then_the_role_then_the_facts_one_blank_line_apart` and `tests/pipeline/application/test_task.py::test_the_message_starts_with_the_work_item_body_then_the_roles_instructions`
+    - criterion 4: `tests/agent_files/test_first_message_agent_files.py::test_the_system_prompt_names_both_blocks_and_what_each_one_is`
+    - criterion 5: `tests/agents/domain/test_prompts.py::test_a_marker_text_in_the_body_is_escaped_and_opens_no_block`
+    - criterion 6: `tests/agents/domain/test_prompts.py::test_a_body_without_a_marker_text_reaches_the_message_byte_for_byte`
+    - criterion 7: `tests/agents/domain/test_prompts.py::test_the_prompt_holds_the_facts_line_by_line_and_ends_with_the_end_line`
+    - criterion 8: `tests/agents/domain/test_prompts.py::test_the_round_line_names_the_stages_cap_when_it_has_one` and `tests/pipeline/application/test_task.py::test_the_request_names_the_round_cap_of_a_stage_that_has_one`. The `round_cap` limit is checked on both sides as rows of `test_prompt_facts_hold_their_limits_on_both_sides`: 0 is refused and 1 is accepted.
+    - criterion 9: `tests/agents/adapters/test_opencode_runtime.py::test_the_message_holds_the_work_item_then_the_role_then_the_facts_then_the_result_block`
+    - criterion 10: `tests/agents/application/test_patient_runs.py::test_a_resumed_run_gets_the_whole_message_again_then_the_word_to_continue`
+    - criterion 11: `tests/agent_files/test_first_message_agent_files.py::test_no_agent_file_reads_its_work_item_first_and_each_finds_it_in_the_first_message`
+
+    Files (all from earlier runs, already committed):
+    - Created: `tests/agent_files/test_first_message_agent_files.py`.
+    - Changed under the human's leave, keeping each test's name:
+      - `tests/agents/domain/test_prompts.py`
+      - `tests/pipeline/application/test_task.py`
+      - `tests/pipeline/application/test_task_acceptance.py`
+      - `tests/agents/adapters/test_claude_runtime.py`
+      - `tests/agents/adapters/test_opencode_runtime.py`
+      - `tests/agents/adapters/test_opencode_runtime_provider.py`
+      - `tests/machine/adapters/test_opencode_runtime_lockdown.py`
+      - `tests/agents/application/test_patient_runs.py`
+      - `tests/support/opencode_stand_in.py`
+
+    Run: one `uv run pytest -q` over the files above plus `test_opencode_resumed_words.py`. The new and changed tests fail as test failures, not collection errors. For example, the `test_task.py` and `test_task_acceptance.py` tests fail because `PromptFacts` has no `body`, `role`, `role_instructions` or `round_cap` yet. Every module imported; no module was missing. `make lint`: green. I skipped the type check, as the stage says.
+
+    `lint`: lint: green (0.1 s)
