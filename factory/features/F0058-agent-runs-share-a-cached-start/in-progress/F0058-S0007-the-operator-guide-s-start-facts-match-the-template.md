@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 667
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: docs-only
+  started_at: '2026-11-08T15:08:26.277981Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -47,6 +51,11 @@ journal:
   at: '2026-11-08T15:08:20.953552Z'
   stage: docs-review
   run: fb9e7e48afee4224ae03346d15cf16b3
+- number: 8
+  speaker: factory
+  kind: started
+  at: '2026-11-08T15:08:26.277981Z'
+  stage: docs-only
 ---
 
 # The operator guide's start facts match the template
@@ -112,3 +121,4 @@ Expect: `0`.
    2. `docs/operator-guide/pipeline.md:52` and `:63`: the YAML and make blocks show excerpts of `operator/template/factory/pipeline.yml` and `operator/template/Makefile`, but the text names those files only in backticks. Rule 8 of `docs/project-guide/style.md` says to link the file a code block shows once, above the block, with a relative link. Fix: link each template file once before its block, for example `[pipeline.yml](../../operator/template/factory/pipeline.yml)` and `[Makefile](../../operator/template/Makefile)`.
 
    Checked and found correct: the table's description of `facts-diff` (stat, then the whole diff, without `uv.lock`) and of `facts-changes` (name and status, then untracked files). The stage mapping matches `operator/template/factory/pipeline.yml:23-26`, and the three `time_limit: 1` values match `:10-12`. The `tests`, `doing` and `review` lines of the YAML example match the template. The `base_ref` and `facts-diff` recipe matches `operator/template/Makefile:128-133` exactly. No `develop...HEAD` remains in the section. The "project's own" paragraph meets criterion 3. The rules of start facts (order, the cut, `failed:`, the lease) are unchanged apart from the block name in the example.
+8. factory: started docs-only as vm.
