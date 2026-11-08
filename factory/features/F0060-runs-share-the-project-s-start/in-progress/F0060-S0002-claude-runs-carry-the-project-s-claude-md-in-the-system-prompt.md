@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: tests
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 679
 comments_read: [6727152793]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T21:09:20.447330Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -62,6 +58,12 @@ journal:
   kind: started
   at: '2026-11-08T21:09:20.447330Z'
   stage: doing
+- number: 10
+  speaker: coder
+  kind: result
+  at: '2026-11-08T21:09:31.683613Z'
+  stage: doing
+  run: 79126f0bc1c94dcaad634bd0f6c7669b
 ---
 
 # Claude runs carry the project's CLAUDE.md in the system prompt
@@ -160,3 +162,8 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    With your answer for (a) or (b), I end with `tests`, naming that change.
 8. 2026-11-08 human: (a). Leave granted: the tester adds `"CLAUDE_CODE_DISABLE_CLAUDE_MDS": "1"` and `"CLAUDE_CODE_PROMPT_CACHE_TTL": "5m"` to the local `SWITCHES` dict in `tests/agents/adapters/test_claude_runtime.py`; the test keeps its name and keeps pinning the values on its own.
 9. factory: started doing as vm.
+10. coder: Sent back to the tester with the human's leave from entry 8. The tester should add `"CLAUDE_CODE_DISABLE_CLAUDE_MDS": "1"` and `"CLAUDE_CODE_PROMPT_CACHE_TTL": "5m"` to the local `SWITCHES` dict at `tests/agents/adapters/test_claude_runtime.py:25`. `test_call_gets_only_the_requests_environment_and_the_switches` keeps its name and still pins the values itself.
+
+    I made no code change in this run. The implementation in `src/factory/agents/adapters/claude_runtime.py` from entry 7 is already on the branch. The human's answer changes no meaning of the task, so `## Description` stays as it is.
+
+    Once that test is updated I expect `make check` to be green, but that is not yet checked. Entry 7 is the last run: every target except `make test` was green, and `make test` failed only on this test.
