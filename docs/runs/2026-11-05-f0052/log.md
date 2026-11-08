@@ -299,3 +299,7 @@ Times are UTC. The plan: `night-plan.md`.
 - 15:46 UTC: F0058-A0004 (fourth acceptance) PR #670 merged: accepted, no stories ($1.11; feature 91 runs, $30.18). F0058 archived by hand.
 - 15:46 UTC: Promotion PR #671 (develop to main, F0058's 8 stories) merged as merge commit 54deba77e; develop is in main. F0058 done. Next: F0059 (each change is checked once), then one measurement run for both.
 - 15:47 UTC: F0059-S0001 (the coder starts from the tester's tests, and the guards that read the documents are marked) started.
+- 15:49 UTC: F0059-S0001 intake asked 3 questions on PR #672 (the extra -q, node ids, criterion 3 by the entry); answered as recommended.
+- 15:58 UTC: F0059-S0001 tester asked on PR #672 about tests/operator_scripts/test_operator_site_check.py; answered (a), mark the whole module; confirmed the two starting-list modules stay unmarked.
+- 16:06 UTC: F0059-S0001 coder asked on PR #672 about test_document_settings.py; answered (b), the one test moves to a new marked guard module.
+- 16:27 UTC: F0059-S0001 approved, PR #672 merged (13 runs, $6.02). F0059-S0002 (the smoke tester routes a red check) started.
