@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 673
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: smoke-test
+  started_at: '2026-11-08T16:40:40.584325Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -69,6 +73,11 @@ journal:
   at: '2026-11-08T16:40:35.526649Z'
   stage: docs
   run: 59967b1a9c414d57b8b5fa55a410d393
+- number: 12
+  speaker: factory
+  kind: started
+  at: '2026-11-08T16:40:40.584325Z'
+  stage: smoke-test
 ---
 
 # The smoke tester routes a red check
@@ -203,3 +212,4 @@ Expect: a count of 1 or more.
     `check`: check: green
     `secrets`: secrets: green (0.6 s)
     `documents`: documents ok (73.1 s)
+12. factory: started smoke-test as vm.
