@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 650
 comments_read: [6716086925]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T02:28:51.669464Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -97,6 +101,11 @@ journal:
   at: '2026-11-08T02:28:46.599717Z'
   stage: tests
   run: 0661c7e8e45746708c0630fe32784786
+- number: 17
+  speaker: factory
+  kind: started
+  at: '2026-11-08T02:28:51.669464Z'
+  stage: doing
 ---
 
 # promote.sh reuses an open promotion
@@ -250,3 +259,4 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
     Open: the factory dropped the coder's rewrite of criterion 4 in the Description (journal entry 14). The criterion still says "exits non-zero", while the test now checks exactly 22, as the Interface says. The documenter or the coder may want to bring the criterion's wording into line.
 
     `lint`: lint: green (0.2 s)
+17. factory: started doing as vm.
