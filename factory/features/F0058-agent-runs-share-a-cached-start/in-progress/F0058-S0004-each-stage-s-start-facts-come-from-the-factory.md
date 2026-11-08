@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 2
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 662
 comments_read: [6721852631, 6722094144]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T13:43:42.098989Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -167,6 +163,12 @@ journal:
   kind: started
   at: '2026-11-08T13:43:42.098989Z'
   stage: doing
+- number: 29
+  speaker: coder
+  kind: result
+  at: '2026-11-08T13:48:00.175114Z'
+  stage: doing
+  run: cf1b0ab878e34232807534891c3c278a
 ---
 
 # Each stage's start facts come from the factory
@@ -501,3 +503,17 @@ Expect: `True`
 
     `lint`: lint: green (0.2 s)
 28. factory: started doing as vm.
+29. coder: Changed no code this round. The tester's tests from entry 27 cover the two criteria the reviewer added in entry 23, and both pass on the code already in place:
+    - criterion 12: `tests/pipeline/application/test_stage_context.py::test_each_context_command_runs_under_its_own_time_limit`
+    - criterion 13: `tests/machine/application/test_recording_start_fact.py::test_a_start_fact_reaches_the_inner_commands_and_is_recorded`
+
+    I fixed the reviewer's finding 3 from entry 23, the class docstring of `ContainerMakeCommands`, in entry 25. So all three findings of entry 23 are now dealt with. `make check` is green (`check: green`, coverage 99.21 %).
+
+    Main choice: I handed the item straight to review rather than changing anything more. The new tests pass without code changes, and the round asks only for the findings of the latest entries. The alternative I rejected was another refactor pass. The diff has not changed since the refactor in entry 21, which found nothing to change.
+
+    Noticed, not touched: nothing new. `factory/pipeline.yml` stays at contract 1.0 for the human, and the docs are the documenter's.
+
+    `check`: check: green
+
+    `check`: check: green
+    `duplicates`: duplicates: 7 new, 39 known, 4 gone
