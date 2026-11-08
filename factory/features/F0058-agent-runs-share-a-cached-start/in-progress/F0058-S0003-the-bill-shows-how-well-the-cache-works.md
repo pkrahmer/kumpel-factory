@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 661
 comments_read: [6721548904]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T12:39:58.144958Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -53,6 +57,11 @@ journal:
   at: '2026-11-08T12:39:52.910706Z'
   stage: tests
   run: fc19fb322b7a4a6c8be5e7da9a9b5456
+- number: 9
+  speaker: factory
+  kind: started
+  at: '2026-11-08T12:39:58.144958Z'
+  stage: doing
 ---
 
 # The bill shows how well the cache works
@@ -142,3 +151,4 @@ Expect: the help names the cache figures and the hit rate.
    Run: `make test` fails only in tests/entry/test_bill_cache.py (all tests) and the four changed tests in tests/entry/test_bill.py. Each failure has the right cause: no `Cache:` line yet ("expected one cache line"), or `--help` is still read as an id. Every module imported; nothing failed to collect. `make lint` is green; I skipped the type check as the stage says.
 
    `lint`: lint: green (0.2 s)
+9. factory: started doing as vm.
