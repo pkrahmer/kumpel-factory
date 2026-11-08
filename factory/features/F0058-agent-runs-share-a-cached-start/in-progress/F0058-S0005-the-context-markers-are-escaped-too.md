@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 664
 comments_read: [6722586434]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T14:25:36.133642Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -128,6 +124,12 @@ journal:
   kind: started
   at: '2026-11-08T14:25:36.133642Z'
   stage: doing
+- number: 22
+  speaker: coder
+  kind: result
+  at: '2026-11-08T14:29:47.154435Z'
+  stage: doing
+  run: e28dc69e6f7645df88b3440b00abf27f
 ---
 
 # The context markers are escaped too
@@ -288,3 +290,19 @@ Expect: `1`
 
     `lint`: lint: green (0.2 s)
 21. factory: started doing as vm.
+22. coder: The tester made both changes from the review (entry 20), and `make check` is green again. It ends with `test: green (109.8 s)` and `check: green`, with total coverage at 99.21 %.
+
+    What I built: `_MARKER_TEXTS` in `src/factory/agents/domain/prompts.py:42` now also holds `"<context"` and `CONTEXT_CLOSE`. That change is already on the branch from an earlier run (bae1a49ee). `_escape_markers` applies the tuple to the body and to each start fact's whole text: its output, the cut line and the `failed:` line. The new criterion 6, the cut path, is therefore covered without any code change. I changed no code in this run.
+
+    Main choice: `<context` is escaped as a bare prefix, like the other markers, as the human decided in entry 8. Rejected: a matcher that escapes it only when `>` or whitespace follows.
+
+    Refactor: I read the diff again. It is two tuple entries, and nothing needs changing.
+
+    Description: the reviewer's added criterion 6 is already in it. The journal changed nothing else, so the Description stays as it is.
+
+    Noticed, not touched: nothing.
+
+    `check`: check: green
+
+    `check`: check: green
+    `duplicates`: duplicates: 7 new, 39 known, 4 gone
