@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 645
 comments_read: [6714658360]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T00:13:15.927683Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -71,6 +75,11 @@ journal:
   at: '2026-11-08T00:13:10.897505Z'
   stage: tests
   run: a471926f7dd547cc82b70826bbbd238a
+- number: 12
+  speaker: factory
+  kind: started
+  at: '2026-11-08T00:13:15.927683Z'
+  stage: doing
 ---
 
 # Kumpel works on develop and promotes accepted features to main
@@ -210,3 +219,4 @@ Expect: `off`
     Open (as in journal 8): `promote.sh` is tested against a git checkout of `develop`, not through the API's contents. The wording of the reset's line about `main` is the coder's choice.
 
     `lint`: lint: green (0.1 s)
+12. factory: started doing as vm.
