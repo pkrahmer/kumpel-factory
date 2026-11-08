@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 651
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: docs-review
+  started_at: '2026-11-08T02:51:31.988869Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -54,6 +58,11 @@ journal:
   at: '2026-11-08T02:51:26.584856Z'
   stage: docs-only
   run: e91c87c1abb444088753a187d26bb3d5
+- number: 9
+  speaker: factory
+  kind: started
+  at: '2026-11-08T02:51:31.988869Z'
+  stage: docs-review
 ---
 
 # The operator's documents on the archive, the promotion and the default branch
@@ -148,3 +157,4 @@ Expect: `documents ok (<seconds> s)`
    `check`: check: green
    `secrets`: secrets: green (0.6 s)
    `documents`: documents ok (59.1 s)
+9. factory: started docs-review as vm.
