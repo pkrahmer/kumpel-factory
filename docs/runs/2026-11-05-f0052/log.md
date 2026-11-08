@@ -264,3 +264,4 @@ Times are UTC. The plan: `night-plan.md`.
 - 02:42Z: F0057-S0007 PR #650 merged (11 runs, $2.24); promote.sh finds an open promotion and adds to it. No VM move. S0008, S0009 refined (leave given). F0057-S0008 (operator documents on archive, promotion and the default branch) started.
 - 03:01Z: F0057-S0008 PR #651 merged (docs route, 6 runs, $0.83). F0057-S0009 (the code names the working branch by its role) started.
 - 03:03Z: F0057-S0009 PR #652 asked 5 at intake. Answered as proposed except 2: bare main variables untested (guard too fragile), reviewer reads.
+- 03:24Z: F0057-S0009 PR #652 merged (9 runs, $2.15; the noqa is the renamed old line). Acceptance F0057-A0002 opened as PR #653; VM move waits until it is closed.
