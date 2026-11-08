@@ -1,5 +1,5 @@
 ---
-stage: docs-only
+stage: docs-review
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 665
 comments_read: [6722914653]
 handed_over: null
-claim:
-  instance: vm
-  stage: docs-only
-  started_at: '2026-11-08T14:48:31.214324Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -91,6 +87,12 @@ journal:
   kind: started
   at: '2026-11-08T14:48:31.214324Z'
   stage: docs-only
+- number: 15
+  speaker: documenter
+  kind: result
+  at: '2026-11-08T14:52:55.643729Z'
+  stage: docs-only
+  run: 152fbf2b0c5f4de788af5c825043628c
 ---
 
 # The operator guide says what keeps the cached start
@@ -170,3 +172,16 @@ Expect: at least one line in the section *A project's own agents*.
     Comment anything to retry: the attempts go back to 0 and the stage runs again. Close the pull request to discard the story instead: it goes back to the backlog as you wrote it, and its branch and bill are deleted.
 13. 2026-11-08 human: The human: the API key ran out; it is emptied, so the runs fall back to the subscription login. Retry.
 14. factory: started docs-only as vm.
+15. documenter: Round 1: the reviewer's four findings in `docs/operator-guide/agent-runtime.md` are already fixed on the branch. An earlier docs-only attempt made the edit before it stalled, and the factory kept it in commit `72fd429ab` ("docs-only stalled"). I checked that commit against each finding and made no further edit in this run:
+    1. Line 342: the anchor link is gone. It now reads "See *What a work item cost: `factory-bill`* in [records.md](records.md), and its part *The cache figures*." This follows style rule 8 and still meets criterion 2.
+    2. Line 340: "write paths" now links to `../project-guide/glossary.md`.
+    3. Line 340: the "safer" claim now reads "A smaller tool list does not limit what a role writes: its write paths do."
+    4. Lines 338, 340 and 342: the long sentences are split. The shipped values are now one sentence on the tools and model and two on the efforts. The condition sentence is split into "only under two conditions." plus the conditions. The cost sentence is split into three, and the `factory-bill` sentence into two.
+
+    Ran: both smoke-test greps. `cached start` counts 3, and `factory-bill` matches line 342, inside *A project's own agents*. `make documents` ended `documents ok (61.3 s)`. I did not run `make check` because only a document changed.
+
+    Cross-read and found current: `docs/operator-guide/records.md` (*What a work item cost: `factory-bill`*, *The cache figures*), and the rest of `agent-runtime.md` around *The models* and *The agent files* (example and its sentence at lines 316-326).
+
+    `check`: check: green
+    `secrets`: secrets: green (0.4 s)
+    `documents`: documents ok (61.7 s)
