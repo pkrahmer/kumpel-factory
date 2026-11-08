@@ -18,6 +18,8 @@ Tests, mirroring the files under `tests/agent_files/`: a new `tests/agent_files/
 
 Earlier tests this story changes: `tests/agent_files/test_claude_agent_texts_review_groups.py` (the strings `review_reads_the_diff` and `docs_review_reads_the_diff`, through which it rebuilds the earlier text of the reviewer) and `tests/agent_files/test_claude_agent_texts_docs_route.py` (`DOCS_DIFF` and the steps that quote it). `feature.md` gives no leave for them. The human gives it, or refuses it, when refining this story, and the leave's words then stand here.
 
+The human's leave for earlier tests: this story may change `tests/agent_files/test_claude_agent_texts_review_groups.py` (the strings `review_reads_the_diff` and `docs_review_reads_the_diff`) and `tests/agent_files/test_claude_agent_texts_docs_route.py` (`DOCS_DIFF` and the steps that quote it) as far as the reviewer's new wording needs, and nothing else in them.
+
 ## Acceptance criteria
 
 1. In `agents/agents/reviewer.md`, *Stage* step 1 and *docs-review* step 1 each name the `<context>` block as where the diff is. Each also names the three cases in which the reviewer runs the command itself: no block holds the diff, the block says `failed:`, or the block is cut. Each row checks one step for `<context>`, `failed:` and `cut`.

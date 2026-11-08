@@ -294,3 +294,4 @@ Times are UTC. The plan: `night-plan.md`.
 - 14:53 UTC: the next run (152fbf2b, documenter) completed under the login "subscription", as its cost record shows.
 - 15:02 UTC: F0058-A0002 (second acceptance) approved, PR #666 merged (feature 79 runs, $25.91, ~89 % cache hit). It proposed S0007 (the operator guide's start facts match the template, docs route), started now.
 - 15:15 UTC: F0058-S0007 (the operator guide's start facts match the template) approved, PR #667 merged (5 runs, $1.29). A0003 next; cosmetic proposals stay in the backlog (planning/later-topics.md).
+- 15:23 UTC: F0058-A0003 (third acceptance) approved, PR #668 merged ($1.82; feature 84 runs, $27.20). Its one proposal, S0008 (the reviewer starts from its start facts), closes a gap in the goal (the reviewer still ran the diff itself), so it started, with leave for the two tests it names.
