@@ -280,3 +280,5 @@ Times are UTC. The plan: `night-plan.md`.
 - 11:20 F0058-S0001 merged (PR #659, 15 runs, $3.21), VM moved; S0002 got a test leave and started
 - 11:21 F0057 time split measured (journals and cost records), added to the e2e eval
 - 12:32 F0058-S0002 merged (PR #660, 17 runs, $9.03), VM moved; S0003 got a test leave and started
+
+- 13:01 UTC: F0058-S0003 (the bill shows how well the cache works) approved, PR #661 merged (11 runs, $2.77), archived as b8ee6fbfe. F0058-S0004 (each stage's start facts come from the factory) started, with a leave for 17 earlier tests.

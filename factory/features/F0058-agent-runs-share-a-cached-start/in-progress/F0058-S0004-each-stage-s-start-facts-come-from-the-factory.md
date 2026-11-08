@@ -27,6 +27,15 @@ The commands are project commands, so the project decides what they show; the fa
 - A stage without `context` gets a message as before.
 - The pipeline definition's version rule applies to the new key (`docs/decisions.md`).
 
+The human's leave for earlier tests: this story may change these earlier tests where they pin the first message, the stage keys, the loading of the pipeline definition, or what runs in the check container before the agent, and only there:
+- `tests/agents/domain/test_prompts.py`, `tests/support/first_message_support.py`
+- `tests/pipeline/application/test_task.py`, `tests/pipeline/application/test_task_acceptance.py`
+- `tests/pipeline/domain/test_pipeline_definition.py`, `tests/support/definition_support.py`
+- `tests/pipeline/application/test_pipeline_loading.py`, `tests/pipeline/application/test_pipeline_loading_rules.py`, `tests/pipeline/application/test_pipeline_loading_strict_values.py`
+- `tests/pipeline/adapters/test_pipeline_yaml.py`, `tests/pipeline/adapters/test_pipeline_rules.py`, `tests/pipeline/adapters/test_pipeline_strict_values.py`
+- `tests/pipeline/application/test_stage_environment_calls.py`, `tests/pipeline/application/test_stage_on_container_fakes.py`, `tests/support/tick_support.py`
+- `tests/agent_files/test_claude_files.py`, `tests/agent_files/test_template_sync.py` (for the system prompt's new sentence)
+
 ## Acceptance criteria
 
 1. A stage with `context: [a, b]` gets a first message with the block of `a`, then the block of `b`, after the `<role-instructions>` block and before the run's facts (rows of one test).
