@@ -1,3 +1,30 @@
+---
+stage: intake
+blocked: null
+round: 0
+attempts: 0
+crashes: 0
+pull_request: null
+comments_read: []
+handed_over: null
+claim:
+  instance: vm
+  stage: intake
+  started_at: '2026-11-08T19:45:08.268924Z'
+  lease_duration: 60
+journal:
+- number: 1
+  speaker: human
+  kind: created
+  at: '2026-11-08T19:45:08.261833Z'
+  stage: intake
+- number: 2
+  speaker: factory
+  kind: started
+  at: '2026-11-08T19:45:08.268924Z'
+  stage: intake
+---
+
 # The rules every role shares stand in the system prompt
 
 ## Description
@@ -48,3 +75,6 @@ uv run pytest tests/agent_files/test_shared_rules_system_prompt.py
 Expect: a summary line with only `passed`, no `failed` or `error`.
 
 ## Journal
+
+1. 2026-11-08 human: created.
+2. factory: started intake as vm.
