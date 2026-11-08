@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 673
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: review
+  started_at: '2026-11-08T16:34:37.622892Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -47,6 +51,11 @@ journal:
   at: '2026-11-08T16:34:32.421383Z'
   stage: doing
   run: adf4838702014cb89cc7b3c0cc766ac1
+- number: 8
+  speaker: factory
+  kind: started
+  at: '2026-11-08T16:34:37.622892Z'
+  stage: review
 ---
 
 # The smoke tester routes a red check
@@ -142,3 +151,4 @@ Expect: a count of 1 or more.
 
    `check`: check: green
    `duplicates`: duplicates: 7 new, 39 known, 4 gone
+8. factory: started review as vm.
