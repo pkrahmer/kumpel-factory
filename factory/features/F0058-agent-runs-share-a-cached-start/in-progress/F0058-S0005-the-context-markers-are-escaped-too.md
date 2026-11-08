@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 664
 comments_read: [6722586434]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-08T14:24:46.719321Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -108,6 +112,11 @@ journal:
   at: '2026-11-08T14:24:41.723326Z'
   stage: doing
   run: ffcf1f4181344202b329e92f9380926b
+- number: 19
+  speaker: factory
+  kind: started
+  at: '2026-11-08T14:24:46.719321Z'
+  stage: tests
 ---
 
 # The context markers are escaped too
@@ -247,3 +256,4 @@ Expect: `1`
     Description: the reviewer already added criterion 6, and the journal changed nothing else about the task, so the Description stays as it is.
 
     Noticed, not touched: nothing.
+19. factory: started tests as vm.
