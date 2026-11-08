@@ -1,5 +1,5 @@
 ---
-stage: docs
+stage: smoke-test
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 678
 comments_read: [6726852112, 6726967345]
 handed_over: null
-claim:
-  instance: vm
-  stage: docs
-  started_at: '2026-11-08T20:54:16.565731Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -197,6 +193,12 @@ journal:
   kind: started
   at: '2026-11-08T20:54:16.565731Z'
   stage: docs
+- number: 34
+  speaker: documenter
+  kind: result
+  at: '2026-11-08T20:57:51.704031Z'
+  stage: docs
+  run: 84729ca4d2f4418192bfcaa597f1593d
 ---
 
 # The rules every role shares stand in the system prompt
@@ -574,3 +576,21 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     Comment anything to retry: the attempts go back to 0 and the stage runs again. Close the pull request to discard the story instead: it goes back to the backlog as you wrote it, and its branch and bill are deleted.
 32. 2026-11-08 human: Retry. The package index is fast again at the moment (a cold `uv run` took 3 to 5 s at 21:55 UTC; 70 to 99 s at other times this evening).
 33. factory: started docs as vm.
+34. documenter: Round 1 docs, fourth run, after the human's retry in entry 32. I changed no files in this run. The docs from entry 23 still meet criterion 9, and I checked them again on the branch:
+    - `docs/operator-guide/agent-runtime.md:328,334,359`: the rules every role shares stand once, in the `## Rules` section of the agent home's `system-prompt.md`. An agent file holds only its role's own instructions, and a project agent copied from an earlier shipped file may drop its `## Rules` section.
+    - `docs/project-guide/agents.md:30,284,289,356`: the shared rules stand in the system prompt and in no agent file, and `SYSTEM_PROMPT` equals the shipped file byte for byte.
+    - `docs/decisions.md`: only the introduction changed, as in entry 23. There is no new entry, so no "Why" or "Rejected" line was written.
+
+    `make documents` is now green and ended with `documents ok (118.0 s)`. Its only other output was the usual `not run (vm)` / `not run (suite)` lines for `install.md:27,35`, `records.md:53` and `pipeline.md:142`. The red runs in entries 23 to 30 timed out because the package index was slow, as the human said in entry 27 (F0061 holds the fix). This run did not time out.
+
+    I did not run `make check`, because this run changed no files and the earlier runs changed only documents.
+
+    Cross-read and found current: the rest of `docs/operator-guide/agent-runtime.md` and of `docs/project-guide/agents.md`, `docs/project-guide/style.md`, and `README.md`.
+
+    Stale text noticed that is not mine to fix: none.
+
+    Findings: none.
+
+    `guides`: guides: green (10.0 s)
+    `secrets`: secrets: green (2.2 s)
+    `documents`: documents ok (65.8 s)
