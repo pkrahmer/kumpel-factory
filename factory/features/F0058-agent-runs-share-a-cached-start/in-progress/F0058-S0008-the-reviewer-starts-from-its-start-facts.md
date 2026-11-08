@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 669
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: docs
+  started_at: '2026-11-08T15:31:04.611746Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -58,6 +62,11 @@ journal:
   at: '2026-11-08T15:30:59.535842Z'
   stage: review
   run: e7f538f354544572b2cba7b93506e0c6
+- number: 10
+  speaker: factory
+  kind: started
+  at: '2026-11-08T15:31:04.611746Z'
+  stage: docs
 ---
 
 # The reviewer starts from its start facts
@@ -159,3 +168,4 @@ Expect: a line ending in `passed` with no `failed`.
 
    Earlier tests:
    - tests/agent_files/test_claude_agent_texts_review_groups.py: the human's leave written in the story's Interface ("may change ... the strings `review_reads_the_diff` and `docs_review_reads_the_diff` ... as far as the reviewer's new wording needs"). The tester made `review_reads_the_diff` a regex over the whole of step 1. It also had to rewrite its replacement partner `review_reads_both` and move that `.sub` to the front of the chain. The new wording differs from the earlier text over a longer stretch, so the old pair could not rebuild it. I judge both changes within "as far as the reviewer's new wording needs". The CRC test still checks the same earlier body.
+10. factory: started docs as vm.
