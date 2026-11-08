@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 659
 comments_read: [6720500729, 6720585535]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T11:00:33.105592Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -114,6 +118,11 @@ journal:
   at: '2026-11-08T11:00:27.645324Z'
   stage: review
   run: 6491af38877846cdb5e08a92324b6933
+- number: 20
+  speaker: factory
+  kind: started
+  at: '2026-11-08T11:00:33.105592Z'
+  stage: doing
 ---
 
 # Every role has the same tools and the same decision tool
@@ -296,3 +305,4 @@ Expect: exactly one line, `model: opus`
     Earlier tests:
     - `tests/agents/adapters/test_claude_runtime.py` (`test_json_schema_asks_for_an_allowed_decision_and_an_entry`): the human's leave in criterion 4 ("an earlier test may change only in how it builds the schema"). Only the expected `decision` property changed.
     - `tests/support/shipped_agents.py`: none; see finding 1.
+20. factory: started doing as vm.
