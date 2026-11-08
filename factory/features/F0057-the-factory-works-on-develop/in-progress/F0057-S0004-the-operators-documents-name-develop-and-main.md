@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 646
 comments_read: [6715370076]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: intake
+  started_at: '2026-11-08T01:03:42.716682Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -30,6 +34,11 @@ journal:
   speaker: human
   kind: comment
   at: '2026-11-08T01:03:40.357080Z'
+  stage: intake
+- number: 5
+  speaker: factory
+  kind: started
+  at: '2026-11-08T01:03:42.716682Z'
   stage: intake
 ---
 
@@ -76,3 +85,4 @@ Expect: `documents ok (<seconds> s)`
 
    Everything else is accepted as written. The smoke test is runnable and its Expect line is checkable. The docs criterion names what the reader must know and dictates no sentences. The story is within F0057's scope.
 4. 2026-11-08 human: 1. Yes. 2. Yes, split criterion 3 into (a), (b) and (c) as you wrote them.
+5. factory: started intake as vm.
