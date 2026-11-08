@@ -1,5 +1,5 @@
 ---
-stage: docs-approval
+stage: done
 blocked: null
 round: 1
 attempts: 0
@@ -69,6 +69,11 @@ journal:
   at: '2026-11-08T15:13:20.965010Z'
   stage: docs-review
   run: 71b3b2066fd84ebb8b6115185a6e1501
+- number: 12
+  speaker: factory
+  kind: done
+  at: '2026-11-08T15:15:12.325343Z'
+  stage: docs-approval
 ---
 
 # The operator guide's start facts match the template
@@ -159,3 +164,4 @@ Expect: `0`.
     - Smoke greps: the `facts-*` names are counted at least 3 times, and `develop...HEAD` 0 times.
 
     A borderline point, which I did not count as a finding: line 52 says "Each leaves out the factory's own files under `factory/`". The untracked-file half of `facts-changes` (`git ls-files --others --exclude-standard`, `Makefile:136`) has no `':!factory'` pathspec. The start facts run on the rolled-back base, which normally has no untracked files, so the sentence holds in practice. The round 1 reviewer also accepted it.
+12. factory: done (pull request merged); cost: 5 runs, 4.0 min, 25 turns, 122181 tokens in (422975 more from cache), 11191 out, $1.29
