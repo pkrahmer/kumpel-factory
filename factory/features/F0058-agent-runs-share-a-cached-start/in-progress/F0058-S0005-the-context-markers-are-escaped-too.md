@@ -1,17 +1,13 @@
 ---
 stage: doing
-blocked: null
+blocked: question
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 664
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T14:10:57.265068Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -45,6 +41,13 @@ journal:
   kind: started
   at: '2026-11-08T14:10:57.265068Z'
   stage: doing
+- number: 7
+  speaker: coder
+  kind: question
+  at: '2026-11-08T14:13:30.500366Z'
+  stage: doing
+  run: b69aab1718194d759776f186d5fababc
+  blocked: question
 ---
 
 # The context markers are escaped too
@@ -109,3 +112,17 @@ Expect: `1`
 
    `lint`: lint: green (0.2 s)
 6. factory: started doing as vm.
+7. coder: Question: one test contradicts the Interface. Which way should it be fixed?
+
+   What I built: I added `"<context"` and `CONTEXT_CLOSE` to `_MARKER_TEXTS` in `src/factory/agents/domain/prompts.py:42`. `_escape_markers` already applies that tuple to the body and to each start fact's text (output, cut line and `failed:` line), so nothing else needed to change. This change is in the working tree.
+
+   Result of `make check`: everything ran up to `make test`, and that failed on one test. The criterion 1, 2, 3 and 5 tests pass, and so does the `plain` row of criterion 4. The failure:
+   `FAILED tests/agents/domain/test_prompts_context_markers.py::test_a_text_without_a_marker_reaches_the_message_byte_for_byte[near] - assert '<work-item>\n# Demo\n\nA <context-free> <div> and </contex...`
+
+   The contradiction: the Interface names the marker text `<context`, a bare prefix like `<work-item` and `<role-instructions`, which are escaped wherever they appear. The `near` row's text `# Demo\n\nA <context-free> <div> and </contexts ümlaut.\n` holds `<context` (inside `<context-free>`). It is not a text "without any of the six marker texts" (criterion 4), so the Interface requires it to become `&lt;context-free>`. The test expects it unchanged. Its other near-misses (`</contexts`, `<div>`, the umlaut) are fine, because none of them holds `</context>` or `<context`.
+
+   Options:
+   A. (my choice) Keep the Interface as written. The human gives leave for the tester to replace `<context-free>` in the `near` row with a text that holds no marker, such as `<contex>` or `context-free`. Then I end with `tests`, and the tester makes exactly that change. This matches the existing four markers, which are also escaped as prefixes (`<work-item-x` is escaped today).
+   B. Change the Interface so that `<context` counts only when `>` or whitespace follows it, and implement that matcher. I would reject this: it makes one marker behave differently from the other four, and an over-escaped `&lt;context-free>` costs the agent nothing.
+
+   Noticed, not touched: I did not refactor anything; the change is the two added tuple entries.
