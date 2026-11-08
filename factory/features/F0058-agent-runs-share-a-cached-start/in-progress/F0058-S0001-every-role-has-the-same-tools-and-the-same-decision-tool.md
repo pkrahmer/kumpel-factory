@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 659
 comments_read: [6720500729, 6720585535, 6720667293]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: review
+  started_at: '2026-11-08T11:08:29.408868Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -164,6 +168,11 @@ journal:
   at: '2026-11-08T11:08:24.380590Z'
   stage: doing
   run: 6ca378092de3412d91b33cef0fe9d269
+- number: 29
+  speaker: factory
+  kind: started
+  at: '2026-11-08T11:08:29.408868Z'
+  stage: review
 ---
 
 # Every role has the same tools and the same decision tool
@@ -418,3 +427,4 @@ Expect: exactly one line, `model: opus`
 
     `check`: check: green
     `duplicates`: duplicates: 6 new, 39 known, 4 gone
+29. factory: started review as vm.
