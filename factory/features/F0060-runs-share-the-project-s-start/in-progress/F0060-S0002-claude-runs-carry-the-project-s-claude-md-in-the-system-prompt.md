@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 679
 comments_read: [6727152793, 6727304331]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: review
+  started_at: '2026-11-08T21:23:36.707945Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -169,6 +173,11 @@ journal:
   at: '2026-11-08T21:23:31.618730Z'
   stage: doing
   run: 65d72856a1604ce7acc0474deccdac37
+- number: 30
+  speaker: factory
+  kind: started
+  at: '2026-11-08T21:23:36.707945Z'
+  stage: review
 ---
 
 # Claude runs carry the project's CLAUDE.md in the system prompt
@@ -417,3 +426,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     Noticed but not touched: entry 24's note that `_on_the_host` and `_in_a_container` in the test file rebuild the runtime instead of using `_runtime`. That is a test matter, and it was only a note.
 
     `duplicates`: duplicates: 7 new, 39 known, 4 gone
+30. factory: started review as vm.
