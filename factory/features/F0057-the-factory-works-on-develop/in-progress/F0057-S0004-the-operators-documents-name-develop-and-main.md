@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 646
 comments_read: [6715370076, 6715449873]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T01:11:25.936867Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -90,6 +86,12 @@ journal:
   kind: started
   at: '2026-11-08T01:11:25.936867Z'
   stage: doing
+- number: 15
+  speaker: coder
+  kind: result
+  at: '2026-11-08T01:16:56.121489Z'
+  stage: doing
+  run: 6067e4ffa80b427a9d0302a90a7c4c39
 ---
 
 # The operator's documents name develop and main
@@ -232,3 +234,20 @@ Expect: `documents ok (<seconds> s)`
 
     `lint`: lint: green (0.1 s)
 14. factory: started doing as vm.
+15. coder: I removed `promote` and `promoted` from `GLOSSARY_FORBIDDEN` in `src/factory/shared/domain/documents.py`, as the human decided in journal entry 11. That is the only code change. The other sixteen v1 words stay, in their order.
+
+    **Checks**
+    - `make test` passes, including `tests/shared/domain/test_documents_promotion_words.py` and the renamed `test_the_v1_words_are_the_sixteen_in_their_order`.
+    - `make documents` now ends `documents ok (58.2 s)` on the documenter's `install.md`.
+    - `make check` ends `check: green`.
+
+    **Choice:** I removed both words from the list. The alternative was an exemption for just the switch's name, written `` `promote` ``. I rejected it because the human's answer asks for both words to go, and because "promoted to main" is now a real term: it is in the pull request title that `promote.sh` writes.
+
+    **Refactor:** the change is two deleted lines, so nothing needed changing.
+
+    **What the journal changed in the task:** the work now includes this one code change and the pinned-list test changed with the human's leave, and the new criterion is that `promote` and `promoted` are no longer v1 words. The tester's rewrite of `## Description` was left out by the factory because it is outside the tester's write paths. I did not rewrite the Description either. It still says "It changes no code and no test", so the reviewer should read it together with journal entries 11 and 13.
+
+    **Noticed, not touched:** `tests/agent_files/test_claude_agent_texts.py:144` still forbids `promote` in the agent files. The human said to leave it as it is.
+
+    `check`: check: green
+    `duplicates`: duplicates: 6 new, 39 known, 4 gone
