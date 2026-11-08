@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 662
 comments_read: [6721852631, 6722094144]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-08T13:30:15.525909Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -103,6 +107,11 @@ journal:
   at: '2026-11-08T13:30:10.198658Z'
   stage: doing
   run: f92d504ae4c24d50a2e7b46a78d38870
+- number: 18
+  speaker: factory
+  kind: started
+  at: '2026-11-08T13:30:15.525909Z'
+  stage: tests
 ---
 
 # Each stage's start facts come from the factory
@@ -316,3 +325,4 @@ Expect: `True`
     What the journal changed in the task: entry 15 says criterion 8's "the operator template alike" is void. The sentence in `agents/system-prompt.md` and in the fallback `SYSTEM_PROMPT` is enough. I left the Description unchanged; criterion 8's test already covers those two.
 
     Noticed, not touched: once `start_fact` is in place, `whole_output` and the `isinstance` downcast in `src/factory/pipeline/domain/checks.py` go away, and `CommandOutput` stays as the operation's return type. That is my change for the next round.
+18. factory: started tests as vm.
