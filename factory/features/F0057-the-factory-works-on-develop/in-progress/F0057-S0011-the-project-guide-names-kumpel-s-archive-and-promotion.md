@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 655
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: docs-only
+  started_at: '2026-11-08T07:27:14.558846Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -25,6 +29,11 @@ journal:
   at: '2026-11-08T07:27:09.848613Z'
   stage: intake
   run: 6a67ad7f02e942f89a1d8eb02fb5f57c
+- number: 4
+  speaker: factory
+  kind: started
+  at: '2026-11-08T07:27:14.558846Z'
+  stage: docs-only
 ---
 
 # The project guide names Kumpel's archive and promotion
@@ -82,3 +91,4 @@ Expect: `documents ok (<seconds> s)`
    - Docs criterion: it names what the reader must know (the scripts, their refusals, the commit helper, where the tests and helpers are) and dictates no sentences.
    - Architecture: the Interface changes only a document that the documenter may write, so the story takes the docs route. No code or test changes.
    - Scope: F0057 adds this documentation as a follow-up to its second acceptance. It is not in the feature's "Out of scope" list.
+4. factory: started docs-only as vm.
