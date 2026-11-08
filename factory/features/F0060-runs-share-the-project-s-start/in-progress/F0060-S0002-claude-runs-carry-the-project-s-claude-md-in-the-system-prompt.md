@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 679
 comments_read: [6727152793]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T21:17:33.504536Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -119,6 +123,11 @@ journal:
   at: '2026-11-08T21:17:28.417590Z'
   stage: tests
   run: f68d3ef5413442f1a9837a258ac2d0fb
+- number: 21
+  speaker: factory
+  kind: started
+  at: '2026-11-08T21:17:33.504536Z'
+  stage: doing
 ---
 
 # Claude runs carry the project's CLAUDE.md in the system prompt
@@ -295,3 +304,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     `lint`: lint: green (0.2 s)
 
     `lint`: lint: green (0.2 s)
+21. factory: started doing as vm.
