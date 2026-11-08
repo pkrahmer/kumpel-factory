@@ -1,17 +1,13 @@
 ---
 stage: intake
-blocked: null
+blocked: question
 round: 0
 attempts: 0
 crashes: 0
-pull_request: null
+pull_request: 646
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: intake
-  started_at: '2026-11-08T00:59:32.605075Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -23,6 +19,13 @@ journal:
   kind: started
   at: '2026-11-08T00:59:32.605075Z'
   stage: intake
+- number: 3
+  speaker: intake
+  kind: question
+  at: '2026-11-08T00:59:49.265142Z'
+  stage: intake
+  run: 666d05e36618439fa27c8bb4c515b704
+  blocked: question
 ---
 
 # The operator's documents name develop and main
@@ -60,3 +63,10 @@ Expect: `documents ok (<seconds> s)`
 
 1. 2026-11-08 human: created.
 2. factory: started intake as vm.
+3. intake: Questions (the format check passed; the Interface, scope, architecture and route are fine, but two Interface behaviours have no criterion):
+
+   1. The Interface says `install.md` states that the preflight names a missing `origin/develop`. Criterion 2 only covers "create `develop` from `main`". Should criterion 2 also require that `install.md` says the preflight names a missing `origin/develop`? I would choose yes: extend criterion 2.
+
+   2. The Interface lists several separate behaviours of the promotion section: the ruleset blocks force pushes and deletion, the promotion is a merge commit, it runs behind the switch `promote`, Kumpel archives the feature first, and `main` is never fixed directly (a fix goes to `develop`). Criterion 3 says only "how to protect `main`, why zero approvals, how a feature reaches `main`". Each stated behaviour needs its own checkable criterion, or the documenter and reviewer will read criterion 3 two ways. I would choose to split criterion 3 into: (a) protecting `main`, with the ruleset's three rules and why zero approvals; (b) promotion after acceptance, as a merge commit behind the switch `promote`, after Kumpel archives the feature; (c) `main` is never fixed directly.
+
+   Everything else is accepted as written. The smoke test is runnable and its Expect line is checkable. The docs criterion names what the reader must know and dictates no sentences. The story is within F0057's scope.
