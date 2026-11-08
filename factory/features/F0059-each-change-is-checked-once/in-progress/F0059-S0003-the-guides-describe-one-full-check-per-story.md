@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 675
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: docs-review
+  started_at: '2026-11-08T17:04:05.284784Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -58,6 +62,11 @@ journal:
   at: '2026-11-08T17:03:57.430522Z'
   stage: docs-only
   run: fede1f6a1ac94234b8c375f389853fcb
+- number: 10
+  speaker: factory
+  kind: started
+  at: '2026-11-08T17:04:05.284784Z'
+  stage: docs-review
 ---
 
 # The guides describe one full check per story
@@ -191,3 +200,4 @@ Expect: `0`
    `guides`: guides: green (9.7 s)
    `secrets`: secrets: green (0.5 s)
    `documents`: documents ok (63.4 s)
+10. factory: started docs-review as vm.
