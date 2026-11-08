@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: tests
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 660
 comments_read: [6720878077, 6720941885, 6720981420, 6721183670]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T11:58:17.530901Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -113,6 +109,12 @@ journal:
   kind: started
   at: '2026-11-08T11:58:17.530901Z'
   stage: doing
+- number: 19
+  speaker: coder
+  kind: result
+  at: '2026-11-08T11:58:53.761737Z'
+  stage: doing
+  run: c8a94ea2d82c4be5aa7044df4f0eaf48
 ---
 
 # The first message holds the work item, then the role
@@ -388,3 +390,17 @@ Expect: the docstring names the order: the work item's body, the role's instruct
     Refactor: one small change, `_MARKER_TEXTS` reuses the close-marker constants. Nothing else needed.
 17. 2026-11-08 human: (a): leave given for `tests/agent_files/test_claude_agent_texts_review_groups.py`. The tester adds `.replace(<new text>, <old text>)` to `earlier` for your three reviewer edits, and the CRC-32 pin stays. And yes to the change of `test_shipped_agents_effect.py::test_instructions_file_holds_the_agent_body`: it checks that the file holds the common system prompt and that the role's body is in the first message instead, keeping its name.
 18. factory: started doing as vm.
+19. coder: In entry 17 the human gave leave for two test changes, so I'm handing back to the tester. I changed no code in this run. The code from the last doing run is committed and stays as it is: `src/factory/agents/domain/prompts.py`, `src/factory/pipeline/application/task.py`, `src/factory/agents/adapters/agent_launch.py`, `claude_runtime.py`, `opencode_runtime.py`, `src/factory/agents/application/provider_limits.py`, `src/factory/entry/wiring.py`, `agents/system-prompt.md` and `agents/agents/*.md`.
+
+    The tester makes these two changes:
+
+    1. `tests/agent_files/test_claude_agent_texts_review_groups.py::test_the_rest_of_the_reviewer_body_is_unchanged`: add three `.replace(<new text>, <old text>)` calls to `earlier`, one for each edit to `agents/agents/reviewer.md`. `_EARLIER_BODY_CRC32` stays as it is. The three edits:
+       - (i) R6 gains the sentence ` The work item itself, from its title to the end of its journal, is in your first message, in the `<work-item>` block, so you do not read it before you start; read its file again only for text you changed during the run.` (it starts with a space). Replace it with "".
+       - (ii) Review stage, step 1. Replace `the work item in the first message is the only other input. Read the diff in your first command: its `--stat`, and the diff` with `the work item is the only other input. Read both in your first command: the work item, the diff's `--stat`, and the diff`.
+       - (iii) `docs-review`, step 1. Replace `1. Read `git diff develop...HEAD -- README.md docs operator/README.md` in your first command. The work item is in your first message. Nothing else is under review.` with `1. Read the work item and `git diff develop...HEAD -- README.md docs operator/README.md` in your first command. Nothing else is under review.`
+       `git diff develop -- agents/agents/reviewer.md` shows the exact text.
+    2. `tests/agents/adapters/test_shipped_agents_effect.py::test_instructions_file_holds_the_agent_body` (all 7 rows): keep the name. The test checks that the file after `--append-system-prompt-file` holds the common system prompt and not the role's body, and that the role's body is in the first message inside `<role-instructions role="<role>">`. At an agent home installed by the test, the common prompt is the contents of `agents/system-prompt.md`. Where no file is given, the runtime falls back to `factory.agents.domain.prompts.SYSTEM_PROMPT`, which holds the same text.
+
+    Description: unchanged. The journal changed only which tests may change.
+
+    `make check` was not run in this run because nothing changed since the last doing run. That run was green apart from the 8 rows of the two tests above. Last run's main choice still holds: the common text reaches the runtimes through a `system_prompt_file` keyword with a built-in fallback, rather than a field on `AgentDefinition`. Noticed in the last run and not touched: the common text exists twice, in `SYSTEM_PROMPT` and in `agents/system-prompt.md`, and the operator guide should tell operators to install the new file.
