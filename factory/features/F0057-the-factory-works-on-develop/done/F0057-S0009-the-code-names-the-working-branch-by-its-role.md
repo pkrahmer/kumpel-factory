@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 1
 attempts: 0
@@ -119,6 +119,11 @@ journal:
   at: '2026-11-08T03:22:04.754523Z'
   stage: smoke-test
   run: f5e7bca9182a4f5b894a8023caa1aa70
+- number: 21
+  speaker: factory
+  kind: done
+  at: '2026-11-08T03:22:53.801888Z'
+  stage: approval
 ---
 
 # The code names the working branch by its role
@@ -367,3 +372,4 @@ Expect: `0`
     - Criteria 1, 3 and 5 are covered by `make check`, which the factory ran green after the docs stage (entry 18). I did not run it again: this stage changed nothing.
 
     Findings: none.
+21. factory: done (pull request merged); cost: 9 runs, 12.0 min, 70 turns, 287826 tokens in (1555781 more from cache), 31362 out, $2.15
