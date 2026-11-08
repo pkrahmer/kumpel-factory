@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 650
 comments_read: [6716086925]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T02:20:58.296499Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -62,6 +58,12 @@ journal:
   kind: started
   at: '2026-11-08T02:20:58.296499Z'
   stage: doing
+- number: 10
+  speaker: coder
+  kind: result
+  at: '2026-11-08T02:26:24.657037Z'
+  stage: doing
+  run: 213890ae509344389cf1f915c92ed679
 ---
 
 # promote.sh reuses an open promotion
@@ -148,3 +150,15 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
 
    `lint`: lint: green (0.1 s)
 9. factory: started doing as vm.
+10. coder: Built: `operator/skill/kumpel/scripts/promote.sh`. After the archive check it now sends `GET /pulls?state=open&base=main&head=<owner>:develop&per_page=1`, with the owner taken from `${SITE_REPOSITORY%%/*}`. If that request fails, the script exits with the hosting client's status (`|| exit $?`) and sends nothing else. The old `pull_body` Python helper is now `promotion_plan`. It takes the feature id, the folder and the open list, builds the feature's block as before, and prints one line: an action (`open`, `patch` or `keep`), the pull request's number (`-` when there is none yet) and the JSON to send. `open` sends today's `POST /pulls`. `patch` sends `PATCH /pulls/<n>` with only `body`, which is the old body plus a blank line plus the block, so no `title`. `keep` applies when the block is already in the body and sends nothing. The switch-off line is now `promotion $state: #<n>, for the human to merge`, with `opened` for a new pull request and `open` for a reused one. The merge path has not changed. I updated the header comment to say why the script reuses an open pull request: the hosting service refuses a second one with the same head and base.
+
+    Main choice: one Python step decides the plan and the shell only sends requests. I rejected doing the decision in shell with separate small `python3 -c` calls to pull out the number and the body and to test for the block. That would have taken three more interpreter runs and spread the JSON handling over several places. The open list goes to the Python step as an argument rather than on stdin, because the heredoc already uses stdin.
+
+    Refactor: I read the diff and made one change. An early draft used `chr(45)` to get round shell quoting; I went back to the original heredoc form, which needs no such trick. Nothing else needed changing.
+
+    Checks: `make check` is green (test: green, coverage 99.22 %). I did not touch any test, and the journal did not change the meaning of the task.
+
+    Noticed, not touched: if the open pull request's body is `null`, the script treats it as empty, so the PATCH body starts with a blank line. GitHub sends `null` only for a pull request that was opened with no body, and promote.sh always writes one. Docs criterion 6 (`operator/README.md`, `docs/operator-guide/install.md`) belongs to the documenter.
+
+    `check`: check: green
+    `duplicates`: duplicates: 6 new, 39 known, 4 gone
