@@ -1,3 +1,30 @@
+---
+stage: intake
+blocked: null
+round: 0
+attempts: 0
+crashes: 0
+pull_request: null
+comments_read: []
+handed_over: null
+claim:
+  instance: vm
+  stage: intake
+  started_at: '2026-11-08T14:38:46.944671Z'
+  lease_duration: 60
+journal:
+- number: 1
+  speaker: human
+  kind: created
+  at: '2026-11-08T14:38:46.936806Z'
+  stage: intake
+- number: 2
+  speaker: factory
+  kind: started
+  at: '2026-11-08T14:38:46.944671Z'
+  stage: intake
+---
+
 # The operator guide says what keeps the cached start
 
 <!-- proposed by feature acceptance of 2026-11-08; refine before starting -->
@@ -32,3 +59,6 @@ grep -n 'factory-bill' docs/operator-guide/agent-runtime.md
 Expect: at least one line in the section *A project's own agents*.
 
 ## Journal
+
+1. 2026-11-08 human: created.
+2. factory: started intake as vm.
