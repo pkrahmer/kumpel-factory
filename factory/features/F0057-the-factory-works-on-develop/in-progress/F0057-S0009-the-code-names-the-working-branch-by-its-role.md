@@ -1,5 +1,5 @@
 ---
-stage: intake
+stage: tests
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 652
 comments_read: [6716487122]
 handed_over: null
-claim:
-  instance: vm
-  stage: intake
-  started_at: '2026-11-08T03:04:16.853910Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -40,6 +36,12 @@ journal:
   kind: started
   at: '2026-11-08T03:04:16.853910Z'
   stage: intake
+- number: 6
+  speaker: intake
+  kind: result
+  at: '2026-11-08T03:04:36.563626Z'
+  stage: intake
+  run: 9e1344fa69f44ac0b5af308488b02266
 ---
 
 # The code names the working branch by its role
@@ -64,15 +66,16 @@ What stays as it is:
 - `factory.entry.check_story`: the comment "On main a started story ..." says the working branch.
 - `factory.pipeline.application.handlers.hand_over` and `factory.pipeline.application.stage`: `f"origin/{WORK_BRANCH}"` is built from `REMOTE`, as the other modules do.
 - Tests: `tests/guards/test_work_branch_search.py` gains a second search (a new test in the same module). No identifier under `src/factory/` contains `main` as a word part (`main_`, `_main`), apart from `main_branch_failing`, `_MAIN_FAILING`, `main_failed` and `main_probed`.
-- The human's leave (2026-11-08): the tester changes the earlier tests that name `stage_file_on_main` or `main_commit` (`tests/machine/application/test_container_environment.py`, `tests/pipeline/application/test_container_sync_origin.py`, `tests/pipeline/domain/test_evaluation_due.py`, `tests/pipeline/domain/test_evaluation_reject.py`, `tests/shared/application/test_acceptance_reviewer_role.py`, `tests/support/evaluation_support.py`) so far as the rename requires. The tester also renames the constant `NO_MAIN` in `tests/pipeline/application/test_repository_waiter.py` to `NO_WORK_BRANCH`, and the docstrings in `tests/conftest.py` (`remote`) and `tests/pipeline/application/handlers/test_merged.py` (module) say the working branch. Every test keeps its name and what it checks. Whether the test function names that say `main` for the working branch are renamed as well is the human's to decide when refining.
+- The human's leave (2026-11-08): the tester changes the earlier tests that name `stage_file_on_main` or `main_commit` (`tests/machine/application/test_container_environment.py`, `tests/pipeline/application/test_container_sync_origin.py`, `tests/pipeline/domain/test_evaluation_due.py`, `tests/pipeline/domain/test_evaluation_reject.py`, `tests/shared/application/test_acceptance_reviewer_role.py`, `tests/support/evaluation_support.py`) so far as the rename requires. The tester also renames the constant `NO_MAIN` in `tests/pipeline/application/test_repository_waiter.py` to `NO_WORK_BRANCH`, and the docstrings in `tests/conftest.py` (`remote`) and `tests/pipeline/application/handlers/test_merged.py` (module) say the working branch. Every test keeps its name and what it checks. The test function names that say `main` for the working branch are not renamed (the human, journal entry 4).
 
 ## Acceptance criteria
 
 1. The new guard passes on the repository. It fails on a file it writes under its scope for each of these, one row each: an identifier `stage_file_on_main`, `x.main_commit` and `_main_reports`. It passes on a file holding `main_branch_failing`, `main_failed`, `main_probed` or `def main(` (rows of one test).
 2. `from factory.entry.wiring import stage_file_on_work_branch` succeeds and `stage_file_on_main` no longer exists. `EvaluationInput` has the field `work_commit` and refuses `main_commit` as an unknown key (rows of one test).
 3. Every earlier test passes, changed only under the leave.
-4. `make check` stays green.
-5. docs: `docs/project-guide/machine.md` and `docs/project-guide/watching.md` name the new names where they named the old ones; `docs/decisions.md`: none.
+4. The new guard, a third row of its test, fails on a file it writes under its scope that holds `f"origin/{WORK_BRANCH}"` and passes on a file that builds the name from `REMOTE`; it passes on the repository.
+5. `make check` stays green.
+6. docs: `docs/project-guide/machine.md` and `docs/project-guide/watching.md` name the new names where they named the old ones; `docs/decisions.md`: none.
 
 ## Smoke test
 
@@ -102,3 +105,10 @@ Expect: `0`
    4. (a), rename none.
    5. Keep the three rows.
 5. factory: started intake as vm.
+6. intake: accepted. I carried in the human's answers (journal entry 4) and wrote exactly two edits into the story. (1) Answer 1(a): new criterion 4, a third row of the guard for `f"origin/{WORK_BRANCH}"`, failing and passing sides. The closing criteria are now 5 (`make check`) and 6 (`docs:`). (2) Answer 4(a): the Interface's open sentence now says the test function names are not renamed.
+   - Interface: concrete modules, old and new names, and the field `work_commit`. Answers 2 and 3 are accepted as untested (bare `main` variables and the `check_story` comment, read by the reviewer). Answer 5 keeps the three failing rows.
+   - Criteria: each is testable by one test function, with rows for the passing and the failing side. Every Interface clause that is not an accepted exception has a criterion: the guard rows, the import and the unknown key, the unchanged earlier tests, and the `REMOTE` form (new criterion 4).
+   - Smoke test: the grep command is runnable, and `Expect: 0` is checkable.
+   - Docs criterion: it names the two project-guide files and what they must say, and dictates no sentences.
+   - Architecture: renames only, no layer changes. `main_failed` and `main_probed` stay because they are stored in a stamp. `REMOTE` is used the way the other modules use it.
+   - Scope: within F0057 (the working branch's name in code). It leaves out the stop `main_branch_failing`, as decision 6 says. The earlier tests it changes are named and covered by the human's leave of 2026-11-08.
