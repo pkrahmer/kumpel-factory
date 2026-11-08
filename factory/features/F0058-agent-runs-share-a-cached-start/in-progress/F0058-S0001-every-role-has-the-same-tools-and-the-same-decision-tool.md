@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 659
 comments_read: [6720500729]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: intake
+  started_at: '2026-11-08T10:46:07.615751Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -30,6 +34,11 @@ journal:
   speaker: human
   kind: comment
   at: '2026-11-08T10:46:05.246265Z'
+  stage: intake
+- number: 5
+  speaker: factory
+  kind: started
+  at: '2026-11-08T10:46:07.615751Z'
   stage: intake
 ---
 
@@ -92,3 +101,4 @@ Expect: exactly one line, `model: opus`
    1. Add the criterion: the schema's `decision` property has type `string` and no `enum`, and its description says the run's message names the allowed decisions.
    2. Add the criterion: the message built for a request contains each of its `allowed_decisions`.
    3. Add the criterion: the launch arguments of a request, with the `--json-schema` value removed, equal those before this story (the model and effort of intake and the documenter come from their agent files and are covered by criterion 2).
+5. factory: started intake as vm.
