@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 664
 comments_read: [6722586434]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: smoke-test
+  started_at: '2026-11-08T14:35:21.271780Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -152,6 +156,11 @@ journal:
   at: '2026-11-08T14:35:16.202272Z'
   stage: docs
   run: 9199b7e239fc423094b20a8d66a5485a
+- number: 27
+  speaker: factory
+  kind: started
+  at: '2026-11-08T14:35:21.271780Z'
+  stage: smoke-test
 ---
 
 # The context markers are escaped too
@@ -365,3 +374,4 @@ Expect: `1`
     `check`: check: green
     `secrets`: secrets: green (1.1 s)
     `documents`: documents ok (60.2 s)
+27. factory: started smoke-test as vm.
