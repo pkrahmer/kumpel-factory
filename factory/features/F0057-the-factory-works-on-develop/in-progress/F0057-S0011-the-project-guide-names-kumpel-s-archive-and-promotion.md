@@ -1,17 +1,13 @@
 ---
-stage: intake
+stage: docs-only
 blocked: null
 round: 0
 attempts: 0
 crashes: 0
-pull_request: null
+pull_request: 655
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: intake
-  started_at: '2026-11-08T07:26:50.913857Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -23,6 +19,12 @@ journal:
   kind: started
   at: '2026-11-08T07:26:50.913857Z'
   stage: intake
+- number: 3
+  speaker: intake
+  kind: result
+  at: '2026-11-08T07:27:09.848613Z'
+  stage: intake
+  run: 6a67ad7f02e942f89a1d8eb02fb5f57c
 ---
 
 # The project guide names Kumpel's archive and promotion
@@ -73,3 +75,10 @@ Expect: `documents ok (<seconds> s)`
 
 1. 2026-11-08 human: created.
 2. factory: started intake as vm.
+3. intake: accepted
+   - Interface: names one document, `docs/project-guide/operator.md`, and seven files. I checked that all seven exist, and that the document has the sections the story cites (*The skill's scripts*, *Tests of the scripts*, *Test modules by script*).
+   - Criteria: criteria 1 and 2 are checkable by reading the document: each named script and test file appears, and each script has its refusals and its commit or send. The failing side (what each script refuses) is in criterion 1. Criteria 3 and 4 are the standard checks. No criterion tests behaviour beyond the document, as the story intends.
+   - Smoke test: the first command is a runnable grep loop and its `Expect:` is checkable (`done` with no `missing` line). The second runs `factory.entry.check_documents`, which prints `documents ok (<seconds> s)` as its last line. The story runs no pytest, so there is no `-q` problem.
+   - Docs criterion: it names what the reader must know (the scripts, their refusals, the commit helper, where the tests and helpers are) and dictates no sentences.
+   - Architecture: the Interface changes only a document that the documenter may write, so the story takes the docs route. No code or test changes.
+   - Scope: F0057 adds this documentation as a follow-up to its second acceptance. It is not in the feature's "Out of scope" list.
