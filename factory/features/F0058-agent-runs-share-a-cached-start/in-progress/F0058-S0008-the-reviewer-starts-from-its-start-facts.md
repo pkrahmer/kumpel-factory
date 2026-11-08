@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 669
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: smoke-test
+  started_at: '2026-11-08T15:35:36.694717Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -69,6 +73,11 @@ journal:
   at: '2026-11-08T15:35:31.689816Z'
   stage: docs
   run: 362dfdaad5d346159af04f08a307a298
+- number: 12
+  speaker: factory
+  kind: started
+  at: '2026-11-08T15:35:36.694717Z'
+  stage: smoke-test
 ---
 
 # The reviewer starts from its start facts
@@ -188,3 +197,4 @@ Expect: a line ending in `passed` with no `failed`.
     `check`: check: green
     `secrets`: secrets: green (0.6 s)
     `documents`: documents ok (60.9 s)
+12. factory: started smoke-test as vm.
