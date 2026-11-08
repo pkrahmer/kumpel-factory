@@ -252,13 +252,17 @@ def test_every_earlier_line_of_the_bill_is_unchanged(
         ]
 
 
-def test_the_help_prints_the_usage_naming_the_cache_figures(checkout: GitCli) -> None:
+@pytest.mark.parametrize("flag", ["--help", "-h"])
+def test_the_help_prints_the_usage_naming_the_cache_figures(checkout: GitCli, flag: str) -> None:
+    long_help = io.StringIO()
+    run(["--help"], _service(checkout), long_help)
     out = io.StringIO()
 
-    status = run(["--help"], _service(checkout), out)
+    status = run([flag], _service(checkout), out)
 
     text = out.getvalue()
     assert text.startswith("usage: factory-bill")
     for figure in ("cache read", "cache written", "hit rate"):
         assert figure in text
+    assert text == long_help.getvalue()
     assert status == 0

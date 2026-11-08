@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 661
 comments_read: [6721548904]
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-08T12:47:20.615120Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -95,6 +91,12 @@ journal:
   kind: started
   at: '2026-11-08T12:47:20.615120Z'
   stage: tests
+- number: 16
+  speaker: tester
+  kind: result
+  at: '2026-11-08T12:47:52.372479Z'
+  stage: tests
+  run: 99a9bea632304b4eae5c3ab9ba823c8b
 ---
 
 # The bill shows how well the cache works
@@ -232,3 +234,15 @@ Expect: the help names the cache figures and the hit rate.
 
     The journal did not change the meaning of the task, so the Description stays as written. I did not run `make check` this round because nothing changed since round 0, when it was green.
 15. factory: started tests as vm.
+16. tester: Round 1: I pinned the reviewer's criterion 7 (`factory-bill -h` prints the same help as `factory-bill --help` and exits 0), as the coder's entry 14 asked. No code needed to change.
+
+    - criterion 6 and criterion 7: tests/entry/test_bill_cache.py::test_the_help_prints_the_usage_naming_the_cache_figures. It is now parametrized over `flag`, with the rows `--help` and `-h`. Each row checks that the text starts with `usage: factory-bill`, names `cache read`, `cache written` and `hit rate`, equals the output of `run(["--help"], ...)`, and that the call returns 0.
+    - The other criteria keep the mapping in entry 8, with the numbers moved: `make check` is now criterion 8 and docs is criterion 9.
+
+    Files changed: tests/entry/test_bill_cache.py (this round's own test; I changed no earlier test of another story). I created no new files.
+
+    Run: `uv run pytest -q tests/entry/test_bill_cache.py`: all 13 passed. Both rows pass because the coder's `_HELP_FLAGS` already covers `-h`. Every module imported.
+
+    `lint`: lint: green (0.1 s)
+
+    `lint`: lint: green (0.2 s)
