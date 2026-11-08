@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 678
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: review
+  started_at: '2026-11-08T20:01:55.535722Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -69,6 +73,11 @@ journal:
   at: '2026-11-08T20:01:50.401924Z'
   stage: doing
   run: 2e4965ab7028488982ad51be96a1a32d
+- number: 12
+  speaker: factory
+  kind: started
+  at: '2026-11-08T20:01:55.535722Z'
+  stage: review
 ---
 
 # The rules every role shares stand in the system prompt
@@ -232,3 +241,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     The journal did not change the meaning of the task, so `## Description` stays as it is.
 
     `duplicates`: duplicates: 7 new, 39 known, 4 gone
+12. factory: started review as vm.
