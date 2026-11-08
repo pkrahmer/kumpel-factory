@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 682
 comments_read: [6727864627]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-08T22:14:45.353712Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -42,6 +46,11 @@ journal:
   at: '2026-11-08T22:14:39.832988Z'
   stage: intake
   run: 01c7ace9b15447a0b444657abce5bc03
+- number: 7
+  speaker: factory
+  kind: started
+  at: '2026-11-08T22:14:45.353712Z'
+  stage: tests
 ---
 
 # The reviewer's role names its route to the tester
@@ -116,3 +125,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    - Architecture: the story changes agent text and tests only, with the new test under `tests/agent_files/`. No code, contract or dependency changes.
    - Scope: within F0060 (the reviewer's route to the tester) and not in its Out of scope.
    - Route: `tests`, because `agents/agents/reviewer.md` is outside the documenter's write paths.
+7. factory: started tests as vm.
