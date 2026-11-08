@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Bills: the sums of cost records by stage and in total, and their line and table texts."""
+"""Bills: the sums of cost records by stage, by role and in total, and their texts."""
 
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from datetime import timedelta
 from decimal import ROUND_HALF_UP, Decimal
 
@@ -18,6 +18,11 @@ _SECONDS_PER_MINUTE = Decimal(60)
 _TABLE_HEADER = "| stage | runs | min | model min | turns | in | cached | out | USD |"
 _TABLE_ALIGNMENT = "| :-- | --: | --: | --: | --: | --: | --: | --: | --: |"
 _TOTAL_CELL = "**total**"
+_CACHE_HEADER = "| role | cache read | cache written | hit rate |"
+_CACHE_ALIGNMENT = "| :-- | --: | --: | --: |"
+_PERCENT = Decimal(100)
+_WHOLE = Decimal(1)
+_NO_HIT_RATE = "-"
 
 
 class Bill(BaseModel):
@@ -32,6 +37,15 @@ class Bill(BaseModel):
     tokens: TokenCounts
     cost_usd: Decimal
     model_duration: timedelta = timedelta(0)
+
+
+class RoleBill(BaseModel):
+    """The bill of one role's records."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    role: Name
+    bill: Bill
 
 
 class StageBill(BaseModel):
@@ -100,12 +114,24 @@ def bill(records: Sequence[CostRecord]) -> Bill:
     return _sum([_record_bill(record) for record in records])
 
 
-def bills_by_stage(records: Sequence[CostRecord]) -> list[StageBill]:
-    """One bill per stage in the order of its first record; a returning stage joins it."""
+def _groups(records: Sequence[CostRecord], key: Callable[[CostRecord], str]) -> dict[str, Bill]:
+    # A dict keeps the order of each key's first record, so a returning key joins its group.
     groups: dict[str, list[CostRecord]] = {}
     for record in records:
-        groups.setdefault(record.stage, []).append(record)
-    return [StageBill(stage=stage, bill=bill(group)) for stage, group in groups.items()]
+        groups.setdefault(key(record), []).append(record)
+    return {name: bill(group) for name, group in groups.items()}
+
+
+def bills_by_stage(records: Sequence[CostRecord]) -> list[StageBill]:
+    """One bill per stage in the order of its first record; a returning stage joins it."""
+    groups = _groups(records, lambda record: record.stage)
+    return [StageBill(stage=stage, bill=each) for stage, each in groups.items()]
+
+
+def bills_by_role(records: Sequence[CostRecord]) -> list[RoleBill]:
+    """One bill per role in the order of its first record; a returning role joins it."""
+    groups = _groups(records, lambda record: record.role)
+    return [RoleBill(role=role, bill=each) for role, each in groups.items()]
 
 
 def total(stage_bills: Sequence[StageBill]) -> Bill:
@@ -165,3 +191,35 @@ def cost_table(stage_bills: Sequence[StageBill]) -> str:
     return "\n".join(
         [_TABLE_HEADER, _TABLE_ALIGNMENT, *rows, _row(_TOTAL_CELL, total(stage_bills))]
     )
+
+
+def hit_rate(tokens: TokenCounts) -> str:
+    """The share of the prompt tokens read from the cache, a whole percent rounded half up.
+
+    The prompt tokens are those read from the cache, those written to it and the uncached
+    input; `-` when there are none.
+    """
+    prompt = tokens.cache_read + tokens.cache_creation + tokens.input
+    if prompt == 0:
+        return _NO_HIT_RATE
+    share = Decimal(tokens.cache_read) * _PERCENT / Decimal(prompt)
+    return f"{share.quantize(_WHOLE, rounding=ROUND_HALF_UP)} %"
+
+
+def cache_line(bill: Bill) -> str:
+    """The one-line text of a bill's cache: tokens read from it, written to it, and hit rate."""
+    tokens = bill.tokens
+    return f"{tokens.cache_read} read, {tokens.cache_creation} written, {hit_rate(tokens)} hit"
+
+
+def _cache_row(first_cell: str, bill: Bill) -> str:
+    tokens = bill.tokens
+    cells = [first_cell, str(tokens.cache_read), str(tokens.cache_creation), hit_rate(tokens)]
+    return "| " + " | ".join(cells) + " |"
+
+
+def cache_table(role_bills: Sequence[RoleBill]) -> str:
+    """The Markdown table of the roles' cache figures, one row each, and their total last."""
+    rows = [_cache_row(role_bill.role, role_bill.bill) for role_bill in role_bills]
+    whole = _sum([role_bill.bill for role_bill in role_bills])
+    return "\n".join([_CACHE_HEADER, _CACHE_ALIGNMENT, *rows, _cache_row(_TOTAL_CELL, whole)])

@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 661
 comments_read: [6721548904]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T12:39:58.144958Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -62,6 +58,12 @@ journal:
   kind: started
   at: '2026-11-08T12:39:58.144958Z'
   stage: doing
+- number: 10
+  speaker: coder
+  kind: result
+  at: '2026-11-08T12:45:46.868689Z'
+  stage: doing
+  run: e437e0e5728041f7a58d44119236f9b9
 ---
 
 # The bill shows how well the cache works
@@ -152,3 +154,26 @@ Expect: the help names the cache figures and the hit rate.
 
    `lint`: lint: green (0.2 s)
 9. factory: started doing as vm.
+10. coder: I built the bill's cache figures. All of the tester's tests pass unchanged, and `make check` is green (lint, types, layers, sast, secrets, licenses, test).
+
+    - `src/factory/watching/domain/bills.py`:
+      - New model `RoleBill` and function `bills_by_role`. They group the records by `role` in the order each role first ran. `bills_by_stage` now uses the same private `_groups` helper, so the grouping is not written twice.
+      - `hit_rate(tokens)`: the cache read divided by (read + written + uncached input), as a whole percent rounded half up with `Decimal`, or `-` when there are no prompt tokens.
+      - `cache_line(bill)`: `<read> read, <written> written, <n> % hit`.
+      - `cache_table(role_bills)`: the header `| role | cache read | cache written | hit rate |`, one row per role, and a `**total**` row summed with the existing `_sum`.
+      - `cost_table` and `cost_line` are untouched, so the posted cost table (`hand_over.py`) and the acceptance report are unchanged.
+    - `src/factory/watching/application/costs.py`: `WorkItemBill` has two new text fields, `cache` and `cache_by_role`, which `BillService.for_work_item` fills from the same records. This file lies outside the two files the Interface names. It is the only way the entry can get the per-role figures, because `WorkItemBill` carries no records. No contract model changed.
+    - `src/factory/entry/bill.py`:
+      - Each block is now the stage table, an empty line, `Cost: ...`, `Cache: ...`, an empty line and the role table.
+      - `--help` (and `-h`) prints the usage and a short text that names cache read, cache written and hit rate and says how the hit rate is computed. It exits 0.
+
+    Main choice: the entry gets finished texts (`cache`, `cache_by_role`) in `WorkItemBill`, the same way it already gets `line` and `table`. I rejected two alternatives:
+    - putting the raw records into `WorkItemBill` and grouping them in the entry, which would put domain work into the command line;
+    - a separate service call for the cache figures, which would read the sidecar twice.
+
+    Refactor pass: one `ruff format` fix in `cache_line`; nothing else needed changing.
+
+    Not touched: the `Cache:` line sits directly under `Cost:`, with no empty line between them. The Interface does not say where empty lines go, and the tests accept either.
+
+    `check`: check: green
+    `duplicates`: duplicates: 7 new, 39 known, 4 gone
