@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 680
 comments_read: [6727432579, 6727512748, 6727549619]
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-08T21:51:21.940446Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -151,6 +147,12 @@ journal:
   kind: started
   at: '2026-11-08T21:51:21.940446Z'
   stage: tests
+- number: 26
+  speaker: tester
+  kind: result
+  at: '2026-11-08T21:51:59.159093Z'
+  stage: tests
+  run: 84700a7eee6046fbbd212702f2815765
 ---
 
 # A review whose findings need only tests goes to the tester
@@ -381,3 +383,37 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     Noticed, not touched: the Role's sentence "`docs` passes, `doing` sends the work item back" does not name `tests`. The reviewer noted it, and the Interface scopes the change to `## Stage`. Description: unchanged, because the findings do not change the task's meaning.
 25. factory: started tests as vm.
+26. tester: I made the test changes listed in the coder's entry 24: the reviewer's findings 2 and 3, and the two pinned tests that the `docs-review` fix broke. The earlier tests changed under the human's leave in entry 16. Each keeps its name and checks the same thing.
+
+    - Reviewer finding 2. In `tests/agent_files/test_review_to_tests_agent_files.py::test_the_tester_answers_the_reviewers_test_findings_and_hands_to_the_coder`:
+      - I added the row `after-review` for the condition "latest result before your run is the reviewer's".
+      - The rows now check the sentence of step 0 that starts with "When the latest result before your run is the reviewer's" and runs to the first ". " after it. They no longer check the whole of step 0.
+      - The new helper is `_tester_sentence_after_review` (it replaces `_tester_step_zero`). It returns an empty string when that sentence is missing, so on step 0 from before this story every row fails.
+      - I removed the `reviewer` row, because the condition row now covers it.
+    - Reviewer finding 3. I dropped `test_the_shipped_system_prompt_constant_equals_the_file` from the same file, along with its imports that are now unused (`SYSTEM_PROMPT`, `SYSTEM_PROMPT_FILE`). The check for the second half of criterion 4 (`SYSTEM_PROMPT` equals the file) is the existing one in `tests/agents/adapters/test_claude_runtime_system_prompt.py`, which also exists in `tests/agent_files/test_context_system_prompt.py`.
+    - `tests/agent_files/test_claude_agent_texts_docs_route.py::test_the_reviewer_in_docs_review_replaces_its_code_review_and_judges_the_facts`: I changed the fragment in row `replaces-decisions-and-steps` to `"its decisions, and steps 1 to 4"`. This is under the human's leave in entry 16.
+    - `tests/support/shared_rules_support.py`, `PARTS_BEFORE`: I set the reviewer's `Stage` checksum to `3113525091`, the CRC32 of the new text. This is also under the human's leave in entry 16.
+
+    Criteria to tests, updated from entry 8:
+    - criterion 1: tests/agent_files/test_review_to_tests_agent_files.py::test_the_reviewer_sends_findings_that_need_only_tests_to_the_tester
+    - criterion 2: tests/agent_files/test_review_to_tests_agent_files.py::test_the_reviewer_sends_findings_to_doing_without_tests_among_the_allowed_decisions
+    - criterion 3: tests/agent_files/test_review_to_tests_agent_files.py::test_the_tester_answers_the_reviewers_test_findings_and_hands_to_the_coder
+    - criterion 4: tests/agent_files/test_review_to_tests_agent_files.py::test_r12_lists_review_to_tests_right_after_review_to_doing, plus the existing check in tests/agents/adapters/test_claude_runtime_system_prompt.py
+    - criterion 5: tests/agent_files/test_review_to_tests_agent_files.py::test_a_review_decision_tests_moves_to_the_tester_and_counts_a_round
+    - criterion 6: the coder's `make check`
+    - criterion 7 (docs): the documenter's
+
+    Test run: I ran `uv run pytest -q` on the four files below. All passed and every module imported. `make lint`: lint: green (0.1 s).
+    - test_review_to_tests_agent_files.py
+    - test_claude_agent_texts_docs_route.py
+    - test_shared_rules_system_prompt.py
+    - test_claude_agent_texts_review_groups.py
+
+    Files changed:
+    - tests/agent_files/test_review_to_tests_agent_files.py
+    - tests/agent_files/test_claude_agent_texts_docs_route.py (earlier test, entry 16)
+    - tests/support/shared_rules_support.py (earlier test, entry 16)
+
+    No files created. Next is the coder's `make check`.
+
+    `lint`: lint: green (0.1 s)

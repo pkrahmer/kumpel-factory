@@ -5,11 +5,10 @@ from collections.abc import Callable
 
 import pytest
 
-from factory.agents.domain.prompts import SYSTEM_PROMPT
 from factory.shared.domain.identifiers import WorkItemId
 from factory.shared.domain.paths import WORK_BRANCH
 from support.proof_support import World, posts, start_story
-from support.shipped_agents import SYSTEM_PROMPT_FILE, shared_rules, stage_section
+from support.shipped_agents import shared_rules, stage_section
 from support.two_routes_support import EVERY_TARGET_MAKEFILE, TWO_ROUTES, decide
 
 NEW_LIST = (
@@ -32,11 +31,18 @@ def _lines_naming_tests(text: str) -> list[str]:
     return [line for line in text.splitlines() if "`tests`" in line]
 
 
-def _tester_step_zero() -> str:
+_AFTER_REVIEW = "When the latest result before your run is the reviewer's"
+
+
+def _tester_sentence_after_review() -> str:
+    """The sentence of the tester's step 0 that starts with the case after the reviewer."""
     section = stage_section("tester")
-    start = section.index("0. ")
-    end = section.find("\n1. ", start)
-    return section[start:end] if end >= 0 else section[start:]
+    step_zero = section[section.index("0. ") :]
+    start = step_zero.find(_AFTER_REVIEW)
+    if start < 0:
+        return ""
+    end = step_zero.find(". ", start)
+    return step_zero[start:end] if end >= 0 else step_zero[start:]
 
 
 @pytest.mark.parametrize(
@@ -68,7 +74,7 @@ def test_the_reviewer_sends_findings_to_doing_without_tests_among_the_allowed_de
 @pytest.mark.parametrize(
     "fragment",
     [
-        pytest.param("reviewer", id="reviewer"),
+        pytest.param("latest result before your run is the reviewer's", id="after-review"),
         pytest.param("exactly", id="exactly"),
         pytest.param("own story", id="own-story"),
         pytest.param("standing leave", id="standing-leave"),
@@ -80,7 +86,7 @@ def test_the_reviewer_sends_findings_to_doing_without_tests_among_the_allowed_de
 def test_the_tester_answers_the_reviewers_test_findings_and_hands_to_the_coder(
     fragment: str,
 ) -> None:
-    assert fragment in _tester_step_zero()
+    assert fragment in _tester_sentence_after_review()
 
 
 @pytest.mark.parametrize(
@@ -94,10 +100,6 @@ def test_r12_lists_review_to_tests_right_after_review_to_doing(
     holds: Callable[[str], bool],
 ) -> None:
     assert holds(shared_rules())
-
-
-def test_the_shipped_system_prompt_constant_equals_the_file() -> None:
-    assert SYSTEM_PROMPT_FILE.read_text(encoding="utf-8") == SYSTEM_PROMPT
 
 
 @pytest.fixture
