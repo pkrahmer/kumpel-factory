@@ -1,17 +1,13 @@
 ---
 stage: intake
-blocked: null
+blocked: question
 round: 0
 attempts: 0
 crashes: 0
-pull_request: null
+pull_request: 672
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: intake
-  started_at: '2026-11-08T15:47:36.726619Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -23,6 +19,13 @@ journal:
   kind: started
   at: '2026-11-08T15:47:36.726619Z'
   stage: intake
+- number: 3
+  speaker: intake
+  kind: question
+  at: '2026-11-08T15:48:00.787373Z'
+  stage: intake
+  run: ec0d83c5cc7d4b0facd477111eeeab91
+  blocked: question
 ---
 
 # The coder starts from the tester's tests, and the guards that read the documents are marked
@@ -63,3 +66,10 @@ Expect: a line `<n> tests collected`, `<n>` greater than 0.
 
 1. 2026-11-08 human: created.
 2. factory: started intake as vm.
+3. intake: Questions (format check: passed):
+
+   1. The smoke test can't be met. `pyproject.toml` sets `addopts = "-q --strict-markers -p no:cacheprovider"`. Adding `-q` on the command line puts pytest at `-qq`, and at `-qq` `--collect-only` prints a count per file (`tests/guards/test_area_guides.py: 11`) with no `<n> tests collected` line. I checked this on one module: with the extra `-q` the last line is the per-file count, and without it the last line is `11 tests collected in 0.01s`. Options: (a) drop `-q` from the smoke test command: `uv run pytest --strict-markers -m documents --collect-only 2>&1 | tail -1`, and keep the Expect line as it is; (b) keep `-q` and change the Expect line to per-file count lines, one per marked module. I'd choose (a).
+   2. Criteria 1 and 2 pass the same extra `-q`. Their output is then per-file counts, not node ids. That can still be checked per module, but a test that compares the two selections test by test would want node ids. Should both drop `-q`, like the smoke test? I'd say yes. `--strict-markers` is also in `addopts` already, so it can stay or go without changing anything.
+   3. Criterion 3 says "the tester's entry names how it searched". That part is a journal requirement, not something a test function can check. I read the testable part as: a test (or the tester's search) shows that no unmarked module under `tests/` opens a path under the documenter's write paths on the real checkout. Is it fine for the tester to meet that with the entry alone, with no test function for criterion 3? I'd accept that.
+
+   What I found so far, for when the answers come back: the Interface names concrete files (`agents/agents/coder.md`, `tests/conftest.py`, the guard modules) and the human's leave for earlier tests. The scope fits `feature.md` (S0001's two scope lines; the Makefile and pipeline changes stay the human's). The architecture is fine (the marker is the project's, decision 3). The docs criterion names what the reader must know without dictating sentences. Route: `tests`, because `agents/` and `tests/` are outside the documenter's write paths.
