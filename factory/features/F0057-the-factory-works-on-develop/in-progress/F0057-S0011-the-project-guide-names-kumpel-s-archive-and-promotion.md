@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 655
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: docs-review
+  started_at: '2026-11-08T07:31:57.866012Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -36,6 +40,11 @@ journal:
   at: '2026-11-08T07:31:51.991752Z'
   stage: docs-only
   run: 1e2b8def3903413d852d050cd43972ec
+- number: 6
+  speaker: factory
+  kind: started
+  at: '2026-11-08T07:31:57.866012Z'
+  stage: docs-review
 ---
 
 # The project guide names Kumpel's archive and promotion
@@ -112,3 +121,4 @@ Expect: `documents ok (<seconds> s)`
    `check`: check: green
    `secrets`: secrets: green (0.3 s)
    `documents`: documents ok (58.8 s)
+6. factory: started docs-review as vm.
