@@ -1,17 +1,13 @@
 ---
-stage: review
+stage: doing
 blocked: null
-round: 0
+round: 1
 attempts: 0
 crashes: 0
 pull_request: 654
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: review
-  started_at: '2026-11-08T07:12:56.723571Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -56,6 +52,12 @@ journal:
   kind: started
   at: '2026-11-08T07:12:56.723571Z'
   stage: review
+- number: 9
+  speaker: reviewer
+  kind: result
+  at: '2026-11-08T07:13:40.665588Z'
+  stage: review
+  run: f81fd80a92854fb9b6c5f5b745bd757f
 ---
 
 # Kumpel's procedure after an acceptance that proposes stories
@@ -138,3 +140,8 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
    `check`: check: green
    `duplicates`: duplicates: 6 new, 39 known, 4 gone
 8. factory: started review as vm.
+9. reviewer: Reviewed `git diff develop...HEAD -- . ':!factory'`, which changes `operator/skill/kumpel/references/approving.md` and adds `tests/operator_scripts/test_operator_approving_after_acceptance.py`, against the work item. I checked the new wording against the scripts. The refusal `<id> is not finished: <path> is in backlog/` matches `operator/skill/kumpel/scripts/archive-feature.sh:23,29`. The open promotion being patched or kept, and the line `promotion open: #<number>, for the human to merge` printed only with the switch off, match `operator/skill/kumpel/scripts/promote.sh:47-52,61-77`. Criterion 1 is one parametrized test with three rows. It reads only the `## After a feature's acceptance` section, step by step, so text outside the section or in the other step cannot satisfy a row. The coder's journal entry 7 records `make check` green. The Description, the Interface and the docs criterion match what was built. No architecture or security findings: the change is skill text and one test, with no new suppression marker.
+
+   1. `tests/operator_scripts/test_operator_approving_after_acceptance.py:16-18` (`section_steps`): the lines that find the section copy code that already exists. They repeat the inline lines of `tests/operator_scripts/test_operator_archive_outcome.py:121-124` and do the job of `factory.shared.domain.sections.section_text` (`src/factory/shared/domain/sections.py:128`, already used by `tests/support/shipped_agents.py:162`). Fix: the tester gets the section with `section_text(APPROVING.read_text(encoding="utf-8"), "After a feature's acceptance")` and keeps only the code that splits the result into numbered steps. This is a test-only change, and the coder hands it to the tester.
+
+   Earlier tests: none. The diff adds one test file (`A`) and changes, renames or deletes no test file that `develop` holds.
