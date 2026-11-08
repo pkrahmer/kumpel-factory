@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 661
 comments_read: [6721548904]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: docs
+  started_at: '2026-11-08T12:52:44.682147Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -119,6 +123,11 @@ journal:
   at: '2026-11-08T12:52:39.452438Z'
   stage: review
   run: b07dcf28f7cb4b79b9b4ba337b20ceb6
+- number: 21
+  speaker: factory
+  kind: started
+  at: '2026-11-08T12:52:44.682147Z'
+  stage: docs
 ---
 
 # The bill shows how well the cache works
@@ -298,3 +307,4 @@ Expect: the help names the cache figures and the hit rate.
 
     Earlier tests:
     - `tests/entry/test_bill.py`: changed under the human's leave in the story's Interface, which names this file. The human's answers are in journal entry 4, and intake carried the leave into the story in entry 6. Its four tests keep their names and check the same output with the cache section removed.
+21. factory: started docs as vm.
