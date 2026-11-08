@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 660
 comments_read: [6720878077, 6720941885, 6720981420, 6721183670]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-08T11:58:59.042518Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -115,6 +119,11 @@ journal:
   at: '2026-11-08T11:58:53.761737Z'
   stage: doing
   run: c8a94ea2d82c4be5aa7044df4f0eaf48
+- number: 20
+  speaker: factory
+  kind: started
+  at: '2026-11-08T11:58:59.042518Z'
+  stage: tests
 ---
 
 # The first message holds the work item, then the role
@@ -404,3 +413,4 @@ Expect: the docstring names the order: the work item's body, the role's instruct
     Description: unchanged. The journal changed only which tests may change.
 
     `make check` was not run in this run because nothing changed since the last doing run. That run was green apart from the 8 rows of the two tests above. Last run's main choice still holds: the common text reaches the runtimes through a `system_prompt_file` keyword with a built-in fallback, rather than a field on `AgentDefinition`. Noticed in the last run and not touched: the common text exists twice, in `SYSTEM_PROMPT` and in `agents/system-prompt.md`, and the operator guide should tell operators to install the new file.
+20. factory: started tests as vm.
