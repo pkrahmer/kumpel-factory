@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 0
 attempts: 0
@@ -125,6 +125,11 @@ journal:
   at: '2026-11-08T01:22:29.987998Z'
   stage: smoke-test
   run: e0863d095eb14f1697b3d94ef9acc920
+- number: 22
+  speaker: factory
+  kind: done
+  at: '2026-11-08T01:26:23.505781Z'
+  stage: approval
 ---
 
 # The operator's documents name develop and main
@@ -369,3 +374,4 @@ Expect: `documents ok (<seconds> s)`
     **The criteria, read again:** the output matches criterion 7. It also supports criterion 8: the document check passes on `docs/operator-guide/install.md`, which names the switch `promote`. Nothing in the output contradicts any other criterion.
 
     **Findings:** none.
+22. factory: done (pull request merged); cost: 9 runs, 13.1 min, 80 turns, 287984 tokens in (2241447 more from cache), 29527 out, $1.91
