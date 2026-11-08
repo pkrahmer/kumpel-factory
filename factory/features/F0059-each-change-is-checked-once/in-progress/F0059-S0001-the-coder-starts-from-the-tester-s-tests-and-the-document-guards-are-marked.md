@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 672
 comments_read: [6723592271, 6723685612]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T15:59:36.927743Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -70,6 +74,11 @@ journal:
   at: '2026-11-08T15:59:31.146858Z'
   stage: tests
   run: ddbb9db76b294cefb76af23a9c426a6f
+- number: 12
+  speaker: factory
+  kind: started
+  at: '2026-11-08T15:59:36.927743Z'
+  stage: doing
 ---
 
 # The coder starts from the tester's tests, and the guards that read the documents are marked
@@ -191,3 +200,4 @@ Expect: a line `<n> tests collected`, `<n>` greater than 0.
     Run of the two new files: both marker tests pass. Three criterion 4 tests fail as expected (the two rows of starts-with-only-the-named-files, and no-longer-starts-with-the-whole-suite) until `agents/agents/coder.md` changes. Every module imported. `make lint` is green.
 
     `lint`: lint: green (0.2 s)
+12. factory: started doing as vm.
