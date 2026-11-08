@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # The factory's state from the code host alone, one line per open work-item pull request:
 #   #<n> <work item> stage:<stage> <waits: <kind>|verdict posted|working>
-# and a last line with the newest archive commit on main. Works for an instance on a VM or in a job.
+# and a last line with the newest archive commit on develop. Works for an instance on a VM or in a job.
 # The factory marks its posts with `<!-- factory key=<id>:<kind>:<n> -->`; a comment without that
 # marker is the human's (or the operator's), and ends the factory's wait. Kumpel's verdict holds
 # `<!-- kumpel verdict -->` anywhere in its body, since its signature follows the verdict.
@@ -54,7 +54,7 @@ while read -r number item stage; do
 done <<ITEMS
 $items
 ITEMS
-commits=$(hosting_repo_api GET "/commits?per_page=20") || exit 1
+commits=$(hosting_repo_api GET "/commits?sha=develop&per_page=20") || exit 1
 printf '%s' "$commits" | python3 -I -c '
 import json, sys
 subjects = (commit["commit"]["message"].split("\n")[0] for commit in json.load(sys.stdin))

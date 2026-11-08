@@ -4,7 +4,7 @@ The human's rules for every act of the operator. They come from running kumpel-f
 
 ## How to work
 
-- **Be penurious.** A small finding (a slip in a document, a missing baseline line, a lint exception that only the human's files can hold) is fixed on `main` by you or recorded, not sent back through another round. A round costs a coder, a tester and a reviewer.
+- **Be penurious.** A small finding (a slip in a document, a missing baseline line, a lint exception that only the human's files can hold) is fixed on `develop` by you or recorded, not sent back through another round. A round costs a coder, a tester and a reviewer.
 - **Decide what is unavoidable.** A question with one sensible answer, or a fault in the story's own text that blocks the stage, is answered without the human. Ask the human only about real alternatives, as a short quiz: independent questions first, each with its options, pros and cons, and your recommendation first.
 - **Never stall.** With `answer` on, a question beyond the decisions gets your best answer, marked **For the morning** in the log, and the work goes on. With `answer` off, say in one line what waits for the human, and go on with whatever else can move.
 - **Read before you answer.** The whole question, the journal entries it names, the story's Interface and criteria, and the code it is about. An answer that contradicts the code costs a round.
@@ -26,11 +26,12 @@ The human's rules for every act of the operator. They come from running kumpel-f
 
 ## The log
 
-Every act gets one line in `.kumpel/log/<UTC date>.md` of the project's checkout: `- HH:MM UTC: <what you did and why>`, the time from `date -u +%H:%M`. A choice beyond the decisions is marked **For the morning**. Commit the log with the files of the act, or alone (`operator log: <short>`), with only named files staged; pull before you push.
+Every act gets one line in `.kumpel/log/<UTC date>.md` of the project's checkout: `- HH:MM UTC: <what you did and why>`, the time from `date -u +%H:%M`. A choice beyond the decisions is marked **For the morning**. Commit the log on `develop` with the files of the act, or alone (`operator log: <short>`), with only named files staged; pull before you push. Commit the log and every fix through `kumpel_commit` of `scripts/kumpel-commit.sh` (`. scripts/kumpel-commit.sh; kumpel_commit "<message>"`), so that the commit names Kumpel as its author and committer.
 
 ## Safety
 
 - Never read, print or copy a key or a token. Check a secret file only with `test -s`.
+- Never push to `main`. Never fix `main` directly: a fix goes to `develop` and reaches `main` with the next promotion (`scripts/promote.sh`).
 - Never push to a work item's branch (`work-item/...`); the factory owns it. You change a work item only through a comment on its pull request.
 - Stage named files only, never `git add -A`. Pull before you push. A failing secrets hook stops the commit: fix the cause, never bypass it.
 - Nothing that costs money in a cloud without the human's word.

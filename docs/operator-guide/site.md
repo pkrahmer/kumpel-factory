@@ -115,7 +115,7 @@ A key marked *required for a job* may stay unset when you do not run the job; `S
 
 The skill's scripts live in `operator/skill/kumpel/scripts/`. They read `SITE_REPOSITORY` and `SITE_CHECKOUT` from the site file, or from the environment when it sets them. Only then do they look at the skill's `settings.json`.
 
-- When the site gives both, `settings.json` holds only the switches (`merge`, `answer`, `start_next`) and `settings.sh init` takes no argument.
+- When the site gives both, `settings.json` holds only the switches (listed under Settings in [operator/README.md](../../operator/README.md)) and `settings.sh init` takes no argument.
 - When the site gives one or none, `settings.sh init` needs `<owner/name> <checkout>`, and the JSON file keeps them.
 - A missing or faulty site file does not stop `settings.sh`. The JSON file answers, and a faulty file's message goes to standard error.
 

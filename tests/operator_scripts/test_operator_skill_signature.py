@@ -9,6 +9,7 @@ import pytest
 from factory.shared.adapters.process import ProcessResult
 from support.git_support import clone, run_git
 from support.operator_skill_support import (
+    KUMPEL,
     PREFIX,
     SCRIPTS,
     SCRIPTS_BRANCH,
@@ -26,7 +27,6 @@ MARKER = "<!-- kumpel -->"
 ANSWER = "Yes, as you propose."
 ROUTE = "/issues/7/comments"
 COMMENTS = f"{PREFIX}{ROUTE}"
-KUMPEL = "Kumpel <kumpel@noreply.invalid>"
 FEATURE = "factory/features/F0001-example"
 
 
