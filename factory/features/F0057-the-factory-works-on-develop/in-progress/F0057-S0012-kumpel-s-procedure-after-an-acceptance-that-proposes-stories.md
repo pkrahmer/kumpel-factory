@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 654
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: review
+  started_at: '2026-11-08T07:19:02.904483Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -91,6 +95,11 @@ journal:
   at: '2026-11-08T07:18:57.542142Z'
   stage: doing
   run: 34ee3c2fdaec48548291088be5e5cf96
+- number: 16
+  speaker: factory
+  kind: started
+  at: '2026-11-08T07:19:02.904483Z'
+  stage: review
 ---
 
 # Kumpel's procedure after an acceptance that proposes stories
@@ -235,3 +244,4 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
 
     `check`: check: green
     `duplicates`: duplicates: 6 new, 39 known, 4 gone
+16. factory: started review as vm.
