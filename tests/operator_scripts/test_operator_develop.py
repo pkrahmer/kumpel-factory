@@ -1,6 +1,5 @@
 """Kumpel on `develop`: its scripts read and write `develop`; only a promotion reaches `main`."""
 
-import json
 from collections.abc import Callable
 from pathlib import Path
 
@@ -22,13 +21,14 @@ from support.git_support import clone, commit_all, remote_commit, run_git, write
 from support.operator_skill_support import (
     DEFAULT_BRANCH,
     KUMPEL,
+    OPEN_PROMOTION,
     PREFIX,
     SCRIPTS_BRANCH,
     SKILL,
     Operator,
-    Request,
     make_bare_remote,
-    recorded_requests,
+    requests_that_change,
+    write_switches,
 )
 from support.operator_support import ROOT
 
@@ -119,17 +119,6 @@ def test_archive_feature_moves_only_a_finished_feature_to_the_archive_on_develop
     assert f"{OTHER}/backlog/F0002-S0001-first.md" in files_after
 
 
-def write_switches(operator: Operator, switches: dict[str, bool]) -> None:
-    """A settings file that holds `switches`."""
-    operator.settings_file.parent.mkdir(parents=True)
-    operator.settings_file.write_text(json.dumps({"switches": switches}), encoding="utf-8")
-
-
-def requests_that_change(operator: Operator) -> list[Request]:
-    """The recorded requests other than reads, in order."""
-    return [request for request in recorded_requests(operator.records) if request.method != "GET"]
-
-
 @pytest.mark.parametrize(
     ("folder", "promote", "merged"),
     [
@@ -147,6 +136,7 @@ def test_promote_opens_the_promotion_and_merges_it_only_with_the_switch_on(
     write_switches(operator, {**OLD_SWITCHES, "promote": promote})
     operator.answer(
         {
+            OPEN_PROMOTION: [],
             f"{PREFIX}/pulls": {"number": PULL_NUMBER, "state": "open"},
             f"{PREFIX}/pulls/{PULL_NUMBER}/merge": {"merged": True, "sha": "f" * 40},
         }

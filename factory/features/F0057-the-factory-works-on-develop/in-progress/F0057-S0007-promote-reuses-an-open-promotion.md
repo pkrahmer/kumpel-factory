@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 650
 comments_read: [6716086925]
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-08T02:19:07.772920Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -51,6 +47,12 @@ journal:
   kind: started
   at: '2026-11-08T02:19:07.772920Z'
   stage: tests
+- number: 8
+  speaker: tester
+  kind: result
+  at: '2026-11-08T02:20:53.337784Z'
+  stage: tests
+  run: a69a5b7f309f44cf915e3ddd96fda161
 ---
 
 # promote.sh reuses an open promotion
@@ -114,3 +116,25 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
    - Architecture: the change is in the operator's script and its tests under `tests/operator_scripts/`, which fits the project layout.
    - Scope: within F0057's Kumpel promotion (S0003, decisions 3 to 5). It is not in "Out of scope". The route is `tests`, because the Interface changes a script and a test.
 7. factory: started tests as vm.
+8. tester: Wrote the tests of `promote.sh` reusing an open promotion. They fail as intended: all 5 new rows fail because the script still sends `POST /pulls` and prints "promotion opened"/"promoted". The changed old test still passes. `make lint` is green.
+
+   Each criterion and its test:
+   - criterion 1: tests/operator_scripts/test_operator_promote_reuse.py::test_promote_without_an_open_promotion_asks_for_it_and_opens_one. It checks one GET `/pulls` with `state=open`, `base=main`, `head=owner:develop` and `per_page=1`, compared with parse_qs. It checks one POST `/pulls` with today's head, base, title and body, and the line `promotion opened: #4711, …`.
+   - criterion 2: tests/operator_scripts/test_operator_promote_reuse.py::test_promote_adds_the_next_feature_to_the_open_promotion, with rows switch-off and switch-on. It checks that no POST is sent and that one PATCH `/pulls/4711` is sent whose body is the old body, `\n\n` and F0002's block, with no `title`. With the switch off it checks `promotion open: #4711, …`. With the switch on it checks PUT `/pulls/4711/merge` with `merge_method: merge` and the message for F0002.
+   - criterion 3: tests/operator_scripts/test_operator_promote_reuse.py::test_promote_again_for_a_feature_already_in_the_open_promotion_changes_nothing
+   - criterion 4: tests/operator_scripts/test_operator_promote_reuse.py::test_promote_stops_when_the_query_for_the_open_promotion_fails. The switch is on. It checks a non-zero exit, `hosting: GET <route>: 500 ` on stderr, and that no POST, PATCH or PUT is sent.
+   - criteria 5 and 6 (make check, docs) have no test.
+
+   Files:
+   - Created: tests/operator_scripts/test_operator_promote_reuse.py.
+   - Changed under the human's leave (journal entry 4): tests/operator_scripts/test_operator_develop.py::test_promote_opens_the_promotion_and_merges_it_only_with_the_switch_on now answers the `OPEN_PROMOTION` route with `[]`. Its name and what it checks are unchanged.
+   - Changed under the standing leave to move shared test helpers: `write_switches` and `requests_that_change` moved from tests/operator_scripts/test_operator_develop.py to tests/support/operator_skill_support.py, and test_operator_develop.py now imports them from there.
+   - Added to tests/support/operator_skill_support.py: the constant `OPEN_PROMOTION`. It is the GET route with the query in the Interface's order, and the owner comes from `REPOSITORY` (`owner/repo`).
+
+   Notes for the coder:
+   - The curl stand-in matches an answer on the exact path with its query, or on the bare path. So the script's GET must use the query string exactly as the Interface gives it, in that order and with the colon not encoded. Otherwise the GET gets the POST's answer.
+   - No module was left unimported. The code under test is a shell script.
+
+   Open: nothing.
+
+   `lint`: lint: green (0.1 s)
