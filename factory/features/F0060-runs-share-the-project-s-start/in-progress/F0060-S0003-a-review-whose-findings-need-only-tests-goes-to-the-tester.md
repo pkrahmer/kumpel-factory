@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 680
 comments_read: [6727432579]
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-08T21:35:13.137995Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -51,6 +47,12 @@ journal:
   kind: started
   at: '2026-11-08T21:35:13.137995Z'
   stage: tests
+- number: 8
+  speaker: tester
+  kind: result
+  at: '2026-11-08T21:37:34.392381Z'
+  stage: tests
+  run: df24a412196847469eb123f9488ab5d4
 ---
 
 # A review whose findings need only tests goes to the tester
@@ -127,3 +129,28 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
    Route: `tests`, because the Interface changes agent files, `src/` and tests.
 7. factory: started tests as vm.
+8. tester: Tests written for every criterion. They are red on purpose where the agent texts and R12 still have to change.
+
+   - criterion 1: tests/agent_files/test_review_to_tests_agent_files.py::test_the_reviewer_sends_findings_that_need_only_tests_to_the_tester. It reads the reviewer's `## Stage` before `### docs-review`, takes the lines that name `` `tests` ``, and needs one that holds each of: "allowed decisions", "own story", `` `doing` ``, and the word "all". Each is a parametrized row.
+   - criterion 2: tests/agent_files/test_review_to_tests_agent_files.py::test_the_reviewer_sends_findings_to_doing_without_tests_among_the_allowed_decisions. It needs a line naming `` `tests` `` that also holds "allowed decisions", `` `doing` `` and a negation ("without", "not" or "no").
+   - criterion 3: tests/agent_files/test_review_to_tests_agent_files.py::test_the_tester_answers_the_reviewers_test_findings_and_hands_to_the_coder. Its rows are fragments that step 0 of the tester's `## Stage` must contain: "reviewer", "exactly", "own story", "standing leave", "once", "end with `doing`", "each finding". Today "own story", "standing leave" and "each finding" are missing, so those rows fail.
+   - criterion 4: tests/agent_files/test_review_to_tests_agent_files.py::test_r12_lists_review_to_tests_right_after_review_to_doing checks that R12's new list (as the Interface quotes it) appears exactly once and that `review → tests` appears exactly once. tests/agent_files/test_review_to_tests_agent_files.py::test_the_shipped_system_prompt_constant_equals_the_file checks that `SYSTEM_PROMPT` equals `agents/system-prompt.md`.
+   - criterion 5: tests/agent_files/test_review_to_tests_agent_files.py::test_a_review_decision_tests_moves_to_the_tester_and_counts_a_round. It has two rows. In `first-to-tests`, review decides `tests` and the item goes to `tests`, round 1, not blocked. In `third-past-the-cap`, the third `tests` from review holds the item at `review`, round 3, blocked `round_cap`, with one round_cap post. The definition is TWO_ROUTES with `review: next [docs, doing, tests], round_cap: 2`. Both rows pass already, which fits the Interface: the pipeline needs no code change.
+   - criterion 6: the coder's `make check`.
+   - criterion 7 (docs): not a test; it is the documenter's.
+
+   Earlier tests changed under the human's leave (journal entry 4). Each still checks the same thing:
+   - tests/agent_files/test_claude_agent_texts_docs_slip.py: `REWORK_RULE` now holds the new R12 list. `OLD_REWORK_RULE` is still derived from it.
+   - tests/support/shared_rules_support.py: the R12 entry now holds the new list.
+
+   Moved under the standing leave in CLAUDE.md for shared test helpers, so the new test does not copy them:
+   - From tests/pipeline/application/test_docs_route.py I moved `_step` (now `decide`), `WRITES` (now `STAGE_WRITES`) and `MAKEFILE` (now `EVERY_TARGET_MAKEFILE`) into tests/support/two_routes_support.py.
+   - test_docs_route.py now imports them. Its test names and checks are unchanged, and it passed in the run.
+
+   Files: created tests/agent_files/test_review_to_tests_agent_files.py. Changed tests/support/two_routes_support.py, tests/pipeline/application/test_docs_route.py, tests/agent_files/test_claude_agent_texts_docs_slip.py and tests/support/shared_rules_support.py.
+
+   Test run, following CLAUDE.md (`uv run pytest -q` on the files above): no module failed to import. The expected failures are the reviewer and tester text rows named above, both R12 rows, test_every_shipped_agent_names_the_smoke_test_to_docs_rework and test_the_rules_in_the_system_prompt_are_the_coders_rules_word_for_word. `make lint` is green.
+
+   Open point for the reviewer: the Interface fixes no exact wording for the reviewer's and tester's new sentences, so criteria 1 to 3 check for key phrases, not whole sentences. The coder's text must contain the phrases listed above, including "own story" (as the Description words it) and "each finding" in the tester's step 0.
+
+   `lint`: lint: green (0.2 s)

@@ -7,11 +7,12 @@ import pytest
 from support.shipped_agents import shared_rules, stage_section, template_definition
 
 REWORK_RULE = (
-    "R12. Rework rounds (review → doing, docs → doing, smoke-test → doing, smoke-test → docs, "
-    "and the human's close at the approval) share the work item's `round`, capped by the "
-    "stage's `round_cap` in the pipeline definition. Your prompt names the round; on a rework "
-    "round the latest entries name the findings. When the cap is passed, the factory asks the "
-    "human instead of looping."
+    "R12. Rework rounds (review → doing, review → tests, docs → doing, "
+    "smoke-test → doing, smoke-test → docs, and the human's close at the approval) "
+    "share the work item's `round`, capped by the stage's `round_cap` in the "
+    "pipeline definition. Your prompt names the round; on a rework round the latest "
+    "entries name the findings. When the cap is passed, the factory asks the human "
+    "instead of looping."
 )
 
 OLD_REWORK_RULE = REWORK_RULE.replace("smoke-test → docs, ", "")

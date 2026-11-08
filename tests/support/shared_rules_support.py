@@ -95,11 +95,12 @@ RULES_BEFORE = (
         "machine before it starts."
     ),
     (
-        "R12. Rework rounds (review → doing, docs → doing, smoke-test → doing, smoke-test → "
-        "docs, and the human's close at the approval) share the work item's `round`, capped "
-        "by the stage's `round_cap` in the pipeline definition. Your prompt names the round; "
-        "on a rework round the latest entries name the findings. When the cap is passed, the "
-        "factory asks the human instead of looping."
+        "R12. Rework rounds (review → doing, review → tests, docs → doing, "
+        "smoke-test → doing, smoke-test → docs, and the human's close at the approval) "
+        "share the work item's `round`, capped by the stage's `round_cap` in the "
+        "pipeline definition. Your prompt names the round; on a rework round the latest "
+        "entries name the findings. When the cap is passed, the factory asks the human "
+        "instead of looping."
     ),
     (
         "R13. Nothing is started without the human: no story enters `in-progress/` but by "
