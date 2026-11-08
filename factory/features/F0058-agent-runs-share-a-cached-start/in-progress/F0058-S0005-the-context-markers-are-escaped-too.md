@@ -1,11 +1,11 @@
 ---
 stage: doing
-blocked: question
+blocked: null
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 664
-comments_read: []
+comments_read: [6722586434]
 handed_over: null
 claim: null
 journal:
@@ -48,6 +48,11 @@ journal:
   stage: doing
   run: b69aab1718194d759776f186d5fababc
   blocked: question
+- number: 8
+  speaker: human
+  kind: comment
+  at: '2026-11-08T14:17:19.530739Z'
+  stage: doing
 ---
 
 # The context markers are escaped too
@@ -126,3 +131,4 @@ Expect: `1`
    B. Change the Interface so that `<context` counts only when `>` or whitespace follows it, and implement that matcher. I would reject this: it makes one marker behave differently from the other four, and an over-escaped `&lt;context-free>` costs the agent nothing.
 
    Noticed, not touched: I did not refactor anything; the change is the two added tuple entries.
+8. 2026-11-08 human: Answer from the human: A. Keep the Interface: `<context` is escaped as a prefix, like the other markers. Leave for the tester to replace `<context-free>` in the `near` row of `tests/agents/domain/test_prompts_context_markers.py` with a text that holds no marker (such as `context-free`), and nothing else.
