@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 661
 comments_read: [6721548904]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-08T12:35:38.732102Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -42,6 +46,11 @@ journal:
   at: '2026-11-08T12:35:33.502332Z'
   stage: intake
   run: b6614815e06744afa492fbcbf9417f85
+- number: 7
+  speaker: factory
+  kind: started
+  at: '2026-11-08T12:35:38.732102Z'
+  stage: tests
 ---
 
 # The bill shows how well the cache works
@@ -110,3 +119,4 @@ Expect: the help names the cache figures and the hit rate.
    - Docs criterion: it names what the operator must know (the three figures and how to read the hit rate) and dictates no sentences.
    - Architecture: the change lies in `src/factory/watching/domain/bills.py` (the domain's figures and table) and `src/factory/entry/bill.py` (the command line and `--help`). It needs no new interface, dependency or change under `factory/`.
    - Scope: this is the feature's S0003 line, and none of it falls under the feature's Out of scope.
+7. factory: started tests as vm.
