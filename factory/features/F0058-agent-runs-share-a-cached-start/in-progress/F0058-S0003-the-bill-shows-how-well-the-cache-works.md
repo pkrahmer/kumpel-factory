@@ -1,5 +1,5 @@
 ---
-stage: docs
+stage: smoke-test
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 661
 comments_read: [6721548904]
 handed_over: null
-claim:
-  instance: vm
-  stage: docs
-  started_at: '2026-11-08T12:52:44.682147Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -128,6 +124,12 @@ journal:
   kind: started
   at: '2026-11-08T12:52:44.682147Z'
   stage: docs
+- number: 22
+  speaker: documenter
+  kind: result
+  at: '2026-11-08T12:58:52.382251Z'
+  stage: docs
+  run: 1f136148b1924ff6b1a4156a91baf93f
 ---
 
 # The bill shows how well the cache works
@@ -308,3 +310,25 @@ Expect: the help names the cache figures and the hit rate.
     Earlier tests:
     - `tests/entry/test_bill.py`: changed under the human's leave in the story's Interface, which names this file. The human's answers are in journal entry 4, and intake carried the leave into the story in entry 6. Its four tests keep their names and check the same output with the cache section removed.
 21. factory: started docs as vm.
+22. documenter: Round 1: I documented the bill's cache figures. I changed only documents, so I did not run `make check` (the factory runs it after this stage). `make documents`: documents ok (60.3 s).
+
+    Files changed:
+    - `docs/operator-guide/records.md` ("What a work item cost: `factory-bill`"):
+      - Replaced the VM example with a real run on this VM, `uv run factory-bill F0058-S0003` against `origin/work-item/F0058-S0003`. It shows the new `Cache:` line and the role table. I copied the output as printed.
+      - Updated the sentence that describes the block: table, empty line, `Cost:`, `Cache:`, empty line, role table.
+      - Exit status 0 now also covers `-h` and `--help`.
+      - Added a subsection, "The cache figures". It says the figures appear only in `factory-bill`, not in the posted cost table or the acceptance report. It explains the role rows (order of first run), that the total row equals the `Cache:` line, and that there is no total across work items in flight. A reference table defines cache read, cache written and hit rate (read / (read + written + uncached input), whole percent rounded half up, `-` with no prompt tokens). A last paragraph says how to read the hit rate and that comparing it before and after a prompt change is how to tell whether the change helped.
+    - `docs/project-guide/watching.md`:
+      - "Bills": added `bills_by_role`, `hit_rate`, `cache_line`, `cache_table`, `RoleBill` and the new `WorkItemBill` fields `cache` and `cache_by_role`, and noted that only `factory-bill` reads them.
+      - "The bill command": the new block layout, and that `-h`/`--help` prints the help and returns 0.
+      - "Reference > Bills": the exact formats of `cache_line`, `cache_table` and `hit_rate`.
+
+    I ran `uv run factory-bill --help` (prints the usage, names the three figures, exits 0) and the bill above.
+
+    Cross-read and found current: `README.md` (its command table still describes `factory-bill` correctly), `docs/operator-guide/README.md`, `docs/operator-guide/work-items.md` (the hand-over's posted table, which is unchanged), `docs/project-guide/README.md` (the index still names the right modules), and the mentions of `factory-bill` in `agent-runtime.md` and `agents.md`. I wrote no `docs/decisions.md` entry because the story names no lasting decision.
+
+    Stale text not mine: none noticed.
+
+    `check`: check: green
+    `secrets`: secrets: green (0.6 s)
+    `documents`: documents ok (59.4 s)
