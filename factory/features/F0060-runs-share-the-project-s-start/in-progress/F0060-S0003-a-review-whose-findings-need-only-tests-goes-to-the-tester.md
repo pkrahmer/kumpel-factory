@@ -1,17 +1,13 @@
 ---
-stage: review
+stage: doing
 blocked: null
-round: 0
+round: 1
 attempts: 0
 crashes: 0
 pull_request: 680
 comments_read: [6727432579, 6727512748, 6727549619]
 handed_over: null
-claim:
-  instance: vm
-  stage: review
-  started_at: '2026-11-08T21:49:49.496761Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -129,6 +125,12 @@ journal:
   kind: started
   at: '2026-11-08T21:49:49.496761Z'
   stage: review
+- number: 22
+  speaker: reviewer
+  kind: result
+  at: '2026-11-08T21:50:36.749550Z'
+  stage: review
+  run: 8c95de3a25df443fb0990706b3294c7b
 ---
 
 # A review whose findings need only tests goes to the tester
@@ -323,3 +325,19 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     `duplicates`: duplicates: 7 new, 39 known, 4 gone
 21. factory: started review as vm.
+22. reviewer: Findings:
+
+    1. `agents/agents/reviewer.md:54` (`### docs-review`): this subsection still says it "replaces ... steps 1 to 3 above", so the new step 4 still applies in `docs-review`. There `tests` is not an allowed decision, so step 4 sends findings "to `doing` as before". That contradicts the subsection's own step 4 (`docs-only`), and `doing` is not an allowed decision in that stage. Fix: say "steps 1 to 4 above". The tester then updates the pinned texts (`test_the_rest_of_the_reviewer_body_is_unchanged` and the reviewer `Stage` checksum in `PARTS_BEFORE`) under the human's leave in entry 16. This needs a change to an agent file, so it goes to `doing`.
+    2. `tests/agent_files/test_review_to_tests_agent_files.py::test_the_tester_answers_the_reviewers_test_findings_and_hands_to_the_coder` (criterion 3): four of its seven rows already pass on the step 0 text from before this story. Step 0 already held "reviewer" ("a criterion the reviewer added"), "exactly", "once" and "end with `doing`". No row checks the criterion's condition ("the latest result before its run is the reviewer's"), and the rows do not check that the fragments sit in the same sentence. Fix: add a row for "latest result before your run is the reviewer's". Check the fragments against the sentence that starts with that condition, not against the whole of step 0.
+    3. `tests/agent_files/test_review_to_tests_agent_files.py::test_the_shipped_system_prompt_constant_equals_the_file`: this repeats a check that `tests/agents/adapters/test_claude_runtime_system_prompt.py:63` (and `tests/agent_files/test_context_system_prompt.py:17`) already makes, `SYSTEM_PROMPT_FILE.read_text(...) == SYSTEM_PROMPT`. Fix: drop the copy, and let the tester's entry name the existing test for criterion 4's second half.
+
+    Checked and in order: criterion 1 and 2 (step 4 says both sides, and the tests read them from the lines that name `tests`), criterion 4 (R12 holds the new list once, in the right order, in the file and in `SYSTEM_PROMPT`), and criterion 5 (two rows of one parametrized test, with `round_cap: 2` and a third rework held at `review`). `make check` after the coder was green (entry 20). Architecture, security, docstrings and the Description all match what was built. The docs criterion is still right for the documenter.
+
+    Notes on the side, not findings: the Role's sentence "`docs` passes, `doing` sends the work item back" does not name `tests`. The Interface scopes the change to `## Stage`, so I left it. Allowed decisions here are `docs`, `doing` and `question`. Finding 1 needs an agent-file change, so this goes to `doing` in any case.
+
+    Earlier tests:
+    - `tests/agent_files/test_claude_agent_texts_docs_slip.py`: the human's leave, journal entry 4 (R12's text in `REWORK_RULE`).
+    - `tests/support/shared_rules_support.py`: the human's leave, entry 4 (the R12 entry) and entry 11 (the reviewer and tester `Stage` checksums).
+    - `tests/agent_files/test_claude_agent_texts_review_groups.py`: the human's leave, entry 11 (the step 4 `.replace`) and entry 16 (the R12 mapping `.replace`).
+    - `tests/pipeline/application/test_docs_route.py`: the standing leave to move a shared test helper. `_step`, `WRITES` and `MAKEFILE` moved to `tests/support/two_routes_support.py` as `decide`, `STAGE_WRITES` and `EVERY_TARGET_MAKEFILE`, and every test keeps its name and its checks.
+    - `tests/support/two_routes_support.py`: the standing leave to move a shared test helper (it receives the moved helpers). `TWO_ROUTES` is unchanged.
