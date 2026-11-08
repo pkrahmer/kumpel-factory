@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 654
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T07:13:45.561099Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -58,6 +62,11 @@ journal:
   at: '2026-11-08T07:13:40.665588Z'
   stage: review
   run: f81fd80a92854fb9b6c5f5b745bd757f
+- number: 10
+  speaker: factory
+  kind: started
+  at: '2026-11-08T07:13:45.561099Z'
+  stage: doing
 ---
 
 # Kumpel's procedure after an acceptance that proposes stories
@@ -145,3 +154,4 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
    1. `tests/operator_scripts/test_operator_approving_after_acceptance.py:16-18` (`section_steps`): the lines that find the section copy code that already exists. They repeat the inline lines of `tests/operator_scripts/test_operator_archive_outcome.py:121-124` and do the job of `factory.shared.domain.sections.section_text` (`src/factory/shared/domain/sections.py:128`, already used by `tests/support/shipped_agents.py:162`). Fix: the tester gets the section with `section_text(APPROVING.read_text(encoding="utf-8"), "After a feature's acceptance")` and keeps only the code that splits the result into numbered steps. This is a test-only change, and the coder hands it to the tester.
 
    Earlier tests: none. The diff adds one test file (`A`) and changes, renames or deletes no test file that `develop` holds.
+10. factory: started doing as vm.
