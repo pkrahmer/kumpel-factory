@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 660
 comments_read: [6720878077]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: intake
+  started_at: '2026-11-08T11:25:57.866374Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -30,6 +34,11 @@ journal:
   speaker: human
   kind: comment
   at: '2026-11-08T11:25:55.356465Z'
+  stage: intake
+- number: 5
+  speaker: factory
+  kind: started
+  at: '2026-11-08T11:25:57.866374Z'
   stage: intake
 ---
 
@@ -118,3 +127,4 @@ Expect: the docstring names the order: the work item's body, the role's instruct
    3. The escaped form: the `<` of a marker text becomes `&lt;` (`<work-item` reads `&lt;work-item`). Add the criterion "a body without any marker text reaches the message byte for byte as in the file". The role's instructions are not escaped; they are the factory's own files.
    4. A resumed run gets the whole new message again (work item, role, facts), since the journal has grown; add a criterion for it.
    5. Add the criterion over the shipped agent files: none tells the agent to read its work item before it starts, and each says the work item is in the first message.
+5. factory: started intake as vm.
