@@ -1,11 +1,11 @@
 ---
 stage: intake
-blocked: question
+blocked: null
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 652
-comments_read: []
+comments_read: [6716487122]
 handed_over: null
 claim: null
 journal:
@@ -26,6 +26,11 @@ journal:
   stage: intake
   run: 5e09296d4f364fe099c31b48d59ce459
   blocked: question
+- number: 4
+  speaker: human
+  kind: comment
+  at: '2026-11-08T03:04:14.459066Z'
+  stage: intake
 ---
 
 # The code names the working branch by its role
@@ -82,3 +87,8 @@ Expect: `0`
    4. The Interface leaves one point open: "Whether the test function names that say `main` for the working branch are renamed as well is the human's to decide when refining." The tester needs this decided. Options: (a) rename none (the leave covers only the listed constants and docstrings); (b) rename them all. I would choose (a).
 
    5. Criterion 1's failing rows name `stage_file_on_main`, `x.main_commit` and `_main_reports`. The Interface rule covers every `main_` or `_main` word part, including `_main_commit` and `_main_report_paths`. Should one more failing row cover a leading-underscore private helper, or is `_main_reports` the representative? I would choose to keep the three rows as they are.
+4. 2026-11-08 human: 1. (a), a third row of the new guard.
+   2. (b): accepted as untested; a guard on a bare `main` would be fragile next to `main()` and `__main__`. The reviewer checks it by reading.
+   3. Confirmed, an untested comment change.
+   4. (a), rename none.
+   5. Keep the three rows.
