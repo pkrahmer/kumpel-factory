@@ -255,3 +255,4 @@ Times are UTC. The plan: `night-plan.md`.
 - 00:19Z: F0057-S0003 PR #645 asked at doing (guard literal in a new test; operator/README.md needs the new scripts; old settings without promote). Answered: tester fixes the literal; coder gets a temporary write path for operator/README.md; get defaults a missing switch to off.
 - 00:59Z: F0057-S0003 PR #645 merged into develop (19 runs, $9.68); docs read against the scripts. Coder's temporary operator/README.md path removed. No VM move (no src/ or agents/ change). F0057-S0004 (the operator's documents name develop and main): started.
 - 01:01Z: F0057-S0004 PR #646 asked at intake (2 criteria). Answered yes to both proposals.
+- 01:10Z: F0057-S0004 PR #646 asked at tests: promote/promoted are forbidden v1 words. Answered (a): both leave GLOSSARY_FORBIDDEN, leave for the pinned test; story now changes code.
