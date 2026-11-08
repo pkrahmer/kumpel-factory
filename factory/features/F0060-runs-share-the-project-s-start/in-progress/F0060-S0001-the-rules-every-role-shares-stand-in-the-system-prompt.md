@@ -1,17 +1,13 @@
 ---
-stage: intake
+stage: tests
 blocked: null
 round: 0
 attempts: 0
 crashes: 0
-pull_request: null
+pull_request: 678
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: intake
-  started_at: '2026-11-08T19:45:08.268924Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -23,6 +19,12 @@ journal:
   kind: started
   at: '2026-11-08T19:45:08.268924Z'
   stage: intake
+- number: 3
+  speaker: intake
+  kind: result
+  at: '2026-11-08T19:45:37.261010Z'
+  stage: intake
+  run: 70fe01b7f4d6433fbeb39c13168ec3ce
 ---
 
 # The rules every role shares stand in the system prompt
@@ -78,3 +80,10 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
 1. 2026-11-08 human: created.
 2. factory: started intake as vm.
+3. intake: accepted
+   - Interface: names concrete files and their contents: `agents/system-prompt.md` and `SYSTEM_PROMPT` in `src/factory/agents/domain/prompts.py`, both the orientation followed by `## Rules`; the seven `agents/agents/<name>.md` files without `## Rules`; the one reworded sentence (Stage/Role now stand in the `<role-instructions>` block); and the new test module `tests/agent_files/test_shared_rules_system_prompt.py`. The leave to change earlier tests is the human's decision 1 in `feature.md`. It names the five test files plus "any other test whose only failure is this move", which also covers `tests/agents/adapters/test_shipped_agents_effect.py`. Neither runtime changes: both already read `system_prompt_file` through `system_prompt_text` (`agent_launch.py`).
+   - Criteria: each one is testable by one test function. 1: rules R1 to R15 exactly once each and in order. 2: no rules heading or `R<n>. ` line in an agent file. 3: section order and word-for-word bodies. 4: rule texts word for word, with the one sentence reworded; the existing pinned-text tests, moved to read from the system prompt by the leave, carry most of this. 5: what the orientation says. 6: `SYSTEM_PROMPT` equals the file, which decision 2 also requires. 7: one parametrized test with one row per runtime. The failing side of each "no `## Rules`" and "exactly once" rule is the same assertion. No Interface rule raises an error or validates input, so there are no further failing sides to cover. 8 (make check) and 9 (docs) come last.
+   - Smoke test: four runnable commands: two `grep -c`, a `uv run python -c` that prints a boolean, and pytest on the new file. Each `Expect:` can be checked against the output. The pytest command passes no `-q`, which is right because `pyproject.toml` already has `addopts = "-q ..."`, so a summary line is printed.
+   - Docs criterion: names what the operator and project-guide readers must know without dictating sentences: where the shared rules stand, what an agent file holds, that a copied project agent may drop `## Rules`, and that `SYSTEM_PROMPT` equals the shipped file. It names `docs/operator-guide/agent-runtime.md` and `docs/project-guide/agents.md`. The latter currently describes `## Rules` in every body (lines 280–281, 352) and will need updating.
+   - Architecture: the text constant stays in the `agents` area's `domain` layer, and the shipped files stay in `agents/`. No new interface, dependency or wiring is needed; `wiring.py` already passes `agent_home / system-prompt.md` to both runtimes. The change to `CLAUDE.md`'s first paragraph is listed in `feature.md` as the human's own change after the merge, so it is not part of this story.
+   - Scope: within F0060's first scope line (S0001). It does not touch the out-of-scope items: no story text in the system prompt and no `CLAUDE.md` carrying, which is S0002's. Route: `tests`, because the Interface changes `src/` and `agents/`, which the documenter may not write.
