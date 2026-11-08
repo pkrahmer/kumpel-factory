@@ -1,17 +1,13 @@
 ---
 stage: intake
-blocked: null
+blocked: question
 round: 0
 attempts: 0
 crashes: 0
-pull_request: null
+pull_request: 652
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: intake
-  started_at: '2026-11-08T03:02:05.054757Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -23,6 +19,13 @@ journal:
   kind: started
   at: '2026-11-08T03:02:05.054757Z'
   stage: intake
+- number: 3
+  speaker: intake
+  kind: question
+  at: '2026-11-08T03:02:24.857623Z'
+  stage: intake
+  run: 5e09296d4f364fe099c31b48d59ce459
+  blocked: question
 ---
 
 # The code names the working branch by its role
@@ -68,3 +71,14 @@ Expect: `0`
 
 1. 2026-11-08 human: created.
 2. factory: started intake as vm.
+3. intake: Format check passed. Questions:
+
+   1. The Interface says `hand_over` and `stage` build `f"origin/{WORK_BRANCH}"` from `REMOTE`, but no criterion tests it. Two coders could read this differently and both pass. Options: (a) add a criterion, for example a guard row that fails on a file under `src/factory/` containing `f"origin/{WORK_BRANCH}"` and passes on the `REMOTE`-built form; (b) drop the clause from the Interface. I would choose (a), as a third row of the new guard.
+
+   2. The Interface says the local variables named `main` in `preflight` and `evaluation` become `work`. The guard in criterion 1 searches only for `main` as a word part (`main_`, `_main`), so it cannot catch a bare variable `main`. No criterion tests this clause. Options: (a) extend the guard with a bare-`main`-identifier row that fails on `main = ...` and passes on `def main(`; (b) accept it as untested and say so in the Interface. I would choose (a).
+
+   3. The `check_story` comment change ("On main a started story ...") has no criterion. I would accept it as an untested comment change, but please confirm. Alternatively, say the guard also covers comments.
+
+   4. The Interface leaves one point open: "Whether the test function names that say `main` for the working branch are renamed as well is the human's to decide when refining." The tester needs this decided. Options: (a) rename none (the leave covers only the listed constants and docstrings); (b) rename them all. I would choose (a).
+
+   5. Criterion 1's failing rows name `stage_file_on_main`, `x.main_commit` and `_main_reports`. The Interface rule covers every `main_` or `_main` word part, including `_main_commit` and `_main_report_paths`. Should one more failing row cover a leading-underscore private helper, or is `_main_reports` the representative? I would choose to keep the three rows as they are.
