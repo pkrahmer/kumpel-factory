@@ -1,5 +1,5 @@
 ---
-stage: docs-only
+stage: docs-review
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 647
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: docs-only
-  started_at: '2026-11-08T01:28:29.396342Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -34,6 +30,12 @@ journal:
   kind: started
   at: '2026-11-08T01:28:29.396342Z'
   stage: docs-only
+- number: 5
+  speaker: documenter
+  kind: result
+  at: '2026-11-08T01:34:28.170704Z'
+  stage: docs-only
+  run: ceb3439427b044c6908d8cf7daa98926
 ---
 
 # The project guide names develop and main
@@ -76,3 +78,36 @@ Expect: `documents ok (<seconds> s)`
    - Architecture: nothing under `src/` changes. The paths are in `docs/`, which the documenter may write.
    - Scope: this is S0005 of F0057, which lists the project guide in its scope. It keeps `main_branch_failing` as decision 6 says. No code or test change, so the route is docs-only.
 4. factory: started docs-only as vm.
+5. documenter: Changed `docs/project-guide/` so every mention of the factory's working branch says `develop`. No code, test or other file was touched.
+
+   Files changed, one line each:
+   - `README.md`: the `remote` fixture's `develop`, and the stories started on `develop` (`stage_run_support`).
+   - `agents.md`: `origin/develop` for the stage-file and pipeline-definition reads. It also covers the push to `develop`, the test files `develop` already holds, `git diff --name-status develop...HEAD`, `git diff develop...HEAD` and `push_file("develop", ...)`.
+   - `hosting.md`: `WORK_BRANCH` is `"develop"`, and "the main branch" is now "the working branch (`develop`)". It also covers the `remote` fixture, `human.start` and `human.merge`, and every `origin/main` is now `origin/develop`.
+   - `machine.md`: the preflight's `lint`, the probe stop text, the project's stage file on `develop`, `git diff develop`, and `origin/develop` everywhere.
+   - `operator.md`: `reset-to-tag.sh` moves `develop`. I added "`main` is left alone, since only a promotion reaches it", which I took from the script's own header.
+   - `pipeline.md`: the restore (`checkout("develop", start_point="origin/develop")`), the publish and archive steps, and the stop records published to `develop`. I added a note on `main_branch_failing`: the name is kept and means the working branch (decision 6).
+   - `watching.md` and `work.md`: `origin/develop` everywhere.
+   - `work.md`: the `paths` table now reads `origin`, `develop`. Its bullet names `WORK_BRANCH` and says `tests/guards/test_work_branch_search.py` fails on the literals `origin/main`, `heads/main`, `-b main` and `--initial-branch=main`. I checked these against the guard's `LITERALS`.
+   - `shared.md`: only `origin/main` became `origin/develop`.
+
+   **The script.** I found the mentions with `grep -rnE "\bmain\b" docs/project-guide`, minus the names that are not a branch. The list left after my edits:
+   - **Intended `main` (the line of accepted features):** `operator.md:133` ("`main` is left alone") and `work.md:396`, where the guard's old literals are quoted. Neither is the working branch.
+   - **Not a branch:**
+     - `main` as the entry-point function: `watching.md` 93, 103, 104, 246 and 251; `work.md` 313, 366 and 477; `pipeline.md` 755, 756, 883 and 885; `README.md` 207, 464, 467 and 477; `shared.md` 288.
+     - Real code names kept: `stage_file_on_main`, `red_main`, `MainRow`, `MainRun`, and `main_probed`/`main_failed`.
+     - The variable `main` in `prepare(main, WORK_BRANCH, ...)` (`machine.md:400`).
+     - "its main function" (`style.md:112`).
+   - **Left as an example ref name:** `hosting.md:332`, `hosting.md:336` and `hosting.md:338`. They use `+main`, `^main` and "the factory's names (`main`, `work-item/<id>`)" as ref-name examples, and the tests (`test_git_cli_arguments.py`, `test_git.py`) use the same strings. The last one, "the factory's names", is now slightly off, since the working branch is `develop`. Say if you want it changed.
+
+   **Cross-read.**
+   - Current: `docs/project-guide/style.md` and `glossary.md` have no branch mention.
+   - Not read: `docs/operator-guide/`, `README.md` and `docs/decisions.md`, which are outside the story's files. A grep of `docs/operator-guide` shows `records.md` has only an unrelated "not run (vm)" match.
+
+   `make documents` ends `documents ok (57.8 s)`. I ran no `make check`, since I changed only documents.
+
+   I wrote no decision-log entry.
+
+   `check`: check: green
+   `secrets`: secrets: green (2.0 s)
+   `documents`: documents ok (57.5 s)
