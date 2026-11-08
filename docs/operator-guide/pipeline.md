@@ -66,14 +66,14 @@ project_commands:
   facts-files: {time_limit: 1}
 stages:
   tests: {role: tester, next: [doing], checks: [lint], reports: [test], context: [facts-files]}
-  doing: {role: coder, next: [review, tests], checks: [check], context: [facts-changes]}
+  doing: {role: coder, next: [review, tests], context: [facts-changes]}
   review: {role: reviewer, next: [docs, doing], round_cap: 3, context: [facts-diff]}
 ```
 
-Its [Makefile](../../operator/template/Makefile) finds the base with `git merge-base`, so a checkout without a local `develop` branch works too:
+Its [Makefile](../../operator/template/Makefile) finds the base with `git merge-base` against `origin/develop`, so a checkout without a local `develop` branch works too:
 
 ```make
-base_ref = $$(git merge-base HEAD origin/develop 2>/dev/null || git rev-parse HEAD)
+base_ref = $$(git merge-base HEAD origin/develop)
 
 facts-diff:
 	base=$(base_ref); git diff --stat "$$base" -- . ':!factory' ':!uv.lock'; echo; git diff "$$base" -- . ':!factory' ':!uv.lock'
@@ -93,7 +93,7 @@ The full rules are under *Start facts* in [the project guide's pipeline.md](../p
 
 A definition may hold more than one route and more than one [approval](../project-guide/glossary.md) stage. When you close a pull request at an approval stage, the story goes to that stage's second `next`. The stage whose first `next` is that approval counts the [rounds](../project-guide/glossary.md).
 
-The smoke test of the template reads `smoke-test: {role: smoke-tester, next: [approval, doing, docs], round_cap: 3}`. A finding that is only a slip in a document goes from the smoke test straight to `docs`. There the documenter fixes it and hands back to the smoke test. This counts as a round against the `round_cap`, as a return to `doing` does.
+The smoke test of the template reads `smoke-test: {role: smoke-tester, next: [approval, doing, docs], checks: [check], round_cap: 3}`. It is the template's one full check: `make check` runs after the smoke tester, and no stage before it lists `check`. A finding that is only a slip in a document goes from the smoke test straight to `docs`. There the documenter fixes it and hands back to the smoke test. This counts as a round against the `round_cap`, as a return to `doing` does.
 
 ### The docs route
 
@@ -101,7 +101,7 @@ A story that changes only documents skips the tests, doing and review stages. Do
 
 1. The intake chooses the route. It picks `docs-only` when every path the story's Interface changes is one the documenter may write, and `tests` otherwise.
 2. The documenter writes the whole change and runs `make documents`.
-3. `make check` runs after `docs-only`. The factory reuses an earlier passed result only when no document that a test reads has changed.
+3. `make check` runs after `docs-only`. Its `not_read` lists the documenter's write paths, so after a documents-only change the factory reuses its earlier passed result. In kumpel-factory `make guides`, the tests that read the documents, runs beside `secrets` and `documents` after `docs-only`, as it does after `docs`.
 4. The reviewer reads the documents against the story's criteria, the code and [the style page](../project-guide/style.md).
 5. The story goes to `docs-approval`, where you decide, or back to the documenter with numbered findings.
 
@@ -128,11 +128,11 @@ A pattern that cannot name a path inside the checkout stops the definition from 
 project command lint: not_read /etc/* must be a path pattern inside the checkout
 ```
 
-kumpel-factory's own definition, `factory/pipeline.yml`, leaves out the Markdown and JSON Lines files that no test reads, and folders that hold no code and that no test reads. `make lint` reads every Python file of the tree, wherever it lies, so no folder with code is left out. `README.md` and `docs/` stay in the key, because the guide guards under `tests/guards/` and other tests of `make test` read the real documents. A documents-only change can therefore turn `make check` red. Of `docs/` only `docs/runs/*` is left out.
+kumpel-factory's own definition, `factory/pipeline.yml`, leaves out the Markdown and JSON Lines files that no test reads, and folders that hold no code and that no test reads. `make lint` reads every Python file of the tree, wherever it lies, so no folder with code is left out. It also leaves out the documenter's write paths (`README.md`, `docs/*`, `operator/README.md` and the folder READMEs), because no test of `make check` reads them: `make test` runs `-m "not documents"` and leaves out the tests marked `documents`, and the project command `guides` (`make guides`) runs those in the docs stages. A documents-only change can therefore turn `make guides` red, and leaves the passed `make check` to be reused.
 
 ```yaml
 project_commands:
-  check: {time_limit: 8, not_read: ["docs/runs/*", "factory/features/*.md", "factory/features/*.jsonl", "factory/archive/*", "factory/stops.jsonl", "planning/*", "session-logs/*"]}
+  check: {time_limit: 8, not_read: ["docs/runs/*", "factory/features/*.md", "factory/features/*.jsonl", "factory/archive/*", "factory/stops.jsonl", "planning/*", "session-logs/*", "README.md", "docs/*", "operator/README.md", "agents/README.md", "operator/bin/README.md", "operator/claude/README.md", "operator/job/README.md", "operator/lib/README.md", "operator/opencode/README.md", "operator/skill/README.md", "operator/vm/README.md", "security/README.md", "src/factory/README.md", "src/factory/agents/README.md", "src/factory/entry/README.md", "src/factory/hosting/README.md", "src/factory/machine/README.md", "src/factory/pipeline/README.md", "src/factory/shared/README.md", "src/factory/watching/README.md", "src/factory/work/README.md", "tests/README.md", "tests/support/README.md", "tests/guards/README.md"]}
 ```
 
 Two warnings:

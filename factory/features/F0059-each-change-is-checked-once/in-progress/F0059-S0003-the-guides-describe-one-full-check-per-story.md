@@ -1,5 +1,5 @@
 ---
-stage: docs-only
+stage: docs-review
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 675
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: docs-only
-  started_at: '2026-11-08T16:55:15.716406Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -34,6 +30,12 @@ journal:
   kind: started
   at: '2026-11-08T16:55:15.716406Z'
   stage: docs-only
+- number: 5
+  speaker: documenter
+  kind: result
+  at: '2026-11-08T17:00:29.623798Z'
+  stage: docs-only
+  run: 3a76458105644cda9b3734f71ebdea7b
 ---
 
 # The guides describe one full check per story
@@ -105,3 +107,30 @@ Expect: `0`
    - Scope: this is the follow-up to the human's changes listed in F0059's `feature.md` (*The human's changes*, decisions 1 and 2). It keeps the guides true to them and does not touch the feature's *Out of scope*.
    - Route: `docs-only`, because every path the Interface changes is under `docs/`.
 4. factory: started docs-only as vm.
+5. documenter: Wrote the whole change; documents only.
+   - `docs/operator-guide/pipeline.md`:
+     - Under *Start facts*, the template's `doing` quote no longer has `checks: [check]`. It now matches `operator/template/factory/pipeline.yml:24`.
+     - The `base_ref` quote is now `base_ref = $$(git merge-base HEAD origin/develop)`, as in `operator/template/Makefile:128`. The sentence before it now says the merge-base is taken against `origin/develop`.
+     - *More than one route* now quotes the template's `smoke-test` line with `checks: [check]`. A new sentence says this is the template's one full check, run after the smoke tester.
+     - *The docs route*, step 3: `make check` runs after `docs-only` and is reused after a documents-only change, because `check`'s `not_read` lists the documenter's write paths. In kumpel-factory `make guides` runs beside `secrets` and `documents`.
+     - The paragraph on kumpel-factory's `not_read` now says the documenter's write paths are left out of the key. The reason it gives: `make test` runs `-m "not documents"` and `make guides` runs the marked tests, so a documents-only change can turn `make guides` red, not `make check`. The YAML block is now the `check:` line of `factory/pipeline.yml:10`, copied verbatim from the file.
+   - `docs/project-guide/README.md`, *The marker `documents`*: the paragraph now says `make test` runs `-m "not documents"`. It also says `make guides` runs the marked tests after `docs` and `docs-only` and in the coder's `make check guides`, and that the factory reuses the passed `make check` after a documents-only change. The sentence "Until then `make test` still runs every test…" is gone.
+
+   Checked against the files:
+   - I compared each quote with `operator/template/factory/pipeline.yml`, `operator/template/Makefile`, `factory/pipeline.yml` and the `Makefile`'s `test`/`guides` targets (lines 88–99).
+   - The five smoke-test greps give 0, 0, 0, 1, 0.
+   - `make documents` ended `documents ok (70.4 s)`.
+   - I did not run `make check`, because only documents changed.
+
+   Cross-read and found current:
+   - The rest of `docs/operator-guide/pipeline.md`. The template quote of `tests` and the start-facts table match the template.
+   - The `checks` row of its Reference table.
+   - `docs/project-guide/pipeline.md`.
+   - The rest of *The marker `documents`*.
+
+   Not touched: the minimal example at `docs/operator-guide/pipeline.md:20` (`doing: {role: coder, next: [review], checks: [check]}`). It is an illustration, not a quote, as the intake ruled.
+
+   `check`: check: green
+   `guides`: guides: green (9.7 s)
+   `secrets`: secrets: green (0.5 s)
+   `documents`: documents ok (62.0 s)
