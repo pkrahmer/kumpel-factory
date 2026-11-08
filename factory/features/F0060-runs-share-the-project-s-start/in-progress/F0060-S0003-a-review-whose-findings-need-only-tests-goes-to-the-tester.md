@@ -1,5 +1,5 @@
 ---
-stage: docs
+stage: smoke-test
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 680
 comments_read: [6727432579, 6727512748, 6727549619]
 handed_over: null
-claim:
-  instance: vm
-  stage: docs
-  started_at: '2026-11-08T21:55:30.851545Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -184,6 +180,12 @@ journal:
   kind: started
   at: '2026-11-08T21:55:30.851545Z'
   stage: docs
+- number: 32
+  speaker: documenter
+  kind: result
+  at: '2026-11-08T21:58:12.007494Z'
+  stage: docs
+  run: 3bd5fa9ab0f94954955811f185ce66d1
 ---
 
 # A review whose findings need only tests goes to the tester
@@ -500,3 +502,17 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     - `src/factory/agents/domain/prompts.py:121-123`: the R12 line wrap is uneven (a short "`round`, capped by " fragment). This is cosmetic and the text is correct.
     - `agents/agents/reviewer.md` Role, "`docs` passes, `doing` sends the work item back": it does not name `tests`. The Interface limits the change to `## Stage`, so this is left for a later story if the human wants it.
 31. factory: started docs as vm.
+32. documenter: I wrote the docs criterion into the operator guide and found no findings for the coder.
+
+    Changed:
+    - `docs/operator-guide/pipeline.md`, under *More than one route*: a new paragraph. It says the review stage may send a story straight to the tester when every finding needs only the story's own tests, and then the coder runs once before the next review. Any finding outside those tests sends all findings to `doing`. The route needs `tests` in `review`'s `next`, shown with an example line. The template's `review` lists only `[docs, doing]`, which I checked in `operator/template/factory/pipeline.yml:25`, so without that change everything still goes to `doing`. The move counts as a round against `round_cap`. I checked that against rule 3 of the decision table in `docs/project-guide/pipeline.md` (a rework is any `next` entry other than the first).
+
+    `make documents`: `documents ok (58.7 s)`. Its two `not run (vm)` lines are for earlier examples, in `docs/operator-guide/records.md:53` and `docs/project-guide/pipeline.md:142`. I did not run `make check`, because I changed only a document.
+
+    Cross-read and found current: `docs/operator-guide/agent-runtime.md` (the shipped agents; its smoke tester's two ways out are still true), `docs/project-guide/pipeline.md` (the round counting and the multi-route note at line 90), and the rest of `docs/operator-guide/pipeline.md`, including the template excerpt at line 70, which still matches the template. No document quotes R12's list of rework rounds, so none went stale.
+
+    Stale but not mine to fix: none. A possible addition, not required by the criterion: `agent-runtime.md` describes the smoke tester's two ways out but not the reviewer's. A later story could add the reviewer's `tests`/`doing` choice there.
+
+    `guides`: guides: green (9.6 s)
+    `secrets`: secrets: green (0.6 s)
+    `documents`: documents ok (59.3 s)
