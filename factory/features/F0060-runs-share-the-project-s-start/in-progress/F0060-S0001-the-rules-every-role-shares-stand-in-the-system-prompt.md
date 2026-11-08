@@ -1,11 +1,11 @@
 ---
 stage: docs
-blocked: attempts_cap
+blocked: null
 round: 1
-attempts: 2
+attempts: 0
 crashes: 0
 pull_request: 678
-comments_read: [6726852112]
+comments_read: [6726852112, 6726967345]
 handed_over: null
 claim: null
 journal:
@@ -183,6 +183,11 @@ journal:
   at: '2026-11-08T20:48:25.018918Z'
   stage: docs
   blocked: attempts_cap
+- number: 32
+  speaker: human
+  kind: comment
+  at: '2026-11-08T20:54:14.008161Z'
+  stage: docs
 ---
 
 # The rules every role shares stand in the system prompt
@@ -558,3 +563,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     Bytecode compiled 4164 files in 50ms
 
     Comment anything to retry: the attempts go back to 0 and the stage runs again. Close the pull request to discard the story instead: it goes back to the backlog as you wrote it, and its branch and bill are deleted.
+32. 2026-11-08 human: Retry. The package index is fast again at the moment (a cold `uv run` took 3 to 5 s at 21:55 UTC; 70 to 99 s at other times this evening).
