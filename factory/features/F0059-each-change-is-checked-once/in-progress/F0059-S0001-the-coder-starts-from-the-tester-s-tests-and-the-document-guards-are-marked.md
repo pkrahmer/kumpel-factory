@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 672
 comments_read: [6723592271, 6723685612, 6723780619]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T16:07:42.727374Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -108,6 +112,11 @@ journal:
   speaker: human
   kind: comment
   at: '2026-11-08T16:07:40.365547Z'
+  stage: doing
+- number: 19
+  speaker: factory
+  kind: started
+  at: '2026-11-08T16:07:42.727374Z'
   stage: doing
 ---
 
@@ -294,3 +303,4 @@ Expect: a line `<n> tests collected`, `<n>` greater than 0.
 
     Built this round: nothing. Noticed but not touched: nothing else.
 18. 2026-11-08 human: Answer from the human: (b). Leave for the tester to move `test_todays_install_guide_gives_no_settings_finding` from `tests/shared/domain/test_document_settings.py`, keeping its function name, into a new marked module `tests/guards/test_install_guide_settings.py`, with what it needs (shared helpers through `tests/support/` if two modules need them). Nothing else in `test_document_settings.py` changes. The marker on `tests/guards/test_mount_program_search.py` is under the existing leave.
+19. factory: started doing as vm.
