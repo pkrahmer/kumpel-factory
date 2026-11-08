@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 645
 comments_read: [6714658360, 6714963482]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T00:23:28.190642Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -110,6 +114,11 @@ journal:
   at: '2026-11-08T00:23:22.528085Z'
   stage: tests
   run: 7f7b295fc93e4010b80215138928c654
+- number: 19
+  speaker: factory
+  kind: started
+  at: '2026-11-08T00:23:28.190642Z'
+  stage: doing
 ---
 
 # Kumpel works on develop and promotes accepted features to main
@@ -302,3 +311,4 @@ Expect: `off`
     Test run: `uv run pytest -q` on the two files: all 66 tests pass, since the coder's code is already in place. `make lint`: green.
 
     `lint`: lint: green (0.2 s)
+19. factory: started doing as vm.
