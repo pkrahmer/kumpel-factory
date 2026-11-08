@@ -130,7 +130,7 @@ The skill is `operator/skill/kumpel/`. Its scripts run from a project checkout w
 - Comments are posted only through `comment.sh`. It appends the signature line (`— Kumpel, for the human who owns this project`) and the marker `<!-- kumpel -->` once.
 - `merge.sh` and the start commit carry Kumpel's signature as well.
 - [test_operator_skill_signature.py](../../tests/operator_scripts/test_operator_skill_signature.py) and [test_operator_texts.py](../../tests/operator_scripts/test_operator_texts.py) pin the texts.
-- `reset-to-tag.sh` closes the open [work item](glossary.md) pull requests, deletes the `work-item/` branches and moves `main` to the tag's commit by force. Each step stops at its first failure.
+- `reset-to-tag.sh` closes the open [work item](glossary.md) pull requests, deletes the `work-item/` branches and moves `develop` to the tag's commit by force; `main` is left alone, since only a promotion reaches it. Each step stops at its first failure.
 - Without `--yes` it only prints the plan, because the move cannot be undone.
 - It works only on the repository that is both `SITE_REPOSITORY` and `SITE_RESET_REPOSITORY`.
 

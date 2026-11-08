@@ -209,17 +209,17 @@ See also: *The pipeline definition* in `pipeline.md`; the work item reader's fau
 
 ### A project's own agents
 
-A project may carry its own agents. They are read from `origin/main`, never from the work tree, so a branch cannot change its own agents. `ProjectAgentDefinitions`, in [project_agents.py](../../src/factory/agents/application/project_agents.py), is an `AgentDefinitionReader` over the `Git` interface and an installed reader.
+A project may carry its own agents. They are read from `origin/develop`, never from the work tree, so a branch cannot change its own agents. `ProjectAgentDefinitions`, in [project_agents.py](../../src/factory/agents/application/project_agents.py), is an `AgentDefinitionReader` over the `Git` interface and an installed reader.
 
     ProjectAgentDefinitions(git, installed, ref=PIPELINE_REF)
 
 - `build_boundaries` wires it with the boundaries' `GitCli` and `FrontmatterAgentDefinitionReader(settings.agent_home)`. The loader, the task composer and the preflight reach it through `boundaries.agent_definitions` and know nothing of it.
-- `read(name)` checks the name first (no `git` call for a bad one), then reads `factory/agents/<name>.md` at `ref` (`origin/main`) with `git.show_file`.
-- No file: `installed.read(name)`. A file: `installed.parse(name, text)`, so the rules are the installed reader's, and a fault is raised again with the fault text `factory/agents/<name>.md at origin/main: <fault>` and the same `key`.
+- `read(name)` checks the name first (no `git` call for a bad one), then reads `factory/agents/<name>.md` at `ref` (`origin/develop`) with `git.show_file`.
+- No file: `installed.read(name)`. A file: `installed.parse(name, text)`, so the rules are the installed reader's, and a fault is raised again with the fault text `factory/agents/<name>.md at origin/develop: <fault>` and the same `key`.
 - The installed file is then not read: a faulty project file is never replaced.
 - `names()` is the sorted union of `installed.names()` and the stems of the files directly in `<project>/factory/agents/` at `ref` that are `<name>.md` with a `Name` stem. `GitError` and the installed reader's `AgentDefinitionError` propagate.
 - `parse` is the installed reader's.
-- It keeps nothing between calls and never reads the work tree, so a push to `main` is seen after the next fetch (the [tick](glossary.md) fetches) and a branch's copy never.
+- It keeps nothing between calls and never reads the work tree, so a push to `develop` is seen after the next fetch (the [tick](glossary.md) fetches) and a branch's copy never.
 
 ### Faults
 
@@ -237,7 +237,7 @@ A project may carry its own agents. They are read from `origin/main`, never from
 
 ## The shipped agents, settings and template
 
-[agents/](../../agents/) and [operator/template/](../../operator/template/) are data the image carries; no code under `src/` reads them except through the readers named here. To change what an agent is told, edit its file under `agents/agents/`; there is no other copy of a shipped agent. A project's own agent is its file under `<project>/factory/agents/` on `origin/main` (see *A project's own agents*).
+[agents/](../../agents/) and [operator/template/](../../operator/template/) are data the image carries; no code under `src/` reads them except through the readers named here. To change what an agent is told, edit its file under `agents/agents/`; there is no other copy of a shipped agent. A project's own agent is its file under `<project>/factory/agents/` on `origin/develop` (see *A project's own agents*).
 
 ### The seven agents
 
@@ -276,7 +276,7 @@ Besides the lessons, these passages are the factory's own text, and the tests na
 
 - The `reviewer`'s checklist has a sixth item, *Earlier tests*, done in every review.
 - The sentence before the checklist says the reviewer goes through all of groups 1 to 5 in every review, also when an earlier group fails. It reports every finding of every group in one entry.
-- Item 6 lists each test file that `main` already holds and the diff changes, renames or deletes: any status but `A` in `git diff --name-status main...HEAD`. For each it names the leave: the standing leave of `CLAUDE.md` to move a shared test helper, the human's leave, or none needed when the change only adds tests. The human's leave is the story naming the test, or the human's answer in the journal. A change under none of them, or beyond its leave, is a finding.
+- Item 6 lists each test file that `develop` already holds and the diff changes, renames or deletes: any status but `A` in `git diff --name-status develop...HEAD`. For each it names the leave: the standing leave of `CLAUDE.md` to move a shared test helper, the human's leave, or none needed when the change only adds tests. The human's leave is the story naming the test, or the human's answer in the journal. A change under none of them, or beyond its leave, is a finding.
 - The `acceptance-reviewer`'s check 6 gathers those lists for the human, and an earlier test changed with no leave named is a finding there. The acceptance reviewer does not repeat the diff check over the whole [feature](glossary.md). [test_claude_agent_texts.py](../../tests/agent_files/test_claude_agent_texts.py) pins these passages with anchors.
 - The `reviewer`'s `Notes:` from [round](glossary.md) 1 on, and its added criterion; its correction of a stale Description, which it rewrites when the journal, the Interface or the criteria settle it and names as `description corrected:`.
 - `intake`'s *Stage* step 2 also asks about a smoke test command that passes pytest a `-q` the project's pytest configuration already sets. The configuration is `addopts` in `pyproject.toml`, `pytest.ini`, `setup.cfg` or `tox.ini`. The question is asked because at `-qq` pytest prints no summary line. [test_claude_agent_texts_smoke_pytest.py](../../tests/agent_files/test_claude_agent_texts_smoke_pytest.py) pins the sentence and that no other agent carries it.
@@ -299,7 +299,7 @@ A story whose Interface changes only paths the documenter may write (`README.md`
 | --- | --- | --- |
 | `intake` | `intake` | Step 7: chooses `docs-only` when every path the Interface changes is one of the three above; otherwise `tests`. |
 | `documenter` | `docs-only` | Its `### docs-only` subsection replaces steps 1 to 6 of its Stage. It writes the whole change the docs criterion asks for, runs `make documents` and ends with `docs-review`. Back from the reviewer, it fixes exactly the numbered findings and ends with `docs-review` again. |
-| `reviewer` | `docs-review` | Its `### docs-review` subsection replaces the Role's scope, its checklist and its decisions, and steps 1 to 3 of the Stage. It reads the work item and `git diff main...HEAD -- README.md docs operator/README.md`, judges the facts against the code and the criteria and the writing against [style.md](style.md), and ends with `docs-approval` or with `docs-only` and numbered findings. |
+| `reviewer` | `docs-review` | Its `### docs-review` subsection replaces the Role's scope, its checklist and its decisions, and steps 1 to 3 of the Stage. It reads the work item and `git diff develop...HEAD -- README.md docs operator/README.md`, judges the facts against the code and the criteria and the writing against [style.md](style.md), and ends with `docs-approval` or with `docs-only` and numbered findings. |
 
 - When the documenter finds that the story needs a change outside the documents, it writes nothing for it and ends with `tests`; its entry names the change, and the story takes the code route from there.
 - On `docs-review` the reviewer judges the writing against `docs/project-guide/style.md` alone: its rules for all documents and the section for the kind of document the diff changes. The subsection holds no list of rules of its own.
@@ -351,12 +351,12 @@ These rules do not change the other stages, the allowed decisions or the opencod
 - [Makefile](../../operator/template/Makefile), the project commands of a Python project with a src layout, in the pattern of this repository's own.
   - Its targets are the contract's four, `check`, `lint`, `test` and `sync` (`uv sync --frozen`, between `check` and `lint`, not run by `check`), and the other targets `check` runs: `types`, `layers`, `sast`, `secrets` and `licenses`.
   - Every recipe runs in one shell and ends with `<target>: green (<seconds> s)`. `make test` runs on every core and writes a JUnit report.
-  - `make secrets` scans the files changed against `origin/main`. It leaves out `uv.lock`, `.secrets.baseline` and every file ending `.costs.jsonl`.
+  - `make secrets` scans the files changed against `origin/develop`. It leaves out `uv.lock`, `.secrets.baseline` and every file ending `.costs.jsonl`.
   - The `.costs.jsonl` files are the factory's cost records. They hold run metadata and no secret, but their 32-character hexadecimal run ids read to detect-secrets as high-entropy secrets.
   - The todo demo's recipe, [demo/todo-service/project/Makefile](../../demo/todo-service/project/Makefile), is the template's, and [test_demo_makefile_secrets.py](../../tests/agent_files/test_demo_makefile_secrets.py) keeps them equal.
   - `duplicates` is a report outside `check`: it writes similar code and dead code to `.reports/` and counts them, and compares them with no baseline.
   - `mutants` is for a sweep by hand and is never run by a stage.
-  - `make mutants FEATURE=<feature id>` runs mutmut over the modules that the feature's story commits on `origin/main` changed. It finds them by the subjects `work item <id>: ...` (or `<id>: ...` after a squash merge).
+  - `make mutants FEATURE=<feature id>` runs mutmut over the modules that the feature's story commits on `origin/develop` changed. It finds them by the subjects `work item <id>: ...` (or `<id>: ...` after a squash merge).
   - `FEATURE` is taken from an acceptance's branch `work-item/<feature id>-A<number>`.
   - There is no `documents` target.
   - A project fills in two placeholders, `SOURCE` (its package folder) and `LAYERS` (its layers command), and the file's header names the development dependencies the targets need.
@@ -376,7 +376,7 @@ What an agent may write is decided in one place, for the [take](glossary.md) of 
 - The write paths are those of the role of `stage_start.claim.stage`, expanded; `root` is `boundaries.checkout`; `protected_paths` is `PROTECTED_PATHS`.
 - It parses the definition itself and does not use `PipelineLoader`, which stays the one place that loads the definition for the tick. This read checks no installed agent file and raises or clears no stop.
 - `ValueError` when `work_item_path` is not `factory/features/<feature directory>/<lifecycle folder>/<work item file name>`. `PipelineDefinitionInvalid`, naming the fault, when the definition is absent or invalid at the commit, when the stage is not in it or has no role, and when a write path holds a placeholder other than the two below.
-- Tests: [test_write_paths.py](../../tests/agents/domain/test_write_paths.py) and [test_write_paths.py](../../tests/pipeline/application/test_write_paths.py). A later version of the definition is made with `human.push_file("main", "factory/pipeline.yml", text)` and `checkout.fetch()`.
+- Tests: [test_write_paths.py](../../tests/agents/domain/test_write_paths.py) and [test_write_paths.py](../../tests/pipeline/application/test_write_paths.py). A later version of the definition is made with `human.push_file("develop", "factory/pipeline.yml", text)` and `checkout.fetch()`.
 
 See also: *The take's rule* in `pipeline.md`.
 

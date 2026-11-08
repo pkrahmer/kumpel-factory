@@ -163,7 +163,7 @@ A feature acceptance is a work item beside the stories, with its own report file
 - The opening opens no pull request, writes no claim and runs no agent. The stage protocol meets the branch as an ordinary work item at the acceptance stage and starts its journal with `started`.
 - `AcceptanceHandOver` follows the story hand-over step for step. It sets the description with `acceptance_description`, marks the pull request ready, posts the cost table and records `handed_over`.
 - `SplitByWorkItemKind(story, acceptance)` passes an event to `acceptance` when its work item's id is an acceptance's and to `story` otherwise. It raises `CannotHandle(kind, "no work item")` for an event without a work item.
-- `AcceptanceService.facts(feature)` reads `origin/main` only and returns the facts the reviewer is told. The facts are computed by code, not by the agent. `TaskComposer.compose` appends them to the reviewer's task.
+- `AcceptanceService.facts(feature)` reads `origin/develop` only and returns the facts the reviewer is told. The facts are computed by code, not by the agent. `TaskComposer.compose` appends them to the reviewer's task.
 - The reviewer writes only what the role of `acceptance_stage` may write: its own report and new stories in the feature's `backlog/`. It cannot write `done/`, `feature.md`, another feature or code.
 - Each report has its own sidecar, `cost_records_path` of the report. So `BillService(...).for_work_item(<acceptance id>).line` counts only that acceptance's records.
 
@@ -178,14 +178,14 @@ See also: *The remote's work items* below; the Reference for the full rules of t
     RemoteWorkItems(git, reader).list_stories(folder)
     RemoteWorkItems(git, reader).read(definition)
 
-- A `StoryFile` is one story file on `origin/main`. A `WorkItemSnapshot` is one work item: `branch` is `branch_name(id)`, `branch_commit` the head of `origin/<branch>` or `None` when the branch does not exist, and `document` the state and body.
+- A `StoryFile` is one story file on `origin/develop`. A `WorkItemSnapshot` is one work item: `branch` is `branch_name(id)`, `branch_commit` the head of `origin/<branch>` or `None` when the branch does not exist, and `document` the state and body.
 - `RemoteWorkItems` reads only remote-tracking refs through `Git.list_files`, `resolve` and `show_file`. It never reads a local branch or the work tree. It does not fetch: the caller does, first.
-- `list_stories(folder)` lists the story files of one lifecycle folder on `origin/main`, in `work_item_order`, then path.
+- `list_stories(folder)` lists the story files of one lifecycle folder on `origin/develop`, in `work_item_order`, then path.
 - A story file is a path for which `folder_of` is not `None`, whose file name's feature id equals its directory's, and whose id is not an acceptance. Anything else is ignored: `.gitkeep`, `feature.md`, deeper files and any path that `folder_of` refuses.
 - `read(definition)` returns one snapshot per story file in `in-progress/`, in the same order. Two files with one id give two snapshots. `backlog/` and `done/` are never read.
-- With a branch, the document is `reader.parse` of the story file at `origin/work-item/<id>`, even when that branch is an ancestor of `origin/main` (see [decisions.md](../decisions.md)). A stale local branch of the same name has no influence.
-- Without a branch, the story has just been started by the human's move into `in-progress/`. Its document is `initial_state(definition.first_stage())` with the body and `ignored_keys` of `parse_specification` on `origin/main`. State fields in that file are not applied; they are listed in `ignored_keys`.
-- A story file missing at its branch tip, or a text the reader refuses on the branch or on `origin/main`, raises `WorkItemFormatError` with `path` set to the story's path. `GitError` from `Git` passes through.
+- With a branch, the document is `reader.parse` of the story file at `origin/work-item/<id>`, even when that branch is an ancestor of `origin/develop` (see [decisions.md](../decisions.md)). A stale local branch of the same name has no influence.
+- Without a branch, the story has just been started by the human's move into `in-progress/`. Its document is `initial_state(definition.first_stage())` with the body and `ignored_keys` of `parse_specification` on `origin/develop`. State fields in that file are not applied; they are listed in `ignored_keys`.
+- A story file missing at its branch tip, or a text the reader refuses on the branch or on `origin/develop`, raises `WorkItemFormatError` with `path` set to the story's path. `GitError` from `Git` passes through.
 
 ### The records contract
 
@@ -323,7 +323,7 @@ The form check says what is wrong with the shape of a [story](glossary.md) file.
 - Every code block of the smoke test is judged by itself. A block that is never closed runs to the end of the body, so it hides a later `## Journal`. That is the safer reading of a half-written story.
 - Rules 7 and 10 check the human's file in the backlog. Rules 8 and 9 are for the factory's own calls on a document that belongs to a work item's branch.
 - A backlog story's `Journal` section has no entries, because the opening writes entry 1 into it. An entry already there would make a second entry 1.
-- A caller that holds only the specification of a started story names the folder `backlog`, so that rules 8 and 9 are not asked of a document that cannot have a state. The text on `main` has no front matter.
+- A caller that holds only the specification of a started story names the folder `backlog`, so that rules 8 and 9 are not asked of a document that cannot have a state. The text on `develop` has no front matter.
 
 | # | Rule | Message | Line |
 |---|---|---|---|
@@ -367,7 +367,7 @@ None missing section: ## Journal
 
 - It reaches the work item reader only through `factory.entry.wiring.build_work_item_reader()`, the one entry module that imports from an `adapters` layer. A test parses the imports to hold that.
 - A backlog file is read with `parse_specification`.
-- A file in `in-progress` or `done` is read with `parse`. When the reader's fault is `no front matter`, it is read again with `parse_specification` and checked as `backlog`: on `main` a started story is the human's moved file, and its state lives on the work item's branch.
+- A file in `in-progress` or `done` is read with `parse`. When the reader's fault is `no front matter`, it is read again with `parse_specification` and checked as `backlog`: on `develop` a started story is the human's moved file, and its state lives on the work item's branch.
 - Any other reader fault becomes the only form finding of that file.
 
 See also: the output of the command in [pipeline.md](../operator-guide/pipeline.md), *Checking a story before it starts*; the index [README.md](README.md).
@@ -391,9 +391,9 @@ All spellings are constants in `factory.shared.domain.paths`:
 | `COST_RECORDS_SUFFIX` | `.costs.jsonl` |
 | `BRANCH_PREFIX` | `work-item/` |
 | `LABEL_PREFIX` | `stage:` |
-| `REMOTE`, `WORK_BRANCH` | `origin`, `main` |
+| `REMOTE`, `WORK_BRANCH` | `origin`, `develop` |
 
-- `WORK_BRANCH` names the factory's working branch, the one the work items start from and merge into. No code under `src/factory/` and no test writes the name literally: both build `origin/<branch>` and the like from `REMOTE` and `WORK_BRANCH`, and `tests/guards/test_work_branch_search.py` fails on `origin/main`, `heads/main`, `-b main` and `--initial-branch=main`.
+- `WORK_BRANCH` names the factory's working branch, the one the work items start from and merge into. No code under `src/factory/` and no test writes the name literally: both build `origin/<branch>` and the like from `REMOTE` and `WORK_BRANCH`, and `tests/guards/test_work_branch_search.py` fails on the literals `origin/main`, `heads/main`, `-b main` and `--initial-branch=main`, the old name of the working branch.
 - `FEATURE_ID`, `STORY_ID` and `ACCEPTANCE_ID` in `identifiers` are the unanchored regular expressions of the ids.
 - `PROJECT_AGENTS_DIRECTORY` in `paths` is where a project keeps its own agents: the folder `<project>/factory/agents/`. The constant and `project_agent_file(name)` hold paths relative to the project's root, and the function gives the file `<name>.md` in that folder. `AGENT_SUFFIX` is the `.md`.
 - `parse_work_item_file_name` returns a `WorkItemFileName` and `parse_feature_directory_name` a `FeatureDirectoryName`. Both are frozen, with `id` and `slug`, the slug `None` when absent.
@@ -435,10 +435,10 @@ The fields of `JournalRecord` after `number`, `speaker` and `kind`:
 - **Status.** `acceptance_status` takes `FeatureFiles` (the names directly in `backlog`, `in-progress` and `done`) and `ReportFacts` (id, folder, state, `on_branch`). `accepted` and `refused` come from the highest covering id. `story_file_ids(names)` keeps only story file names, ascending and without repeats. `ReportFacts.on_branch` is true exactly for reports read from a branch ref.
 - **Front matter.** The writer writes both keys, `stories` then `outcome` (`outcome: null` while unset), after `journal`.
 - **Reader.** `AcceptanceReader(boundaries, definition)` reads only `origin/` refs through `Git.list_files`, `show_file` and `remote_branches`.
-  - `read()` returns a `FeatureAcceptance` per feature directory on `origin/main`: status, archived stories and `next_acceptance`.
-  - `snapshots()` returns one `WorkItemSnapshot` per acceptance whose report is in `in-progress/` of its feature on `origin/main` or on `origin/work-item/<id>`. It never gives two for one id, and gives `[]` without an `acceptance_stage`.
-  - `path` is the one on `origin/main` when the report is there, else the branch's. `branch_commit` is the branch's commit, `None` once the hosting service deleted the branch.
-  - The document is read from the branch when it holds the file, else from `origin/main`. So a merged and not yet recorded report is included, and the `merged` event can be raised for it.
+  - `read()` returns a `FeatureAcceptance` per feature directory on `origin/develop`: status, archived stories and `next_acceptance`.
+  - `snapshots()` returns one `WorkItemSnapshot` per acceptance whose report is in `in-progress/` of its feature on `origin/develop` or on `origin/work-item/<id>`. It never gives two for one id, and gives `[]` without an `acceptance_stage`.
+  - `path` is the one on `origin/develop` when the report is there, else the branch's. `branch_commit` is the branch's commit, `None` once the hosting service deleted the branch.
+  - The document is read from the branch when it holds the file, else from `origin/develop`. So a merged and not yet recorded report is included, and the `merged` event can be raised for it.
   - A report in `done/` gives no snapshot unless a branch still holds it in `in-progress/`, the leftover of a kill.
   - Story branches, branches without a report file and reports under another feature's directory are ignored. A state that is not an acceptance's raises `WorkItemFormatError` with the path, and so does an unreadable report.
   - The result is in `work_item_order`.
@@ -446,9 +446,9 @@ The fields of `JournalRecord` after `number`, `speaker` and `kind`:
   - `parse_at` in `factory.work.application.work_items` is the shared helper that reads and parses a file at a ref.
 - **Opening.** `AcceptanceService(boundaries, definition).open(feature)` reads the last fetch only.
   - A status other than `due` raises `CannotHandle` with the text `feature F0001 is incomplete, not due`, for the status `incomplete`.
-  - It checks out `work-item/<acceptance id>` from `origin/main`, writes `factory/features/<directory>/in-progress/<id>-acceptance.md`, commits and pushes.
+  - It checks out `work-item/<acceptance id>` from `origin/develop`, writes `factory/features/<directory>/in-progress/<id>-acceptance.md`, commits and pushes.
   - The head is `acceptance_head(feature_title, acceptance_stage, archived stories)`: the initial state, `stories`, `outcome: null`, and the body `# Acceptance of <feature title>`, an empty line and `## Journal`.
-  - The title is the first `# ` line of `feature.md` on `origin/main`. A missing file or a file without a title raises `WorkItemFormatError` with that path, before anything is written.
+  - The title is the first `# ` line of `feature.md` on `origin/develop`. A missing file or a file without a title raises `WorkItemFormatError` with that path, before anything is written.
   - A push that is not `pushed` raises `PushFailed`, so a branch the checkout has not fetched is `rejected` and left as it is.
   - `AcceptanceDueHandler` runs `open` for the feature of an `acceptance_due` event. It raises `CannotHandle` for another kind, no feature, or no `acceptance_stage`. It is registered for `acceptance_due` in `build_handlers`.
 - **The hand-over.** `AcceptanceHandOver(boundaries, definition)` uses the same helpers as `HandOverHandler` (`target_of`, `require_pull_request`, `WorkItemRecorder`, `commit_subject`, `cost_table_post`) and the same post key, `cost_table_key(work_item, document)` in [hand_over.py](../../src/factory/hosting/domain/hand_over.py) (`factory.hosting.domain.hand_over`).
