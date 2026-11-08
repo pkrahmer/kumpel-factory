@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 679
 comments_read: [6727152793, 6727304331]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: smoke-test
+  started_at: '2026-11-08T21:29:06.040709Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -191,6 +195,11 @@ journal:
   at: '2026-11-08T21:29:00.361729Z'
   stage: docs
   run: 9fe2f04ecd61446ba5b74156ea439c25
+- number: 34
+  speaker: factory
+  kind: started
+  at: '2026-11-08T21:29:06.040709Z'
+  stage: smoke-test
 ---
 
 # Claude runs carry the project's CLAUDE.md in the system prompt
@@ -491,3 +500,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     `guides`: guides: green (9.7 s)
     `secrets`: secrets: green (2.5 s)
     `documents`: documents ok (68.4 s)
+34. factory: started smoke-test as vm.
