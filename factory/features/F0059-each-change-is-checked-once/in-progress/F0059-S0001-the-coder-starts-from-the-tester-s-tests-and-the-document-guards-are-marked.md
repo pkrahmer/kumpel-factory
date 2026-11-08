@@ -1,5 +1,5 @@
 ---
-stage: intake
+stage: tests
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 672
 comments_read: [6723592271]
 handed_over: null
-claim:
-  instance: vm
-  stage: intake
-  started_at: '2026-11-08T15:51:52.194556Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -40,6 +36,12 @@ journal:
   kind: started
   at: '2026-11-08T15:51:52.194556Z'
   stage: intake
+- number: 6
+  speaker: intake
+  kind: result
+  at: '2026-11-08T15:52:15.383377Z'
+  stage: intake
+  run: e5818b9b2d1641d2aba40f1ecb061f45
 ---
 
 # The coder starts from the tester's tests, and the guards that read the documents are marked
@@ -62,9 +64,9 @@ The human's leave for earlier tests: this story may add the marker line, and the
 
 ## Acceptance criteria
 
-1. `uv run pytest --strict-markers -m documents --collect-only -q` collects every test of the marked modules and no other.
-2. `uv run pytest --strict-markers -m "not documents" --collect-only -q` collects every other test, so the two selections together are the whole suite.
-3. No test outside the marked modules reads a file under the documenter's write paths on the real checkout. The tester's entry names how it searched.
+1. `uv run pytest --strict-markers -m documents --collect-only` collects every test of the marked modules and no other.
+2. `uv run pytest --strict-markers -m "not documents" --collect-only` collects every other test, so the two selections together are the whole suite.
+3. No test outside the marked modules reads a file under the documenter's write paths on the real checkout. The tester meets this with its search, named in its entry; no test function is needed for it.
 4. The coder's agent file says the first step runs only the tester's named test files, and still says the run ends with `make check` green.
 5. `make check` stays green.
 6. docs: `docs/project-guide/` names the marker `documents`: which tests carry it, and why (so that the check after the docs stage can be reused once the human's `guides` command exists). `tests/README.md` says the same in one sentence.
@@ -72,7 +74,7 @@ The human's leave for earlier tests: this story may add the marker line, and the
 ## Smoke test
 
 ```bash
-uv run pytest --strict-markers -m documents --collect-only -q 2>&1 | tail -1
+uv run pytest --strict-markers -m documents --collect-only 2>&1 | tail -1
 ```
 Expect: a line `<n> tests collected`, `<n>` greater than 0.
 
@@ -93,3 +95,12 @@ Expect: a line `<n> tests collected`, `<n>` greater than 0.
    2. Yes: criteria 1 and 2 drop `-q` too, so the output lists node ids; `--strict-markers` may stay.
    3. Yes: the tester meets criterion 3 with its search, named in its entry; no test function is needed for it.
 5. factory: started intake as vm.
+6. intake: accepted
+   - Answers carried in: journal entry 4, the human's answers. Criteria 1 and 2 and the smoke test command now drop `-q`, because `addopts` already sets `-q`. `--strict-markers` stays. Criterion 3 now says the tester meets it with its search, named in its entry, and needs no test function. The Description's meaning did not change.
+   - Interface: it names concrete files. These are `agents/agents/coder.md` (the role section and step 1), `tests/conftest.py` (the marker registered through `pytest_configure` and `config.addinivalue_line`) and the guard modules under `tests/guards/` that get `pytestmark = pytest.mark.documents`. It has the starting list of eight modules and the human's leave for earlier tests, limited to the marker line, its import and the conftest registration.
+   - Criteria: each one is testable. Criteria 1 and 2 are the two sides of the marker selection: the marked modules and nothing else, then the rest, which together make the whole suite. Criterion 3 is met by the tester's search, by the human's answer. Criterion 4 is a check of the agent file's text. Criterion 5 is `make check` and criterion 6 is docs, the last two.
+   - Smoke test: runnable now that `-q` is gone. With `addopts` `-q` and a `-m` selection, pytest's last line is `<n>/<total> tests collected (<k> deselected) in …`, so the `<n> tests collected`, n > 0 expectation can be checked.
+   - Docs criterion: it names what the reader must know (which tests carry `documents` and why, plus one sentence in `tests/README.md`) and dictates no sentences.
+   - Architecture: the marker is the project's and lives in `tests/` and conftest (feature decision 3). The factory code and `factory/` are untouched. The coder's agent file stays project-neutral and names no new make target or pytest option.
+   - Scope: this matches the S0001 scope lines in `feature.md`. The Makefile, `factory/pipeline.yml` and `CLAUDE.md` changes stay among the human's changes. Nothing touches the out-of-scope items.
+   - Route: `tests`, because `agents/` and `tests/` are outside the documenter's write paths.
