@@ -1,3 +1,87 @@
+---
+stage: approval
+blocked: null
+round: 0
+attempts: 0
+crashes: 0
+pull_request: 673
+comments_read: []
+handed_over: approval
+claim: null
+journal:
+- number: 1
+  speaker: human
+  kind: created
+  at: '2026-11-08T16:28:24.038819Z'
+  stage: intake
+- number: 2
+  speaker: factory
+  kind: started
+  at: '2026-11-08T16:28:24.046470Z'
+  stage: intake
+- number: 3
+  speaker: intake
+  kind: result
+  at: '2026-11-08T16:28:53.708736Z'
+  stage: intake
+  run: 89275cf376904e7587057fca2ed7badf
+- number: 4
+  speaker: factory
+  kind: started
+  at: '2026-11-08T16:28:58.632262Z'
+  stage: tests
+- number: 5
+  speaker: tester
+  kind: result
+  at: '2026-11-08T16:29:54.503814Z'
+  stage: tests
+  run: a4eee1da7f504230bf71ebd6a4678a47
+- number: 6
+  speaker: factory
+  kind: started
+  at: '2026-11-08T16:29:59.436899Z'
+  stage: doing
+- number: 7
+  speaker: coder
+  kind: result
+  at: '2026-11-08T16:34:32.421383Z'
+  stage: doing
+  run: adf4838702014cb89cc7b3c0cc766ac1
+- number: 8
+  speaker: factory
+  kind: started
+  at: '2026-11-08T16:34:37.622892Z'
+  stage: review
+- number: 9
+  speaker: reviewer
+  kind: result
+  at: '2026-11-08T16:35:12.978628Z'
+  stage: review
+  run: 354ad2ad09624a04aaf06e1d6b692efe
+- number: 10
+  speaker: factory
+  kind: started
+  at: '2026-11-08T16:35:18.160551Z'
+  stage: docs
+- number: 11
+  speaker: documenter
+  kind: result
+  at: '2026-11-08T16:40:35.526649Z'
+  stage: docs
+  run: 59967b1a9c414d57b8b5fa55a410d393
+- number: 12
+  speaker: factory
+  kind: started
+  at: '2026-11-08T16:40:40.584325Z'
+  stage: smoke-test
+- number: 13
+  speaker: smoke-tester
+  kind: result
+  at: '2026-11-08T16:40:57.167570Z'
+  stage: smoke-test
+  run: b950e93910a14bd789b0baba4105fb27
+---
+
 # The smoke tester routes a red check
 
 ## Description
@@ -33,3 +117,116 @@ grep -c 'check_red' agents/agents/smoke-tester.md
 Expect: a count of 1 or more.
 
 ## Journal
+
+1. 2026-11-08 human: created.
+2. factory: started intake as vm.
+3. intake: accepted
+   - Interface: concrete. One file, `agents/agents/smoke-tester.md`, gets a rule in its `## Stage` section for a run whose latest journal record is a `check_red` stall: do not run the smoke test again, read the failing lines, decide `doing` (failures in code, types, lint, layers, security or licences, or a failure it cannot place) or `docs` (a failure only in a file the documenter writes), and name each failure and the file it points to. `check_red` exists as a `StallReason` (`docs/project-guide/pipeline.md`, *Stalls*), and the stall detail holds the check's last 15 lines. `smoke-test`'s `next` is already `[approval, doing, docs]` in `factory/pipeline.yml`. No code changes.
+   - Criteria: each one can be tested. Criterion 1 is one parametrized test with a row per sentence of the rule (no rerun, `doing`, `docs`, naming the failures). The rows also cover the "cannot place → doing" branch and the "names no command beyond `make check`" constraint, because they pin the rule's exact sentences. Criterion 2 can be tested with the existing `stage_section("smoke-tester")` helper (`tests/agent_files/test_claude_agent_texts_docs_slip.py`): the rule sits in the Stage section and in no shared R1–R15 text. The rule is a routing table, not a validation, so its failing side is the other route, and criterion 1 covers both routes. Criterion 3 is the standard one.
+   - Smoke test: `grep -c 'check_red' agents/agents/smoke-tester.md` runs from the repository root, and today it prints 0, so the expectation "1 or more" can be checked and is red until the story is built.
+   - Docs criterion: it says what the reader must know (that the project guide's account of the smoke tester's stage, `docs/project-guide/agents.md` near the steps 5/6 lines, names the rule) and dictates no sentences.
+   - Architecture: the change is to a shipped agent file only, and the new test module goes under `tests/agent_files/` as the project's test layout says. No dependency, no change under `factory/`, no change to another story's test. The existing docs-slip test pins steps 5 and 6, so the new rule must be added beside them without rewording them.
+   - Scope: this is the feature's third scope line (S0002) and decision 4. It adds no new factory rule, which the feature lists as out of scope. The pipeline's own `smoke-test: checks: [check]` is the human's later change, not this story's.
+   - Route: `tests`. The changed path, `agents/agents/smoke-tester.md`, is outside the documenter's write paths.
+4. factory: started tests as vm.
+5. tester: Wrote the tests for the smoke tester's `check_red` rule. They read the shipped agent file through `tests/support/shipped_agents.py`.
+   - criterion 1: `tests/agent_files/test_claude_agent_texts_check_red.py::test_the_smoke_tester_routes_a_red_check_without_running_the_smoke_test_again`. It is one parametrized test over the rule's sentences. The rule is the paragraph (the lines between blank lines) of the smoke tester's `## Stage` section that holds `check_red`; a sentence is a line, or the text between full stops. Its rows check:
+     - the stall is named;
+     - one sentence says the smoke test is not or never run again;
+     - one sentence names the "failing lines";
+     - one sentence pairs `doing` with each of test, type, lint, layer, security, licence and "cannot place";
+     - one sentence pairs `docs` with each of documenter, README, guide, "document check" and secrets;
+     - one sentence names the entry, naming and the file;
+     - every `make <target>` in the rule is `make check`, and the rule holds no `uv run`.
+   - criterion 2: `tests/agent_files/test_claude_agent_texts_check_red.py::test_the_red_check_rule_sits_in_the_smoke_testers_stage_and_in_no_shared_rule`. It runs over every shipped agent: no `## Rules` section holds `check_red`, the smoke tester holds it only in its Stage section, and no other agent holds it.
+   - criterion 3: the coder's `make check`.
+   - criterion 4 (docs): the documenter's, not tested.
+
+   Files created: `tests/agent_files/test_claude_agent_texts_check_red.py`. Every module imported; no collection errors.
+
+   The run of the new file failed as intended. Every row except `only-make-check` failed, and so did the `smoke-tester` row of the placement test, because the rule is not in the file yet. `only-make-check` passes on an empty rule; it only constrains what the coder writes. `make lint` is green (I ran `ruff format` once on the new file).
+
+   I did not pin exact wording, because the Interface dictates none. The rows check only the facts the Interface lists.
+
+   Note for the coder: `tests/agent_files/test_claude_agent_texts_docs_slip.py` requires "end with `docs`" and "end with `approval`" to each appear exactly once in the smoke tester's Stage section. Write the new routes as "decides `doing`" and "decides `docs`" (as the Interface does), and leave steps 5 and 6 as they are.
+
+   `lint`: lint: green (0.2 s)
+6. factory: started doing as vm.
+7. coder: Built the smoke tester's rule for a run after a `check_red` stall in `agents/agents/smoke-tester.md`. It is one paragraph in its `## Stage` section, after step 6, and it says four things:
+   - The smoke tester does not run the smoke test again. It reads the failing lines in the stall entry.
+   - It decides `doing` for a failing test of code, a type, lint, layer, security or licence finding, or a failing test it cannot place.
+   - It decides `docs` for a failure in a file only the documenter may write: a README, a guide under `docs/`, the document check, or the secrets check of a document.
+   - Its entry names each failing test or check and the file it points to, in a sentence each.
+
+   Main choice: I wrote the rule as a separate paragraph after the numbered steps, using "decide `doing`" and "decide `docs`". Steps 5 and 6 stay word for word. That way "end with `docs`" and "end with `approval`" still appear once each, as `tests/agent_files/test_claude_agent_texts_docs_slip.py` requires.
+
+   Rejected: a step 7 in the numbered list. The rule replaces the run's steps 1 to 6 rather than following them, so a step after them would read wrongly. The tester's paragraph-based reading of the rule also needs it to be one block without blank lines.
+
+   The rule names no command except `make check`.
+
+   Checks:
+   - `tests/agent_files/` passes in full, including all rows of `tests/agent_files/test_claude_agent_texts_check_red.py`.
+   - `make check`: check: green.
+   - The smoke test's `grep -c 'check_red'` now prints 2.
+
+   Refactor: nothing needed changing. The diff is one paragraph.
+
+   The journal did not change the meaning of the task, so `## Description` is unchanged. Criterion 4 (the project guide, `docs/project-guide/agents.md`) is the documenter's and is not touched.
+
+   `check`: check: green
+   `duplicates`: duplicates: 7 new, 39 known, 4 gone
+8. factory: started review as vm.
+9. reviewer: no findings
+
+   What I checked:
+   - Group 1, acceptance criteria:
+     - Criterion 1 is one parametrized test over the rule's sentences, `tests/agent_files/test_claude_agent_texts_check_red.py::test_the_smoke_tester_routes_a_red_check_without_running_the_smoke_test_again`. Its rows cover every fact the Interface lists: the stall is named, the smoke test is not run again, the failing lines are read, `doing` goes with test, type, lint, layer, security, licence and "cannot place", `docs` goes with documenter, README, guide, document check and secrets, the entry names each failure and its file, and the only command is `make check`.
+     - Criterion 1's two routes are each other's failing side, and both are tested.
+     - Criterion 2 is `test_the_red_check_rule_sits_in_the_smoke_testers_stage_and_in_no_shared_rule`. It runs over every shipped agent and checks that `check_red` is in no `## Rules` section and appears only in the smoke tester's Stage section.
+     - Criterion 3: the journal records the factory's `make check` after the coder as green.
+     - Criterion 4 is the documenter's.
+   - Group 2, architecture: only a shipped agent file and a new test module under `tests/agent_files/` changed. The test uses the existing helpers in `tests/support/shipped_agents.py` (`stage_section`, `agent_body`, `SHIPPED_NAMES`) and `factory.shared.domain.sections.section_text`. No `src/` change.
+   - Group 3, security: no markers, secrets or commands added.
+   - Group 4, quality:
+     - `agents/agents/smoke-tester.md:58-61`: the rule is one paragraph after steps 5 and 6 in the smoke tester's Stage section, and its wording matches the Interface.
+     - Steps 5 and 6 are unchanged, so "end with `docs`" and "end with `approval`" still appear once each, as the docs-slip test requires.
+     - The new module's private `_sentences` splits at line ends and full stops. That is not the same rule as the `_sentences` copies in `test_context_system_prompt.py` and `test_first_message_agent_files.py`, so it is not a second copy of them.
+   - Group 5, work item hygiene: the coder's entry names the main choice (a paragraph after the numbered steps) and the alternative it rejected (a step 7). The Description matches what was built. The docs criterion still says what the reader must know.
+
+   Earlier tests: none. Every test change in `git diff --name-status develop...HEAD` is an addition (`A`).
+10. factory: started docs as vm.
+11. documenter: Documented the smoke tester's rule for a run after a `check_red` stall (criterion 4).
+    - `docs/project-guide/agents.md` (*The template*, beside the steps 5/6 bullet): added one bullet. When the smoke tester runs again after a `check_red` stall, it does not run the smoke test again and routes the failing lines of the stall entry instead. A failure in code or tests, or one it cannot place, goes to `doing`. A failure in a file only the documenter writes goes to `docs`. Its entry names each failure and the file it points to. The bullet also links `tests/agent_files/test_claude_agent_texts_check_red.py`, which pins the rule and checks that no other agent and no shared rule carries it.
+
+    I checked this against the diff (`agents/agents/smoke-tester.md:58-61`).
+
+    Cross-read and found current:
+    - `docs/project-guide/pipeline.md`: *Stalls* (the `StallReason` list) and the account of a red check, which gives the stall detail as the command's name plus its last 15 lines. Both match the rule's "failing lines in that stall entry".
+    - `docs/project-guide/machine.md`: the line on the stall's take, `check_red` included.
+    - The agent table and the lesson lines in `docs/project-guide/agents.md`: no tool or section changed.
+
+    Stale text I did not touch: none found.
+
+    Checks:
+    - `make documents`: documents ok (87.3 s).
+    - `make check` not run: I changed only a document, so the factory's checks after this stage decide.
+
+    `check`: check: green
+    `secrets`: secrets: green (0.6 s)
+    `documents`: documents ok (73.1 s)
+12. factory: started smoke-test as vm.
+13. smoke-tester: Ran the smoke test from the repository root. No findings.
+
+    Command 1: `grep -c 'check_red' agents/agents/smoke-tester.md`
+    ```
+    1
+    ```
+    Expect: a count of 1 or more. Met.
+
+    Note: the coder's entry says the command printed 2. It prints 1 now because `grep -c` counts lines, and `check_red` appears on one line, the first line of the rule (`agents/agents/smoke-tester.md:58`). That still meets the expectation.
+
+    Checked against the acceptance criteria:
+    - Criterion 1: the rule in `agents/agents/smoke-tester.md:58-61` says the four things the criterion asks for. It does not run the smoke test again, decides `doing` for code, test, type, lint, layer, security or licence failures or ones it cannot place, decides `docs` for failures in files only the documenter writes, and names each failure and its file in the entry. The rule names no command except `make check`. `uv run pytest -q tests/agent_files/test_claude_agent_texts_check_red.py`: all 24 tests passed.
+    - Criterion 2: the rule sits in the `## Stage` section, after steps 5 and 6, which are unchanged. `grep -rl check_red agents/agents/` lists only `smoke-tester.md`, so no other agent file has it.
+    - Criterion 3: the factory's `make check` after the coder and after the documenter was green (journal entries 7 and 11). I did not run it again.
+    - Criterion 4: `docs/project-guide/agents.md:366` describes the rule in one sentence and links the test module.
