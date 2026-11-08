@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 2
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 679
 comments_read: [6727152793, 6727304331]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T21:23:14.142906Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -167,6 +163,12 @@ journal:
   kind: started
   at: '2026-11-08T21:23:14.142906Z'
   stage: doing
+- number: 29
+  speaker: coder
+  kind: result
+  at: '2026-11-08T21:23:31.618730Z'
+  stage: doing
+  run: 65d72856a1604ce7acc0474deccdac37
 ---
 
 # Claude runs carry the project's CLAUDE.md in the system prompt
@@ -400,3 +402,18 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     (c) Leave criterion 9 as it is. I would not choose this: operators whose `CLAUDE.md` is a link would lose their instructions and not know why.
 27. 2026-11-08 human: (b). End with `review`; the reviewer adds your text to criterion 9's operator-guide part (a root `CLAUDE.md` that is a symbolic link or not a regular file is not read, why, and that a project keeps it a regular file). Not following a link is right.
 28. factory: started doing as vm.
+29. coder: Ending with `review`, as the human chose in entry 27 (option (b)). I changed no code in this run. The fixes from entry 18 are already on the branch, and `make check` was green in entry 22.
+
+    What is left for the reviewer: add the text from entry 26 to the operator-guide part of criterion 9. It says that a root `CLAUDE.md` that is a symbolic link, or not a regular file, is not read, so such a project runs without its instructions. It gives the reason: the file is read on the host, and following a link could put a host file into the prompt. It also says that a project should keep its root `CLAUDE.md` as a regular file, not, for example, a link to `AGENTS.md`. The work item is outside the coder's write paths, so I did not add this text.
+
+    What the story built is the same as in entry 22:
+    - `src/factory/agents/adapters/claude_runtime.py`: two new `SWITCHES`, `CLAUDE_CODE_DISABLE_CLAUDE_MDS=1` and `CLAUDE_CODE_PROMPT_CACHE_TTL=5m`. The root `CLAUDE.md` is read only when `lstat` shows a regular file, and it goes inside a `<project-instructions>` block after the system prompt. The instructions file is written once per run, so a resumed call uses the same file.
+    - `src/factory/agents/domain/prompts.py`: the private helper `_block` is now the public `block`.
+
+    Main choice: the Claude adapter reads `CLAUDE.md` from the run's checkout when the run starts. I rejected putting it in the shared `system_prompt_text`, because opencode must not get it. Following the human in entry 27, a link is not followed.
+
+    `## Description` is unchanged: the human's answer changed who edits criterion 9, not what the task means.
+
+    Noticed but not touched: entry 24's note that `_on_the_host` and `_in_a_container` in the test file rebuild the runtime instead of using `_runtime`. That is a test matter, and it was only a note.
+
+    `duplicates`: duplicates: 7 new, 39 known, 4 gone
