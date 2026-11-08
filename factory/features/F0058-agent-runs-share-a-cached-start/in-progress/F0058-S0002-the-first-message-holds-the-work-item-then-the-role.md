@@ -1,17 +1,13 @@
 ---
-stage: review
+stage: doing
 blocked: null
-round: 0
+round: 1
 attempts: 0
 crashes: 0
 pull_request: 660
 comments_read: [6720878077, 6720941885, 6720981420, 6721183670]
 handed_over: null
-claim:
-  instance: vm
-  stage: review
-  started_at: '2026-11-08T12:04:36.292425Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -146,6 +142,12 @@ journal:
   kind: started
   at: '2026-11-08T12:04:36.292425Z'
   stage: review
+- number: 25
+  speaker: reviewer
+  kind: result
+  at: '2026-11-08T12:07:58.969972Z'
+  stage: review
+  run: 4f4dc2407dbe4429b75b2a955432d391
 ---
 
 # The first message holds the work item, then the role
@@ -191,8 +193,9 @@ The journal only grows at its end, so the next run's message starts with the sam
 9. The OpenCode runtime's message has the same order, with its result block at the end.
 10. A resumed run's message holds the whole new message again: the work item, the role's instructions and the run's facts.
 11. No shipped agent file under `agents/agents/` tells the agent to read its work item before it starts, and each says the work item is in the first message.
-12. `make check` stays green.
-13. docs: the project guide's description of an agent run says what the system prompt and the first message hold, in which order, with which markers, and why (the shared cached start, and the rules' weight); `agents/README.md` says the same for the agent files. `docs/decisions.md`: one entry, the role's instructions move into the first message after the work item, for the prompt cache.
+12. A runtime given no system-prompt file, or a path where no file exists, gives every run the built-in common system prompt, which is the same text as `agents/system-prompt.md`; a file that exists but cannot be read ends the run with `AgentRuntimeError` naming the file (rows of one test).
+13. `make check` stays green.
+14. docs: the project guide's description of an agent run says what the system prompt and the first message hold, in which order, with which markers, and why (the shared cached start, and the rules' weight); `agents/README.md` says the same for the agent files. `docs/decisions.md`: one entry, the role's instructions move into the first message after the work item, for the prompt cache.
 
 ## Smoke test
 
@@ -485,3 +488,27 @@ Expect: the docstring names the order: the work item's body, the role's instruct
     `check`: check: green
     `duplicates`: duplicates: 7 new, 39 known, 4 gone
 24. factory: started review as vm.
+25. reviewer: Review, round 0. I read the diff without `factory/`, the work item, and the new findings of `make duplicates` against the criteria, `CLAUDE.md` and the leaves in the journal. The first message is built as the Interface says (`src/factory/agents/domain/prompts.py:399`): the escaped body, then the unescaped role block, then the facts, one blank line apart. The round line names the cap. `TaskComposer.compose` fills the new fields from the work item it already read for the stage. Resumed requests send the whole message plus `CONTINUE_PROMPT` (entry 9). OpenCode adds the result block only to a fresh call (entry 12). Criteria 1 to 11 each have a test that checks what the criterion says. The coder's `make check` was green (entry 23).
+
+    Groups 2 and 3 found nothing. The layers hold: the domain has no I/O, and file reading sits in `agent_launch`. Wiring stays in `entry`. No silencing markers were added, and an error names only the path. Of the 7 new `make duplicates` findings, the only one from this diff is the similar `system_prompt_file` constructor lines in the two runtimes. Those constructors already mirror each other, so I am not counting it. The other six are in files this diff does not touch.
+
+    Findings:
+    1. criterion 12 added: it needs its test. `src/factory/agents/adapters/agent_launch.py:328` (`system_prompt_text`) uses the built-in `SYSTEM_PROMPT` (`src/factory/agents/domain/prompts.py:326`) when there is no file or the file is missing, and raises `AgentRuntimeError` when the file cannot be read. No criterion or test pins either side, and nothing checks that the built-in copy matches `agents/system-prompt.md`, so the two copies can drift without anyone noticing. Fix: the tester writes the criterion 12 test as rows of one test: no file, a missing path, an unreadable file, and the built-in text equal to the shipped file.
+    2. Criterion 14 (`docs:`): `docs/operator-guide/agent-runtime.md:351` lists what the agent home's `agents/` folder ships (`agents/agents/<role>.md`, `agents/settings.json`). After this story every run also reads `<agent home>/system-prompt.md` (`src/factory/entry/wiring.py:619`, `SYSTEM_PROMPT_FILE_NAME`), and falls back to the built-in text when it is missing. The criterion names only the project guide, `agents/README.md` and `docs/decisions.md`. Fix: the coder adds to criterion 14 that the operator guide's "The agent files" names `system-prompt.md` and what a missing one does.
+    3. `tests/agents/adapters/test_opencode_runtime.py:315` and `tests/agents/application/test_patient_runs.py:345` both build the same `PromptFacts`: the same work item, path, stage, decisions, branch, pull request 7, round 0, body, role `coder` and "Write the code.". Two test modules share it, so `CLAUDE.md` *Tests* puts it in `tests/support/`. Fix: the tester moves it into a support module (for example `tests/support/first_message_support.py`) and both tests use it from there.
+    4. `tests/agent_files/test_first_message_agent_files.py:10` (`SYSTEM_PROMPT`) and `tests/agents/adapters/test_shipped_agents_effect.py:23` (`SYSTEM_PROMPT_FILE`) define the same constant, `AGENT_HOME / "system-prompt.md"`. Fix: one constant in `tests/support/shipped_agents.py` beside `AGENT_HOME`, used by both.
+
+    Earlier tests (changed, status M):
+    - `tests/agent_files/test_claude_agent_texts_review_groups.py`: human's leave, journal entry 17.
+    - `tests/agents/adapters/test_claude_runtime.py`: human's leave named in the Interface.
+    - `tests/agents/adapters/test_opencode_runtime.py`: human's leave named in the Interface, and entry 9.
+    - `tests/agents/adapters/test_opencode_runtime_provider.py`: human's leave, journal entry 9.
+    - `tests/agents/adapters/test_shipped_agents_effect.py`: human's leave named in the Interface, and entry 17.
+    - `tests/agents/application/test_patient_runs.py`: human's leave, journal entry 9.
+    - `tests/agents/domain/test_prompts.py`: human's leave named in the Interface.
+    - `tests/machine/adapters/test_opencode_runtime_lockdown.py`: human's leave, journal entry 9.
+    - `tests/pipeline/application/test_task.py`: human's leave named in the Interface.
+    - `tests/pipeline/application/test_task_acceptance.py`: human's leave named in the Interface.
+    - `tests/support/opencode_stand_in.py`: human's leave named in the Interface, and entry 9.
+
+    Each changed test keeps its name and checks otherwise the same thing.
