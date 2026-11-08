@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 673
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: docs
+  started_at: '2026-11-08T16:35:18.160551Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -58,6 +62,11 @@ journal:
   at: '2026-11-08T16:35:12.978628Z'
   stage: review
   run: 354ad2ad09624a04aaf06e1d6b692efe
+- number: 10
+  speaker: factory
+  kind: started
+  at: '2026-11-08T16:35:18.160551Z'
+  stage: docs
 ---
 
 # The smoke tester routes a red check
@@ -172,3 +181,4 @@ Expect: a count of 1 or more.
    - Group 5, work item hygiene: the coder's entry names the main choice (a paragraph after the numbered steps) and the alternative it rejected (a step 7). The Description matches what was built. The docs criterion still says what the reader must know.
 
    Earlier tests: none. Every test change in `git diff --name-status develop...HEAD` is an addition (`A`).
+10. factory: started docs as vm.
