@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 656
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-08T07:40:49.422192Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -25,6 +29,11 @@ journal:
   at: '2026-11-08T07:40:44.776627Z'
   stage: intake
   run: ff116cb5025d4343881bf03d5efd0df5
+- number: 4
+  speaker: factory
+  kind: started
+  at: '2026-11-08T07:40:49.422192Z'
+  stage: tests
 ---
 
 # The working branch's remote ref is one constant
@@ -91,3 +100,4 @@ Expect: `origin/develop`
    - Docs criterion: it names `docs/project-guide/work.md` (the `paths` table) and what the reader must know, namely that `WORK_REF` is the only way the code builds the working branch's remote ref. It dictates no sentences, and it says no decision entry is needed.
    - Architecture: the constant sits in the `shared` domain layer, which every area may import. That fits the layer rules. The change is a refactoring and behaviour stays the same.
    - Scope: it is a behaviour-free cleanup that F0057's acceptance collected, within the feature's one-constant goal. Nothing in the feature's Out of scope is touched. No earlier test changes. Route: `tests`.
+4. factory: started tests as vm.
