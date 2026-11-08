@@ -1,3 +1,30 @@
+---
+stage: intake
+blocked: null
+round: 0
+attempts: 0
+crashes: 0
+pull_request: null
+comments_read: []
+handed_over: null
+claim:
+  instance: vm
+  stage: intake
+  started_at: '2026-11-08T15:02:45.895436Z'
+  lease_duration: 60
+journal:
+- number: 1
+  speaker: human
+  kind: created
+  at: '2026-11-08T15:02:45.888108Z'
+  stage: intake
+- number: 2
+  speaker: factory
+  kind: started
+  at: '2026-11-08T15:02:45.895436Z'
+  stage: intake
+---
+
 # The operator guide's start facts match the template
 
 <!-- proposed by feature acceptance of 2026-11-08; refine before starting -->
@@ -31,3 +58,6 @@ grep -c 'develop\.\.\.HEAD' docs/operator-guide/pipeline.md
 Expect: `0`.
 
 ## Journal
+
+1. 2026-11-08 human: created.
+2. factory: started intake as vm.
