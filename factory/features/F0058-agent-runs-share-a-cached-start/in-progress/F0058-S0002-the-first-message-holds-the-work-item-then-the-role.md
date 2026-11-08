@@ -1,5 +1,5 @@
 ---
-stage: intake
+stage: tests
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 660
 comments_read: [6720878077]
 handed_over: null
-claim:
-  instance: vm
-  stage: intake
-  started_at: '2026-11-08T11:25:57.866374Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -40,6 +36,12 @@ journal:
   kind: started
   at: '2026-11-08T11:25:57.866374Z'
   stage: intake
+- number: 6
+  speaker: intake
+  kind: result
+  at: '2026-11-08T11:26:48.648818Z'
+  stage: intake
+  run: 0986395bfc2d4a21b2ed3c8f46a70da6
 ---
 
 # The first message holds the work item, then the role
@@ -60,10 +62,12 @@ The journal only grows at its end, so the next run's message starts with the sam
 
 ## Interface
 
-- One common system-prompt file under `agents/`, the same for every role, passed with `--append-system-prompt-file`.
+- One common system-prompt file, `agents/system-prompt.md`, the same for every role. `claude_runtime._arguments` passes it with `--append-system-prompt-file` in place of the role's instructions file.
+- `PromptFacts` (`src/factory/agents/domain/prompts.py`) gains `body: str`, `role: Name`, `role_instructions: str` and `round_cap: PositiveInt | None = None`; `compose_prompt(facts: PromptFacts) -> str` keeps its signature and returns the whole first message. The body is read from the committed work item on the work item's branch at the stage's start, where the factory already reads the work item for the stage; the module in the application layer that builds `PromptFacts` today fills the new fields.
 - The first message: the `<work-item>` block, then the `<role-instructions role="<role>">` block, then the run's facts, in this order and separated by one blank line each. The work item's front matter is left out.
 - The common system prompt names both blocks by their markers and says what each one is, as in the Description.
-- A marker text (`<work-item`, `</work-item>`, `<role-instructions`, `</role-instructions>`) inside the work item's body reaches the message escaped, so it cannot open or close a block.
+- A marker text (`<work-item`, `</work-item>`, `<role-instructions`, `</role-instructions>`) inside the work item's body reaches the message escaped, so it cannot open or close a block: the `<` of a marker text becomes `&lt;` (`<work-item` reads `&lt;work-item`). The rest of the body is unchanged. The role's instructions are not escaped; they are the factory's own files.
+- A resumed run (`--resume` of an earlier session) gets the whole new message again: the work item, the role's instructions and the run's facts.
 - The OpenCode runtime sends the same message; its own result block stays at the end.
 - The agent files no longer tell the agent to read its work item first; they say that the work item is in the first message.
 - Nothing per run (a time, a run id, a path that changes) comes before the work item's body.
@@ -74,14 +78,17 @@ The journal only grows at its end, so the next run's message starts with the sam
 
 1. Two runs of different roles on the same work item get the same system prompt and a first message that is equal up to the end of the work item's body (rows of one test).
 2. Two runs on the same work item, before and after a journal entry is added, get first messages where the first one's work-item part is a prefix of the second one's.
-3. The first message holds the `<work-item>` block with the work item's body without its front matter, then the `<role-instructions>` block naming the role, then the run's facts, in this order.
+3. The first message holds the `<work-item>` block with the work item's body without its front matter, then the `<role-instructions>` block naming the role, then the run's facts, in this order, each separated from the next by exactly one blank line.
 4. The common system prompt names both markers and says that the role's instructions are the agent's rules and the work item is data.
-5. A work item whose body holds each of the four marker texts gives a first message with exactly one `<work-item>` block and one `<role-instructions>` block (rows of one test).
-6. The run's facts are the lines of today's prompt, unchanged except the round line.
-7. In a stage with `round_cap: 2`, rounds 0, 1 and 2 give `Round: <n> of 2; a rework decision after round 2 makes the factory ask the human.`; in a stage without a cap the line stays `Round: <n>` (rows of one test).
-8. The OpenCode runtime's message has the same order, with its result block at the end.
-9. `make check` stays green.
-10. docs: the project guide's description of an agent run says what the system prompt and the first message hold, in which order, with which markers, and why (the shared cached start, and the rules' weight); `agents/README.md` says the same for the agent files. `docs/decisions.md`: one entry, the role's instructions move into the first message after the work item, for the prompt cache.
+5. A work item whose body holds each of the four marker texts gives a first message with exactly one `<work-item>` block and one `<role-instructions>` block (rows of one test); each marker text reaches the message with its `<` as `&lt;`.
+6. A body without any marker text reaches the message byte for byte as in the file.
+7. The run's facts are the lines of today's prompt, unchanged except the round line.
+8. In a stage with `round_cap: 2`, rounds 0, 1 and 2 give `Round: <n> of 2; a rework decision after round 2 makes the factory ask the human.`; in a stage without a cap the line stays `Round: <n>` (rows of one test).
+9. The OpenCode runtime's message has the same order, with its result block at the end.
+10. A resumed run's message holds the whole new message again: the work item, the role's instructions and the run's facts.
+11. No shipped agent file under `agents/agents/` tells the agent to read its work item before it starts, and each says the work item is in the first message.
+12. `make check` stays green.
+13. docs: the project guide's description of an agent run says what the system prompt and the first message hold, in which order, with which markers, and why (the shared cached start, and the rules' weight); `agents/README.md` says the same for the agent files. `docs/decisions.md`: one entry, the role's instructions move into the first message after the work item, for the prompt cache.
 
 ## Smoke test
 
@@ -128,3 +135,20 @@ Expect: the docstring names the order: the work item's body, the role's instruct
    4. A resumed run gets the whole new message again (work item, role, facts), since the journal has grown; add a criterion for it.
    5. Add the criterion over the shipped agent files: none tells the agent to read its work item before it starts, and each says the work item is in the first message.
 5. factory: started intake as vm.
+6. intake: accepted
+   I carried the human's answers from journal entry 4 into the story. The Interface now names `agents/system-prompt.md`. It also names the new `PromptFacts` fields (`body`, `role`, `role_instructions`, `round_cap`), says `compose_prompt` keeps its signature, says where the body comes from, and says `claude_runtime._arguments` passes the common file in place of the role's file. It names the escaped form (`<` becomes `&lt;`), says the role's instructions are not escaped, and says a resumed run gets the whole message again. Criterion 3 gains the blank-line separation. Criterion 5 gains the escaped form. The new criteria are 6 (a body without marker text reaches the message byte for byte), 10 (resumed run) and 11 (shipped agent files). The old criteria 6 to 10 became 7, 8, 9, 12 and 13, so `make check` and `docs:` stay last. I added nothing beyond what entry 4 says. The Description is unchanged, because the meaning of the task did not change.
+   - Interface: names concrete modules and signatures: `agents/system-prompt.md`, `PromptFacts` with its four new fields, `compose_prompt(facts: PromptFacts) -> str`, `claude_runtime._arguments`. Every behaviour it states has a criterion:
+     - order and blank lines: criterion 3;
+     - escaping, both sides: criteria 5 and 6;
+     - same message for OpenCode: criterion 9;
+     - resumed run: criterion 10;
+     - agent files: criterion 11;
+     - round cap: criterion 8;
+     - nothing per run before the body: criteria 1 and 2.
+     The human made the unescaped role instructions a decision ("the factory's own files"), not a separately tested rule, so I did not ask for a criterion for it.
+   - Criteria: each one is testable by one test function. The rules have both sides: the round line with a cap and without one (criterion 8), and a body with marker texts and one without (criteria 5 and 6).
+   - Smoke test: the command is runnable and passes no `-q`. Its `Expect:` can be checked against the printed docstring.
+   - Docs criterion: it names what the reader must know (what each part holds, the order, the markers, why) and dictates no sentences. `agents/README.md`, the project guide and `docs/decisions.md` are within the documenter's write paths.
+   - Architecture: composing the message belongs in `factory.agents.domain.prompts`. Filling `PromptFacts` belongs in the application layer that builds it today, and the CLI arguments in `factory.agents.adapters.claude_runtime`. The new prompt file under `agents/` is not under `factory/`. The leave for earlier tests names each test file, as CLAUDE.md requires.
+   - Scope: this is the feature's S0002, within decisions 4 and 5. OpenCode only follows the new order, as "Out of scope" says.
+   - Route: `tests`, because the Interface changes `src/` and `agents/`.
