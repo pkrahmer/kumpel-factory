@@ -1,3 +1,30 @@
+---
+stage: intake
+blocked: null
+round: 0
+attempts: 0
+crashes: 0
+pull_request: null
+comments_read: []
+handed_over: null
+claim:
+  instance: vm
+  stage: intake
+  started_at: '2026-11-08T11:21:13.923679Z'
+  lease_duration: 60
+journal:
+- number: 1
+  speaker: human
+  kind: created
+  at: '2026-11-08T11:21:13.915846Z'
+  stage: intake
+- number: 2
+  speaker: factory
+  kind: started
+  at: '2026-11-08T11:21:13.923679Z'
+  stage: intake
+---
+
 # The first message holds the work item, then the role
 
 ## Description
@@ -47,3 +74,6 @@ uv run python -c "from factory.agents.domain.prompts import compose_prompt; prin
 Expect: the docstring names the order: the work item's body, the role's instructions, the run's facts.
 
 ## Journal
+
+1. 2026-11-08 human: created.
+2. factory: started intake as vm.
