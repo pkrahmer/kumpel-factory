@@ -1,5 +1,5 @@
 ---
-stage: docs-review
+stage: docs-approval
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 655
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: docs-review
-  started_at: '2026-11-08T07:37:15.637866Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -67,6 +63,12 @@ journal:
   kind: started
   at: '2026-11-08T07:37:15.637866Z'
   stage: docs-review
+- number: 11
+  speaker: reviewer
+  kind: result
+  at: '2026-11-08T07:37:55.540075Z'
+  stage: docs-review
+  run: 39c5dbcb28c74ca9af395693a1232a78
 ---
 
 # The project guide names Kumpel's archive and promotion
@@ -166,3 +168,23 @@ Expect: `documents ok (<seconds> s)`
    `secrets`: secrets: green (0.3 s)
    `documents`: documents ok (58.1 s)
 10. factory: started docs-review as vm.
+11. reviewer: Round 1. Reviewed `git diff develop...HEAD -- README.md docs operator/README.md`, which changes only `docs/project-guide/operator.md`. I checked it against `operator/skill/kumpel/scripts/archive-feature.sh`, `promote.sh`, `kumpel-commit.sh` and `start-story.sh`, against `tests/support/archive_feature_support.py` and the docstrings of the three test modules, and against the heading in `docs/decisions.md` (line 1664) that the text points to.
+
+    Facts:
+    - `archive-feature.sh`: every claim matches the code. It checks out and pulls `develop`, then moves the feature with `git mv` to `factory/archive/`. It commits `<id>: archived` through `kumpel_commit`, pulls again and pushes `develop`. It gives four refusal reasons, all with exit 1 and the message `archive-feature.sh: <id> is not finished: <why>`. The last acceptance is the one whose basename sorts last across all folders. The `outcome: accepted` check exists because a refused acceptance is booked in `done/` too. An unknown feature exits 1, and a wrong number of arguments exits 2.
+    - `promote.sh`: every claim matches the code. A feature that is not archived exits 1. A new promotion is titled `<id>: promoted to main` and its body lists each story's id and title. An open promotion is reused: the script adds the list to its body or keeps it as it is. The switch is read through `settings.sh get promote`. With the switch on it merges with `merge_method: merge` and prints `promoted #<n>`. With the switch off it prints `promotion opened|open: #<n>, for the human to merge`. A wrong number of arguments exits 2.
+    - `kumpel-commit.sh` is sourced, not run. It sets Kumpel <kumpel@noreply.invalid> as both author and committer. Only `archive-feature.sh:50` and `start-story.sh:21` call `kumpel_commit`, and no other script runs `git commit`.
+    - The support bullet names `ACCEPTANCE`, `DONE_FRONT_MATTER`, `finished_feature` and `tree`, and all four exist. The notes in the table row match each test module's docstring.
+
+    Criteria:
+    - Criterion 1 is met: the usage block and the bullets name both scripts with their refusals and with what they commit or send. They name `kumpel-commit.sh` as the one way a Kumpel script commits.
+    - Criterion 2 is met: the table row names the three test modules, and the helper list names `archive_feature_support.py` and what it holds.
+    - Criterion 3 is met: the documenter's run reports `documents ok`.
+
+    Writing, against `docs/project-guide/style.md`:
+    - The four findings of round 0 are fixed. The text names no feature id, the long sentences are split, and the support bullet has no parentheses.
+    - I rejected two possible findings:
+      - The sentence listing the four refusal reasons is about 33 words. It is one list of short items, so I let it stand under rule 2's "about 25".
+      - The new bullets hold more than one sentence each. That matches the bullets already in the section, such as the `reset-to-tag.sh` bullet.
+
+    no findings
