@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 661
 comments_read: [6721548904]
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-08T12:35:38.732102Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -51,6 +47,12 @@ journal:
   kind: started
   at: '2026-11-08T12:35:38.732102Z'
   stage: tests
+- number: 8
+  speaker: tester
+  kind: result
+  at: '2026-11-08T12:39:52.910706Z'
+  stage: tests
+  run: fc19fb322b7a4a6c8be5e7da9a9b5456
 ---
 
 # The bill shows how well the cache works
@@ -120,3 +122,23 @@ Expect: the help names the cache figures and the hit rate.
    - Architecture: the change lies in `src/factory/watching/domain/bills.py` (the domain's figures and table) and `src/factory/entry/bill.py` (the command line and `--help`). It needs no new interface, dependency or change under `factory/`.
    - Scope: this is the feature's S0003 line, and none of it falls under the feature's Out of scope.
 7. factory: started tests as vm.
+8. tester: Wrote the tests for the bill's cache figures. They test the command through `factory.entry.bill.run`, using a real `BillService` on a local bare remote with pushed sidecars, and assume no domain names the Interface does not give.
+
+   - criterion 1: tests/entry/test_bill_cache.py::test_the_cache_line_follows_each_cost_line_with_read_written_and_hit_rate (rows `one-work-item` and `every-work-item-in-flight`; known tokens give `Cache: 490 read, 88 written, 82 % hit` and `Cache: 2 read, 0 written, 67 % hit`)
+   - criterion 2: tests/entry/test_bill_cache.py::test_the_role_table_has_a_row_per_role_in_first_run_order_adding_up_to_the_total_row. The records run tester, coder, reviewer, then coder again under another stage, so grouping by stage instead of by role fails the test.
+   - criterion 3: tests/entry/test_bill_cache.py::test_the_hit_rate_rounds_half_up_to_a_whole_percent (2/3 gives `67 %` and 1/3 gives `33 %`, plus the exact halves 1/8 gives `13 %` and 1/200 gives `1 %`, which rounding half to even would get wrong)
+   - criterion 4: tests/entry/test_bill_cache.py::test_no_prompt_tokens_shows_a_dash_for_the_hit_rate (rows `work-item` and `role`, where one role with no prompt tokens shows `-`)
+   - criterion 5: tests/entry/test_bill_cache.py::test_every_earlier_line_of_the_bill_is_unchanged (rows for one work item and for every work item in flight: with the cache section taken out, the output equals `cost_table`, an empty line and `Cost: cost_line`, the same functions the hand-over and acceptance report use). The posted table and the report stay pinned by the existing, unchanged tests: tests/watching/domain/test_bills.py::test_the_cost_table_of_the_demo_stage_bills, ::test_the_cost_line_of_the_demo_bill, and tests/pipeline/application/handlers/test_hand_over.py.
+   - criterion 6: tests/entry/test_bill_cache.py::test_the_help_prints_the_usage_naming_the_cache_figures (`run(["--help"], ...)`: the text starts with `usage: factory-bill`, names `cache read`, `cache written` and `hit rate`, and returns 0)
+   - criterion 7: no test of its own; it is `make check`.
+   - criterion 8: docs, for the docs stage.
+
+   The Interface does not say where blank lines go around the new section, or what the table's alignment row looks like. The helpers in `tests/support/bill_cache_support.py` therefore accept blank lines between the `Cost:` line, the `Cache:` line and the table, and skip the header and the alignment row. They require the header `| role | cache read | cache written | hit rate |`, the role in the first cell, plain integers, `<n> %` or `-`, and `**total**` as the last row's first cell (as the stage table writes it).
+
+   Files created: tests/entry/test_bill_cache.py and tests/support/bill_cache_support.py.
+
+   Earlier test changed under the human's leave in the Interface: tests/entry/test_bill.py. Its four exact-output assertions now compare the output with the cache section removed (`without_cache`, `without_cache_in_flight`). Test names and what they check are unchanged. I did not change the other four files the leave names.
+
+   Run: `make test` fails only in tests/entry/test_bill_cache.py (all tests) and the four changed tests in tests/entry/test_bill.py. Each failure has the right cause: no `Cache:` line yet ("expected one cache line"), or `--help` is still read as an id. Every module imported; nothing failed to collect. `make lint` is green; I skipped the type check as the stage says.
+
+   `lint`: lint: green (0.2 s)
