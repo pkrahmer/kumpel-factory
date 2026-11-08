@@ -1,3 +1,30 @@
+---
+stage: intake
+blocked: null
+round: 0
+attempts: 0
+crashes: 0
+pull_request: null
+comments_read: []
+handed_over: null
+claim:
+  instance: vm
+  stage: intake
+  started_at: '2026-11-08T01:56:37.063998Z'
+  lease_duration: 60
+journal:
+- number: 1
+  speaker: human
+  kind: created
+  at: '2026-11-08T01:56:37.057055Z'
+  stage: intake
+- number: 2
+  speaker: factory
+  kind: started
+  at: '2026-11-08T01:56:37.063998Z'
+  stage: intake
+---
+
 # archive-feature.sh refuses a feature whose acceptance was refused
 
 <!-- proposed by feature acceptance of 2026-11-08; refine before starting -->
@@ -34,3 +61,6 @@ uv run pytest tests/operator_scripts/test_operator_archive_outcome.py 2>&1 | tai
 Expect: a line ending in `passed in <seconds>s` with no `failed`.
 
 ## Journal
+
+1. 2026-11-08 human: created.
+2. factory: started intake as vm.
