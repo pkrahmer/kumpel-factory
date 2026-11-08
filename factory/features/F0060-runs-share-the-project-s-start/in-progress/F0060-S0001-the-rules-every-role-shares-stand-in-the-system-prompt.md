@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 678
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T20:04:30.080172Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -111,6 +107,12 @@ journal:
   kind: started
   at: '2026-11-08T20:04:30.080172Z'
   stage: doing
+- number: 19
+  speaker: coder
+  kind: result
+  at: '2026-11-08T20:06:47.229654Z'
+  stage: doing
+  run: 5bc162de88dd4c1c9c5b1a74a4aebc7d
 ---
 
 # The rules every role shares stand in the system prompt
@@ -351,3 +353,23 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     `lint`: lint: green (0.2 s)
 18. factory: started doing as vm.
+19. coder: Round 1. The tester's entry 17 moved the three copied test helpers that the reviewer found in entry 13. No code needed to change, and I changed none.
+
+    What I built: the build from entries 7 and 11 is unchanged.
+    - `agents/system-prompt.md`: the orientation, then `## Rules` with R1 to R15. The text is word for word the coder's earlier rules, except for the sentence on `Stage` and `Role`, which now says they stand in the `<role-instructions>` block.
+    - `src/factory/agents/domain/prompts.py`: `SYSTEM_PROMPT` is the same text as the file.
+    - `agents/agents/*.md` (all seven): the `## Rules` section is removed and nothing else changed.
+
+    Run:
+    - `uv run pytest -q tests/agent_files/test_shared_rules_system_prompt.py tests/agent_files/test_claude_agent_texts.py`: all passed.
+    - `make check`: green, with coverage at 99.21 %.
+
+    Main choice (from entry 7): the orientation's role sentence says the role's instructions "add to these rules: follow them with the same weight". That keeps `test_first_message_agent_files.py::test_the_system_prompt_names_both_blocks_and_what_each_one_is` passing unchanged. I rejected "follow them with the same weight as these rules" after the colon, because that wording breaks the same test, and the human's leave does not cover a change to it.
+
+    Refactor: nothing to change, since this round left the code diff as it was.
+
+    What the journal changed: nothing in the task's meaning, so `## Description` stays.
+
+    Noticed, not touched: `docs/operator-guide/agent-runtime.md` and `docs/project-guide/agents.md` still say that every agent file holds `## Rules`. Criterion 9 leaves those changes to the documenter.
+
+    `duplicates`: duplicates: 7 new, 39 known, 4 gone
