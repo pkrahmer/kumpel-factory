@@ -71,7 +71,13 @@ Its main findings:
 
 The cache hit rate is 81 % over all runs (reads against reads plus writes), from 50 % for intake to 91 % for the acceptance.
 
-The weak spot is the cache writes. Intake writes about 21 K tokens in each of its runs, and that looks like the fixed start of every run (system prompt, tools, CLAUDE.md, role prompt). If every one of the 40 runs writes that start again, that alone is about 0.85 M of the 1.06 M written tokens, or roughly 4 USD of the 8.27 USD. The runs follow each other within a minute, so a stable start would be read from the cache instead. The likely cause is something that changes per run early in the prompt: the date, the git status, the run's paths or the work item. This is a hypothesis, to be checked in one transcript's recorded request shape. If it holds, keeping that start identical across runs could save up to about 40 % of a feature's cost.
+The weak spot looked like the cache writes, so I checked the recorded request shapes (system prompt and tools) of 39 runs:
+
+- **The fixed start is stable.** There is exactly one shape per role (7 roles, 7 hashes), so nothing per run, such as a date, git status or path, breaks it. My first hypothesis, that every run rewrites a changing start, is wrong.
+- **The fixed start is small.** It is about 8 K tokens per role (system prompt with the role prompt, about 4–5 K; tools, about 3.5 K), while a run writes 16 K to 37 K tokens. Most of what is written is new content: the work item, the diff and the tool results, each written once when it first enters the conversation.
+- **The start is rewritten each time its role comes back.** The same role recurs only every 8 to 10 minutes, after the 5-minute cache has expired, and the roles cannot share a start, because their tools come first in the request and differ. A 1-hour cache, or the same tools for every role, would save roughly 0.5–1 USD per feature (about 8–10 %).
+
+So the real lever is the amount of text the agents pull in. Every token read is written to the cache once (5 USD per million) and then read again on every later turn (0.20 USD per million). That is Opus's finding 3: a scoped brief instead of the whole work item, a per-file diff, and no duplicate reads.
 
 Other levers:
 - a scoped brief instead of the whole work item (about 1 USD per feature, by Opus's estimate);

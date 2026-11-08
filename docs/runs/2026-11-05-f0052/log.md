@@ -274,3 +274,4 @@ Times are UTC. The plan: `night-plan.md`.
 - 08:02Z: Promotion PR #658 (develop to main, 12 stories) merged as merge commit 2c814d869; develop is in main. Ruleset 26790661 on main: pull request with 0 approvals, no force push, no deletion. F0057 done.
 - 09:17 e2e demo-todo-2: F0001 accepted (PR #5), 40 runs, 8.27 USD; eval in docs/runs/2026-11-08-e2e-demo-todo-2/eval.md
 - 09:51 e2e demo-todo-2: transcript review (Haiku flags, Opus report, 0.48 USD) and caching/speed economics added to the eval
+- 09:58 e2e demo-todo-2: caching hypothesis checked against request shapes; corrected in the eval
