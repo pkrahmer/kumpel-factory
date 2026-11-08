@@ -1,17 +1,13 @@
 ---
-stage: intake
+stage: docs-only
 blocked: null
 round: 0
 attempts: 0
 crashes: 0
-pull_request: null
+pull_request: 647
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: intake
-  started_at: '2026-11-08T01:28:06.908023Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -23,6 +19,12 @@ journal:
   kind: started
   at: '2026-11-08T01:28:06.908023Z'
   stage: intake
+- number: 3
+  speaker: intake
+  kind: result
+  at: '2026-11-08T01:28:24.740341Z'
+  stage: intake
+  run: 58d18eff216448f4a4d1421409871cb2
 ---
 
 # The project guide names develop and main
@@ -57,3 +59,10 @@ Expect: `documents ok (<seconds> s)`
 
 1. 2026-11-08 human: created.
 2. factory: started intake as vm.
+3. intake: accepted
+   - Interface: names concrete documents (`docs/project-guide/*.md`), `WORK_BRANCH` in `factory.shared.domain.paths`, and the guard `tests/guards/test_work_branch_search.py`, which exists. The `paths` table in `work.md` (line 394) still shows `main` as the value, so there is something to change. The story changes only documents, so the Interface needs no signatures.
+   - Criteria: 1 is checked by the grep script and its quoted output. 2 is checked by reading the `paths` table. 3 and 4 are the make targets. No Interface rule has a failing side that needs a test, because the story only edits documents.
+   - Smoke test: `uv run python -m factory.entry.check_documents | tail -1` is runnable and does not call pytest, so the `-q` question does not arise. Its `Expect:` line, `documents ok (<seconds> s)`, can be checked against the output.
+   - Docs criterion: it names the files and what the reader must know (a developer reads the branch the code uses). It dictates no sentences.
+   - Architecture: nothing under `src/` changes. The paths are in `docs/`, which the documenter may write.
+   - Scope: this is S0005 of F0057, which lists the project guide in its scope. It keeps `main_branch_failing` as decision 6 says. No code or test change, so the route is docs-only.
