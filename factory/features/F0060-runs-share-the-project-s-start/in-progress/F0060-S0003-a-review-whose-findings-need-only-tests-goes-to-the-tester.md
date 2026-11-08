@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 680
 comments_read: [6727432579, 6727512748, 6727549619]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-08T21:51:21.940446Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -142,6 +146,11 @@ journal:
   at: '2026-11-08T21:51:16.821590Z'
   stage: doing
   run: 4996f868724d44dd81a56559382d9794
+- number: 25
+  speaker: factory
+  kind: started
+  at: '2026-11-08T21:51:21.940446Z'
+  stage: tests
 ---
 
 # A review whose findings need only tests goes to the tester
@@ -371,3 +380,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     `make check` is not run this round: it cannot be green until the tester changes the two pinned tests above. I run it after the tester hands the work item back.
 
     Noticed, not touched: the Role's sentence "`docs` passes, `doing` sends the work item back" does not name `tests`. The reviewer noted it, and the Interface scopes the change to `## Stage`. Description: unchanged, because the findings do not change the task's meaning.
+25. factory: started tests as vm.
