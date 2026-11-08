@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 660
 comments_read: [6720878077, 6720941885, 6720981420, 6721183670]
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-08T11:58:59.042518Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -124,6 +120,12 @@ journal:
   kind: started
   at: '2026-11-08T11:58:59.042518Z'
   stage: tests
+- number: 21
+  speaker: tester
+  kind: result
+  at: '2026-11-08T11:59:57.533495Z'
+  stage: tests
+  run: 0aec414b6527439291e392ce46c55406
 ---
 
 # The first message holds the work item, then the role
@@ -414,3 +416,20 @@ Expect: the docstring names the order: the work item's body, the role's instruct
 
     `make check` was not run in this run because nothing changed since the last doing run. That run was green apart from the 8 rows of the two tests above. Last run's main choice still holds: the common text reaches the runtimes through a `system_prompt_file` keyword with a built-in fallback, rather than a field on `AgentDefinition`. Noticed in the last run and not touched: the common text exists twice, in `SYSTEM_PROMPT` and in `agents/system-prompt.md`, and the operator guide should tell operators to install the new file.
 20. factory: started tests as vm.
+21. tester: I made the two test changes the human allowed in entry 17, as the coder set out in entry 19. Both tests keep their names, and I changed no other test.
+
+    1. `tests/agent_files/test_claude_agent_texts_review_groups.py::test_the_rest_of_the_reviewer_body_is_unchanged`: I added three `.replace(<new text>, <old text>)` calls to `earlier`, one per edit to `agents/agents/reviewer.md`:
+       - (i) the new R6 sentence, replaced with "";
+       - (ii) the review stage's step 1, "the work item in the first message … the diff" back to "the work item is the only other input. Read both … the diff";
+       - (iii) the `docs-review` step 1, back to "Read the work item and `git diff …`".
+       They come before the existing `develop`→`main` replace, because they hold the text "develop". `_EARLIER_BODY_CRC32` is unchanged. The `docs-review` subsection is already cut from the body by `_DOCS_REVIEW_SUBSECTION`, so (iii) changes nothing in the result. I added it anyway, as the human's answer asked.
+    2. `tests/agents/adapters/test_shipped_agents_effect.py::test_instructions_file_holds_the_agent_body` (all 7 rows):
+       - In the module fixture `calls`, the runtime gets `system_prompt_file=AGENT_HOME / "system-prompt.md"`. The prompt is now built by `compose_prompt` from `PromptFacts`, with each agent's body as `role_instructions`.
+       - The test checks three things: the file after `--append-system-prompt-file` equals `agents/system-prompt.md`, it does not hold the role's body, and the message after `-p` holds the role's body right after `<role-instructions role="<name>">`.
+       - The other tests in that module read only `--model`, `--effort`, `--tools` and `--max-budget-usd`, so the fixture change does not affect them.
+
+    Run: `uv run pytest -q` over the two files: all 44 pass, since the code is already in place. `make lint`: green.
+
+    Files changed: `tests/agent_files/test_claude_agent_texts_review_groups.py`, `tests/agents/adapters/test_shipped_agents_effect.py`. No files created. Every module imported.
+
+    `lint`: lint: green (0.2 s)
