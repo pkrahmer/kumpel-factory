@@ -1,5 +1,5 @@
 ---
-stage: docs-only
+stage: docs-review
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 665
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: docs-only
-  started_at: '2026-11-08T14:39:20.250744Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -34,6 +30,12 @@ journal:
   kind: started
   at: '2026-11-08T14:39:20.250744Z'
   stage: docs-only
+- number: 5
+  speaker: documenter
+  kind: result
+  at: '2026-11-08T14:43:57.183542Z'
+  stage: docs-only
+  run: dc3fa3de23c14f69831bbd2307fdecc1
 ---
 
 # The operator guide says what keeps the cached start
@@ -81,3 +83,19 @@ Expect: at least one line in the section *A project's own agents*.
    - Architecture: no code, no change to `factory/`, no tests, no dependency. The operator guide is the right document for operator-facing guidance.
    - Scope: within F0058. The feature's goal is that runs share one cached start, and decision 3 is the shared model and effort. The story writes down for operators what S0001 to S0003 built. It touches nothing the feature lists as out of scope.
 4. factory: started docs-only as vm.
+5. documenter: Changed `docs/operator-guide/agent-runtime.md` only (the docs route):
+   - *A project's own agents*: a new paragraph block **The cached start** above the bullet list. It says that runs share a cached start only where tools, model and effort agree, gives the shipped values (tools `[Read, Grep, Glob, Edit, Bash, Write, Skill]`, `opus`, `medium` for intake, tester, coder, documenter and smoke tester, `high` for the two reviewers), says that a project's agent shares the start only with the shipped tools and a matching model and effort, and that one that differs starts a cache of its own and writes the cache again (criterion 1). It also says that a smaller tool list does not limit writes, because the write paths do. It names where the effect shows, the hit rate per role in `factory-bill`'s role table, and links `records.md#what-a-work-item-cost-factory-bill` and its *The cache figures* part (criterion 2).
+   - *The models*: now says that every shipped agent file names `opus` and that `sonnet` and `haiku` are aliases a project's own agent may name. It still says that `FACTORY_OPENCODE_MODELS` maps all three (criterion 3).
+   - *The agent files*: the example now keeps the shared start (`model: opus`, the shipped tool list, `effort: medium`, `budget_usd: 1`), followed by a sentence saying so (criterion 4).
+
+   Checked against: every `agents/agents/*.md` front matter (model, effort, tools), the cache paragraph in `docs/project-guide/agents.md` (*The seven agents*), and `docs/operator-guide/records.md` (*The cost table*, *The cache figures*: both the anchor and the role table it describes exist).
+
+   Ran: both smoke-test greps. `cached start` counts 3, and `factory-bill` matches line 342, inside *A project's own agents*. `make documents` ended `documents ok (59.5 s)`. I did not run `make check` because only a document changed; the factory runs the gate.
+
+   Documents I cross-read and found current: `docs/project-guide/agents.md` (agent table and cache reasoning) and `docs/operator-guide/records.md`. I saw nothing stale outside this story.
+
+   Not from the story: the sentence that cache writes cost more than plain input is general Anthropic pricing knowledge, not something the story or the project guide states. The reviewer may drop it.
+
+   `check`: check: green
+   `secrets`: secrets: green (0.4 s)
+   `documents`: documents ok (60.4 s)
