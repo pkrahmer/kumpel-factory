@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 673
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T16:29:59.436899Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -45,6 +41,12 @@ journal:
   kind: started
   at: '2026-11-08T16:29:59.436899Z'
   stage: doing
+- number: 7
+  speaker: coder
+  kind: result
+  at: '2026-11-08T16:34:32.421383Z'
+  stage: doing
+  run: adf4838702014cb89cc7b3c0cc766ac1
 ---
 
 # The smoke tester routes a red check
@@ -117,3 +119,26 @@ Expect: a count of 1 or more.
 
    `lint`: lint: green (0.2 s)
 6. factory: started doing as vm.
+7. coder: Built the smoke tester's rule for a run after a `check_red` stall in `agents/agents/smoke-tester.md`. It is one paragraph in its `## Stage` section, after step 6, and it says four things:
+   - The smoke tester does not run the smoke test again. It reads the failing lines in the stall entry.
+   - It decides `doing` for a failing test of code, a type, lint, layer, security or licence finding, or a failing test it cannot place.
+   - It decides `docs` for a failure in a file only the documenter may write: a README, a guide under `docs/`, the document check, or the secrets check of a document.
+   - Its entry names each failing test or check and the file it points to, in a sentence each.
+
+   Main choice: I wrote the rule as a separate paragraph after the numbered steps, using "decide `doing`" and "decide `docs`". Steps 5 and 6 stay word for word. That way "end with `docs`" and "end with `approval`" still appear once each, as `tests/agent_files/test_claude_agent_texts_docs_slip.py` requires.
+
+   Rejected: a step 7 in the numbered list. The rule replaces the run's steps 1 to 6 rather than following them, so a step after them would read wrongly. The tester's paragraph-based reading of the rule also needs it to be one block without blank lines.
+
+   The rule names no command except `make check`.
+
+   Checks:
+   - `tests/agent_files/` passes in full, including all rows of `tests/agent_files/test_claude_agent_texts_check_red.py`.
+   - `make check`: check: green.
+   - The smoke test's `grep -c 'check_red'` now prints 2.
+
+   Refactor: nothing needed changing. The diff is one paragraph.
+
+   The journal did not change the meaning of the task, so `## Description` is unchanged. Criterion 4 (the project guide, `docs/project-guide/agents.md`) is the documenter's and is not touched.
+
+   `check`: check: green
+   `duplicates`: duplicates: 7 new, 39 known, 4 gone

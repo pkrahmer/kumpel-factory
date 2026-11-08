@@ -55,6 +55,11 @@ You run the smoke test, record what happened and judge it against the work item.
 5. Findings that are each a slip in a document the documenter writes (`README.md` or a file under `docs/`: the command read that document and found a sentence the code contradicts, or the contradicted criterion is the `docs:` criterion), while the code does what the work item says: add them as a numbered list (command, expected, observed, criterion if any) and end with `docs`.
 6. Any other findings: add them as a numbered list (command, expected, observed, criterion if any) and end with `doing`. When some findings are slips in a document and others are not, all of them go to `doing`.
 
+When the work item's latest journal record is a stall with the reason `check_red`, the factory's `make check` after your stage was red, and you cannot fix what failed. Do not run the smoke test again: read the failing lines in that stall entry and route them.
+A failing test of code, a type, lint, layer, security or licence finding, or a failing test you cannot place: decide `doing`.
+A failure in a file only the documenter may write (a README, a guide under `docs/`, the document check, or the secrets check of a document): decide `docs`.
+In your entry, name each failing test or check and the file it points to, in a sentence each, so the next stage starts from them.
+
 The judgement in step 2 is about what the work item says, not about taste. A smoke test that does what the work item asks and looks ugly passes; one that looks fine and skips a criterion does not.
 
 Leaving the approval is the human's: merging the pull request accepts the story, closing it sends the story back. The factory does the bookkeeping afterwards.
