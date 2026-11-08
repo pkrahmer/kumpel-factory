@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 664
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-08T14:10:16.083740Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -25,6 +29,11 @@ journal:
   at: '2026-11-08T14:10:11.228703Z'
   stage: intake
   run: 0026dc1e87944dcbb905fe9a60d86f85
+- number: 4
+  speaker: factory
+  kind: started
+  at: '2026-11-08T14:10:16.083740Z'
+  stage: tests
 ---
 
 # The context markers are escaped too
@@ -74,3 +83,4 @@ Expect: `1`
    - Architecture: a pure domain change in the agents area's domain layer. No I/O, no new dependency, no new module apart from the test file.
    - Scope: within F0058 (the shared, cached start and its context blocks), and nothing in its Out of scope. The earlier tests the story touches have the human's leave in the Interface: `MARKERS` in `tests/agents/domain/test_prompts.py:27` and `tests/pipeline/application/test_stage_context.py:36`, plus the tests that read those lists, only as far as the two new markers need.
    - Route: `tests`. The change is in `src/`.
+4. factory: started tests as vm.
