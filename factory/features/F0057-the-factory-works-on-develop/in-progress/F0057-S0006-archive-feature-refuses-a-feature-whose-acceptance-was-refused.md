@@ -1,5 +1,5 @@
 ---
-stage: intake
+stage: tests
 blocked: null
 round: 0
 attempts: 1
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 649
 comments_read: [6715900227]
 handed_over: null
-claim:
-  instance: vm
-  stage: intake
-  started_at: '2026-11-08T01:59:20.565439Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -58,6 +54,12 @@ journal:
   kind: started
   at: '2026-11-08T01:59:20.565439Z'
   stage: intake
+- number: 9
+  speaker: intake
+  kind: result
+  at: '2026-11-08T01:59:35.730078Z'
+  stage: intake
+  run: ed6e98bb0524411080a6ae143119229c
 ---
 
 # archive-feature.sh refuses a feature whose acceptance was refused
@@ -90,7 +92,7 @@ journal:
 2. The earlier refusals keep their texts and exit statuses, each a row of a test in the new module (the existing test only checks a non-zero status, not the texts): a story in `backlog/`, a story in `in-progress/`, no acceptance, a last acceptance outside `done/`; each exits 1 with its existing text on stderr (the texts as the script has them), and the remote's `develop` is unchanged. The earlier tests of `test_operator_develop.py` pass, changed only under the leave given in journal entry 4.
 3. `operator/skill/kumpel/references/approving.md`, *After a feature's acceptance*, step 1 contains the refusal text `is not finished: its last acceptance` (a test in the new module reads the file; the coder writes it).
 4. `make check` stays green.
-4. docs: `operator/README.md` and `docs/operator-guide/install.md` (*The promotion*) say that only a feature whose last acceptance was accepted is archived and promoted; `docs/decisions.md`: none.
+5. docs: `operator/README.md` and `docs/operator-guide/install.md` (*The promotion*) say that only a feature whose last acceptance was accepted is archived and promoted; `docs/decisions.md`: none.
 
 ## Smoke test
 
@@ -132,3 +134,11 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
    - Route: `tests`. The Interface changes the script and `approving.md`, which are outside the documenter's paths.
 7. factory: Stage intake stalled (attempt 1 of 2): the work item's form broke during the stage: criterion numbered 4 where 5 is expected
 8. factory: started intake as vm.
+9. intake: accepted. The format finding (criterion numbered 4 where 5 is expected) came from the criterion I added in the earlier intake run (journal entry 6, carrying in answer 2): I did not renumber the closing `docs:` criterion. I renumbered it from 4 to 5 and changed nothing else.
+   - Interface: names `operator/skill/kumpel/scripts/archive-feature.sh`, its refusal text and exit status 1, the unchanged earlier refusals, `approving.md` step 1, the new test module, and the human's leave (entry 4) for `test_operator_develop.py`.
+   - Criteria: each is testable by one parametrized test. Every refusal has its failing side. The refused rows cover a missing `outcome` line, no front matter, no closing `---`, and `outcome: accepted` only in the body. They also cover the accepted row and the last-report-wins row. Each refused row checks a clean `develop` checkout. Criterion 2 pins the four earlier refusal texts. Criterion 3 tests the text in `approving.md`.
+   - Smoke test: runnable. The command passes no `-q`, and the project's pytest configuration was not checked for `addopts`. The Expect line is checkable.
+   - Docs criterion: names the two files and what the reader must know, and dictates no sentences.
+   - Architecture: the change is in an operator script, its reference file and its tests, and `promote.sh` is unchanged.
+   - Scope: S0006 is not in `feature.md`'s Stories list, but the feature's acceptance proposed it, so I treat it as in scope.
+   - Route: `tests`, because the script and `approving.md` are outside the documenter's write paths.
