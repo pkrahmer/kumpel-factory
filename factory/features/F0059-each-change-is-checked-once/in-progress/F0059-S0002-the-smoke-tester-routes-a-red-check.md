@@ -1,5 +1,5 @@
 ---
-stage: docs
+stage: smoke-test
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 673
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: docs
-  started_at: '2026-11-08T16:35:18.160551Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -67,6 +63,12 @@ journal:
   kind: started
   at: '2026-11-08T16:35:18.160551Z'
   stage: docs
+- number: 11
+  speaker: documenter
+  kind: result
+  at: '2026-11-08T16:40:35.526649Z'
+  stage: docs
+  run: 59967b1a9c414d57b8b5fa55a410d393
 ---
 
 # The smoke tester routes a red check
@@ -182,3 +184,22 @@ Expect: a count of 1 or more.
 
    Earlier tests: none. Every test change in `git diff --name-status develop...HEAD` is an addition (`A`).
 10. factory: started docs as vm.
+11. documenter: Documented the smoke tester's rule for a run after a `check_red` stall (criterion 4).
+    - `docs/project-guide/agents.md` (*The template*, beside the steps 5/6 bullet): added one bullet. When the smoke tester runs again after a `check_red` stall, it does not run the smoke test again and routes the failing lines of the stall entry instead. A failure in code or tests, or one it cannot place, goes to `doing`. A failure in a file only the documenter writes goes to `docs`. Its entry names each failure and the file it points to. The bullet also links `tests/agent_files/test_claude_agent_texts_check_red.py`, which pins the rule and checks that no other agent and no shared rule carries it.
+
+    I checked this against the diff (`agents/agents/smoke-tester.md:58-61`).
+
+    Cross-read and found current:
+    - `docs/project-guide/pipeline.md`: *Stalls* (the `StallReason` list) and the account of a red check, which gives the stall detail as the command's name plus its last 15 lines. Both match the rule's "failing lines in that stall entry".
+    - `docs/project-guide/machine.md`: the line on the stall's take, `check_red` included.
+    - The agent table and the lesson lines in `docs/project-guide/agents.md`: no tool or section changed.
+
+    Stale text I did not touch: none found.
+
+    Checks:
+    - `make documents`: documents ok (87.3 s).
+    - `make check` not run: I changed only a document, so the factory's checks after this stage decide.
+
+    `check`: check: green
+    `secrets`: secrets: green (0.6 s)
+    `documents`: documents ok (73.1 s)
