@@ -1,17 +1,13 @@
 ---
-stage: review
+stage: doing
 blocked: null
-round: 1
+round: 2
 attempts: 0
 crashes: 0
 pull_request: 662
 comments_read: [6721852631, 6722094144]
 handed_over: null
-claim:
-  instance: vm
-  stage: review
-  started_at: '2026-11-08T13:38:04.006720Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -134,6 +130,12 @@ journal:
   kind: started
   at: '2026-11-08T13:38:04.006720Z'
   stage: review
+- number: 23
+  speaker: reviewer
+  kind: result
+  at: '2026-11-08T13:39:36.828110Z'
+  stage: review
+  run: 23353bd7c2754c7aacff4a414a4e3e14
 ---
 
 # Each stage's start facts come from the factory
@@ -188,8 +190,10 @@ The human's leave for earlier tests: this story may change these earlier tests w
 9. Loading refuses a stage whose `context` time limits push the role's `time_limit` plus its checks', reports' and context's `time_limit`s past its `lease_duration`, and accepts one that fits (rows of one test).
 10. A definition with `contract: "1.0"` and one with `contract: "1.1"` both load, each with a stage carrying `context` (rows of one test).
 11. A file a `context` command writes on the dataset is not there when the agent's run starts, and the take after the run does not carry it.
-12. `make check` stays green.
-13. docs: the project guide's description of the pipeline definition names `context`, what the factory does with it, the size limit and the failure line; the operator's guide shows one example. `docs/decisions.md`: one entry, a stage's start facts come from project commands the factory runs before the agent, to save the agent's first turns.
+12. Each `context` command runs under its own `time_limit` from `project_commands`: two commands with different time limits each get their own.
+13. Through the wiring's recording project commands, a start fact's run is written to the command records as a check's run is.
+14. `make check` stays green.
+15. docs: the project guide's description of the pipeline definition names `context`, what the factory does with it, the size limit and the failure line; the operator's guide shows one example. `docs/decisions.md`: one entry, a stage's start facts come from project commands the factory runs before the agent, to save the agent's first turns.
 
 ## Smoke test
 
@@ -407,3 +411,27 @@ Expect: `True`
     `check`: check: green
     `duplicates`: duplicates: 7 new, 39 known, 4 gone
 22. factory: started review as vm.
+23. reviewer: Reviewed `git diff develop...HEAD -- . ':!factory'` (without `uv.lock`) against the work item. The findings from entry 12 are fixed:
+    - Finding 1: `RECORDS_CONTRACT` is "4.5" and all five schemas were regenerated.
+    - Findings 2 and 3: the new declared operation `ProjectCommands.start_fact` runs `_START_FACT_SCRIPT` without `sync`, and the `isinstance` downcast is gone. The `a-then-b-with-a-printing-sync` row covers finding 2.
+    - Finding 4: `test_a_file_a_context_command_writes_is_gone_at_the_agent_s_start_and_not_taken` covers criterion 11.
+
+    Criteria 1 to 11 each have a test that checks what the criterion says. Both sides of every stated limit are tested. The coder's `make check` was green. No marker silences a check, no shell or SQL is built from strings, and the command name stays an argument (`"$2"`), never part of the script. Start facts do not reach `KnownResults`, so a start fact can never be reused as a passed check.
+
+    Findings:
+    1. Criterion 12 added: it needs its test. The Interface says each `context` command runs "under its own `time_limit`", and `TaskComposer._start_fact` (`src/factory/pipeline/application/task.py:129`) reads it from `project_commands[command].time_limit`. No test pins the limit that reaches `start_fact`: every test command in `test_stage_context.py` has `time_limit: 1`, and `_SlowCommands` never checks the limit it gets. Fix: the tester adds a test in which two `context` commands with different `time_limit`s each reach `start_fact` with their own (for example, a recording `ProjectCommands` like `RecordingCommands` in `test_stage_finish.py`).
+    2. Criterion 13 added: it needs its test. In production the wiring wraps `ContainerMakeCommands` in `RecordingProjectCommands` (`src/factory/entry/wiring.py:327`), so every start fact goes through `RecordingProjectCommands.start_fact` (`src/factory/machine/application/project_commands.py:66-72`). That code writes a `CommandRecord` per start fact, and no test runs it (the coder named this gap in entry 21). Fix: the tester adds a test that a start fact run through `RecordingProjectCommands` reaches the inner `start_fact` and writes its record, as the existing tests of `run` do.
+    3. `src/factory/machine/adapters/make_commands.py:101`: the class docstring of `ContainerMakeCommands` still says it "Runs `make sync && make <command>`", but `start_fact` now runs the command without `sync`. Fix: the coder rewrites the docstring so it covers both operations, for example: it runs a project command in a check container on the base with the taken files, after `sync` as a check and without it as a start fact.
+
+    Earlier tests:
+    - `tests/machine/application/test_interfaces.py`: the human's leave, entry 15.
+    - `tests/pipeline/application/test_stage_finish.py`: the human's leave, entry 15.
+    - `tests/pipeline/application/test_stage_time_limited_report.py`: the human's leave, entry 15.
+    - `tests/support/preflight_support.py`: the human's leave, entry 15.
+    - `tests/pipeline/domain/test_contract.py`: the human's leave, entry 15.
+    - `tests/shared/domain/test_contract_version_4.py`: the human's leave, entry 15.
+    - `tests/shared/domain/test_contract_version_4_2.py`: the human's leave, entry 15.
+
+    Notes:
+    - The two closing criteria are now 14 (`make check`) and 15 (docs).
+    - Criterion 8's "operator template" stays in the Interface and the criterion. The human said in entry 15 to read it as void, so it is not a finding.
