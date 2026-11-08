@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 656
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: review
+  started_at: '2026-11-08T07:46:13.669329Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -47,6 +51,11 @@ journal:
   at: '2026-11-08T07:46:08.759406Z'
   stage: doing
   run: 750cb135090d41f78649c761c1bf9a68
+- number: 8
+  speaker: factory
+  kind: started
+  at: '2026-11-08T07:46:13.669329Z'
+  stage: review
 ---
 
 # The working branch's remote ref is one constant
@@ -157,3 +166,4 @@ Expect: `origin/develop`
 
    `check`: check: green
    `duplicates`: duplicates: 6 new, 39 known, 4 gone
+8. factory: started review as vm.
