@@ -1,17 +1,13 @@
 ---
-stage: docs-review
+stage: docs-only
 blocked: null
-round: 0
+round: 1
 attempts: 0
 crashes: 0
 pull_request: 655
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: docs-review
-  started_at: '2026-11-08T07:31:57.866012Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -45,6 +41,12 @@ journal:
   kind: started
   at: '2026-11-08T07:31:57.866012Z'
   stage: docs-review
+- number: 7
+  speaker: reviewer
+  kind: result
+  at: '2026-11-08T07:32:51.262092Z'
+  stage: docs-review
+  run: 498b3315ec2f4498bfff2899214e9d37
 ---
 
 # The project guide names Kumpel's archive and promotion
@@ -122,3 +124,13 @@ Expect: `documents ok (<seconds> s)`
    `secrets`: secrets: green (0.3 s)
    `documents`: documents ok (58.8 s)
 6. factory: started docs-review as vm.
+7. reviewer: Reviewed `git diff develop...HEAD -- README.md docs operator/README.md`, which changes only `docs/project-guide/operator.md`. I checked it against `archive-feature.sh`, `promote.sh`, `kumpel-commit.sh`, `start-story.sh`, `tests/support/archive_feature_support.py`, the docstrings of the three test modules and the decision entry *The factory works on `develop`; `main` holds the accepted features* in `docs/decisions.md`.
+
+   Facts: every claim matches the code on the branch. That covers the refusals and their exit codes, the messages `archive-feature.sh: <id> is not finished: <why>`, `promoted #<n>` and `promotion opened|open: #<n>, for the human to merge`, the title `<id>: promoted to main`, the merge method, Kumpel's identity, and that `archive-feature.sh` and `start-story.sh` are the only scripts that call `kumpel_commit` (no skill script runs `git commit` itself). The four new support-module names exist. Criteria 1 and 2 are met: every file the Interface names is in the document. The documenter reports `documents ok`.
+
+   Writing, judged against `docs/project-guide/style.md`:
+
+   1. `docs/project-guide/operator.md:140`, the last sentence of the `kumpel-commit.sh` bullet: "(F0057 decision 7 in [decisions.md](../decisions.md))" names a feature ID, which breaks style rule 1 (no feature or story IDs). No other line of operator.md has one. Fix: point to the entry by its heading, for example "see *The factory works on `develop`; `main` holds the accepted features* in [decisions.md](../decisions.md)".
+   2. `docs/project-guide/operator.md:138`, the second sentence of the `archive-feature.sh` bullet ("It refuses, with exit 1 and ... because the factory books a refused acceptance in `done/` too."): about 70 words in one sentence, against rule 2 (split at about 25 words). Fix: give the exit code and message in one sentence, list the four refusals as their own short sentences or a sub-list, and give the reason for the `outcome: accepted` check in a sentence of its own.
+   3. `docs/project-guide/operator.md:139`, the sentence "With the switch `promote` (read through `settings.sh`) on, it merges ... (`open` for a reused one) and merges nothing.": about 45 words and two parentheses, against rule 2 (about 25 words, at most one parenthesis per sentence). Fix: split it into one sentence for the switch on (merge commit, never squash or rebase, prints `promoted #<n>`) and one for the switch off (prints the message, merges nothing). Say where the switch is read in one of them, without a second parenthesis.
+   4. `docs/project-guide/operator.md:158`, the `archive_feature_support.py` bullet: three parentheses in one sentence ("(`ACCEPTANCE`, `DONE_FRONT_MATTER`)", "(the files of one feature by path)", "(the remote's file list on a branch)"), against rule 2's limit of one per sentence. Fix: write it as the other helper bullets do, naming each name with what it is and no parentheses, for example "`finished_feature`, the files of one finished feature by path, and `tree`, the files a branch of the remote holds". Split the sentence if needed.
