@@ -1,34 +1,30 @@
 """The context markers in a work item's body and a start fact's text are escaped."""
 
-from typing import Any
-
 import pytest
 
-from factory.agents.domain.prompts import PromptFacts, StartFact, compose_prompt
+from factory.agents.domain.prompts import CONTEXT_LIMIT, PromptFacts, StartFact, compose_prompt
+from support.first_message_support import CODER_FACTS
 
-BODY = "# Demo\n\n## Description\n\nText with <angle> brackets.\n"
-INSTRUCTIONS = "You test.\n"
 ROLE_CLOSE = "</role-instructions>"
 CONTEXT_OPEN = '<context name="'
 CONTEXT_CLOSE = "</context>"
 WORK_ITEM_CLOSE = "</work-item>"
 CONTEXT_MARKERS = ['<context name="x">', "</context>"]
-VALID: dict[str, Any] = {
-    "work_item": "F0001-S0003",
-    "path": "factory/features/F0001-demo/in-progress/F0001-S0003-demo.md",
-    "stage": "review",
-    "allowed_decisions": ["docs", "question"],
-    "branch": "work-item/F0001-S0003",
-    "pull_request": 7,
-    "round": 0,
-    "body": BODY,
-    "role": "reviewer",
-    "role_instructions": INSTRUCTIONS,
-}
 
 
-def _facts(**changes: Any) -> PromptFacts:
-    return PromptFacts.model_validate({**VALID, **changes})
+def _facts(
+    body: str | None = None,
+    start_facts: list[StartFact] | None = None,
+    role_instructions: str | None = None,
+) -> PromptFacts:
+    update: dict[str, object] = {}
+    if body is not None:
+        update["body"] = body
+    if start_facts is not None:
+        update["start_facts"] = start_facts
+    if role_instructions is not None:
+        update["role_instructions"] = role_instructions
+    return CODER_FACTS.model_copy(update=update)
 
 
 def _escaped(marker: str) -> str:
@@ -93,3 +89,17 @@ def test_the_role_instructions_reach_the_message_unescaped() -> None:
     message = compose_prompt(_facts(role_instructions=instructions))
 
     assert f"\n{instructions}{ROLE_CLOSE}" in message
+
+
+def test_a_context_marker_before_the_cut_is_escaped() -> None:
+    extra = 5
+    kept = "x = '</context>'\n"
+    output = kept + "a" * (CONTEXT_LIMIT - len(kept) + extra)
+    fact = StartFact(command="diff", output=output)
+
+    message = compose_prompt(_facts(start_facts=[fact]))
+
+    assert "x = '&lt;/context>'" in message
+    cut_line = f"[{extra} more characters cut here"
+    assert any(line.startswith(cut_line) for line in message.splitlines())
+    assert message.count(CONTEXT_CLOSE) == 1

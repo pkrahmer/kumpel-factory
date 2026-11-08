@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 664
 comments_read: [6722586434]
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-08T14:24:46.719321Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -117,6 +113,12 @@ journal:
   kind: started
   at: '2026-11-08T14:24:46.719321Z'
   stage: tests
+- number: 20
+  speaker: tester
+  kind: result
+  at: '2026-11-08T14:25:31.015301Z'
+  stage: tests
+  run: 658d089091cc4d7891255a0fac2ad067
 ---
 
 # The context markers are escaped too
@@ -257,3 +259,22 @@ Expect: `1`
 
     Noticed, not touched: nothing.
 19. factory: started tests as vm.
+20. tester: Made the two test changes the coder named in entry 18, both from the review findings in entry 16. All the changes are in `tests/agents/domain/test_prompts_context_markers.py`. I changed no other test file.
+
+    - New criterion 6: added `test_a_context_marker_before_the_cut_is_escaped`. Its start fact's output is longer than `CONTEXT_LIMIT` (by 5 characters) and holds `</context>` in the part kept before the cut. The test expects `&lt;/context>` in the message, a line starting with `[5 more characters cut here`, and exactly one `</context>`.
+    - Copied helper (finding 2): I took the first option the finding offered. I removed the file's own `VALID` dict, and `_facts` now builds the facts from `CODER_FACTS` in `tests/support/first_message_support.py` with `model_copy(update=...)`. It changes only the body, the start facts and the role's instructions. Moving the helper was not needed, so `tests/agents/domain/test_prompts.py` and the support module are unchanged. The unused `BODY` and `INSTRUCTIONS` constants and the `typing.Any` import are gone. Every existing test keeps its name and checks the same thing.
+
+    Criterion map:
+    - criterion 1: tests/agents/domain/test_prompts_context_markers.py::test_a_context_marker_in_a_start_fact_output_is_escaped
+    - criterion 2: ::test_a_context_marker_in_the_body_is_escaped_and_opens_no_block
+    - criterion 3: ::test_a_context_marker_in_a_failure_reason_is_escaped
+    - criterion 4: ::test_a_text_without_a_marker_reaches_the_message_byte_for_byte
+    - criterion 5: ::test_the_role_instructions_reach_the_message_unescaped
+    - criterion 6: ::test_a_context_marker_before_the_cut_is_escaped (new)
+    - criterion 7 is the coder's `make check`; criterion 8 is for the docs stage.
+
+    Run of the file (`uv run pytest -q` on it, as CLAUDE.md says): all 9 tests pass against the coder's code on the branch. The code already covers the cut path, so the new test is green from the start. Every module imported. `make lint` is green.
+
+    Files created: none (the file was already there; I edited it).
+
+    `lint`: lint: green (0.2 s)
