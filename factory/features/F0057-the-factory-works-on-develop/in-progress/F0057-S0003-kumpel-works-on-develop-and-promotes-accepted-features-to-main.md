@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 645
 comments_read: [6714658360, 6714963482]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-08T00:22:41.574100Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -99,6 +103,11 @@ journal:
   at: '2026-11-08T00:22:36.450878Z'
   stage: doing
   run: 0c406c74e000496fa33a66ee45130216
+- number: 17
+  speaker: factory
+  kind: started
+  at: '2026-11-08T00:22:41.574100Z'
+  stage: tests
 ---
 
 # Kumpel works on develop and promotes accepted features to main
@@ -276,3 +285,4 @@ Expect: `off`
     Refactor: the list of the four switches now appears twice in `settings.sh`, in the defaults that `init` writes and in `get`. Both are in separate Python heredocs, and sharing the list would need an extra variable passed into both, so I kept it as it is.
 
     Noticed, not touched: `settings.sh set promote on` on an old file still fails with `unknown switch: promote`, because the human's answer covers only `get`. The operator can run `init` again, or a later story can make `set` add a known switch. The journal did not change the meaning of the task beyond these items. The Description stays as it is: the work item is outside my write paths.
+17. factory: started tests as vm.
