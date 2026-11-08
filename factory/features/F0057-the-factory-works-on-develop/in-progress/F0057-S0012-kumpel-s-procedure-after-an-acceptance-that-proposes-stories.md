@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 654
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T07:14:41.611300Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -80,6 +84,11 @@ journal:
   at: '2026-11-08T07:14:36.580773Z'
   stage: tests
   run: 85e795127956455a905a7ccb95af2610
+- number: 14
+  speaker: factory
+  kind: started
+  at: '2026-11-08T07:14:41.611300Z'
+  stage: doing
 ---
 
 # Kumpel's procedure after an acceptance that proposes stories
@@ -204,3 +213,4 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
     `make lint`: lint: green (0.1 s).
 
     `lint`: lint: green (0.2 s)
+14. factory: started doing as vm.
