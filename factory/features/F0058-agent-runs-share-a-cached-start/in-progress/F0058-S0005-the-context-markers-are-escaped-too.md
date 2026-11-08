@@ -1,17 +1,13 @@
 ---
-stage: intake
+stage: tests
 blocked: null
 round: 0
 attempts: 0
 crashes: 0
-pull_request: null
+pull_request: 664
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: intake
-  started_at: '2026-11-08T14:09:47.652185Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -23,6 +19,12 @@ journal:
   kind: started
   at: '2026-11-08T14:09:47.652185Z'
   stage: intake
+- number: 3
+  speaker: intake
+  kind: result
+  at: '2026-11-08T14:10:11.228703Z'
+  stage: intake
+  run: 0026dc1e87944dcbb905fe9a60d86f85
 ---
 
 # The context markers are escaped too
@@ -64,3 +66,11 @@ Expect: `1`
 
 1. 2026-11-08 human: created.
 2. factory: started intake as vm.
+3. intake: accepted
+   - Interface: concrete. It names `factory.agents.domain.prompts` (domain) and the six marker texts, and says what gets escaped: the body, and each start fact's output, cut line and `failed:` line. The role's instructions stay as they are. `compose_prompt`, `PromptFacts` and `StartFact` keep their signatures and fields. The change goes in `_MARKER_TEXTS` (`src/factory/agents/domain/prompts.py:42`), which `_escape_markers` already applies to the body and to the whole context text (`_context_block`, line 133), cut and failure lines included. Note on reading the story: the first four markers appear as `&lt;...` in my prompt only because the prompt escapes them. The file itself holds `<work-item` and the others.
+   - Criteria: each one is testable by a single test function, and they cover both sides. 1 and 2 cover output and body (escaped, with exactly one opening and one closing per block). 3 covers the failure line. 4 covers text without markers, which must reach the message byte for byte. 5 covers the role's instructions, which stay unescaped. `<context` and `</context>` do not overlap as replacements, because `</context>` does not start with `<context`.
+   - Smoke test: runnable with `uv run python -c` and the fields `PromptFacts` already has. `Expect: 1` can be checked against the printed count: the output's `</context>` becomes `&lt;/context>`, so only the block's own closing marker is left.
+   - Docs criterion (7): it names what the reader must know (all six markers, and why the context markers are among them) and the two files it goes in. It dictates no sentences.
+   - Architecture: a pure domain change in the agents area's domain layer. No I/O, no new dependency, no new module apart from the test file.
+   - Scope: within F0058 (the shared, cached start and its context blocks), and nothing in its Out of scope. The earlier tests the story touches have the human's leave in the Interface: `MARKERS` in `tests/agents/domain/test_prompts.py:27` and `tests/pipeline/application/test_stage_context.py:36`, plus the tests that read those lists, only as far as the two new markers need.
+   - Route: `tests`. The change is in `src/`.
