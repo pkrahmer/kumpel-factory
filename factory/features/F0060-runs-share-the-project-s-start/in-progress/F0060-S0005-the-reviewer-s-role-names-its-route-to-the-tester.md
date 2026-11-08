@@ -1,5 +1,5 @@
 ---
-stage: smoke-test
+stage: approval
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 682
 comments_read: [6727864627]
 handed_over: null
-claim:
-  instance: vm
-  stage: smoke-test
-  started_at: '2026-11-08T22:26:48.402929Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -95,6 +91,12 @@ journal:
   kind: started
   at: '2026-11-08T22:26:48.402929Z'
   stage: smoke-test
+- number: 16
+  speaker: smoke-tester
+  kind: result
+  at: '2026-11-08T22:29:07.377119Z'
+  stage: smoke-test
+  run: 547adf6589e541e4ab3aa75eb9d590ac
 ---
 
 # The reviewer's role names its route to the tester
@@ -273,3 +275,29 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     `secrets`: secrets: green (1.7 s)
     `documents`: documents ok (66.4 s)
 15. factory: started smoke-test as vm.
+16. smoke-tester: I ran both smoke test commands from the repository root, exactly as written. Both met their `Expect:` lines, so there are no findings.
+
+    1. `grep -c '`tests` sends it to the tester when step 4 of the Stage allows it' agents/agents/reviewer.md`
+       ```
+       1
+       ```
+       Met: expected `1`.
+
+    2. `uv run pytest tests/agent_files/test_reviewer_role_route_to_tests.py tests/agent_files/test_claude_agent_texts_review_leave.py`
+       ```
+       ...............                                                          [100%]
+       15 passed in 0.03s
+       ```
+       Met: the summary line shows only `passed`, with no `failed` or `error`.
+
+    I then compared the smoke test with the acceptance criteria and found no contradictions:
+    - Criteria 1 to 3 are covered by the new test file, which passed.
+    - For criterion 5 (docs), I checked the three documents:
+      - `docs/operator-guide/agent-runtime.md:393` lists the reviewer's three ways out.
+      - `docs/operator-guide/pipeline.md:98` quotes the template's `review` as `[docs, doing, tests]`.
+      - `docs/decisions.md:1713` records the 58-of-65 reason.
+    - Criterion 4: I did not run `make check`. The factory runs it after this stage.
+
+    Findings: none.
+
+    `check`: check: green
