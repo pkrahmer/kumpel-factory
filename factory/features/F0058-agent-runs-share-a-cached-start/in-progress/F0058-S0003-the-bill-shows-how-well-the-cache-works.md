@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 661
 comments_read: [6721548904]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: intake
+  started_at: '2026-11-08T12:35:01.598179Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -30,6 +34,11 @@ journal:
   speaker: human
   kind: comment
   at: '2026-11-08T12:34:58.551245Z'
+  stage: intake
+- number: 5
+  speaker: factory
+  kind: started
+  at: '2026-11-08T12:35:01.598179Z'
   stage: intake
 ---
 
@@ -86,3 +95,4 @@ Expect: the help names the cache figures and the hit rate.
    4. Half up, as the bill's other figures; add the criterion with 2 of 3 giving `67 %`.
    5. (a) `factory-bill --help` prints the usage, names the cache read, cache written and hit rate figures, and exits 0; add the criterion.
    6. Grouped by the record's `role`, in the order each role first ran; the role table has the **total** row of answer 1, which equals the `Cache:` line.
+5. factory: started intake as vm.
