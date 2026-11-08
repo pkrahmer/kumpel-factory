@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 678
 comments_read: [6726852112, 6726967345]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: docs
+  started_at: '2026-11-08T20:54:16.565731Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -187,6 +191,11 @@ journal:
   speaker: human
   kind: comment
   at: '2026-11-08T20:54:14.008161Z'
+  stage: docs
+- number: 33
+  speaker: factory
+  kind: started
+  at: '2026-11-08T20:54:16.565731Z'
   stage: docs
 ---
 
@@ -564,3 +573,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     Comment anything to retry: the attempts go back to 0 and the stage runs again. Close the pull request to discard the story instead: it goes back to the backlog as you wrote it, and its branch and bill are deleted.
 32. 2026-11-08 human: Retry. The package index is fast again at the moment (a cold `uv run` took 3 to 5 s at 21:55 UTC; 70 to 99 s at other times this evening).
+33. factory: started docs as vm.
