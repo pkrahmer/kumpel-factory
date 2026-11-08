@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 650
 comments_read: [6716086925]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-08T02:19:07.772920Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -42,6 +46,11 @@ journal:
   at: '2026-11-08T02:19:00.111456Z'
   stage: intake
   run: 022fac1620484f3e9c3b769fee6272d0
+- number: 7
+  speaker: factory
+  kind: started
+  at: '2026-11-08T02:19:07.772920Z'
+  stage: tests
 ---
 
 # promote.sh reuses an open promotion
@@ -104,3 +113,4 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
    - Docs criterion: names the two documents and what the reader must know (an open promotion is reused and gains the next feature's stories). It dictates no sentences.
    - Architecture: the change is in the operator's script and its tests under `tests/operator_scripts/`, which fits the project layout.
    - Scope: within F0057's Kumpel promotion (S0003, decisions 3 to 5). It is not in "Out of scope". The route is `tests`, because the Interface changes a script and a test.
+7. factory: started tests as vm.
