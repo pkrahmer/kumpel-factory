@@ -1,5 +1,5 @@
 ---
-stage: docs-only
+stage: tests
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 646
 comments_read: [6715370076]
 handed_over: null
-claim:
-  instance: vm
-  stage: docs-only
-  started_at: '2026-11-08T01:04:09.458261Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -51,6 +47,12 @@ journal:
   kind: started
   at: '2026-11-08T01:04:09.458261Z'
   stage: docs-only
+- number: 8
+  speaker: documenter
+  kind: result
+  at: '2026-11-08T01:08:05.344884Z'
+  stage: docs-only
+  run: b9fcb1c5395e49419b8ab84aa87bc1da
 ---
 
 # The operator's documents name develop and main
@@ -108,3 +110,40 @@ Expect: `documents ok (<seconds> s)`
    - Scope: within F0057 (S0004 is the operator's documents), and `docs/runs/` and decision-log entries are excluded as the feature says.
    Route: docs-only.
 7. factory: started docs-only as vm.
+8. documenter: I wrote the documents, but `make documents` fails, and the cause is code. So I end with `tests`, as the docs-only route says for a change outside the documents.
+
+   **The blocker.** `GLOSSARY_FORBIDDEN` in `src/factory/shared/domain/documents.py:77-78` lists `promote` and `promoted` as v1 words. `_uses_word` matches the whole word case-insensitively, backticks included. Criterion 4 and the Interface require the operator guide to name the switch `promote`. Every operator-guide page is in `docs/checked-documents.txt`, so `docs/operator-guide/install.md` fails with `uses the v1 word 'promote'`. It is the only finding of `make documents`; the rest of the output is `not run` lines. I did not touch `docs/checked-documents.txt` or write around the switch's name.
+   - The change needed is to remove `promote` from `GLOSSARY_FORBIDDEN` (or exempt the switch's name). That is code, so the tester and then the coder do it.
+   - `promoted` I would also remove: a promotion is now a real term (`operator/skill/kumpel/scripts/promote.sh`, title `<id>: promoted to main`).
+   - The existing test of that list will need the same change, as the coder's route requires. I have not looked at it.
+   - After the fix, run `make documents` again; I expect `documents ok`. My text keeps `promote` in `install.md` as criterion 4 asks.
+
+   **Files changed, one line each.**
+   - `docs/operator-guide/install.md`:
+     - Install step 1: a new project needs `develop`, created from `main`; the preflight names a missing `origin/develop`. The later steps are renumbered 2 to 6.
+     - New section *The branches*: what `develop` and `main` hold.
+     - *Protect `main`*: a ruleset with a required pull request with zero approvals, blocked force pushes and blocked deletion, and why zero (one identity for the factory, Kumpel and the human; GitHub refuses an author's own approval).
+     - *The promotion*: after acceptance Kumpel archives the feature, then `promote.sh` opens the `develop` to `main` pull request and merges it with a merge commit when `promote` is on. It is never a squash or rebase. With `promote` off, you merge it.
+     - *Fixes go to `develop`*: `main` is never fixed directly.
+     - The facts come from `operator/skill/kumpel/scripts/promote.sh` and `operator/README.md`.
+   - `docs/operator-guide/stops.md`: the `main-branch-failing` row says it means the working branch `develop` and keeps its name. The other `origin/main` mentions became `develop`.
+   - `docs/operator-guide/health.md`, `agent-runtime.md`, `machine.md`, `pipeline.md`, `records.md`, `work-items.md`: `main` as the working branch became `develop`. This includes the quoted messages `merging the develop branch conflicts...` and `no report on the branch or the develop branch`, which I checked against `WORK_BRANCH` in `src/factory/shared/domain/paths.py` and `post_texts.py` and `acceptance.py`. `work-items.md` also lists `main` among the branches the tick never touches.
+   - `docs/operator-guide/site.md`: `reset-to-tag.sh` moves `develop`, not `main`, and leaves `main` alone (its real output lines are in `reset-to-tag.sh`). The merge polling reads `develop`.
+   - `docs/operator-playbook.md`, `README.md`: `main` as the working branch became `develop`.
+   - `operator/README.md`: already correct, no edit.
+
+   **The script and the mentions left as `main`.** The script is `grep -nwE "main" docs/operator-guide/*.md docs/operator-playbook.md README.md operator/README.md`. It lists these, each meaning the line of accepted features or the code repository's own branch, not the factory's working branch:
+   - `cloud-run.md:54`, `site.md:99`, `machine.md:297` and `machine.md:314`: `main` is the code repository's ref, as in `--ref main` and `SITE_CODE_REF`.
+   - `records.md:25`: schemas fetched from the code's `main`, which holds accepted code.
+   - `stops.md:20`: only the stop's name, `main-branch-failing`, explained as the working branch.
+   - `site.md:237`: "`main` is left alone".
+   - `work-items.md:139`: `main` among the branches never touched.
+   - `install.md:11`, `45`, `47`, `49`, `55`, `59`, `63`: the new text on creating `develop` from `main`, protecting `main`, the promotion and fixes.
+   - `operator/README.md:84`, `111` and `131`: the promotion and the switch.
+
+   **Cross-read and found current.** `operator/README.md` and the `docs/operator-guide` pages `README.md` and `cloud-run.md` (apart from the code ref).
+
+   **Stale text I noticed and left.**
+   - `docs/runs/` and the decision log stay as the Interface says.
+   - `docs/project-guide/` was not in the Interface. I did not check it for `main`.
+   - `docs/operator-guide/README.md` is not word-checked differently; nothing in it names the working branch.
