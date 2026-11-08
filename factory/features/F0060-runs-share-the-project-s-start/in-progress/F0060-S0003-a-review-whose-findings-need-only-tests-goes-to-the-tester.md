@@ -1,17 +1,13 @@
 ---
 stage: doing
-blocked: null
+blocked: question
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 680
 comments_read: [6727432579]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T21:37:39.400730Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -62,6 +58,13 @@ journal:
   kind: started
   at: '2026-11-08T21:37:39.400730Z'
   stage: doing
+- number: 10
+  speaker: coder
+  kind: question
+  at: '2026-11-08T21:41:19.948548Z'
+  stage: doing
+  run: bbbe62e25d374eac87289953e5339280
+  blocked: question
 ---
 
 # A review whose findings need only tests goes to the tester
@@ -164,3 +167,28 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
    `lint`: lint: green (0.2 s)
 9. factory: started doing as vm.
+10. coder: Question: three tests from earlier stories pin the reviewer's and tester's texts by checksum. The story has to change those texts, and your leave in entry 4 covers only R12's text. I need your leave for the tester to update these three tests, or another way forward.
+
+    What is built (left in the working tree, uncommitted by me):
+    - `agents/system-prompt.md` and `SYSTEM_PROMPT` in `src/factory/agents/domain/prompts.py`: R12 now lists `review → tests` right after `review → doing`, and the two texts are equal.
+    - `agents/agents/reviewer.md`, `## Stage`: a new step 4. When `tests` is among the allowed decisions and every finding needs only a change to the tests of the work item's own story, the reviewer ends with `tests`. When any finding needs a change outside those tests, all findings go to `doing`. When `tests` is not among the allowed decisions, findings go to `doing` as before. The entry is the same either way.
+    - `agents/agents/tester.md`, `## Stage`, step 0: a new case for when the latest result is the reviewer's. The tester writes or changes exactly the tests the findings name, only in its own story's tests or under the standing leave, runs those test files once, and ends with `doing`. Its entry names each finding and its test.
+
+    Main choice: the reviewer's rule is a new step 4 rather than an edit to step 3, because `test_the_rest_of_the_reviewer_body_is_unchanged` pins step 3. I also tried mentioning `tests` in the Role's "Your recommendation is your decision" line and in docs-review's "steps 1 to 3 above", then reverted both: earlier tests pin those sentences word for word.
+
+    All tests the tester named now pass, R12 included. In `make check`, lint, types, layers, sast, secrets and licenses are green; `make test` fails on exactly three earlier tests:
+    1. `tests/agent_files/test_claude_agent_texts_review_groups.py::test_the_rest_of_the_reviewer_body_is_unchanged`: `E   AssertionError: assert 163580636 == 3903663111`. It takes a CRC32 of the reviewer's body after mapping each later story's text back to the earlier one.
+    2. `tests/agent_files/test_shared_rules_system_prompt.py::test_every_agent_file_keeps_its_own_sections_word_for_word_in_order[reviewer]`: the `Stage` checksum in `PARTS_BEFORE` (`tests/support/shared_rules_support.py`) differs. The current text gives `1905995793`.
+    3. The same test, row `[tester]`: the tester's `Stage` checksum differs. The current text gives `1483730218`.
+
+    Any change to the reviewer's or tester's `## Stage` breaks these, so criteria 1 to 3 cannot be met without changing them.
+
+    Options:
+    (a) Give leave for the tester to update them, each still checking the same thing:
+       - in test 1, add one more `.replace(<the new step-4 line>, "")` to `earlier`, as the test already does for each later story;
+       - in `PARTS_BEFORE`, set reviewer `Stage` and tester `Stage` to the checksums of the new texts.
+       I would then end with `tests`, naming exactly those changes.
+    (b) Put the new rules outside `## Stage`. This contradicts the Interface, which names `## Stage`, and the reviewer's body CRC would still break.
+    I would choose (a).
+
+    Noticed, not touched: the story's Description is unchanged, because no journal entry changed the task's meaning. The step 4 refactor is pending until `make check` is green.
