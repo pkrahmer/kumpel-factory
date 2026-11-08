@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: tests
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 650
 comments_read: [6716086925]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T02:27:32.107142Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -84,6 +80,12 @@ journal:
   kind: started
   at: '2026-11-08T02:27:32.107142Z'
   stage: doing
+- number: 14
+  speaker: coder
+  kind: result
+  at: '2026-11-08T02:28:03.279198Z'
+  stage: doing
+  run: 2241f47a0366442eb22c7723a89a5a44
 ---
 
 # promote.sh reuses an open promotion
@@ -201,3 +203,16 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
       - The human's leave in journal entry 4: `test_promote_opens_the_promotion_and_merges_it_only_with_the_switch_on` now answers `OPEN_PROMOTION` with `[]`.
     - `tests/support/operator_skill_support.py`: no leave needed, the change only adds `OPEN_PROMOTION` and the two moved helpers.
 13. factory: started doing as vm.
+14. coder: Round 1: both review findings are test changes, so I changed no code. `operator/skill/kumpel/scripts/promote.sh` already ends with `|| exit $?` when the GET fails. `hosting_api` returns 22 for any HTTP error (`operator/lib/hosting.sh:48`), so the script already exits with 22.
+
+    Test changes for the tester:
+    1. Standing leave to move a shared test helper. `PULL_NUMBER` and `OLD_SWITCHES` move from `tests/operator_scripts/test_operator_develop.py` into `tests/support/operator_skill_support.py`. `PULL_NUMBER` is 4711; `OLD_SWITCHES` is `{"merge": False, "answer": True, "start_next": True}`. Both test modules then import them from there: `test_operator_develop.py`, and `tests/operator_scripts/test_operator_promote_reuse.py`, whose `PULL_NUMBER` and `SWITCHES` are copies of them. Every test keeps its name and what it checks.
+    2. `tests/operator_scripts/test_operator_promote_reuse.py::test_promote_stops_when_the_query_for_the_open_promotion_fails` asserts `result.exit_status == 22` instead of `!= 0`. 22 is the hosting client's status for an HTTP error.
+
+    Description: I rewrote criterion 4 to say the script exits with the hosting client's status for an HTTP error (22), not just non-zero. That is what the Interface already says ("the hosting client's message and exit status"). The reviewer's finding 2 made the criterion state it. I updated the heading to "as of review round 1".
+
+    Rejected: asking the human about finding 2. The Interface already fixes the exit status, so this only sharpens the criterion to match the Interface. It does not change what the task means.
+
+    Not touched: the `null`-body case from my round-0 entry.
+
+    The factory left out changes outside the write paths: factory/features/F0057-the-factory-works-on-develop/in-progress/F0057-S0007-promote-reuses-an-open-promotion.md.
