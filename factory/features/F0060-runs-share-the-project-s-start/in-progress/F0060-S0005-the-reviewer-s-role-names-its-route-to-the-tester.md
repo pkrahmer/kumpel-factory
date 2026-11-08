@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 682
 comments_read: [6727864627]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: docs
+  started_at: '2026-11-08T22:22:41.650684Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -75,6 +79,11 @@ journal:
   at: '2026-11-08T22:22:36.494619Z'
   stage: review
   run: f6ebcca8a47d4150991ea8d06f26bf70
+- number: 13
+  speaker: factory
+  kind: started
+  at: '2026-11-08T22:22:41.650684Z'
+  stage: docs
 ---
 
 # The reviewer's role names its route to the tester
@@ -224,3 +233,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     - tests/agent_files/test_claude_agent_texts_review_leave.py: the human's leave, journal entry 4, carried into the Interface. `_RECOMMENDATION` and `_NOTES` take the new sentences.
     - tests/agent_files/test_claude_agent_texts_review_groups.py: the human's leave, journal entry 4, which names this file. `test_the_rest_of_the_reviewer_body_is_unchanged` maps the new sentences back to the earlier text with `.replace`.
     - tests/support/shared_rules_support.py: the human's leave, journal entry 4. The reviewer's `Role` checksum in `PARTS_BEFORE` changed because F0060-S0004 has not been merged.
+13. factory: started docs as vm.
