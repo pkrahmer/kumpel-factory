@@ -298,3 +298,4 @@ Times are UTC. The plan: `night-plan.md`.
 - 15:36 UTC: F0058-S0008 (the reviewer starts from its start facts) approved, PR #669 merged (6 runs, $1.87).
 - 15:46 UTC: F0058-A0004 (fourth acceptance) PR #670 merged: accepted, no stories ($1.11; feature 91 runs, $30.18). F0058 archived by hand.
 - 15:46 UTC: Promotion PR #671 (develop to main, F0058's 8 stories) merged as merge commit 54deba77e; develop is in main. F0058 done. Next: F0059 (each change is checked once), then one measurement run for both.
+- 15:47 UTC: F0059-S0001 (the coder starts from the tester's tests, and the guards that read the documents are marked) started.
