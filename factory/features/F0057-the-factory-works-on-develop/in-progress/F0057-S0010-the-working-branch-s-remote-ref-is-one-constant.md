@@ -1,17 +1,13 @@
 ---
-stage: intake
+stage: tests
 blocked: null
 round: 0
 attempts: 0
 crashes: 0
-pull_request: null
+pull_request: 656
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: intake
-  started_at: '2026-11-08T07:40:24.891854Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -23,6 +19,12 @@ journal:
   kind: started
   at: '2026-11-08T07:40:24.891854Z'
   stage: intake
+- number: 3
+  speaker: intake
+  kind: result
+  at: '2026-11-08T07:40:44.776627Z'
+  stage: intake
+  run: ff116cb5025d4343881bf03d5efd0df5
 ---
 
 # The working branch's remote ref is one constant
@@ -82,3 +84,10 @@ Expect: `origin/develop`
 
 1. 2026-11-08 human: created.
 2. factory: started intake as vm.
+3. intake: accepted
+   - Interface: names the concrete module `factory.shared.domain.paths` and the one constant `WORK_REF = f"{REMOTE}/{WORK_BRANCH}"` (value `origin/develop`). paths.py already holds `REMOTE` and `WORK_BRANCH`. I counted the 16 current spellings in `src/factory`: 9 `_WORK_REF`, `FORM_REF`, `PIPELINE_REF` and 5 inline (hand_over, stops twice, stage, costs). That matches the Description.
+   - Criteria: (1) the value, `PIPELINE_REF` and `FORM_REF` are rows of one test. (2) The guard has fail rows (the inline form, and `_WORK_REF = ...`) and pass rows (a file that uses `WORK_REF`, and `f"{REMOTE}/{snapshot.branch}"`). It reads `src/factory` like the existing `tests/guards/test_work_branch_search.py`, which exists. (3) is the unchanged earlier tests. The failing side of the single-spelling rule is covered by the guard's fail rows.
+   - Smoke test: both commands are runnable and neither uses pytest. Today the grep prints 16, and it will print 1 once paths.py holds the one line. Each `Expect:` line is a single checkable value.
+   - Docs criterion: it names `docs/project-guide/work.md` (the `paths` table) and what the reader must know, namely that `WORK_REF` is the only way the code builds the working branch's remote ref. It dictates no sentences, and it says no decision entry is needed.
+   - Architecture: the constant sits in the `shared` domain layer, which every area may import. That fits the layer rules. The change is a refactoring and behaviour stays the same.
+   - Scope: it is a behaviour-free cleanup that F0057's acceptance collected, within the feature's one-constant goal. Nothing in the feature's Out of scope is touched. No earlier test changes. Route: `tests`.
