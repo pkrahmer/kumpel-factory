@@ -21,14 +21,15 @@ feature=$(ls -d factory/archive/"$id"-*/ 2>/dev/null | head -n 1)
 [ -n "$feature" ] || { echo "promote.sh: $id is not archived on develop" >&2; exit 1; }
 
 # Prints the JSON body of the pull request: one line per story, its id and the title of its file.
+# The title is the first heading, since a finished story opens with its front matter.
 pull_body() {
   python3 -I - "$1" "$2" <<'PY'
 import json, pathlib, sys
 feature_id, folder = sys.argv[1:]
 lines = []
 for story in sorted(pathlib.Path(folder).glob(f"*/{feature_id}-S*.md")):
-    first = story.read_text(encoding="utf-8").splitlines()[:1]
-    title = first[0].removeprefix("# ").strip() if first else ""
+    headings = [line for line in story.read_text(encoding="utf-8").splitlines() if line.startswith("# ")]
+    title = headings[0].removeprefix("# ").strip() if headings else ""
     lines.append(f"- {'-'.join(story.stem.split('-')[:2])}: {title}")
 print(json.dumps({
     "head": "develop",

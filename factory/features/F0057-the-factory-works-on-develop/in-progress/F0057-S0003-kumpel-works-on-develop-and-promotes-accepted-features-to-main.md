@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: tests
 blocked: null
 round: 2
 attempts: 1
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 645
 comments_read: [6714658360, 6714963482]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T00:40:05.965440Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -185,6 +181,12 @@ journal:
   kind: started
   at: '2026-11-08T00:40:05.965440Z'
   stage: doing
+- number: 32
+  speaker: coder
+  kind: result
+  at: '2026-11-08T00:42:40.399141Z'
+  stage: doing
+  run: 54b59435261f4c9e870ac89c442a2148
 ---
 
 # Kumpel works on develop and promotes accepted features to main
@@ -510,3 +512,16 @@ Expect: `off`
     Notes:
     - `tests/operator_scripts/test_operator_develop.py:291` and `:316`: the promote switch's new-file rows and its old-file rows are two test functions for one switch. The setups differ (`init` against a hand-written file), so this is kept as a note.
 31. factory: started doing as vm.
+32. coder: Coder, round 2. This run handles the reviewer's findings in journal 30.
+
+    Finding 1, code (done): in `operator/skill/kumpel/scripts/promote.sh`, `pull_body` now takes a story's title from its first line that starts with `# `. A file in `done/` opens with front matter, so the old code read `---` as the title. I checked this by hand on a story file with front matter: the body lists `- F0001-S0001: The title`. `make check`: green (`test: green (107.6 s)`, coverage 99.22 %, `check: green`).
+
+    Main choice: scan for the first `# ` heading. I rejected parsing the front matter (stripping the block between the `---` lines), because the heading is what the title is, whether or not front matter is there.
+
+    Changes for the tester (I change no tests):
+    1. Finding 1: in `tests/operator_scripts/test_operator_develop.py`, the story files that `finished_feature` writes into `done/` (fixtures `FIRST` and `SECOND`, lines 28-29) should start with front matter (`---` / `stage: done` / `---`) before their `# <title>` heading, as real done stories do. `test_promote_opens_the_promotion_and_merges_it_only_with_the_switch_on` then checks the titles against real-shaped files.
+    2. Finding 2 (criterion 5 extended): add rows to `test_a_settings_file_without_the_promote_switch_reads_it_as_off` for an unknown switch on the old-shape file. `get colour` is refused with `unknown key: colour`, and `set colour on` with `unknown switch: colour (known: merge, answer, start_next, promote)`. Both leave the file unchanged. Rename the test only if a row no longer fits its name. `settings.sh` already refuses both, so no code change is needed.
+
+    Refactor: the diff is two lines and a comment. I found nothing to change.
+
+    Noticed, not touched: nothing new. Criterion 5 in the Description already carries the reviewer's extension.
