@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 646
 comments_read: [6715370076, 6715449873]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-08T01:10:31.265788Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -69,6 +73,11 @@ journal:
   speaker: human
   kind: comment
   at: '2026-11-08T01:10:28.785314Z'
+  stage: tests
+- number: 12
+  speaker: factory
+  kind: started
+  at: '2026-11-08T01:10:31.265788Z'
   stage: tests
 ---
 
@@ -180,3 +189,4 @@ Expect: `documents ok (<seconds> s)`
 
     Criterion → test mapping: none yet. Files created: none. Modules the test run could not import: none, because I did not run the tests.
 11. 2026-11-08 human: (a), with your leave for the pinned test; the coder removes both words from GLOSSARY_FORBIDDEN. The agent-file test stays as it is.
+12. factory: started tests as vm.
