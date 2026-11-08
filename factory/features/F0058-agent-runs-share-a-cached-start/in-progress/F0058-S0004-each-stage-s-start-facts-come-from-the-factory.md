@@ -1,17 +1,13 @@
 ---
 stage: doing
-blocked: null
+blocked: question
 round: 1
 attempts: 0
 crashes: 0
 pull_request: 662
 comments_read: [6721852631]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T13:27:28.524336Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -84,6 +80,13 @@ journal:
   kind: started
   at: '2026-11-08T13:27:28.524336Z'
   stage: doing
+- number: 14
+  speaker: coder
+  kind: question
+  at: '2026-11-08T13:27:57.905938Z'
+  stage: doing
+  run: 2ec1b27aff154065afe7db1398bb1e8c
+  blocked: question
 ---
 
 # Each stage's start facts come from the factory
@@ -260,3 +263,19 @@ Expect: `True`
 
     Earlier tests: none changed. Every test file in the diff is new (status `A`).
 13. factory: started doing as vm.
+14. coder: Question. I changed no code this round. Three of the reviewer's four findings in entry 12 need the human's leave for earlier tests outside the story's list, and the fourth needs a test from the tester. Two decisions are needed:
+
+    1. **Records contract version (finding 1).** The schema gained `stages.*.context`, so the version rule in `docs/decisions.md` raises `RECORDS_CONTRACT` from 4.4 to 4.5 (`src/factory/shared/domain/contract.py:16`), and the schemas are regenerated. Three earlier tests pin "4.4": `tests/shared/domain/test_contract_version_4.py:12,23`, `tests/shared/domain/test_contract_version_4_2.py:12,23` and `tests/pipeline/domain/test_contract.py:54`.
+       - (a) Leave to change those three to 4.5. The tester changes them, then I raise the constant and regenerate.
+       - (b) Keep 4.4, and the reviewer's finding stands as accepted.
+       - I would choose (a).
+
+    2. **How a start fact gets its whole output without `make sync`'s output (findings 2 and 3).** Today each `context` command runs through `ContainerMakeCommands.run`, which runs `make sync && make <command>`, so uv's sync lines start every `<context>` block and count toward the 60,000 characters. The whole output reaches the caller only through an `isinstance` downcast to `CommandOutput` (`src/factory/pipeline/domain/checks.py:99-107`), which the interface `ProjectCommands` does not declare. One change settles both findings:
+       - (a) A declared operation `ProjectCommands.start_fact(command, *, time_limit) -> CommandOutput`, an abstract method like `run`. `CommandOutput` carries the whole output. `ContainerMakeCommands` runs it on the base with the taken files, without `sync`, because `prepare` synced that base just before. `MakeProjectCommands` and `RecordingProjectCommands` implement it, and `whole_output` and the downcast go away. This needs leave to add the method to the earlier test implementations of `ProjectCommands`: `tests/machine/application/test_interfaces.py`, `tests/pipeline/application/test_stage_finish.py`, `tests/pipeline/application/test_stage_time_limited_report.py` and `tests/support/preflight_support.py`. The tester would also move the out-of-time row of its own `tests/pipeline/application/test_stage_context.py` (`_SlowCommands`) to the new method, and add the row with a `sync` that prints.
+       - (b) Add `output: str` to `CheckResult` itself, which needs leave for `tests/pipeline/domain/test_checks.py::test_fields_are_exactly_the_generic_eight`. This settles finding 3 but not finding 2: the output would still begin with the sync's lines unless `run` gains a flag to skip the sync.
+       - (c) Keep the code as it is and accept both findings.
+       - I would choose (a).
+
+    After the answer, I end with `tests`. The tester then makes the approved test changes and adds the test for the new criterion 11 from finding 4 (a file a `context` command writes on the dataset is not there when the agent's run starts, and the take does not carry it). The code for criterion 11 is already in place: `ContainerEnvironment.run_agent` rolls the dataset back before the agent. After that, I implement the chosen options.
+
+    Noticed, not touched: as entries 8, 10 and 12 say, no system prompt exists under `operator/template`. The sentence is in `agents/system-prompt.md` and in the fallback `SYSTEM_PROMPT`. If the human meant another file, criterion 8 should name it.
