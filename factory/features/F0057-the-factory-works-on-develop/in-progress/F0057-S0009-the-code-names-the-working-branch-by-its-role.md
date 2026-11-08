@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 652
 comments_read: [6716487122]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T03:15:05.997828Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -75,6 +79,11 @@ journal:
   at: '2026-11-08T03:15:00.047631Z'
   stage: review
   run: 1768175d351b4c4a8502b8787a134e2f
+- number: 13
+  speaker: factory
+  kind: started
+  at: '2026-11-08T03:15:05.997828Z'
+  stage: doing
 ---
 
 # The code names the working branch by its role
@@ -233,3 +242,4 @@ Expect: `0`
     - tests/pipeline/domain/test_evaluation_due.py: the human's leave (Interface, 2026-11-08: `main_commit` -> `work_commit`)
     - tests/pipeline/domain/test_evaluation_reject.py: the human's leave (Interface, 2026-11-08: `main_commit` -> `work_commit`)
     - tests/support/evaluation_support.py: the human's leave (Interface, 2026-11-08: `main_commit` -> `work_commit`)
+13. factory: started doing as vm.
