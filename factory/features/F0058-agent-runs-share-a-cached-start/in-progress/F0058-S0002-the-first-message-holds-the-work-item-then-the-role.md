@@ -1,17 +1,13 @@
 ---
 stage: tests
-blocked: null
+blocked: question
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 660
 comments_read: [6720878077]
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-08T11:26:53.706575Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -51,6 +47,13 @@ journal:
   kind: started
   at: '2026-11-08T11:26:53.706575Z'
   stage: tests
+- number: 8
+  speaker: tester
+  kind: question
+  at: '2026-11-08T11:30:45.869589Z'
+  stage: tests
+  run: 8090ee754ed141eebc63b23958d83027
+  blocked: question
 ---
 
 # The first message holds the work item, then the role
@@ -162,3 +165,40 @@ Expect: the docstring names the order: the work item's body, the role's instruct
    - Scope: this is the feature's S0002, within decisions 4 and 5. OpenCode only follows the new order, as "Out of scope" says.
    - Route: `tests`, because the Interface changes `src/` and `agents/`.
 7. factory: started tests as vm.
+8. tester: I wrote tests for criteria 2, 3, 5, 6, 7, 8 and 11, plus the domain half of criterion 1, and stopped there. Criteria 9 and 10 clash with tests the leave for earlier tests does not name, and the Interface does not say how the runtime gets the common system prompt. `make lint` is green. I have not run the tests yet.
+
+   Before I can finish I need these answered:
+
+   1. **What does a resumed run send? (criterion 10)** The pipeline resumes a session in one place only: `PatientRuns`, after a provider limit (`src/factory/agents/application/provider_limits.py`, `_resumed_request`). Today it sends `CONTINUE_PROMPT` in place of the message. `tests/agents/application/test_patient_runs.py:140` checks for that, and that file is not on the leave list. The options:
+      - (a) The resumed request's prompt is the whole original message, then one blank line, then `CONTINUE_PROMPT`. `test_patient_runs.py` joins the leave.
+      - (b) The resumed prompt is the whole message only, without `CONTINUE_PROMPT`. Same leave.
+      - (c) Criterion 10 only means that `claude_runtime` passes the request's prompt unchanged with `--resume`, which it already does, and `PatientRuns` keeps `CONTINUE_PROMPT`.
+
+      I would choose (a).
+   2. **Where does OpenCode's result block go? (criterion 9)** Today the result block ends the agent's `prompt` in the per-run configuration, and the message (the last argument of `opencode run`) is the request's prompt alone. The options:
+      - (a) The message is the request's prompt, then one blank line, then the result block, and the configuration's agent `prompt` stops holding the role's instructions. Two files outside the leave check today's message or configuration and would join it: `tests/agents/adapters/test_opencode_runtime_provider.py:123` and `tests/machine/adapters/test_opencode_runtime_lockdown.py:73` (through `request_configuration` in `tests/support/opencode_stand_in.py`).
+      - (b) The message stays the request's prompt unchanged, and the result block stays at the end of the configuration's `prompt`.
+
+      I would choose (a), because the criterion speaks of the message.
+   3. **How does `ClaudeCodeRuntime` reach `agents/system-prompt.md`?** It does not know the agent home today. My plan for the system-prompt half of criterion 1 is a black-box test: two runs of different roles through `ClaudeCodeRuntime(executable, state)`, built as today, see equal text in the file after `--append-system-prompt-file`, and that text is neither role's instructions. The coder could then pick the source, for example a field on `AgentDefinition` with a default, or an optional constructor keyword. The other option is to name the source now, so the test can also check that the text equals the shipped file. I would choose the black-box test.
+
+   What I wrote so far:
+   - criterion 1 (message half): `tests/agents/domain/test_prompts.py::test_runs_of_different_roles_share_the_message_up_to_the_end_of_the_work_item`
+   - criterion 2: `tests/agents/domain/test_prompts.py::test_a_new_journal_entry_keeps_the_earlier_work_item_part_as_a_prefix`
+   - criterion 3: `tests/agents/domain/test_prompts.py::test_the_message_holds_the_work_item_then_the_role_then_the_facts_one_blank_line_apart`, and `tests/pipeline/application/test_task.py::test_the_message_starts_with_the_work_item_body_then_the_roles_instructions`
+   - criterion 4: `tests/agent_files/test_first_message_agent_files.py::test_the_system_prompt_names_both_blocks_and_what_each_one_is`
+   - criterion 5: `tests/agents/domain/test_prompts.py::test_a_marker_text_in_the_body_is_escaped_and_opens_no_block`
+   - criterion 6: `tests/agents/domain/test_prompts.py::test_a_body_without_a_marker_text_reaches_the_message_byte_for_byte`
+   - criterion 7: `tests/agents/domain/test_prompts.py::test_the_prompt_holds_the_facts_line_by_line_and_ends_with_the_end_line` (changed)
+   - criterion 8: `tests/agents/domain/test_prompts.py::test_the_round_line_names_the_stages_cap_when_it_has_one`, and `tests/pipeline/application/test_task.py::test_the_request_names_the_round_cap_of_a_stage_that_has_one`; `round_cap` 0 and 1 are new rows in `test_prompt_facts_hold_their_limits_on_both_sides`
+   - criterion 11: `tests/agent_files/test_first_message_agent_files.py::test_no_agent_file_reads_its_work_item_first_and_each_finds_it_in_the_first_message`
+   - criteria 9, 10 and the system-prompt half of 1: not written yet, waiting on the answers above.
+
+   Files:
+   - Created: `tests/agent_files/test_first_message_agent_files.py`.
+   - Changed under the human's leave:
+     - `tests/agents/domain/test_prompts.py`: new `PromptFacts` fields in `VALID`; the facts tests now read the facts part of the message.
+     - `tests/pipeline/application/test_task.py`: the expected `PromptFacts` gains `body`, `role` and `role_instructions`.
+     - `tests/pipeline/application/test_task_acceptance.py`: `_base_prompt` fills the new fields.
+
+   Still to change once answered: `tests/agents/adapters/test_claude_runtime.py`, line 288 (the system-prompt file's content), and the OpenCode and resume tests named above.
