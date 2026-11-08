@@ -26,7 +26,7 @@ It shows how to see whether the instance is healthy and what the preflight check
 
 ## The preflight and the health check
 
-The preflight is what the factory checks about its machine and its repository before it does any work. A failed item of the machine raises the stop `preflight_failed`, a stop of the machine. A red `lint` on `main` raises `main_branch_failing`, a stop of the repository. Both show in the health check.
+The preflight is what the factory checks about its machine and its repository before it does any work. A failed item of the machine raises the stop `preflight_failed`, a stop of the machine. A red `lint` on `develop` raises `main_branch_failing`, a stop of the repository. Both show in the health check.
 
 ### The hosting-service token
 
@@ -62,7 +62,7 @@ If the item fails, its detail is `<path>: <fault>`. Find the fault in this table
 | `the folder <folder> belongs to uid <n>, not to <m>` | The folder is not the factory's user's. | Use `/home/factory/.secrets`, or `chown` your folder to that user. |
 | `the folder <folder> has mode <mode>; make it 0700` | Group or others have a permission bit on the folder. | `chmod 0700` the folder, or use `/home/factory/.secrets`. |
 
-Every [project command](../project-guide/glossary.md) (`make check`, `lint`, `test`, `secrets`, `duplicates`, `documents`, and the preflight's `lint` on `main`) runs in a check container on the [dataset](../project-guide/glossary.md).
+Every [project command](../project-guide/glossary.md) (`make check`, `lint`, `test`, `secrets`, `duplicates`, `documents`, and the preflight's `lint` on `develop`) runs in a check container on the [dataset](../project-guide/glossary.md).
 
 ### The health check
 
@@ -88,7 +88,7 @@ The preflight is a list of five items. With the machine's extras it is up to thi
 
 The preflight installs nothing. A missing tool is reported and you fix the image or the VM. It asks for no `make`, no `claude` and no `opencode` on the factory's `PATH`: the runtime and `make` run only inside the stage image's containers, and `agent-runtime-version` fails when the runtime is missing there.
 
-The items run only when the image build has changed (see "The stamp and the probe of the main branch").
+The items run only when the image build has changed (see "The stamp and the probe of the develop branch").
 
 The five basic items are `tool:git`, `tool:uv`, `hosting-service`, `agents` and `agent-runtime-version`. The extras are `token-file`, `podman`, `zfs`, `dataset`, `stage-image`, `metadata-block`, `opencode` and `agent-run-probe`. `metadata-block` runs only under the profile `job`, and `opencode` only under opencode. Under `FACTORY_SNAPSHOTS=copy` the one item `snapshots` stands in place of `zfs` and `dataset`.
 
@@ -97,7 +97,7 @@ Each row of the table names what an item needs and what to do when it fails. The
 | Item | Passes when | If it fails |
 |---|---|---|
 | `tool:git`, `tool:uv` | the tool is on the `PATH` | The detail is `<tool> is not on the PATH; add it to the image`, as the code prints it, though the tools are on the VM, not in the image. Install the tool on the VM (`operator/vm/setup.sh` installs `uv` into `/srv/factory/<instance>/tools`, and `git` comes with its package step) and restart the instance. |
-| `hosting-service` | a read-only call (the open pull request of `main`) is answered | The detail holds the operation and the service's message. Check the token (`FACTORY_TOKEN_FILE`) and the network. |
+| `hosting-service` | a read-only call (the open pull request of `develop`) is answered | The detail holds the operation and the service's message. Check the token (`FACTORY_TOKEN_FILE`) and the network. |
 | `agents` | at least one agent file is in `FACTORY_CLAUDE_HOME` (`<it>/agents/<role>.md`) | The detail names the directory, whether it is empty, missing or unreadable. Install the agents into `FACTORY_CLAUDE_HOME`. |
 | `agent-runtime-version` | the first word of the runtime's `--version` equals the pin of the runtime in force (`FACTORY_CLAUDE_VERSION`; under opencode `FACTORY_OPENCODE_VERSION`) | The detail names both versions (`the agent runtime reports 2.1.290, the image pins 2.1.289`): rebuild the image or change the pinned version. Without the pin it says `the image does not pin a version: FACTORY_CLAUDE_VERSION is not set` (`FACTORY_OPENCODE_VERSION` under opencode). When `claude --version` cannot run, it holds the runtime's error. |
 | `token-file` | `FACTORY_TOKEN_FILE` names a file that exists, in a folder that belongs to the factory's user and has no permission bit for group or others (the file's own mode does not count) | The detail is `<path>: <fault>`; see "The hosting-service token" for the four faults and the fix. |
@@ -112,18 +112,18 @@ Each row of the table names what an item needs and what to do when it fails. The
 
 The items read the instance's settings. Check three variables first: `FACTORY_CLAUDE_HOME`, `FACTORY_CLAUDE` and `FACTORY_CLAUDE_VERSION`. Under opencode check `FACTORY_OPENCODE`, `FACTORY_OPENCODE_VERSION` and `FACTORY_OPENCODE_MODELS`. The commit identity is not an item.
 
-The detail of `preflight_failed` also takes one form that is no item. `the probe on develop could not run: <message>` means the probe of the main branch (see "The stamp and the probe of the main branch") itself failed, because git or `make` could not run or the checkout is gone. Fix the machine, not `main`. The message may also be a snapshot or container command that failed while the dataset was prepared for `develop`, for example `the probe on develop could not run: container command sync failed: boom` or `the probe on develop could not run: snapshot command reset failed: no base at <path>`.
+The detail of `preflight_failed` also takes one form that is no item. `the probe on develop could not run: <message>` means the probe of the develop branch (see "The stamp and the probe of the develop branch") itself failed, because git or `make` could not run or the checkout is gone. Fix the machine, not `develop`. The message may also be a snapshot or container command that failed while the dataset was prepared for `develop`, for example `the probe on develop could not run: container command sync failed: boom` or `the probe on develop could not run: snapshot command reset failed: no base at <path>`.
 
 #### The probe of the agent run
 
 `agent-run-probe` runs the agent runtime once, with the factory's own arguments:
 
-- the project's agent `coder` (`<project>/factory/agents/coder.md` on `origin/main`) or the installed one;
+- the project's agent `coder` (`<project>/factory/agents/coder.md` on `origin/develop`) or the installed one;
 - a budget of 0.10 dollar, so it costs a few cents;
 - a fixed one-line prompt, and the decision `question` only;
 - a time limit of 2 minutes, and the agent run's environment.
 
-The probe takes nothing from the dataset after the run, so nothing it writes reaches the checkout. The dataset is prepared for `main` first, as a stage's is: the sync container runs on `origin/main` and the base moves, so the run starts on a clean copy. Like the other machine items it runs once for each image build and is skipped while the image is unchanged.
+The probe takes nothing from the dataset after the run, so nothing it writes reaches the checkout. The dataset is prepared for `develop` first, as a stage's is: the sync container runs on `origin/develop` and the base moves, so the run starts on a clean copy. Like the other machine items it runs once for each image build and is skipped while the image is unchanged.
 
 If the probe fails, its detail starts with one of these. Read it, then use the cause list below.
 
@@ -156,25 +156,25 @@ When the probe completes, the item passes and the factory log gets one line with
 
 With no login file set at all, the detail is empty.
 
-### The stamp and the probe of the main branch
+### The stamp and the probe of the develop branch
 
-The preflight remembers what it has passed in `preflight-stamp.json` in the state directory. The stamp holds the image identity the machine's items passed on, and the commit of `origin/main` whose `lint` passed or failed. It holds no time, and no timer expires it.
+The preflight remembers what it has passed in `preflight-stamp.json` in the state directory. The stamp holds the image identity the machine's items passed on, and the commit of `origin/develop` whose `lint` passed or failed. It holds no time, and no timer expires it.
 
 Deleting `preflight-stamp.json` is safe. A missing or damaged stamp reads as no stamp, and the only cost is one more run of the machine's items and of the probe. The agent can read the file and cannot write it.
 
 - **The machine's items** run when the stamp's image differs from the instance's image identity, when there is no stamp, and on every call when the instance has no image identity. While the image build is unchanged they are skipped, however much time passes. A failed report writes no stamp, so the items run again at the next call.
-- **The probe** runs the project's `lint` command with a `time_limit` of 10 minutes, on the main branch only. It puts the checkout on `main` at `origin/main` first, and prepares the dataset for that commit before `lint` runs in a check container. A red `lint` on a work item's branch never fails the preflight. The probe runs only when `origin/main` is a commit the stamp has not seen, and after a new image build (a new build forgets what was probed). The preflight does not fetch; the [tick](../project-guide/glossary.md) that calls it does.
+- **The probe** runs the project's `lint` command with a `time_limit` of 10 minutes, on the develop branch only. It puts the checkout on `develop` at `origin/develop` first, and prepares the dataset for that commit before `lint` runs in a check container. A red `lint` on a work item's branch never fails the preflight. The probe runs only when `origin/develop` is a commit the stamp has not seen, and after a new image build (a new build forgets what was probed). The preflight does not fetch; the [tick](../project-guide/glossary.md) that calls it does.
 - **A red `lint` is a stop.** The probe raises `main_branch_failing` with the detail `lint is red on develop at <12 characters of the commit>: <last line of the output>`. When `lint` printed nothing, the last line is replaced by how it ended: `lint ended with exit status <n> and printed nothing on develop at <commit>`, or `ended by signal <n>`. When `lint` ran out of its time the detail is `lint reached its time_limit on develop at <commit>`.
-- **A red `main` is probed once.** The failing commit is remembered, so an idle tick runs no project command while the stop stands. If `health.json` loses the stop meanwhile, the next call raises it again with the detail `lint is red on develop at <commit> (probed earlier)`, without running `lint`.
-- **A probe cut off by the factory's own stop is not judged.** When `factory-run` is asked to stop (SIGTERM from `systemctl stop` or `restart`) while the probe's `lint` runs, the probe raises no stop, writes no stamp and records nothing as failed. Its tick ends without claiming or dispatching any work, and the next start probes `main` again. A `lint` ended by signal 15 while the factory is not stopping (an out-of-memory kill, for example) is judged: it raises `main_branch_failing` with the detail above. Only the probe of `main` follows this rule. A stage's checks cut off by a stop end in a [crash](../project-guide/glossary.md) and a rerun.
-- **A fix clears it.** When you push a new commit to `main`, the next call probes it. When `lint` passes, the stop `main_branch_failing` is cleared. A call that ends without a probe error also clears a standing `preflight_failed` stop.
-- **A failed machine clears a stale stop.** While the machine's items fail, the probe cannot run. So a `main_branch_failing` is cleared when the stamp's failing commit is no longer `origin/main` (a fix was pushed, or `main` is gone) and the call still returns `preflight_failed`. The new `main` is probed when the machine's items pass again, and a red one raises the stop anew. A stop whose commit is still `main` stays, and so does a stop when git cannot resolve `origin/main`. If git cannot compare the two (the failing commit is not in the clone), the stop is cleared. The stamp is not rewritten.
-- **A `stops recorded` commit is a new `main`.** The probe runs again for it once the machine's items pass. While they fail (`preflight_failed` stands), the stale-stop rule keeps `main_branch_failing` when every path that differs between the stamp's failing commit and the checkout is `factory/stops.jsonl`. So no `cleared` record is written for a `main` nobody fixed. A commit that also changes another file clears the stop.
-- A repository with no commit on `main` has nothing to probe, and the preflight passes once the machine's items have.
+- **A red `develop` is probed once.** The failing commit is remembered, so an idle tick runs no project command while the stop stands. If `health.json` loses the stop meanwhile, the next call raises it again with the detail `lint is red on develop at <commit> (probed earlier)`, without running `lint`.
+- **A probe cut off by the factory's own stop is not judged.** When `factory-run` is asked to stop (SIGTERM from `systemctl stop` or `restart`) while the probe's `lint` runs, the probe raises no stop, writes no stamp and records nothing as failed. Its tick ends without claiming or dispatching any work, and the next start probes `develop` again. A `lint` ended by signal 15 while the factory is not stopping (an out-of-memory kill, for example) is judged: it raises `main_branch_failing` with the detail above. Only the probe of `develop` follows this rule. A stage's checks cut off by a stop end in a [crash](../project-guide/glossary.md) and a rerun.
+- **A fix clears it.** When you push a new commit to `develop`, the next call probes it. When `lint` passes, the stop `main_branch_failing` is cleared. A call that ends without a probe error also clears a standing `preflight_failed` stop.
+- **A failed machine clears a stale stop.** While the machine's items fail, the probe cannot run. So a `main_branch_failing` is cleared when the stamp's failing commit is no longer `origin/develop` (a fix was pushed, or `develop` is gone) and the call still returns `preflight_failed`. The new `develop` is probed when the machine's items pass again, and a red one raises the stop anew. A stop whose commit is still `develop` stays, and so does a stop when git cannot resolve `origin/develop`. If git cannot compare the two (the failing commit is not in the clone), the stop is cleared. The stamp is not rewritten.
+- **A `stops recorded` commit is a new `develop`.** The probe runs again for it once the machine's items pass. While they fail (`preflight_failed` stands), the stale-stop rule keeps `main_branch_failing` when every path that differs between the stamp's failing commit and the checkout is `factory/stops.jsonl`. So no `cleared` record is written for a `develop` nobody fixed. A commit that also changes another file clears the stop.
+- A repository with no commit on `develop` has nothing to probe, and the preflight passes once the machine's items have.
 
 ### The wait for a repository that is not ready
 
-Before each tick the instance checks that `origin/main` exists and holds `factory/pipeline.yml`. When it does, nothing is fetched here (the tick fetches) and any `repository_unavailable` stop is cleared.
+Before each tick the instance checks that `origin/develop` exists and holds `factory/pipeline.yml`. When it does, nothing is fetched here (the tick fetches) and any `repository_unavailable` stop is cleared.
 
 When it does not, the instance fetches once and looks again. If the fault stays, it raises the stop and skips the tick. The loop pauses as for any idle iteration and tries again. The stop is written once per detail: the same fault on the next iteration adds no second line, and a different fault adds a new one. Push the missing branch or file, and the next iteration clears the stop.
 
@@ -221,7 +221,7 @@ A line is `<stamp> <text>`. The stamp is `YYYY-MM-DDTHH:MM:SSZ`: UTC, whole seco
 
 ### The records
 
-The state directory's `records/` folder holds four JSON Lines files. None is committed. The tick publishes the stop records to `factory/stops.jsonl` on `main` (see "The stop records on main" in [stops.md](stops.md)).
+The state directory's `records/` folder holds four JSON Lines files. None is committed. The tick publishes the stop records to `factory/stops.jsonl` on `develop` (see "The stop records on develop" in [stops.md](stops.md)).
 
 | File | Holds | Described in |
 |---|---|---|
@@ -232,7 +232,7 @@ The state directory's `records/` folder holds four JSON Lines files. None is com
 
 A line of any of them that a kill cut, or that is not UTF-8, is skipped when the factory reads the file, so a damaged record file needs no repair. A record appended right after a line a kill cut shares that line and is skipped with it. A whole line that is not UTF-8 costs only itself.
 
-`project-commands.jsonl` in the state directory's `records/` folder holds one JSON line for every project command the factory runs, whoever asked for it. That covers the stage checks after an agent, the preflight's probe and the check of `main`. On the VM the file is `/srv/factory/<instance>/state/records/project-commands.jsonl`. The folder is created on the first run. A line has these fields:
+`project-commands.jsonl` in the state directory's `records/` folder holds one JSON line for every project command the factory runs, whoever asked for it. That covers the stage checks after an agent, the preflight's probe and the check of `develop`. On the VM the file is `/srv/factory/<instance>/state/records/project-commands.jsonl`. The folder is created on the first run. A line has these fields:
 
 | Field | Meaning |
 |---|---|
@@ -265,7 +265,7 @@ The key has four parts:
 - `definition`: the SHA-256, in hex, of the whole [pipeline definition](../project-guide/glossary.md).
 - `image`: the stage image (see "The image on the cost records" in [machine.md](machine.md)), `null` without one.
 
-A change in any part makes the known result invalid: a changed file the command reads, a merge of `main` that brings one, any change of the pipeline definition (a time limit, a stage, any value), or a new image. A change only in left-out files keeps the key.
+A change in any part makes the known result invalid: a changed file the command reads, a merge of `develop` that brings one, any change of the pipeline definition (a time limit, a stage, any value), or a new image. A change only in left-out files keeps the key.
 
 - A failed or timed-out result is never reused. The last real run of a key decides: a pass, then a failure of the same key, ends the reuse of the pass until a new run passes.
 - A reuse is a record too, with the time of the run it took, so no check is silenced and the runs of a tree can be counted.
@@ -315,7 +315,7 @@ python3 -c "import json,collections as c; print(c.Counter(r['key']['tree'] for r
 - `cleared` is written, after the status and the `stop cleared` line, when a stop of that reason stood and is removed. Clearing a reason that does not stand writes nothing.
 - A raise whose health status cannot be read writes no `raised` record. The next raise that can read the status finds no stop standing and writes it. A stop that clears before the status is readable again therefore never reaches the records. Its line is still in the factory log.
 - When the record cannot be written, the other destinations were still tried and the factory reports the `OSError` as for the log and the status.
-- The factory never clears this file. The tick publishes its records to `main` (see "The stops" in [stops.md](stops.md)), and a record is pushed once. Delete the file only when `main`'s `factory/stops.jsonl` holds every line of it. A record deleted before it was pushed is lost.
+- The factory never clears this file. The tick publishes its records to `develop` (see "The stops" in [stops.md](stops.md)), and a record is pushed once. Delete the file only when `develop`'s `factory/stops.jsonl` holds every line of it. A record deleted before it was pushed is lost.
 
 #### The disk record
 

@@ -307,7 +307,7 @@ A container mounts the login file when it starts, and its login shell reads it o
 
 ## The agent files
 
-An agent is a file `<name>.md`. The factory looks for it in two places: the project's own, `<project>/factory/agents/<name>.md` on `origin/main`, or the installed one, `<agent home>/agents/<name>.md`. Every role of the [pipeline definition](../project-guide/glossary.md) needs an agent file of the same name, from either place.
+An agent is a file `<name>.md`. The factory looks for it in two places: the project's own, `<project>/factory/agents/<name>.md` on `origin/develop`, or the installed one, `<agent home>/agents/<name>.md`. Every role of the [pipeline definition](../project-guide/glossary.md) needs an agent file of the same name, from either place.
 
 The name is lowercase letters, digits and hyphens, starting with a letter (`coder`). `README.md` and `Coder.md` are not agents, nor is a file with another suffix or one in a subdirectory.
 
@@ -327,16 +327,16 @@ The body, without the whitespace around it, is the instructions. A line of hyphe
 
 ### A project's own agents
 
-For each role the factory reads `<project>/factory/agents/<name>.md` from `origin/main` first, at every tick, the same ref as the pipeline definition. When the project has none, it uses the installed agent.
+For each role the factory reads `<project>/factory/agents/<name>.md` from `origin/develop` first, at every tick, the same ref as the pipeline definition. When the project has none, it uses the installed agent.
 
 A project's agent replaces the installed one whole and never extends it. Nothing is merged, so a key or a line of instructions you leave out is not taken from the shipped file. To change a shipped agent, copy it from `agents/agents/` in the image's source to `<project>/factory/agents/<name>.md` and change the copy.
 
-The file follows the same rules and has the same faults as any agent file. A fault of a project file is named with its place, for example `factory/agents/coder.md at origin/main: key not applied by the agent runtime: colour`. The load of every tick and the preflight's probe check it. A faulty project file is never replaced by the installed one: the [stop](../project-guide/glossary.md) `agent_definition_invalid` stands until a commit on `main` fixes it.
+The file follows the same rules and has the same faults as any agent file. A fault of a project file is named with its place, for example `factory/agents/coder.md at origin/develop: key not applied by the agent runtime: colour`. The load of every tick and the preflight's probe check it. A faulty project file is never replaced by the installed one: the [stop](../project-guide/glossary.md) `agent_definition_invalid` stands until a commit on `develop` fixes it.
 
-- **A new role.** Add the role to `<project>/factory/pipeline.yml` and its file under `<project>/factory/agents/`, in one commit on `main`. A role whose only agent is the project's own needs no installed file.
-- **Back to the shipped agent.** Remove `<project>/factory/agents/<name>.md` from `main`.
-- **A branch's copy is never read.** A work item's branch, or an uncommitted edit in the checkout, changes nothing. Only `origin/main` counts, so a work item cannot change its own agent. A file under `<project>/factory/agents/` is a protected path (the human's), and an agent that writes there is refused.
-- **The probe.** The preflight's `agent-run-probe` runs the project's `coder` when there is one, once for each image build. A faulty file fails the item with `agent coder: factory/agents/coder.md at origin/main: <fault>`.
+- **A new role.** Add the role to `<project>/factory/pipeline.yml` and its file under `<project>/factory/agents/`, in one commit on `develop`. A role whose only agent is the project's own needs no installed file.
+- **Back to the shipped agent.** Remove `<project>/factory/agents/<name>.md` from `develop`.
+- **A branch's copy is never read.** A work item's branch, or an uncommitted edit in the checkout, changes nothing. Only `origin/develop` counts, so a work item cannot change its own agent. A file under `<project>/factory/agents/` is a protected path (the human's), and an agent that writes there is refused.
+- **The probe.** The preflight's `agent-run-probe` runs the project's `coder` when there is one, once for each image build. A faulty file fails the item with `agent coder: factory/agents/coder.md at origin/develop: <fault>`.
 
 ### A project's own skills
 

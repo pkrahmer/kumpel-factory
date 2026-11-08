@@ -8,21 +8,21 @@ The [stops](../project-guide/glossary.md) and the questions that these sections 
 
 ## When a feature acceptance is due
 
-The factory starts a [feature](../project-guide/glossary.md)'s acceptance when the feature is complete and no recorded report covers exactly its archived stories. It reads only the files on `origin/main` and the remote acceptance branches, never your checkout. Without an `acceptance_stage` in the [pipeline definition](../project-guide/glossary.md) nothing is ever due.
+The factory starts a [feature](../project-guide/glossary.md)'s acceptance when the feature is complete and no recorded report covers exactly its archived stories. It reads only the files on `origin/develop` and the remote acceptance branches, never your checkout. Without an `acceptance_stage` in the [pipeline definition](../project-guide/glossary.md) nothing is ever due.
 
 A feature is complete when it has at least one [story](../project-guide/glossary.md) file in `done` and no story file waits in the [backlog](../project-guide/glossary.md) (`backlog/`) or in `in-progress`.
 
 - Only story files count (named `<feature id>-S<n>-<slug>.md`), and only directly in `backlog/`, `in-progress/` or `done/` of the feature. A story file in a subfolder, such as `done/old/`, neither archives a story nor keeps the feature incomplete.
 - A `.gitkeep`, a `README.md`, a note and an acceptance's report beside the stories never keep a feature incomplete and never make it complete.
 
-A report covers the archived stories when it is at `done` on `main` and its `stories` list equals the set of archived stories. A report with fewer or more stories does not cover them. So a story archived after an acceptance makes the feature due again.
+A report covers the archived stories when it is at `done` on `develop` and its `stories` list equals the set of archived stories. A report with fewer or more stories does not cover them. So a story archived after an acceptance makes the feature due again.
 
 The status of a feature is the first row of this table that applies:
 
 | Status | Meaning |
 | --- | --- |
-| `in_flight` | A report is on its own remote branch `work-item/<acceptance id>` and not yet on `main`. |
-| `merged_unrecorded` | A report is on `main` but not at `done`: the acceptance was merged and its result is not recorded yet. |
+| `in_flight` | A report is on its own remote branch `work-item/<acceptance id>` and not yet on `develop`. |
+| `merged_unrecorded` | A report is on `develop` but not at `done`: the acceptance was merged and its result is not recorded yet. |
 | `incomplete` | The feature has no archived story, or a story file waits in `backlog` or `in-progress`. A recorded result does not stand while a story file waits. |
 | `accepted` or `refused` | A report at `done` covers exactly the archived stories; this is its outcome. With several covering reports the highest id decides. |
 | `due` | None of the above: the acceptance is waiting to be started. |
@@ -30,7 +30,7 @@ The status of a feature is the first row of this table that applies:
 Three cases are ignored or refused:
 
 - A remote branch `work-item/<acceptance id>` without a report file in `in-progress/`, and the branch of a story, are ignored.
-- A report on `main` whose front matter cannot be read as an acceptance's is a format error that names the report's path.
+- A report on `develop` whose front matter cannot be read as an acceptance's is a format error that names the report's path.
 - If two folders share a feature id, the first in name order counts.
 
 ### What the acceptance reviewer is told
@@ -46,7 +46,7 @@ The prompt also has the line `Human interventions of the stories: ...` right aft
 
 ### The order of the work
 
-- The next acceptance id of a feature is one above the highest acceptance id among its reports on `main` and on remote acceptance branches. `factory-watch` and the board command use the same rule.
+- The next acceptance id of a feature is one above the highest acceptance id among its reports on `develop` and on remote acceptance branches. `factory-watch` and the board command use the same rule.
 - A running acceptance is a work item like a story and is picked in the same order, by id. A waiting work item and a held [claim](../project-guide/glossary.md) come first, as for stories.
 - A due acceptance is not started before the feature's own stories. The next event is `acceptance_due:<feature>` only when no story of that feature or of an earlier feature can run. It still comes before the stories of a later feature.
 - `factory-watch` shows the event as `event: acceptance_due:<feature>  acceptance of <feature> is due`.
@@ -58,7 +58,7 @@ When a work item reaches an approval [stage](../project-guide/glossary.md), the 
 1. **It replaces the pull request description.** What you or the factory wrote there before is gone. The new description has these sections, each headed `## <name>`:
    - Description and Acceptance criteria: the story's own sections, verbatim.
    - Tests, Review, Documentation and Smoke test: the text of the latest `result` entry of the tester, reviewer, documenter and smoke tester.
-   - Commits: a code block with one line per commit beyond `main`, the first seven characters of the id and the subject.
+   - Commits: a code block with one line per commit beyond `develop`, the first seven characters of the id and the subject.
    - A closing paragraph: a merge accepts the story, and a close with a comment sends it back.
 
    A story section that is missing or empty, and a report whose [role](../project-guide/glossary.md) never recorded a `result`, show `none`. The reviewer's entry under Review ends with the earlier tests the story changed and the leave for each. The reports are found by the [journal](../project-guide/glossary.md)'s data (speaker and kind), never by the text of an entry.
@@ -91,7 +91,7 @@ The result is yours, whatever the acceptance reviewer recommended: a merge of an
   - The proposed stories your merge brought into the feature's backlog stay there untouched. You refine them before you start any. While they wait, the feature is `incomplete` and not due. Once you have started and archived them it is due again, and a new acceptance follows.
   - A merge that brought no proposed stories leaves the feature `accepted`.
 - **Close**, with a comment saying why, refuses. It works at any stage: while the reviewer works or asks, at the approval, or after a failed hand-over. The factory does it in one tick.
-  - The report is written to `main` at `done` as refused, and `blocked` is cleared.
+  - The report is written to `develop` at `done` as refused, and `blocked` is cleared.
   - The proposed stories are discarded, because they were only on the branch.
   - The feature counts as not accepted until another story is archived and a new acceptance runs.
   - The report has `Refused by the human on <date>: <your comment>` as the first paragraph under its `## Recommendation`, and a `done` entry `done (pull request closed by the human); cost: <cost>`. Its cost records file is copied beside it.
@@ -104,14 +104,14 @@ Each acceptance has its own report and its own cost records, so the cost on its 
 
 **Accepted again.** When another story is archived after an acceptance, no report covers the stories any more and the feature is due again. The next acceptance is a new work item with its own branch, report and cost records; the earlier report and its cost records stay as they were. Until the new merge is recorded, the feature is `merged_unrecorded`. After it, the feature is `accepted` if the merge brought no proposed stories and `incomplete` if it brought some. After a refusal the same happens once another story is archived.
 
-**No loop.** Whatever stage an acceptance has reached, your merge or close is booked in one tick, without an agent run. The stage run sees the merged or closed pull request and hands it to the acceptance's own handler, never to a story's. Once the booking is on `main`, further ticks find nothing to do and yield `idle`: no commit, no post. A refused feature stays not due until another story is archived. An accepted one stays not due unless the set of archived stories changes.
+**No loop.** Whatever stage an acceptance has reached, your merge or close is booked in one tick, without an agent run. The stage run sees the merged or closed pull request and hands it to the acceptance's own handler, never to a story's. Once the booking is on `develop`, further ticks find nothing to do and yield `idle`: no commit, no post. A refused feature stays not due until another story is archived. An accepted one stays not due unless the set of archived stories changes.
 
 **What a close records first.** Before the booking, your unread comments are copied into the report's journal on the acceptance's branch. One `close` entry follows (speaker `human`, text `closed the pull request.`, dated today in UTC), and the factory pushes it. An acceptance ends at its first close: a report that already holds a `close` entry of yours gets no second one. The branch is deleted last, on the remote and locally.
 
 **A close or a merge handled again.** A kill at any point is harmless. The recorded close is not recorded twice, a report already in `done/` is not booked twice, and a rerun after the branch is gone only finds the report in `done/`. After a kill only the branch deletion of a merge is repeated.
 
-- If the branch is gone and the report is in neither place, the factory changes nothing and counts an error. A close names it `no report on the branch or the main branch`; a merge names it `no report on the main branch`, which it raises when the report is in neither `in-progress/` nor `done/` on `main`.
-- If `main` moved since the last fetch, the push is rejected and the event is retried. A rejected close push comes after the close is recorded, and the branch stays until the booking is pushed.
+- If the branch is gone and the report is in neither place, the factory changes nothing and counts an error. A close names it `no report on the branch or the develop branch`; a merge names it `no report on the develop branch`, which it raises when the report is in neither `in-progress/` nor `done/` on `develop`.
+- If `develop` moved since the last fetch, the push is rejected and the event is retried. A rejected close push comes after the close is recorded, and the branch stays until the booking is pushed.
 - If the remote refuses to delete the branch, the booking is already pushed. The branch stays, and the error is counted.
 
 These errors are counted and reported as in "An event that keeps failing" in [stops.md](stops.md).
@@ -128,7 +128,7 @@ A hand-over that fails every time is a counted error like any other. It is tried
 
 After the restore of the checkout and before it looks at any work item, every tick deletes stale branches `work-item/<id>` on the remote:
 
-- The branch of each story whose file is in `backlog/` on `origin/main`. It is the leftover of a discard (see "A close before the approval discards the story") that was killed after it pushed the move, or whose deletion the remote refused.
+- The branch of each story whose file is in `backlog/` on `origin/develop`. It is the leftover of a discard (see "A close before the approval discards the story") that was killed after it pushed the move, or whose deletion the remote refused.
 - The branch of each story whose file is in `done/`. It is the leftover of a merge (see "A merge archives the story") that was killed or refused between the archive and the deletion.
 
 You do nothing after a kill. The factory logs `deleted stale branch <name>: its story is back in the backlog`, or `its story is done` for a merged story.
@@ -136,11 +136,11 @@ You do nothing after a kill. The factory logs `deleted stale branch <name>: its 
 - **A pull request still open on the branch** is closed by the hosting service when the branch goes. GitHub does so. The factory makes no call to the hosting service and posts nothing. A pull request that is already closed stays as it is.
 - **A refused or unreachable deletion** is no stop. The log gets `could not delete stale branch <name>: rejected` (or `unreachable`), and the next tick tries again.
 - **Start the story again only after the tick has deleted the branch.** A story you start before that finds the old branch with its old state and bill, and is discarded again. If the remote refuses deletions, lift the refusal and wait for a tick. The log line confirms it.
-- **A branch is kept** when the same id also has a story file in `in-progress/` (two work items with one id are reported as a duplicate), and when no story file of its id is in `backlog/` or `done/` on `origin/main`. A move to `backlog/` that is not pushed to `main` deletes nothing. Branches that are not `work-item/<id>`, such as `main` and your own, are never touched.
+- **A branch is kept** when the same id also has a story file in `in-progress/` (two work items with one id are reported as a duplicate), and when no story file of its id is in `backlog/` or `done/` on `origin/develop`. A move to `backlog/` that is not pushed to `develop` deletes nothing. Branches that are not `work-item/<id>`, such as `develop`, `main` and your own, are never touched.
 
 ## A merge archives the story
 
-A merge of a story's pull request, by any method (merge commit, squash or rebase), accepts the story as it is, at whatever stage it has reached: working, waiting for you, or at an approval stage. The factory then archives it on `main` in one commit:
+A merge of a story's pull request, by any method (merge commit, squash or rebase), accepts the story as it is, at whatever stage it has reached: working, waiting for you, or at an approval stage. The factory then archives it on `develop` in one commit:
 
 - The story file moves from `in-progress/` to `done/` of its feature. Its cost records (`<story>.costs.jsonl`) move beside it when it has them.
 - Its stage becomes `done`, with no wait and no claim, whoever held the claim. Its counters and journal stay as they were.
@@ -152,15 +152,15 @@ A merge found when the story's stage is due to run is handled first. The factory
 
 When it goes wrong, you do nothing in any of these cases:
 
-- **The push of the archive is rejected**, because `main` moved since the checkout. Nothing is archived and the branch is kept. The next tick fetches and archives the story then.
-- **The factory dies before the push.** `main` and the branch are as they were, and the story is archived once on the next tick.
-- **The factory dies after the push, or the remote refuses to delete the branch**, for example when the remote forbids deletions. The archive stays on `main` and the story is under `done/`, so no event is raised for it again. The branch `work-item/<id>` is left on the remote, and nothing in the factory reads it meanwhile. The next tick deletes it (see "A stale branch is deleted by the tick"). An unreachable remote during the deletion leaves the branch in the same way.
+- **The push of the archive is rejected**, because `develop` moved since the checkout. Nothing is archived and the branch is kept. The next tick fetches and archives the story then.
+- **The factory dies before the push.** `develop` and the branch are as they were, and the story is archived once on the next tick.
+- **The factory dies after the push, or the remote refuses to delete the branch**, for example when the remote forbids deletions. The archive stays on `develop` and the story is under `done/`, so no event is raised for it again. The branch `work-item/<id>` is left on the remote, and nothing in the factory reads it meanwhile. The next tick deletes it (see "A stale branch is deleted by the tick"). An unreachable remote during the deletion leaves the branch in the same way.
 
 ## A close before the approval discards the story
 
-When you close a story's pull request while the story is at any stage that is not an approval stage, you have said you do not want this version. The factory discards the story on `main` in one commit:
+When you close a story's pull request while the story is at any stage that is not an approval stage, you have said you do not want this version. The factory discards the story on `develop` in one commit:
 
-- The story file moves from `in-progress/` back to `backlog/` of its feature. It is moved, not rewritten: it is the text you wrote on `main`, whatever the work item's branch held.
+- The story file moves from `in-progress/` back to `backlog/` of its feature. It is moved, not rewritten: it is the text you wrote on `develop`, whatever the work item's branch held.
 - The commit changes nothing else.
 
 After that push the factory deletes the work item's branch, on the remote and in its checkout, and with it the branch's journal and cost records. So a story you start again begins with an empty bill. A branch that is already gone is no error. The factory posts nothing, and the pull request stays closed.
@@ -171,9 +171,9 @@ A close found when the story's stage is due to run is handled first. The factory
 
 When it goes wrong, you do nothing in any of these cases:
 
-- **The push of the move is rejected**, because `main` moved since the checkout. Nothing is discarded and the branch is kept. The next tick fetches and discards the story then.
-- **The factory dies before the push.** `main` and the branch are as they were, and the story is discarded once on the next tick.
-- **The factory dies after the push, or the remote refuses or cannot be reached for the deletion.** The story is under `backlog/` on `main`, so no event is raised for it again, and the branch `work-item/<id>` is left on the remote. The next tick deletes it (see "A stale branch is deleted by the tick"). If the remote keeps refusing, lift the refusal; the tick tries again every tick.
+- **The push of the move is rejected**, because `develop` moved since the checkout. Nothing is discarded and the branch is kept. The next tick fetches and discards the story then.
+- **The factory dies before the push.** `develop` and the branch are as they were, and the story is discarded once on the next tick.
+- **The factory dies after the push, or the remote refuses or cannot be reached for the deletion.** The story is under `backlog/` on `develop`, so no event is raised for it again, and the branch `work-item/<id>` is left on the remote. The next tick deletes it (see "A stale branch is deleted by the tick"). If the remote keeps refusing, lift the refusal; the tick tries again every tick.
 
 ## A close at the approval sends the story back
 
@@ -216,7 +216,7 @@ The question has three options, all of them things you can already do:
 
 ## Branch deletion on merge must be off
 
-The factory reads a work item's state from its branch `origin/work-item/<id>`. A story in `in-progress/` on `main` with no such branch is read as a new start: it is at the first stage with fresh counters, whatever its file says.
+The factory reads a work item's state from its branch `origin/work-item/<id>`. A story in `in-progress/` on `develop` with no such branch is read as a new start: it is at the first stage with fresh counters, whatever its file says.
 
 With the hosting setting that deletes head branches on merge turned on, a merged story whose file is still in `in-progress/` loses its branch and starts again. Turn it off. On GitHub (marked for GitHub; not run here):
 
@@ -236,11 +236,11 @@ Neither is a fault. With neither, an idle tick means no work item has anything t
 
 The factory changes a work item's stage only along the `next` lists of the pipeline definition, and archives to `done` from an approval stage. If someone edits `stage` in a work item's file on its branch to another one, the factory notices on its next tick. It reports a `reject` event: "stage changed from `<from>` to `<to>`, which the pipeline definition does not allow".
 
-It judges the last commit on the branch, beyond `origin/main`, that touched the story's file. A hand-made change that a later commit on the branch buried is not seen. A push to the branch makes the factory try again, and the `reject` returns for as long as that newest commit is the illegal change.
+It judges the last commit on the branch, beyond `origin/develop`, that touched the story's file. A hand-made change that a later commit on the branch buried is not seen. A push to the branch makes the factory try again, and the `reject` returns for as long as that newest commit is the illegal change.
 
 ### What the factory does when it moves a stage back
 
-The factory corrects the change on the work item's branch, and only there; `main` is never written. It makes one new commit on top of the branch's head, also when later commits touched only other files. The commit:
+The factory corrects the change on the work item's branch, and only there; `develop` is never written. It makes one new commit on top of the branch's head, also when later commits touched only other files. The commit:
 
 - sets `stage` back to the one before the illegal change (`from`);
 - clears the claim, since a claim belongs to the stage at the head and `to` is no longer it;
@@ -268,9 +268,9 @@ These are not counted as an illegal change:
 - The factory's own correction, which moves the stage back and appends a journal entry of kind `move_back`.
 - A merge of the pull request by any method. The factory reads the pull request first, and a merged pull request is `merged`, never an illegal change.
 
-### Never edit a running work item on main
+### Never edit a running work item on develop
 
-Do not edit the file of a work item in `in-progress/` on `main`. Answer in its pull request instead. The agents amend the story on its branch (the description, the criteria), and your edit on `main` changes the same file. At the next stage start the factory merges `main` into the branch, the merge conflicts, and the stage [stalls](../project-guide/glossary.md) with the reason `merge_conflict`. When it has happened, revert the edit on `main`; the stage then starts again from the branch's story.
+Do not edit the file of a work item in `in-progress/` on `develop`. Answer in its pull request instead. The agents amend the story on its branch (the description, the criteria), and your edit on `develop` changes the same file. At the next stage start the factory merges `develop` into the branch, the merge conflicts, and the stage [stalls](../project-guide/glossary.md) with the reason `merge_conflict`. When it has happened, revert the edit on `develop`; the stage then starts again from the branch's story.
 
 ## A restart during a stage
 
@@ -362,8 +362,8 @@ The factory counts these errors and reports them as in "An event that keeps fail
 
 | Name | Where it arises |
 | --- | --- |
-| `CannotHandle` | A hand-over for a stage that is not an approval or a work item without a pull request. A close at an approval with one stage in `next`, or without a pull request number. An acceptance close when the report is on neither the branch nor `main` (`no report on the branch or the main branch`); an acceptance merge when the report is in neither `in-progress/` nor `done/` on `main` (`no report on the main branch`). A `reject` that cannot be corrected. |
-| `PushFailed` | A push is rejected because `main` or the branch moved, or the remote refuses a branch deletion. The outcome is `rejected`. |
+| `CannotHandle` | A hand-over for a stage that is not an approval or a work item without a pull request. A close at an approval with one stage in `next`, or without a pull request number. An acceptance close when the report is on neither the branch nor `develop` (`no report on the branch or the develop branch`); an acceptance merge when the report is in neither `in-progress/` nor `done/` on `develop` (`no report on the develop branch`). A `reject` that cannot be corrected. |
+| `PushFailed` | A push is rejected because `develop` or the branch moved, or the remote refuses a branch deletion. The outcome is `rejected`. |
 | `HostingServiceError` | The reopen of a pull request fails at a send-back. |
 
 ### Log lines

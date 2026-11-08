@@ -224,7 +224,7 @@ def test_every_fault_path_without_a_row_naming_its_test_is_a_finding(path: Fault
     ]
 
 
-def test_the_v1_words_are_the_eighteen_in_their_order() -> None:
+def test_the_v1_words_are_the_sixteen_in_their_order() -> None:
     assert GLOSSARY_FORBIDDEN == (
         "ticket",
         "tickets",
@@ -232,8 +232,6 @@ def test_the_v1_words_are_the_eighteen_in_their_order() -> None:
         "lanes",
         "stage table",
         "stages.yml",
-        "promote",
-        "promoted",
         "acceptor",
         "demonstration",
         "control surface",

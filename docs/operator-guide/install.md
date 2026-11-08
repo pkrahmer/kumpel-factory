@@ -8,15 +8,17 @@ An instance runs one project. It is told what it needs through environment varia
 
 Install the factory on a repository that holds no [work items](../project-guide/glossary.md) from an older version of the factory, or whose old work items are archived or discarded. The factory starts fresh and does not detect old work items. To run an instance without a VM, see [cloud-run.md](cloud-run.md).
 
-1. Prepare a fresh Ubuntu 24.04 machine for an instance with `sudo sh operator/vm/setup.sh --device <disk> --repository-url <url>`. The first run stops with `setup: checkout: waiting for /home/factory/.secrets/hosting-token`, because the private repository needs the token.
+1. Make sure the repository has the branch `develop`. If it has only `main`, create `develop` from it and push it: `git switch -c develop origin/main` and `git push -u origin develop`. The factory works on `develop`, so the preflight names a missing `origin/develop` and no stage starts (see "The preflight's items" in [health.md](health.md)). See *The branches* below for what `develop` and `main` hold.
 
-2. Place `hosting-token`, `claude-token` and `anthropic-api-key` in `/home/factory/.secrets`, readable by the user `factory`, and run the same command again (see "The two passes" in [machine.md](machine.md)). All three files must exist whatever the runtime; under `claude` the key file stays empty.
+2. Prepare a fresh Ubuntu 24.04 machine for an instance with `sudo sh operator/vm/setup.sh --device <disk> --repository-url <url>`. The first run stops with `setup: checkout: waiting for /home/factory/.secrets/hosting-token`, because the private repository needs the token.
 
-3. As the user `factory`, from the factory's checkout, build the stage image, which carries the agent runtime and the pinned tools, before the instance starts: `podman build -f operator/vm/Dockerfile --build-arg AGENT_RUNTIME=<claude|opencode> -t <FACTORY_STAGE_IMAGE> <the checkout>`. See "The stage image" in [machine.md](machine.md).
+3. Place `hosting-token`, `claude-token` and `anthropic-api-key` in `/home/factory/.secrets`, readable by the user `factory`, and run the same command again (see "The two passes" in [machine.md](machine.md)). All three files must exist whatever the runtime; under `claude` the key file stays empty.
 
-4. Set the instance's environment variables, as *Configuration* describes. On the VM, `operator/vm/setup.sh` writes most of them to the environment file `factory.env`.
+4. As the user `factory`, from the factory's checkout, build the stage image, which carries the agent runtime and the pinned tools, before the instance starts: `podman build -f operator/vm/Dockerfile --build-arg AGENT_RUNTIME=<claude|opencode> -t <FACTORY_STAGE_IMAGE> <the checkout>`. See "The stage image" in [machine.md](machine.md).
 
-5. Start the instance with `sudo systemctl start factory@<instance>`. If it refuses, see "When the process refuses to start".
+5. Set the instance's environment variables, as *Configuration* describes. On the VM, `operator/vm/setup.sh` writes most of them to the environment file `factory.env`.
+
+6. Start the instance with `sudo systemctl start factory@<instance>`. If it refuses, see "When the process refuses to start".
 
 The script sets up the packages, the ZFS pool and datasets, the checkout, `factory.env` and the systemd unit (see "The machine" in [machine.md](machine.md)). The unit is enabled, not started, and runs `factory-run` with `factory.env` loaded (see "The service" in [machine.md](machine.md)). Its preflight checks the dataset and the stage image (see "The preflight's items" in [health.md](health.md)).
 
@@ -35,6 +37,30 @@ $ make check
 ...
 check: green
 ```
+
+## The branches
+
+The factory works on `develop`. It reads the pipeline definition, the agent files and the stage file there, and it pushes its archives and its stop records there. Each story has its own branch `work-item/<id>`, and its pull request goes to `develop`.
+
+`main` is the line of accepted features. Nothing reaches it except a promotion: after a feature's acceptance, `develop` is merged into `main`.
+
+### Protect `main`
+
+Give `main` a ruleset in the hosting service with these rules:
+
+- a pull request is required, with **zero** approvals;
+- force pushes are blocked;
+- deletion is blocked.
+
+The approvals are zero because the factory, Kumpel and you act under one identity, and GitHub refuses an author's own approval. A rule that asked for one approval would block every promotion. The rules still keep `main` from a direct push, a rewrite and a deletion.
+
+### The promotion
+
+After a feature's acceptance Kumpel archives the feature on `develop`. Then it promotes `develop` to `main`: `operator/skill/kumpel/scripts/promote.sh <feature id>` opens a pull request from `develop` to `main` that lists the feature's stories. With the switch `promote` on (`/kumpel promote on`) Kumpel merges it, always with a merge commit, never a squash or a rebase, so `main` keeps `develop`'s commits as they are. With `promote` off, Kumpel opens the pull request and you merge it. See [operator/README.md](../../operator/README.md) for the switches.
+
+### Fixes go to `develop`
+
+`main` is never fixed directly. A fix goes to `develop` and reaches `main` with the next promotion. A direct push to `main` is also blocked by the ruleset above.
 
 ## Configuration
 

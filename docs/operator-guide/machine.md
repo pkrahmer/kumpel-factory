@@ -193,19 +193,19 @@ The Debian packages carry no version, so a security or point update needs no edi
 
 ### The project's stage file
 
-A project can add tools to the stage image (a compiler, a JDK, a browser) without changing the image for every project. It commits the file `<project>/factory/stage.Containerfile` to `main`. Every container of the instance (the sync, the agent and the checks) then runs in the image that file builds on top of the stage image.
+A project can add tools to the stage image (a compiler, a JDK, a browser) without changing the image for every project. It commits the file `<project>/factory/stage.Containerfile` to `develop`. Every container of the instance (the sync, the agent and the checks) then runs in the image that file builds on top of the stage image.
 
-Only `main` counts. `factory-run` fetches when it starts, reads the file from `origin/main`, and builds it before the preflight. A file on a branch has no effect. Without the file, every container runs in the base image, `FACTORY_STAGE_IMAGE`. It runs under the identity of `FACTORY_IMAGE_ID_FILE`. It takes the `PATH` that the base image configures, and `/usr/local/bin:/usr/bin:/bin` only when the image configures none.
+Only `develop` counts. `factory-run` fetches when it starts, reads the file from `origin/develop`, and builds it before the preflight. A file on a branch has no effect. Without the file, every container runs in the base image, `FACTORY_STAGE_IMAGE`. It runs under the identity of `FACTORY_IMAGE_ID_FILE`. It takes the `PATH` that the base image configures, and `/usr/local/bin:/usr/bin:/bin` only when the image configures none.
 
-#### A change on `main` takes effect before the next stage
+#### A change on `develop` takes effect before the next stage
 
-No restart is needed. Before every tick, after the fetch, the factory compares the stage file on `origin/main` with the one it last handled. The same text, or no file again, builds nothing and logs nothing; a new commit that does not touch the file counts as the same.
+No restart is needed. Before every tick, after the fetch, the factory compares the stage file on `origin/develop` with the one it last handled. The same text, or no file again, builds nothing and logs nothing; a new commit that does not touch the file counts as the same.
 
 - A file that was added or changed is built as at the start. The stages after it run in the new image, under its new identity and its `PATH`, so the preflight and the reuse of passed checks start afresh. The previous project image is removed once the new one is tagged, so the machine keeps one project image.
 - A file that was removed returns the instance to the base image and the base's identity.
-- A stage that is running is never interrupted. If `main` moves while it runs, its remaining containers keep the image it started with, and the change takes effect before the next stage.
+- A stage that is running is never interrupted. If `develop` moves while it runs, its remaining containers keep the image it started with, and the change takes effect before the next stage.
 
-Each change writes one line to the factory log, and an unchanged file writes none. `<commit>` is the first 12 hex digits of `origin/main`:
+Each change writes one line to the factory log, and an unchanged file writes none. `<commit>` is the first 12 hex digits of `origin/develop`:
 
 | Line | When |
 |---|---|
@@ -252,10 +252,10 @@ The instance's image identity becomes the base's identity, a `+`, and the first 
 #### The stop `stage_image_failed`
 
 - **What you see:** `factory-health` shows the machine stop `stage_image_failed` (see *The stops* in [stops.md](stops.md)). The factory starts no stage and does not fall back to the base image. `factory-watch` shows no stop of any reason.
-- **What it means:** the file broke the rule, or it did not build. The detail starts with `at <commit>: `, the first 12 hex digits of the `origin/main` that was tried. Then comes the rule's reason, or `the stage file did not build in <s> s:` and the last 20 lines of the build's output. A build that reached its time limit gives the same first words and podman's message that the build did not end within its limit, with no build output. The image in use stays the one before the failed build.
-- **What you do:** read the detail and fix `<project>/factory/stage.Containerfile` on `main`.
+- **What it means:** the file broke the rule, or it did not build. The detail starts with `at <commit>: `, the first 12 hex digits of the `origin/develop` that was tried. Then comes the rule's reason, or `the stage file did not build in <s> s:` and the last 20 lines of the build's output. A build that reached its time limit gives the same first words and podman's message that the build did not end within its limit, with no build output. The image in use stays the one before the failed build.
+- **What you do:** read the detail and fix `<project>/factory/stage.Containerfile` on `develop`.
 
-A failed build waits for a new `main`. The same file again is not built again, so a commit that leaves the file as it is does not end the stop. The next `main` with another file ends the stop and the file is built. A `main` without the file ends it and returns to the base. A restart of `factory-run` builds the same file again. It ends the stop when that build passes, after a network fault for instance, and raises it again when it fails. In a job, a machine stop that has stood for ten minutes ends the execution (see *The idle shutdown*). The fix is then a new commit on `main` and a new execution.
+A failed build waits for a new `develop`. The same file again is not built again, so a commit that leaves the file as it is does not end the stop. The next `develop` with another file ends the stop and the file is built. A `develop` without the file ends it and returns to the base. A restart of `factory-run` builds the same file again. It ends the stop when that build passes, after a network fault for instance, and raises it again when it fails. In a job, a machine stop that has stood for ten minutes ends the execution (see *The idle shutdown*). The fix is then a new commit on `develop` and a new execution.
 
 ### The image on the cost records
 
@@ -635,7 +635,7 @@ gcloud run jobs execute <job>
 
 The log line says what happens: `idle shutdown: idle for <n> minutes, ending the factory's process`. With `poweroff` it is `idle shutdown: idle for <n> minutes, powering the machine off`. The idle rule and `FACTORY_IDLE_SHUTDOWN_MINUTES` work as on a VM (`0` is off). A VM keeps `poweroff`.
 
-**A machine stop in a job.** On a VM a machine stop waits for a fix you make on the machine. In a job nobody can make one. Its file system is gone with the execution, and the only fix is a new execution with other settings. So with the idle shutdown on and the action `exit`, a machine stop that has stood for ten minutes ends the process. `factory-run` ends with status 1 and the execution ends as failed. The last line of the job's log names the stop, `machine stop: standing for 10 minutes in a job, ending the factory's process: <reason>: <detail>`. The ten minutes are fixed. They count from the first time of an unbroken stretch of the stop, though the preflight raises it again on every tick. A stop lifted before then ends nothing, and a new one counts from its own time. The rule is checked after every tick and after every iteration that ran no tick. It holds for no stop of scope `repository`, because a push to `main` lifts those and a job can see it. It does not hold with `poweroff` or with the idle shutdown off.
+**A machine stop in a job.** On a VM a machine stop waits for a fix you make on the machine. In a job nobody can make one. Its file system is gone with the execution, and the only fix is a new execution with other settings. So with the idle shutdown on and the action `exit`, a machine stop that has stood for ten minutes ends the process. `factory-run` ends with status 1 and the execution ends as failed. The last line of the job's log names the stop, `machine stop: standing for 10 minutes in a job, ending the factory's process: <reason>: <detail>`. The ten minutes are fixed. They count from the first time of an unbroken stretch of the stop, though the preflight raises it again on every tick. A stop lifted before then ends nothing, and a new one counts from its own time. The rule is checked after every tick and after every iteration that ran no tick. It holds for no stop of scope `repository`, because a push to `develop` lifts those and a job can see it. It does not hold with `poweroff` or with the idle shutdown off.
 
 **The right.** The setup script gives `factory` the right to that one command, and sets the variable in the environment file, with its option `--idle-shutdown <minutes>`. Step `poweroff` writes `/etc/sudoers.d/factory-poweroff`. Step `environment` writes the line `FACTORY_IDLE_SHUTDOWN_MINUTES=<minutes>`. Both come from the same run. Without the right, set the variable only if you accept the second log line above.
 

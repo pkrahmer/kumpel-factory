@@ -13,14 +13,14 @@ Find your stop in the table, then read the section it names.
 | Stop | Destination | What you do |
 |---|---|---|
 | `fetch-failed` | health status and factory log | `git fetch` failed, an expired or revoked token included. The fetch before the [tick](../project-guide/glossary.md) raises it too. Fix the network, the address or the credentials; see "The stops of the tick". |
-| `checkout-restore-failed` | health status and factory log | The checkout cannot be put on `origin/main` (the dirty main branch). Fix the cause or delete the checkout and clone again; see "The stops of the tick". |
-| `pipeline-definition-invalid` | health status and factory log | `factory/pipeline.yml` on `origin/main` (the [pipeline definition](../project-guide/glossary.md)) fails its validation, an agent that is not installed included. See "The stop `pipeline_definition_invalid`". |
+| `checkout-restore-failed` | health status and factory log | The checkout cannot be put on `origin/develop` (the dirty develop branch). Fix the cause or delete the checkout and clone again; see "The stops of the tick". |
+| `pipeline-definition-invalid` | health status and factory log | `factory/pipeline.yml` on `origin/develop` (the [pipeline definition](../project-guide/glossary.md)) fails its validation, an agent that is not installed included. See "The stop `pipeline_definition_invalid`". |
 | `agent-definition-invalid` | health status and factory log | An agent file holds a key the runner does not apply. See "The stop `agent_definition_invalid`". |
-| `repository-unavailable` | health status and factory log | The tick waits for a repository that is empty or has no pipeline definition. Push `main` with `factory/pipeline.yml`; see "The wait for a repository that is not ready" in [health.md](health.md). |
-| `main-branch-failing` | health status and factory log | `lint` fails on the main branch. Push a fix to `main`; see "The stamp and the probe of the main branch" in [health.md](health.md). |
+| `repository-unavailable` | health status and factory log | The tick waits for a repository that is empty or has no pipeline definition. Push `develop` with `factory/pipeline.yml`; see "The wait for a repository that is not ready" in [health.md](health.md). |
+| `main-branch-failing` | health status and factory log | `lint` fails on the develop branch, the factory's working branch: the stop keeps its name from the time that branch was `main`. Push a fix to `develop`; see "The stamp and the probe of the develop branch" in [health.md](health.md). |
 | `preflight-failed` | health status and factory log | A preflight item fails, or the settings are invalid. Fix what the detail names; see "The preflight's items" in [health.md](health.md) and "When the process refuses to start" in [install.md](install.md). When the state directory cannot be written, `factory-run` still ends with status 2 but writes no stop: the settings fault reaches standard error as two lines without a stamp. Check the `state` volume. |
 | `disk-low` | health status and factory log | The work or the state directory has less free space than `FACTORY_MIN_FREE_GB` asks for, or its free space cannot be read. Make room on the file system the detail names, and nothing more: the next tick clears the stop. |
-| `stage-image-failed` | health status and factory log | The project's `<project>/factory/stage.Containerfile` on `main` breaks the rule or does not build. No stage starts. Fix the file on `main`: the fix takes effect before the next stage, with no restart; see "The project's stage file" in [machine.md](machine.md). |
+| `stage-image-failed` | health status and factory log | The project's `<project>/factory/stage.Containerfile` on `develop` breaks the rule or does not build. No stage starts. Fix the file on `develop`: the fix takes effect before the next stage, with no restart; see "The project's stage file" in [machine.md](machine.md). |
 | `duplicate` | pull request | Two work items have one id. Keep one file and rename or delete the other; see "Stops that cannot be done". |
 | `pull-request-lookup` | pull request | The one pull request lookup fails. Fix the cause named after the colon; see "Stops that cannot be done". |
 | `ask-without-pull-request` | pull request | A question is recorded for a work item that has no pull request. Open one for the branch or push a commit to it; see "Stops that cannot be done". |
@@ -57,14 +57,14 @@ That is `stop <scope> <reason>: <detail>`, after the stamp. `scope` is `reposito
 - One failing destination never loses the stop. If the log file cannot be written, the stop still goes to the health status. If the health status cannot be written, the line still reaches standard output and the log file. The factory then reports the write error (an `OSError`). When both fail, it reports the log's error.
 - If the health status cannot be written while a stop is cleared, the stop stays in force and no cleared line is written. If the log cannot be written, the stop is already removed.
 
-### The stop records on main
+### The stop records on develop
 
-Every raise and every clear of a stop of the repository or the machine is also a record (see "The stop records" in [health.md](health.md)). Each tick restores the checkout, and right after that, before the preflight, it pushes the records that `origin/main` does not hold. They go to `factory/stops.jsonl` on `main`, as a commit with the subject `stops recorded`. The records carry the event, scope, reason, time and instance, without the detail, which stays in the factory log.
+Every raise and every clear of a stop of the repository or the machine is also a record (see "The stop records" in [health.md](health.md)). Each tick restores the checkout, and right after that, before the preflight, it pushes the records that `origin/develop` does not hold. They go to `factory/stops.jsonl` on `develop`, as a commit with the subject `stops recorded`. The records carry the event, scope, reason, time and instance, without the detail, which stays in the factory log.
 
-1. Pull `main` before you push to it. The factory pushes `main` after a stop event as well as after an archive. If you push first, the factory's push is refused and succeeds on the next tick. If the factory pushes first, yours is refused until you pull.
+1. Pull `develop` before you push to it. The factory pushes `develop` after a stop event as well as after an archive. If you push first, the factory's push is refused and succeeds on the next tick. If the factory pushes first, yours is refused until you pull.
 
 - A tick that ends before the restore succeeded (`disk_low`, `fetch_failed`, `pipeline_definition_invalid`, `agent_definition_invalid`, `checkout_restore_failed`) publishes nothing. The records wait in the state directory for the next tick that gets past the restore, so a `fetch_failed` is published after the fetch works again.
-- A failed push (for example a rule of the remote that refuses `main`), any other git error or a file that cannot be written leaves the records where they are. The factory writes one line, `cannot publish the stop records: <error>`, goes on with the tick and tries again next tick. Nothing is lost and nothing is pushed twice.
+- A failed push (for example a rule of the remote that refuses `develop`), any other git error or a file that cannot be written leaves the records where they are. The factory writes one line, `cannot publish the stop records: <error>`, goes on with the tick and tries again next tick. Nothing is lost and nothing is pushed twice.
 - The stop records note the first raise and the clear only. A raise with another detail while the stop stands adds no record.
 
 ### The stops of one work item
@@ -81,11 +81,11 @@ Every raise and every clear of a stop of the repository or the machine is also a
 **You do** what the comment says. The rules of where it is posted:
 
 - If the work item has no pull request yet, the factory opens a draft pull request first, on the work item's branch (`work-item/<id>`), and posts the stop there. The description says: "The factory opened this draft pull request to report a stop on <work item>. The stop is the comment below."
-- It opens one only when the branch is on the remote with a commit beyond `main`. Otherwise it opens nothing, posts nothing and reports a `create_pull_request` error: `branch <branch> is not on the remote with a commit beyond main`. You see this only if the remote branch was removed or reset, because the factory pushes the branch before it reports a stop.
+- It opens one only when the branch is on the remote with a commit beyond `develop`. Otherwise it opens nothing, posts nothing and reports a `create_pull_request` error: `branch <branch> is not on the remote with a commit beyond develop`. You see this only if the remote branch was removed or reset, because the factory pushes the branch before it reports a stop.
 - If the work item's branch already has an open pull request, the factory posts on that one. A pull request you closed or merged is not reused for a new one. But when the work item's state records a pull request number, the stop is posted there even if you have since closed it.
 - A restart never repeats a stop. The key identifies the stop: if the factory died after posting and before recording it, the next attempt finds the key on the pull request and posts nothing. The same key with another text is still a repeat; a different kind or number is a new stop and a new comment.
 - The posting writes no state. In particular the factory does not record the number of a pull request it opened for an error report; a later stop finds that pull request by its branch.
-- Two files with one id are both read. The second is read from `origin/main` as a started story, because the id's branch holds only the first file. So the duplicate is reported on the first work item's pull request and does not end the tick.
+- Two files with one id are both read. The second is read from `origin/develop` as a started story, because the id's branch holds only the first file. So the duplicate is reported on the first work item's pull request and does not end the tick.
 
 ## What a stage run shows
 
@@ -121,7 +121,7 @@ Stalled (attempt 1 of 2): the agent run died without a result. Retrying on the n
 **You do** nothing while the note says "Retrying on the next tick.": the next tick runs the stage again from what the stall kept. The note says so only while `n` is below `m`.
 
 - `attempt n of m`: `n` is the work item's attempts after this stall; `m` is the [attempts cap](../project-guide/glossary.md), `attempts_cap` in the pipeline definition.
-- At the cap the note ends `The attempts cap is reached; the factory asks you next.` and says nothing about retrying. The factory then records the attempts-cap question and posts it (see "The factory's own questions"). Read the cause and the stall entries in the work item's journal. Fix what stops the stage: the agent, the stage's time limit or budget, the pipeline definition, the project's checks, or a conflict with `main`. Then answer on the pull request. The factory does not run the stage again until you have.
+- At the cap the note ends `The attempts cap is reached; the factory asks you next.` and says nothing about retrying. The factory then records the attempts-cap question and posts it (see "The factory's own questions"). Read the cause and the stall entries in the work item's journal. Fix what stops the stage: the agent, the stage's time limit or budget, the pipeline definition, the project's checks, or a conflict with `develop`. Then answer on the pull request. The factory does not run the stage again until you have.
 - The cause is one sentence, then a detail after a colon when there is one, such as the name of a red check. A detail of several lines puts its first line in the sentence and the other lines in a code block below it; see "A stall by a red check". The nine causes are in *Reference*.
 - The cause `the provider's spend limit lasted past the waiting ceiling` (`provider_limit`) means the factory waited out the provider's limit for the whole ceiling and the limit was still there. There is nothing to do for one such stall: the next tick tries again. If it repeats, see "A provider's spend limit" in [agent-runtime.md](agent-runtime.md), "What to do at the ceiling".
 - The stall's pull request: an open pull request of the work item is reused. Otherwise the stall opens a new draft titled `<id>: <title>` with the work item's text as description. It does not use the stop description, and it does not post on a closed pull request.
@@ -214,23 +214,23 @@ Three things in a reviewer's entry are not findings in the usual sense. Read the
 2026-10-12T12:00:07Z stop repository pipeline_definition_invalid: missing key: contract
 ```
 
-**It means** the pipeline definition, `factory/pipeline.yml` as it stands on `origin/main` (never the file in the work tree), is refused when the factory loads it each cycle. The detail is the fault. Several faults are joined by `; `.
+**It means** the pipeline definition, `factory/pipeline.yml` as it stands on `origin/develop` (never the file in the work tree), is refused when the factory loads it each cycle. The detail is the fault. Several faults are joined by `; `.
 
-**You do** what the table says for the fault, on `main`:
+**You do** what the table says for the fault, on `develop`:
 
 | Fault | Cause and what to do |
 |---|---|
-| `factory/pipeline.yml is missing at origin/main` | the file is not on `main`; merge it |
-| a fault of the text, such as `missing key: contract`, `unknown key: <path>`, `invalid <path>: <message>`, `not valid YAML: <problem> (line <l>, column <c>)` | fix `factory/pipeline.yml` on `main`; several faults are joined by `; `. A YAML fault is one line with a 1-based position, for example `not valid YAML: found duplicate key "done" with value "{}" (original value: "{}") (line 27, column 3)` (a stage key written twice; the factory refuses a repeated key on purpose) |
-| a fault of the rules across keys, such as `stage doing: next names unknown stage ship`, `contract major 2 is not supported (this factory reads major 1)`, `role coder: write_paths is empty`, `role coder at stage doing: 61 min exceed lease_duration 60 min` | fix `factory/pipeline.yml` on `main`; see "The pipeline definition" in [pipeline.md](pipeline.md) for the rules you meet most often and `docs/project-guide/pipeline.md`, "The rules of the definition", for the full list |
-| `role <role>: agent is not installed` | the role has neither a file `factory/agents/<role>.md` on `origin/main` nor a file `<agent home>/agents/<role>.md`; add one of them. Every missing role is named, in the order of `roles`, joined by `; ` |
+| `factory/pipeline.yml is missing at origin/develop` | the file is not on `develop`; merge it |
+| a fault of the text, such as `missing key: contract`, `unknown key: <path>`, `invalid <path>: <message>`, `not valid YAML: <problem> (line <l>, column <c>)` | fix `factory/pipeline.yml` on `develop`; several faults are joined by `; `. A YAML fault is one line with a 1-based position, for example `not valid YAML: found duplicate key "done" with value "{}" (original value: "{}") (line 27, column 3)` (a stage key written twice; the factory refuses a repeated key on purpose) |
+| a fault of the rules across keys, such as `stage doing: next names unknown stage ship`, `contract major 2 is not supported (this factory reads major 1)`, `role coder: write_paths is empty`, `role coder at stage doing: 61 min exceed lease_duration 60 min` | fix `factory/pipeline.yml` on `develop`; see "The pipeline definition" in [pipeline.md](pipeline.md) for the rules you meet most often and `docs/project-guide/pipeline.md`, "The rules of the definition", for the full list |
+| `role <role>: agent is not installed` | the role has neither a file `factory/agents/<role>.md` on `origin/develop` nor a file `<agent home>/agents/<role>.md`; add one of them. Every missing role is named, in the order of `roles`, joined by `; ` |
 | `agent home unavailable: <fault>` | `<agent home>/agents` is missing or is not a directory (see "The agent files" in [agent-runtime.md](agent-runtime.md)) |
 
 The agents are checked only when the text itself is valid, so a broken file and a missing agent home show the file's fault alone until it is fixed. A key with a default may be left out and takes it; a key without one that is missing is a fault.
 
-The stop clears itself at the next load of `origin/main` that succeeds, with the line `stop cleared pipeline_definition_invalid`; stops of other reasons are not touched.
+The stop clears itself at the next load of `origin/develop` that succeeds, with the line `stop cleared pipeline_definition_invalid`; stops of other reasons are not touched.
 
-- Only the load of `origin/main` raises or clears this stop. A look at the definition on another branch can be refused, but it changes neither the health status nor the log.
+- Only the load of `origin/develop` raises or clears this stop. A look at the definition on another branch can be refused, but it changes neither the health status nor the log.
 - A git failure while reading (an unreachable repository, an unknown ref) is not a fault of the definition and raises no stop.
 - If the health status cannot be written, the load reports an `OSError` and not the fault; the log line has been written.
 - What the cycle does while the stop stands is described with the tick, under "The stops of the tick".
@@ -243,14 +243,14 @@ The stop clears itself at the next load of `origin/main` that succeeds, with the
 2026-10-16T12:00:07Z stop repository agent_definition_invalid: coder: key not applied by the agent runtime: permissionMode
 ```
 
-**It means** that the pipeline definition on `origin/main` is valid, and the factory then reads the agent file of every role, in the order of `roles`. A file it refuses raises this stop (scope `repository`). Most often the file holds a key the agent runtime does not apply (see "The agent files" in [agent-runtime.md](agent-runtime.md)). The tick ends there: no stage is started and no event is handled.
+**It means** that the pipeline definition on `origin/develop` is valid, and the factory then reads the agent file of every role, in the order of `roles`. A file it refuses raises this stop (scope `repository`). Most often the file holds a key the agent runtime does not apply (see "The agent files" in [agent-runtime.md](agent-runtime.md)). The tick ends there: no stage is started and no event is handled.
 
 **You do** one of two things, by whose file it is:
 
 1. For a shipped agent, edit `<agent home>/agents/<agent name>.md` and remove or correct the key the detail names.
-2. For a project's own agent, the detail names the file and the ref, `<agent name>: factory/agents/<agent name>.md at origin/main: <fault>`. Fix it with a commit on `main`: a branch's copy is never read, and the installed agent does not stand in for a faulty project file.
+2. For a project's own agent, the detail names the file and the ref, `<agent name>: factory/agents/<agent name>.md at origin/develop: <fault>`. Fix it with a commit on `develop`: a branch's copy is never read, and the installed agent does not stand in for a faulty project file.
 
-The next tick loads again and clears the stop with the line `stop cleared agent_definition_invalid`. A role whose agent is not installed is a fault of the definition and shows as `pipeline_definition_invalid`, because the other checks come first. As for that stop, only the load of `origin/main` raises or clears this one.
+The next tick loads again and clears the stop with the line `stop cleared agent_definition_invalid`. A role whose agent is not installed is a fault of the definition and shows as `pipeline_definition_invalid`, because the other checks come first. As for that stop, only the load of `origin/develop` raises or clears this one.
 
 ## The stops of the tick
 
@@ -258,9 +258,9 @@ A tick works from the remote alone: the checkout is disposable. It does these st
 
 1. It reads the free space, before the fetch (see "The low disk").
 2. It fetches.
-3. It loads the pipeline definition from `origin/main`.
-4. It puts the checkout back on `main` at `origin/main`.
-5. It publishes the stop records (see "The stop records on main").
+3. It loads the pipeline definition from `origin/develop`.
+4. It puts the checkout back on `develop` at `origin/develop`.
+5. It publishes the stop records (see "The stop records on develop").
 6. Only then does it look at the work items.
 
 Four repository stops, and the machine stop `disk_low`, end a tick before it looks at any work item. Each is a log line and a health status entry, never a comment on a pull request. The next tick tries again and clears the stop when the fault is gone. The four are `fetch_failed`, `pipeline_definition_invalid`, `agent_definition_invalid` and `checkout_restore_failed`; "The stops" says what to do about each. The tick does not touch the checkout while `pipeline_definition_invalid` or `agent_definition_invalid` stands.
@@ -269,7 +269,7 @@ Four repository stops, and the machine stop `disk_low`, end a tick before it loo
 
 **You see** `fetch_failed` in the health status, with git's message as the detail. An expired or revoked token shows this way, and nothing is lost: the next tick after a successful fetch carries on.
 
-**It means** `factory-run` fetches once in an iteration, before the tick, and the tick does not fetch again. That fetch compares the project's stage file on `origin/main` with the one in use. When it fails, it raises the same stop: scope `repository`, git's message as its detail. No tick runs in that iteration. The image, its identity and its `PATH` stay as they were. Any other git error in that fetch is not this stop: the iteration fails with an `iteration failed` line in the log.
+**It means** `factory-run` fetches once in an iteration, before the tick, and the tick does not fetch again. That fetch compares the project's stage file on `origin/develop` with the one in use. When it fails, it raises the same stop: scope `repository`, git's message as its detail. No tick runs in that iteration. The image, its identity and its `PATH` stay as they were. Any other git error in that fetch is not this stop: the iteration fails with an `iteration failed` line in the log.
 
 **You do** fix the network, the address or the credentials. The next fetch that passes clears the stop and compares the stage file as usual.
 
@@ -277,7 +277,7 @@ Four repository stops, and the machine stop `disk_low`, end a tick before it loo
 
 **You see** `checkout_restore_failed` in the health status; its detail is git's message.
 
-**It means** the checkout cannot be put back on `origin/main`, for example because of an untracked file or directory the factory cannot remove. On the VM only the factory's own git and the take write the checkout, and both run as `factory`. No agent runs there. Such a path is therefore one made by hand, as root or as another user. The stop ends the tick before any stage is dispatched, so it records no crash and does not count toward the crash cap.
+**It means** the checkout cannot be put back on `origin/develop`, for example because of an untracked file or directory the factory cannot remove. On the VM only the factory's own git and the take write the checkout, and both run as `factory`. No agent runs there. Such a path is therefore one made by hand, as root or as another user. The stop ends the tick before any stage is dispatched, so it records no crash and does not count toward the crash cap.
 
 **You do** remove the path git's message names, as `factory` (`sudo -iu factory`) or, when `factory` cannot remove it, as root. The next tick runs the restore again and clears the stop once it succeeds.
 
@@ -285,7 +285,7 @@ The restore throws away every uncommitted change and every untracked file that n
 
 ### A work item file that cannot be read
 
-This is not a stop. The tick ends with an error that names the file's path. It does so on every tick until a human repairs the file or moves the story out of `in-progress/` on `main`. Repair it on its branch, or on `main` for a started story without a branch. Closing the pull request changes nothing: the tick reads every story in `in-progress/` before it looks at any pull request. A work item in a stage that the pipeline definition lacks fails the same way.
+This is not a stop. The tick ends with an error that names the file's path. It does so on every tick until a human repairs the file or moves the story out of `in-progress/` on `develop`. Repair it on its branch, or on `develop` for a started story without a branch. Closing the pull request changes nothing: the tick reads every story in `in-progress/` before it looks at any pull request. A work item in a stage that the pipeline definition lacks fails the same way.
 
 ### The low disk
 
@@ -302,7 +302,7 @@ This is not a stop. The tick ends with an error that names the file's path. It d
 
 **You see** `main_branch_failing` or `preflight_failed` in the health status and the log. The tick does nothing else: no stale branch is deleted, no work item is read, no agent is started and no pull request is touched.
 
-**It means** the tick ran the preflight (see "The preflight's items" and "The stamp and the probe of the main branch" in [health.md](health.md)) after the fetch, the load and the restore. It runs before the cleanup of stale branches and before any work item is looked at. The probe therefore sees the `origin/main` the tick has just fetched. An invalid pipeline definition ends the tick earlier, so it does not raise `preflight_failed`.
+**It means** the tick ran the preflight (see "The preflight's items" and "The stamp and the probe of the develop branch" in [health.md](health.md)) after the fetch, the load and the restore. It runs before the cleanup of stale branches and before any work item is looked at. The probe therefore sees the `origin/develop` the tick has just fetched. An invalid pipeline definition ends the tick earlier, so it does not raise `preflight_failed`.
 
 **You do** what the table says for the stop. A fix you push is probed on the next tick, and a commit that broke `lint` stops that same tick.
 
@@ -369,7 +369,7 @@ The factory stops nothing and leaves nothing half-written on the remote during a
 
 | Stop | Last error in the report | What to do |
 |---|---|---|
-| A work item that exists twice | `cannot handle duplicate: two work items share the id <id>`, followed by `: <the files>` when they are named | Two files carry the same id. Keep one, and rename or delete the other on `main` (or on its branch); the factory does not choose for you. |
+| A work item that exists twice | `cannot handle duplicate: two work items share the id <id>`, followed by `: <the files>` when they are named | Two files carry the same id. Keep one, and rename or delete the other on `develop` (or on its branch); the factory does not choose for you. |
 | A failed pull request lookup | `cannot handle pull_request_lookup: the pull request lookup for <branch> failed`, followed by `: <cause>` when there is one | The hosting service could not say whether the branch has a pull request (rate limit, outage, token). Fix the cause named after the colon. A push to the branch starts the count again; nothing else does. |
 | A question with no pull request to post it on | `cannot handle ask: work item <id> has no pull request` | The question is recorded in the journal but has nowhere to go. Open a pull request for the work item's branch, or push a commit to the branch so the factory tries again; the report itself opened a draft if the branch was on the remote. |
 
@@ -389,7 +389,7 @@ A stall note gives one of nine causes. The reason in the journal is in brackets 
 | the agent's decision is not an allowed one | The decision is not in the stage's allowed list. |
 | the work item's form broke during the stage | The work item file no longer follows its form. |
 | a check is red after the stage | A check of the stage exited with a status other than 0; its name follows the colon. |
-| merging the main branch conflicts and the merge was aborted | The merge of `origin/main` into the branch conflicted. |
+| merging the develop branch conflicts and the merge was aborted | The merge of `origin/develop` into the branch conflicted. |
 
 ### The reason of a failed push
 
@@ -399,12 +399,12 @@ The reason in a `PushFailed` is built from git's output in these steps:
 - Git's advice lines are left out: `Please make sure you have the correct access rights`, `and the repository exists.` and any line that starts with `hint:`.
 - The frame of the porcelain summary the factory asks git for is left out: a line `To <url>` and the line `Done`. The server's own `remote:` lines stay, so `remote: Done` is kept.
 - Git's line `error: failed to push some refs to '<url>'` is left out, because it only repeats what the ref line says and names the remote.
-- Any other `error:` line stays, because it can be the only cause (`error: src refspec main does not match any`). So does a line that holds those words further in (`remote: error: failed to push some refs to x`).
+- Any other `error:` line stays, because it can be the only cause (`error: src refspec develop does not match any`). So does a line that holds those words further in (`remote: error: failed to push some refs to x`).
 - Every run of whitespace in a kept line, a tab included, becomes one space, so the reason is one plain line.
 
 ### The wording of a failing probe
 
-A probe of `main` that fails without printing anything names the command and how it ended, for example `lint ended by signal 15 and printed nothing on main at <commit>` or `lint ended with exit status 2 and printed nothing on main at <commit>`.
+A probe of `develop` that fails without printing anything names the command and how it ended, for example `lint ended by signal 15 and printed nothing on develop at <commit>` or `lint ended with exit status 2 and printed nothing on develop at <commit>`.
 
 ### The events the factory handles
 
