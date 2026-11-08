@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 680
 comments_read: [6727432579, 6727512748, 6727549619]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T21:47:06.755052Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -118,6 +114,12 @@ journal:
   kind: started
   at: '2026-11-08T21:47:06.755052Z'
   stage: doing
+- number: 20
+  speaker: coder
+  kind: result
+  at: '2026-11-08T21:49:44.353205Z'
+  stage: doing
+  run: 641f81bf68d84b27bca5112156962ca2
 ---
 
 # A review whose findings need only tests goes to the tester
@@ -293,3 +295,21 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     `lint`: lint: green (0.1 s)
 19. factory: started doing as vm.
+20. coder: The work is built. `make check` is green (`check: green`) and `make guides` is green. I changed no code in this run. The tester's changes from entries 15 to 18 made the last three failures pass.
+
+    What is built (committed in earlier runs of this stage):
+    - `agents/agents/reviewer.md`, `## Stage`: new step 4. When `tests` is among the allowed decisions and every finding needs only a change to the tests of the work item's own story, the reviewer ends with `tests`. When any finding needs a change outside those tests, all findings go to `doing`. When `tests` is not among the allowed decisions, findings go to `doing` as before. The entry is the same either way.
+    - `agents/agents/tester.md`, `## Stage`, step 0: a new case for when the latest result before the run is the reviewer's. The tester writes or changes exactly the tests the findings name, only in its own story's tests or under the standing leave. It runs those test files once and ends with `doing`, and its entry names each finding and its test.
+    - `agents/system-prompt.md` and `SYSTEM_PROMPT` in `src/factory/agents/domain/prompts.py`: R12 lists `review → tests` right after `review → doing`, and the two texts are equal.
+
+    Main choice: the reviewer's rule is a new step 4 rather than an edit to step 3. Step 3 and the Role's "Your recommendation is your decision" line are pinned word for word by earlier tests, so I left them as they are. Rejected: putting the new rule outside `## Stage`, because the Interface names `## Stage`.
+
+    Test run: the four test files the tester's latest entry names pass (`uv run pytest -q`). `make check` is green: lint, types, layers, sast, secrets, licenses and test (coverage 99.21 %).
+
+    Refactor: I read my diff (`git diff develop -- . ':!factory' ':!tests'`) and found nothing to change. The new texts are now pinned by checksums in the earlier tests, so any rewording would need the tester again. The R12 line wrap in `prompts.py` is uneven but correct, and I left it.
+
+    Description: unchanged. The human's answers (entries 4, 11, 16) gave leave for test changes but did not change the meaning of the task.
+
+    Noticed, not touched: the docs criterion 7 (`docs/operator-guide/pipeline.md`) is the documenter's.
+
+    `duplicates`: duplicates: 7 new, 39 known, 4 gone
