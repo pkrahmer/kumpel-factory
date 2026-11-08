@@ -1,5 +1,5 @@
 ---
-stage: docs
+stage: smoke-test
 blocked: null
 round: 2
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 679
 comments_read: [6727152793, 6727304331]
 handed_over: null
-claim:
-  instance: vm
-  stage: docs
-  started_at: '2026-11-08T21:24:13.188266Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -189,6 +185,12 @@ journal:
   kind: started
   at: '2026-11-08T21:24:13.188266Z'
   stage: docs
+- number: 33
+  speaker: documenter
+  kind: result
+  at: '2026-11-08T21:29:00.361729Z'
+  stage: docs
+  run: 9fe2f04ecd61446ba5b74156ea439c25
 ---
 
 # Claude runs carry the project's CLAUDE.md in the system prompt
@@ -459,3 +461,33 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     Earlier tests:
     - `tests/agents/adapters/test_claude_runtime.py`: changed under the human's leave in entry 8. Only the two switches were added to its local `SWITCHES` dict, and the test keeps its name.
 32. factory: started docs as vm.
+33. documenter: Wrote the documentation that criterion 9 asks for, and updated the project guide so it matches the diff. I changed only documents, so I did not run `make check`, as my role allows. `make documents` ends with `documents ok (63.4 s)`.
+
+    Files changed:
+    - `docs/operator-guide/agent-runtime.md`: new section *The project's `CLAUDE.md` under Claude Code*, under *How a call is made*. It says:
+      - The root `CLAUDE.md` is read from the run's checkout when the run starts and goes into the system prompt in a `<project-instructions>` block. Claude Code no longer loads it (`CLAUDE_CODE_DISABLE_CLAUDE_MDS=1`).
+      - `CLAUDE.md` files below the root, `CLAUDE.local.md` and the `CLAUDE.md` in the `.claude` folder are not read.
+      - A root `CLAUDE.md` that is a symbolic link, or not a regular file, is not read, so such a project runs without its instructions. The reason: the file is read on the host, and following a link could put a host file into the prompt. A project should keep the file as a regular file, not a link to `AGENTS.md`.
+      - A file that is not UTF-8 ends the run with an `AgentRuntimeError` naming its path.
+      - Every cache write is a five-minute one (`CLAUDE_CODE_PROMPT_CACHE_TTL=5m`), and the section says why.
+      - opencode is unchanged.
+      - I wrote `.claude/CLAUDE.md` in words ("the `CLAUDE.md` in the `.claude` folder") because the document check treats a path in backticks as a file that must exist.
+    - `docs/decisions.md`: new entry *Claude runs carry the project's `CLAUDE.md` in the system prompt*. It records the decision and the measurements of 2026-11-08 from `docs/runs/2026-11-05-f0052/log.md`: at 19:18 UTC, 7,284 tokens and a first request 46 % cheaper; at 19:25 UTC, the gaps between runs and the one-hour cache as a net loss. It also says why a link is not followed (the reviewer's finding and the human's answer in entry 27). The "Rejected" line holds only what the journal names (entries 7 and 18): adding the block in the shared `system_prompt_text`, and resolving a link.
+    - `docs/project-guide/agents.md`:
+      - *The `claude -p` runtime* now lists all five `SWITCHES`, and its instructions-file bullet mentions the project's `CLAUDE.md`.
+      - New subsection *The project's `CLAUDE.md`* covers `_project_instructions` (the `lstat`/`S_ISREG` check, the case where the file vanishes, the error text), the layout `_instructions_text` writes, the reuse of the shared `block` from `prompts.py`, the fact that the file is written once per run so a resumed call reuses it, opencode unchanged, and the test file.
+    - `docs/project-guide/pipeline.md:864`: the `SWITCHES` mention now points to the list of five names in agents.md.
+
+    Cross-read and found current:
+    - `docs/operator-guide/machine.md` (the instructions file mount)
+    - `docs/project-guide/machine.md:269`
+    - `docs/project-guide/agents.md`: *The system prompt and the first message* and *Reference: a resumed run*
+    - the rest of `agent-runtime.md` (*The cached start*, *A project's own skills*, *The shipped agents and settings*)
+    - `README.md`
+
+    Stale text I saw and did not touch:
+    - `docs/runs/2026-11-05-f0052/log.md` at 18:51 UTC records `CLAUDE_CODE_PROMPT_CACHE_TTL=5m` in the instances' `factory.local.env` and `FACTORY_CONTAINER_ENV`. Now that the runtime sets it, that trial setting is redundant on the instances. That file and the instances belong to the human, so I left both as they are.
+
+    `guides`: guides: green (9.7 s)
+    `secrets`: secrets: green (2.5 s)
+    `documents`: documents ok (68.4 s)

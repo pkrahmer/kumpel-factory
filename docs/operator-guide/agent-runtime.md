@@ -36,6 +36,19 @@ The factory builds the environment from an allow list of six names (see "The hos
 
 `LANG`, `LC_ALL`, `TERM` and `TZ` reach the agent when the factory process has them. The names in `FACTORY_CONTAINER_ENV` and the variables that `FACTORY_CA_BUNDLE` sets reach it too (see *Behind a proxy*). The login shell adds one name, `CLAUDE_CODE_OAUTH_TOKEN` or `ANTHROPIC_API_KEY`.
 
+### The project's `CLAUDE.md` under Claude Code
+
+Under Claude Code, the run's system prompt carries the project's root `CLAUDE.md`. Claude Code does not load the file itself: every call runs with `CLAUDE_CODE_DISABLE_CLAUDE_MDS=1`. The factory reads the file from the run's checkout, the work item's branch, when the run starts. It writes the file's text after the common system prompt, in a `<project-instructions>` block that one sentence introduces. A `CLAUDE.md` changed on the branch reaches the next run in its changed text. A resumed call gets the same system prompt as the call it resumes.
+
+- **Only the root file is read.** `CLAUDE.md` files below the root, `CLAUDE.local.md` and the `CLAUDE.md` in the `.claude` folder are not read.
+- **Keep it a regular file.** A root `CLAUDE.md` that is a symbolic link, or not a regular file at all (a directory), is not read, so such a project runs without its instructions, and no fault names it. The file is read on the host, and following a link could put a host file into the prompt. Keep the root `CLAUDE.md` a regular file, not, for example, a link to `AGENTS.md`.
+- **A file that is not UTF-8 text** ends the run with an `AgentRuntimeError` that names its path.
+- **Every cache write is a five-minute one.** Every call runs with `CLAUDE_CODE_PROMPT_CACHE_TTL=5m`; an instance needs no setting of its own for it.
+
+Why: Claude Code put the file into the run's first message, where no later run reads it back from the prompt cache, so every run wrote it to the cache anew (about 7,300 tokens in this repository). In the system prompt, later runs read it from the cache. The one-hour cache costs more than it saves: almost every gap between two runs is under five minutes, and its writes are dearer. See *Claude runs carry the project's `CLAUDE.md` in the system prompt* in the [decision log](../decisions.md).
+
+An opencode run is unchanged: opencode reads the project's instructions itself.
+
 ## The login
 
 The call logs in with the first of these that holds something:
