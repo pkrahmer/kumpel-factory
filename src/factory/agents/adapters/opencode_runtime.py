@@ -45,6 +45,7 @@ from factory.agents.adapters.agent_launch import (
     run_launch,
     since,
     state_directory_error,
+    system_prompt_text,
     version_launch,
     version_printed,
 )
@@ -320,10 +321,12 @@ def _provider_keys(provider_file: Path | None) -> dict[str, object]:
 
 
 def _configuration(
-    request: AgentRunRequest, bash: dict[str, str], provider_keys: Mapping[str, object]
+    request: AgentRunRequest,
+    system_prompt: str,
+    bash: dict[str, str],
+    provider_keys: Mapping[str, object],
 ) -> str:
     agent = request.agent
-    prompt = f"{agent.instructions}\n\n{result_instructions(request.allowed_decisions)}"
     configuration = {
         "autoupdate": False,
         "share": "disabled",
@@ -331,7 +334,7 @@ def _configuration(
         "agent": {
             f"{AGENT_PREFIX}{agent.name}": {
                 "mode": "primary",
-                "prompt": prompt,
+                "prompt": system_prompt,
                 "tools": _tools(agent),
                 "permission": {"edit": "allow", "bash": bash},
             }
@@ -339,6 +342,13 @@ def _configuration(
         **provider_keys,
     }
     return json.dumps(configuration)
+
+
+def _message(request: AgentRunRequest) -> str:
+    # A resumed session already holds the result block from its first message.
+    if request.resume_session is not None:
+        return request.prompt
+    return f"{request.prompt}\n\n{result_instructions(request.allowed_decisions)}"
 
 
 def _event(line: str) -> _Event | None:
@@ -562,6 +572,7 @@ class OpencodeRuntime(AgentRuntime):
         extra_environment: Mapping[str, str] = {},
         ca_bundle: Path | None = None,
         provider_file: Path | None = None,
+        system_prompt_file: Path | None = None,
     ) -> None:
         """Call `executable`, keep a run's files in `state_directory`, reach `kill_points`.
 
@@ -572,7 +583,9 @@ class OpencodeRuntime(AgentRuntime):
         With `containers`, every call runs in a container, with `extra_environment` and with
         `ca_bundle` mounted read-only at its own path.
         The provider and small model of `provider_file` join every run's configuration.
+        Every run's agent prompt is the text of `system_prompt_file`, the same for every role.
         """
+        self._system_prompt_file = system_prompt_file
         self._containers = containers
         self._extra_environment = dict(extra_environment)
         self._bundle_files = [] if ca_bundle is None else [ca_bundle]
@@ -607,7 +620,10 @@ class OpencodeRuntime(AgentRuntime):
         started = time.monotonic()
         model = _model(request.agent, self._models)
         configuration = _configuration(
-            request, _bash_permission(self._settings_file), _provider_keys(self._provider_file)
+            request,
+            system_prompt_text(self._system_prompt_file),
+            _bash_permission(self._settings_file),
+            _provider_keys(self._provider_file),
         )
         files = _RunFiles.of(self._state_directory, str(uuid.uuid4()))
         make_state_directory(self._state_directory)
@@ -719,7 +735,7 @@ class OpencodeRuntime(AgentRuntime):
             *login_argv(self._starters.login_files),
             self._executable,
             *arguments,
-            request.prompt,
+            _message(request),
         ]
 
     def _process_request(

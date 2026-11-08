@@ -10,6 +10,7 @@ from pathlib import Path
 from pydantic import BaseModel, ConfigDict, JsonValue
 
 from factory.agents.domain.agent_runs import AgentRunRequest, AgentRunResult, EndReason, Login
+from factory.agents.domain.prompts import SYSTEM_PROMPT
 from factory.machine.application.containers import ContainerRuns
 from factory.machine.domain.containers import WORK_CHECKOUT, read_only_at_own_path
 from factory.shared.domain.errors import AgentRuntimeError
@@ -322,6 +323,23 @@ def read_call_end(
 def state_directory_error(state_directory: Path, error: OSError) -> AgentRuntimeError:
     """The error of a run whose files cannot be written to `state_directory`."""
     return AgentRuntimeError(f"cannot write the state directory {state_directory}: {error}")
+
+
+def system_prompt_text(system_prompt_file: Path | None) -> str:
+    """The system prompt every role's run gets: `system_prompt_file`'s text, or `SYSTEM_PROMPT`.
+
+    `SYSTEM_PROMPT` stands in for no file and for a file that does not exist, as in an agent
+    home installed before the file was shipped; a file that cannot be read is
+    `AgentRuntimeError`.
+    """
+    if system_prompt_file is None or not system_prompt_file.exists():
+        return SYSTEM_PROMPT
+    try:
+        return system_prompt_file.read_text(encoding="utf-8")
+    except OSError as exc:
+        raise AgentRuntimeError(
+            f"cannot read the system prompt {system_prompt_file}: {exc}"
+        ) from exc
 
 
 def make_state_directory(state_directory: Path) -> None:

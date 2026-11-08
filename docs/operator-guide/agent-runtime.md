@@ -348,9 +348,9 @@ Only Claude Code's runs are given the `Skill` tool. An opencode run leaves it ou
 
 ### The shipped agents and settings
 
-The checkout ships them in its `agents/` folder: `agents/agents/<role>.md` and `agents/settings.json`. The stage image copies the folder to `/etc/factory/agents`. The files are in Claude Code's format and the opencode runtime translates them per run, so the folder carries no runtime's name. The setting `FACTORY_CLAUDE_HOME` names this folder for both runtimes.
+The checkout ships them in its `agents/` folder: `agents/agents/<role>.md`, `agents/settings.json` and `agents/system-prompt.md`, the common system prompt every role's run gets. The stage image copies the folder to `/etc/factory/agents`. The files are in Claude Code's format and the opencode runtime translates them per run, so the folder carries no runtime's name. The setting `FACTORY_CLAUDE_HOME` names this folder for both runtimes.
 
-The folder holds seven agents (`intake`, `tester`, `coder`, `reviewer`, `documenter`, `smoke-tester`, `acceptance-reviewer`) and `settings.json`. Each agent's `tools` ends with `Skill`, and the settings allow it in `permissions.allow`, right after `Grep`.
+The folder holds seven agents (`intake`, `tester`, `coder`, `reviewer`, `documenter`, `smoke-tester`, `acceptance-reviewer`) `settings.json` and `system-prompt.md`. A folder without `system-prompt.md`, such as one installed before the file was shipped, makes every run fall back to the built-in common system prompt, the same text; a file there that cannot be read ends the run with an `AgentRuntimeError` naming it. Each agent's `tools` ends with `Skill`, and the settings allow it in `permissions.allow`, right after `Grep`.
 
 The instance reads them from `FACTORY_CLAUDE_HOME` (`/srv/factory/<instance>/factory/agents`, the `agents/` folder of the factory's own clone). Change the files in the repository: a change reaches the instance by a merge and the steps of "The rebuild after a merge" in [machine.md](machine.md).
 

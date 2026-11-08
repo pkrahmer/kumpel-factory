@@ -10,11 +10,13 @@ import pytest
 from factory.agents.adapters.agent_files import FrontmatterAgentDefinitionReader
 from factory.agents.adapters.claude_runtime import ClaudeCodeRuntime
 from factory.agents.domain.agent_runs import AgentRunRequest
+from factory.agents.domain.prompts import PromptFacts, compose_prompt
 from support.claude_stand_in import StandInCall, Step, read_calls, write_stand_in
 from support.shipped_agents import (
     AGENT_HOME,
     SHIPPED_AGENTS,
     SHIPPED_NAMES,
+    SYSTEM_PROMPT_FILE,
     ShippedAgent,
     front_matter_and_body,
 )
@@ -49,11 +51,27 @@ def calls(tmp_path_factory: pytest.TempPathFactory) -> dict[str, StandInCall]:
         work = root / "work"
         work.mkdir()
         executable = write_stand_in(root / "bin", [Step(stdout=REPLY)])
-        runtime = ClaudeCodeRuntime(str(executable), root / "state", None)
+        runtime = ClaudeCodeRuntime(
+            str(executable), root / "state", None, system_prompt_file=SYSTEM_PROMPT_FILE
+        )
+        _, body = front_matter_and_body(name)
         runtime.run(
             AgentRunRequest(
                 agent=reader.read(name),
-                prompt="Stage: doing",
+                prompt=compose_prompt(
+                    PromptFacts(
+                        work_item="F0001-S0001",
+                        path="factory/features/F0001-a/in-progress/F0001-S0001-a.md",
+                        stage="doing",
+                        allowed_decisions=["doing", "question"],
+                        branch="work-item/F0001-S0001",
+                        pull_request=1,
+                        round=0,
+                        body="# A story\n",
+                        role=name,
+                        role_instructions=body,
+                    )
+                ),
                 allowed_decisions=["doing", "question"],
                 time_limit=timedelta(seconds=30),
                 working_directory=work,
@@ -99,7 +117,11 @@ def test_instructions_file_holds_the_agent_body(
 ) -> None:
     call = calls[agent.name]
     instructions = call.files[_after(call, "--append-system-prompt-file")]
+    message = _after(call, "-p")
 
     _, body = front_matter_and_body(agent.name)
+    role_block = message.split(f'<role-instructions role="{agent.name}">\n', 1)[1]
 
-    assert body in instructions
+    assert instructions == SYSTEM_PROMPT_FILE.read_text(encoding="utf-8")
+    assert body not in instructions
+    assert role_block.startswith(body)

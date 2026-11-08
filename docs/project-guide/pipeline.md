@@ -161,7 +161,7 @@ See also: *The tick* and *The stop records*.
 
 ## The prompt and the request for a stage
 
-Before a stage's agent runs, the factory writes it a short prompt and an `AgentRunRequest`. `TaskComposer` in [task.py](../../src/factory/pipeline/application/task.py) builds the request; the pure rules are in [prompts.py](../../src/factory/agents/domain/prompts.py).
+Before a stage's agent runs, the factory writes it its first message and an `AgentRunRequest`. `TaskComposer` in [task.py](../../src/factory/pipeline/application/task.py) builds the request; the pure rules are in [prompts.py](../../src/factory/agents/domain/prompts.py).
 
     TaskComposer(boundaries, definition, environment).compose(context) -> AgentRunRequest
     TaskComposer.agent(stage) -> AgentDefinition
@@ -170,6 +170,8 @@ Before a stage's agent runs, the factory writes it a short prompt and an `AgentR
 
 The caller gives `TaskComposer` the `Boundaries`, the `PipelineDefinition` and the `environment`. Each call gets a `TaskContext`. It holds the work item, path, stage, document, branch, pull request and the form findings.
 
+`compose` fills `PromptFacts` from the document it already read for the stage, the committed work item on its branch: `body` is the document's body, `role` the stage's role, `role_instructions` the role's agent file body and `round_cap` the stage's `round_cap`.
+
 ### The decisions
 
 - `allowed_decisions(next_stages)` returns the stage's `next` in their order, then `question`. It is computed once in `compose`. The same list goes into the prompt's line and into `AgentRunRequest.allowed_decisions`. The runtime builds its outcome schema from it, and the stage protocol validates the agent's decision against it.
@@ -177,13 +179,19 @@ The caller gives `TaskComposer` the `Boundaries`, the `PipelineDefinition` and t
 
 ### The prompt
 
-`compose_prompt(PromptFacts)` joins these lines with one newline, no trailing newline:
+`compose_prompt(PromptFacts)` is the run's whole first message: three parts, separated by one blank line each. What the system prompt says about them, and why they come in this order, is in *The system prompt and the first message* in [agents.md](agents.md).
+
+1. The `<work-item>` block: `<work-item>`, a newline, `body` with its four marker texts escaped (`<` as `&lt;`), a newline unless the body ends with one, `</work-item>`.
+2. The `<role-instructions role="<role>">` block, built the same way from `role_instructions`, unescaped, and closed by `</role-instructions>`.
+3. The run's facts, these lines joined with one newline, no trailing newline:
 
 | Line | When |
 |---|---|
 | `Work item: <path>`, `Id: <work item>`, `Stage: <stage>` | always |
 | `Allowed decisions: <decisions joined by ", ">` | always |
-| `Branch: <branch>`, `Pull request: <number>`, `Round: <round>` | always; the [round](glossary.md) is the document state's |
+| `Branch: <branch>`, `Pull request: <number>` | always |
+| `Round: <round>` | when the stage has no `round_cap`; the [round](glossary.md) is the document state's |
+| `Round: <round> of <cap>; a rework decision after round <cap> makes the factory ask the human.` | when the stage has a `round_cap` |
 | `Mode: a test change the human approved; the coder's journal entry <n> names it.` | only when `test_change_entry` is set |
 | `Format check: passed`, or `Format check found: 1. <message> 2. <message>` | only when `findings` is set (an empty list is `passed`) |
 | `END_LINE` | always |
@@ -268,7 +276,7 @@ Starting a stage means claiming the work item, finding its pull request and runn
 2. The time left is the request's `time_limit` less the calls' durations (the waits do not count); at or below zero it ends `time_limit`.
 3. When the waits reach the ceiling it logs `provider limit: <agent> waited <s> s, the ceiling of <c> s; the run ends provider_limit` and returns the result.
 4. Otherwise it logs `provider limit: <agent> waits <w> s before it resumes <session>` (`a new run` without a session), and waits the result's `limit_wait` or the cool-down, at most what is left of the ceiling.
-5. It calls the runtime again with `request.model_copy(...)`: `CONTINUE_PROMPT` and `resume_session` with a session, the request's own prompt without one, and in both the budget and the time left.
+5. It calls the runtime again with `request.model_copy(...)`: the request's whole prompt, a blank line and `CONTINUE_PROMPT`, and `resume_session`, with a session; the request's own prompt without one, and in both the budget and the time left.
 6. `resumed_result` joins the calls.
 
 - The cool-down and the ceiling are `boundaries.settings.provider_limit`, a `ProviderLimit` ([`factory.agents.domain.provider_limits`](../../src/factory/agents/domain/provider_limits.py)). The defaults are 10 and 120 minutes. They come from `FACTORY_PROVIDER_LIMIT_COOLDOWN_MINUTES` and `FACTORY_PROVIDER_LIMIT_CEILING_MINUTES`.

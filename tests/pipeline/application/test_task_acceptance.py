@@ -74,6 +74,10 @@ def _base_prompt(definition: PipelineDefinition, context: TaskContext) -> str:
         pull_request=context.pull_request,
         round=0,
         findings=[] if context.stage == definition.first_stage() else None,
+        body=context.document.body,
+        role="acceptance-reviewer",
+        role_instructions=_agent().instructions,
+        round_cap=definition.stages[context.stage].round_cap,
     )
     return compose_prompt(facts)
 

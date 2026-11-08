@@ -16,12 +16,17 @@ from factory.agents.adapters.opencode_runtime import (
     result_instructions,
 )
 from factory.agents.application.agent_runtime import AgentRuntime
+from factory.agents.domain.prompts import compose_prompt
 from factory.shared.domain.errors import AgentRuntimeError
 from factory.shared.domain.kill_points import KillPoint, KillPoints
 from support.claude_stand_in import Step, read_calls, without_locale
+from support.first_message_support import CODER_BODY, CODER_FACTS, CODER_INSTRUCTIONS
 from support.opencode_stand_in import (
     MODELS,
     REPLY_EVENTS,
+    configuration_text,
+    configuration_without_prompt,
+    opencode_message,
     opencode_request,
     stand_in_runtime,
     stdout,
@@ -63,7 +68,7 @@ def test_a_run_calls_opencode_run_with_its_words_in_the_working_directory(
         passed,
         "--agent",
         "factory-coder",
-        "Stage: doing",
+        opencode_message("Stage: doing", ["doing", "question"]),
     ]
     assert call.working_directory == request.working_directory
 
@@ -163,8 +168,7 @@ def test_the_configuration_defines_the_agent_from_its_definition_and_the_setting
     runtime.run(request)
 
     [call] = read_calls(tmp_path / "bin")
-    config = json.loads(call.files[call.environment[CONFIG_VARIABLE]])
-    instructions = result_instructions(["doing", "question"])
+    config = configuration_without_prompt(configuration_text(call))
     assert config == {
         "autoupdate": False,
         "share": "disabled",
@@ -172,13 +176,14 @@ def test_the_configuration_defines_the_agent_from_its_definition_and_the_setting
         "agent": {
             "factory-coder": {
                 "mode": "primary",
-                "prompt": f"Write the code.\n\n{instructions}",
                 "tools": {name: name in ("read", "bash") for name in OPENCODE_TOOLS},
                 "permission": {"edit": "allow", "bash": bash},
             }
         },
     }
-    assert list(config["agent"]["factory-coder"]["permission"]["bash"]) == list(bash)
+    assert list(
+        json.loads(configuration_text(call))["agent"]["factory-coder"]["permission"]["bash"]
+    ) == list(bash)
 
 
 def test_the_call_sees_its_configuration_file_and_only_the_request_s_environment(
@@ -303,3 +308,28 @@ def test_a_run_that_cannot_start_names_the_reason(
     assert read_calls(tmp_path / "bin") == []
     if state_exists:
         assert list(state.iterdir()) == []
+
+
+def test_the_message_holds_the_work_item_then_the_role_then_the_facts_then_the_result_block(
+    tmp_path: Path,
+) -> None:
+    body = CODER_BODY
+    request = opencode_request(tmp_path / "work").model_copy(
+        update={"prompt": compose_prompt(CODER_FACTS)}
+    )
+    runtime = stand_in_runtime(tmp_path, [Step(stdout=REPLY_EVENTS)])
+
+    runtime.run(request)
+
+    [call] = read_calls(tmp_path / "bin")
+    message = call.arguments[-1]
+    block = result_instructions(request.allowed_decisions)
+    assert message == f"{request.prompt}\n\n{block}"
+    assert message.startswith("<work-item>")
+    assert (
+        message.index(body)
+        < message.index('<role-instructions role="coder">')
+        < message.index(CODER_INSTRUCTIONS)
+        < message.index("Round: 0")
+        < message.index(block)
+    )
