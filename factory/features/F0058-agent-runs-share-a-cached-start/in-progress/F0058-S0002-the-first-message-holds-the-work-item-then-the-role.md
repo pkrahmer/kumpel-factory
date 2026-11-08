@@ -1,5 +1,5 @@
 ---
-stage: smoke-test
+stage: approval
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 660
 comments_read: [6720878077, 6720941885, 6720981420, 6721183670, 6721345876]
 handed_over: null
-claim:
-  instance: vm
-  stage: smoke-test
-  started_at: '2026-11-08T12:28:53.178830Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -229,6 +225,12 @@ journal:
   kind: started
   at: '2026-11-08T12:28:53.178830Z'
   stage: smoke-test
+- number: 40
+  speaker: smoke-tester
+  kind: result
+  at: '2026-11-08T12:29:14.203898Z'
+  stage: smoke-test
+  run: a93acb0d41d24e09aa02ca480ccafbe2
 ---
 
 # The first message holds the work item, then the role
@@ -781,3 +783,21 @@ Expect: the docstring names the order: the work item's body, the role's instruct
     `secrets`: secrets: green (3.2 s)
     `documents`: documents ok (59.3 s)
 39. factory: started smoke-test as vm.
+40. smoke-tester: Ran the one smoke-test command from the repository root, as written.
+
+    Command 1: `uv run python -c "from factory.agents.domain.prompts import compose_prompt; print(compose_prompt.__doc__)"`
+
+    ```
+    Bytecode compiled 4164 files in 49ms
+    The first message: the work item's body, the role's instructions, then the run's facts.
+
+        Each part is separated from the next by one blank line. The body sits in the
+        `<work-item>` block with its marker texts escaped, the instructions in the
+        `<role-instructions>` block naming the role; the facts end without a trailing newline.
+    ```
+
+    Exit status 0. Met its `Expect:` line: the docstring gives the order as the work item's body, then the role's instructions, then the run's facts. (The "Bytecode compiled" line comes from uv, not from the docstring.)
+
+    I read the acceptance criteria again against this output. Nothing contradicts them. The docstring agrees with criterion 3 (the blocks come in order with one blank line between each part) and with criterion 5 (marker texts in the body are escaped). The command covers only the docstring, so it does not show criteria 1–2, 4 or 6–14 working at runtime.
+
+    Findings: none.
