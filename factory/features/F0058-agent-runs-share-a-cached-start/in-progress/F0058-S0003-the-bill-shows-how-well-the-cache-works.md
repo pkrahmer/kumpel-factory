@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 661
 comments_read: [6721548904]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: smoke-test
+  started_at: '2026-11-08T12:58:58.149510Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -130,6 +134,11 @@ journal:
   at: '2026-11-08T12:58:52.382251Z'
   stage: docs
   run: 1f136148b1924ff6b1a4156a91baf93f
+- number: 23
+  speaker: factory
+  kind: started
+  at: '2026-11-08T12:58:58.149510Z'
+  stage: smoke-test
 ---
 
 # The bill shows how well the cache works
@@ -332,3 +341,4 @@ Expect: the help names the cache figures and the hit rate.
     `check`: check: green
     `secrets`: secrets: green (0.6 s)
     `documents`: documents ok (59.4 s)
+23. factory: started smoke-test as vm.
