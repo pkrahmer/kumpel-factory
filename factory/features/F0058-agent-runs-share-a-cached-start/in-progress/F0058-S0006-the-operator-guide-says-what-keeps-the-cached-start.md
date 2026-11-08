@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 665
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: docs-only
+  started_at: '2026-11-08T14:45:02.700526Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -47,6 +51,11 @@ journal:
   at: '2026-11-08T14:44:57.743272Z'
   stage: docs-review
   run: 5c91770383024551bdf0a81f1762d64c
+- number: 8
+  speaker: factory
+  kind: started
+  at: '2026-11-08T14:45:02.700526Z'
+  stage: docs-only
 ---
 
 # The operator guide says what keeps the cached start
@@ -117,3 +126,4 @@ Expect: at least one line in the section *A project's own agents*.
    2. `docs/operator-guide/agent-runtime.md:340`: "write paths" is a glossary word (`docs/project-guide/glossary.md`, **write paths**), and this is its first use in the file, but it has no link (style rule 3). Fix: link it as `[write paths](../project-guide/glossary.md)`.
    3. `docs/operator-guide/agent-runtime.md:340`: "A smaller tool list does not make a role safer either" claims more than the code and the project guide back. `docs/project-guide/agents.md:266` says only that the tool list does not limit what a role writes, because the write paths do this through the take. Fix: "A smaller tool list does not limit what a role writes: its write paths do."
    4. `docs/operator-guide/agent-runtime.md:338`, `:340`, `:342`: several new sentences run to about 30 to 40 words, against style rule 2 (split a sentence of more than about 25 words). They are the one that starts "Every shipped agent has the tools …; intake, the tester, …", "A project's agent shares the cached start … should share with", "A project's agent that differs … than plain input", and "The effect shows in `factory-bill`: … than the others". Fix: split each, for example the shipped values into one sentence on the tools and model and one on the efforts, and the cost sentence at its colon.
+8. factory: started docs-only as vm.
