@@ -285,3 +285,4 @@ Times are UTC. The plan: `night-plan.md`.
 - 13:05 UTC: F0058-S0004 intake asked 3 questions on PR #662 (system prompt criterion, lease, contract version); answered (a) to each, as recommended.
 - 13:28 UTC: F0058-S0004 coder asked 2 questions on PR #662 (records contract 4.5, a declared start_fact operation); answered (a) to both with leave for the named tests; criterion 8 needs no operator template file.
 - 13:44 UTC: wrote F0059 (each change is checked once) with S0001 in the backlog; it starts after F0058 and its measurement. Count from the journals of F0053-F0058: 113 coder results, 1 stall of the factory's check after the coder.
+- 13:57 UTC: F0058-S0004 (each stage's start facts come from the factory) approved, PR #662 merged (16 runs, $7.11). F0059 gains S0002 (the smoke tester routes a red check); the factory's full check moves to after the smoke tester (the human's idea).
