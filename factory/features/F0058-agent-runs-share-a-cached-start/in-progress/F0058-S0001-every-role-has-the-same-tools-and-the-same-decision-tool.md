@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 659
 comments_read: [6720500729, 6720585535, 6720667293]
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-08T11:03:07.318514Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -151,6 +147,12 @@ journal:
   kind: started
   at: '2026-11-08T11:03:07.318514Z'
   stage: tests
+- number: 26
+  speaker: tester
+  kind: result
+  at: '2026-11-08T11:03:58.933950Z'
+  stage: tests
+  run: 271f7c6ceaee450ea12ee18e2d083753
 ---
 
 # Every role has the same tools and the same decision tool
@@ -370,3 +372,21 @@ Expect: exactly one line, `model: opus`
 
     The journal changed nothing in the Description: entry 22 only gives leave for an existing test change.
 25. factory: started tests as vm.
+26. tester: I made the test changes for review findings 2 to 4, as the coder's entry 24 names them and the human approved in entry 22. Finding 1 is settled by that answer, so I left `tests/support/shipped_agents.py` as it is.
+
+    - Finding 2: I took the second option the reviewer offered. The three tests from `tests/agents/adapters/test_claude_runtime_shared_schema.py` now live in `tests/agents/adapters/test_claude_runtime.py` and use its own helpers (`_request`, `_runtime`, `_reply`, `_only_call`, `_after`). One small private helper, `_arguments_allowing`, changes only the request's `allowed_decisions` through `model_copy`. I deleted the copied `REPLY`, `_arguments` and `_schema` with the old file. No earlier test changed; I only added tests to that file. Because those helpers build a sonnet / high / `Read,Edit` request, the launch-arguments test now expects those values. It checks the same thing as before: everything apart from the `--json-schema` value is the earlier list, whatever the decisions are. I renamed it to `test_the_other_launch_arguments_do_not_depend_on_the_decisions`.
+    - Finding 3: the prompt test now finds the single `Allowed decisions:` line in the message, splits the list after the colon and checks that each requested decision is in that list. `Stage: doing` can no longer make it pass.
+    - Finding 4: that test now lives in `tests/agents/domain/test_prompts.py` and uses its `_lines` and `_facts`. I deleted `tests/agents/domain/test_prompt_names_decisions.py`.
+
+    Criterion → test, after this change:
+    criterion 3: tests/agents/adapters/test_claude_runtime.py::test_requests_with_different_decisions_get_the_same_json_schema
+    criterion 6: tests/agents/adapters/test_claude_runtime.py::test_the_decision_is_any_string_described_as_named_in_the_message
+    criterion 7: tests/agents/domain/test_prompts.py::test_the_message_names_each_allowed_decision
+    criterion 8: tests/agents/adapters/test_claude_runtime.py::test_the_other_launch_arguments_do_not_depend_on_the_decisions
+    Criteria 1, 2, 4 and 5 keep their tests from the first tests round, unchanged.
+
+    Files changed: tests/agents/adapters/test_claude_runtime.py and tests/agents/domain/test_prompts.py (tests added only). Files deleted: tests/agents/adapters/test_claude_runtime_shared_schema.py and tests/agents/domain/test_prompt_names_decisions.py (both written by this story).
+
+    I ran `uv run pytest -q` once on the two changed files. Every test passed, because the code already exists, and every module imported. `make lint`: lint: green.
+
+    `lint`: lint: green (0.2 s)
