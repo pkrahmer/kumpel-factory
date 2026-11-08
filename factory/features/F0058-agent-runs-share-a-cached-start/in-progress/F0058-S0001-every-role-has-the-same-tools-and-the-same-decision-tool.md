@@ -1,5 +1,5 @@
 ---
-stage: review
+stage: docs
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 659
 comments_read: [6720500729, 6720585535, 6720667293]
 handed_over: null
-claim:
-  instance: vm
-  stage: review
-  started_at: '2026-11-08T11:08:29.408868Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -173,6 +169,12 @@ journal:
   kind: started
   at: '2026-11-08T11:08:29.408868Z'
   stage: review
+- number: 30
+  speaker: reviewer
+  kind: result
+  at: '2026-11-08T11:09:45.845384Z'
+  stage: review
+  run: 633d5568b559475e9daabbf026ca492e
 ---
 
 # Every role has the same tools and the same decision tool
@@ -428,3 +430,33 @@ Expect: exactly one line, `model: opus`
     `check`: check: green
     `duplicates`: duplicates: 6 new, 39 known, 4 gone
 29. factory: started review as vm.
+30. reviewer: no findings
+
+    Checked in this round:
+    - Round 0 findings are settled.
+      - Finding 1: the human gave leave in entry 22.
+      - Finding 2: the copied `REPLY`, `_arguments` and `_schema` are gone. The tests for criteria 3, 6 and 8 are now in `tests/agents/adapters/test_claude_runtime.py:190-248` and use that file's `_request`, `_runtime`, `_reply`, `_only_call` and `_after`.
+      - Finding 3: `tests/agents/domain/test_prompts.py:32-44` now splits the `Allowed decisions:` line, so `Stage: doing` can no longer satisfy it.
+      - Finding 4: that test uses `_lines` and `_facts` from `test_prompts.py`.
+    - Criteria:
+      - 1 and 2: `tests/agent_files/test_shared_start_agent_files.py` (rows over the files, plus a guard that the effort table covers every agent file).
+      - 3, 6 and 8: `test_claude_runtime.py`.
+      - 4: `test_reply_without_a_usable_decision_is_no_result[decision not allowed]`, and `claude_runtime.py:226` still refuses such a decision.
+      - 5: `tests/pipeline/application/test_take_refuses_write_and_edit.py`, with rows over role × tool.
+      - 7: `test_prompts.py::test_the_message_names_each_allowed_decision`.
+      - Each test checks what its criterion says.
+    - `make check`: the coder reports it green in entry 28.
+    - Source: `claude_runtime.py:160-173` is one module constant, `_DECISION_SCHEMA`. Its `decision` is a string with no `enum` and a description that names the run's message. A comment gives the reason (the cached start). No other launch argument changes.
+    - Architecture: holds. Only the `agents` adapter and the agent files change.
+    - Security: holds. No silencing marker and no string-built command.
+    - Quality: holds.
+    - `make duplicates` (I ran it): 6 new, 39 known, 4 gone. None comes from this diff. The `claude_runtime`/`opencode_runtime` similar-code finding is the known `finished_run` block at shifted lines (it shows as gone/new). The other five are in modules the diff does not touch.
+    - Work item: the Description matches what was built. The journal gives the main choice (one constant, not a function that ignores the request) and what was rejected. The docs criterion still says what the reader must know. The diff changes no document.
+
+    Earlier tests:
+    - `tests/agents/adapters/test_claude_runtime.py`: criterion 4's leave ("an earlier test may change only in how it builds the schema") covers `test_json_schema_asks_for_an_allowed_decision_and_an_entry`. Only its expected `decision` property changed. Everything else in the file is added tests only.
+    - `tests/agents/domain/test_prompts.py`: none needed. It only adds a test.
+    - `tests/support/shipped_agents.py`: the human's leave, journal entry 22.
+
+    Notes:
+    - `tests/agents/adapters/test_claude_runtime.py:218-248`: the expected argument list in `test_the_other_launch_arguments_do_not_depend_on_the_decisions` repeats the one in `test_call_passes_every_flag_in_order` (lines 118-150). It is a test-quality point only. That unchanged earlier test already pins the arguments as they were before this story.
