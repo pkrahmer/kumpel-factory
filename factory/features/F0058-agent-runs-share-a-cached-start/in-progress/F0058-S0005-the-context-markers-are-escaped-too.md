@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 664
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-08T14:10:16.083740Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -34,6 +30,12 @@ journal:
   kind: started
   at: '2026-11-08T14:10:16.083740Z'
   stage: tests
+- number: 5
+  speaker: tester
+  kind: result
+  at: '2026-11-08T14:10:52.109212Z'
+  stage: tests
+  run: 1b55a7e8917b43899d2250ba7d83bec7
 ---
 
 # The context markers are escaped too
@@ -84,3 +86,16 @@ Expect: `1`
    - Scope: within F0058 (the shared, cached start and its context blocks), and nothing in its Out of scope. The earlier tests the story touches have the human's leave in the Interface: `MARKERS` in `tests/agents/domain/test_prompts.py:27` and `tests/pipeline/application/test_stage_context.py:36`, plus the tests that read those lists, only as far as the two new markers need.
    - Route: `tests`. The change is in `src/`.
 4. factory: started tests as vm.
+5. tester: Wrote the tests for the context markers in one new file, tests/agents/domain/test_prompts_context_markers.py.
+   - criterion 1: tests/agents/domain/test_prompts_context_markers.py::test_a_context_marker_in_a_start_fact_output_is_escaped. It has one row for `<context name="x">` and one for `</context>`. Two start facts go in, and the test expects exactly two `<context name="` openings, two `</context>` closings, and the marker with `&lt;`.
+   - criterion 2: ::test_a_context_marker_in_the_body_is_escaped_and_opens_no_block. Same two rows. The test expects no `<context` and no `</context>` before the work item's closing marker, and the marker escaped inside the body.
+   - criterion 3: ::test_a_context_marker_in_a_failure_reason_is_escaped. The test expects the line `failed: it printed &lt;/context> and stopped` and exactly one `</context>` in the message.
+   - criterion 4: ::test_a_text_without_a_marker_reaches_the_message_byte_for_byte. It has two rows: plain text, and near-misses (`<context-free>`, `</contexts`, `<div>`, an umlaut). Each row is used as both the body and a start fact's output.
+   - criterion 5: ::test_the_role_instructions_reach_the_message_unescaped. The instructions hold `<context name="x">` and `</context>`.
+   - criterion 6 is checked by `make check`, which the coder runs. Criterion 7 is for the docs stage.
+
+   Run of the new file (`uv run pytest -q` on that file, as CLAUDE.md says): the five criterion 1–3 tests fail on assertions, because `_MARKER_TEXTS` in src/factory/agents/domain/prompts.py does not yet hold the context markers. The criterion 4 and 5 tests pass already, since they pin today's behaviour, which must stay. Every module imported; there were no collection errors. `make lint` is green.
+
+   I did not use the human's leave to add the two markers to `MARKERS` in tests/agents/domain/test_prompts.py or tests/pipeline/application/test_stage_context.py. The leave allows that change but does not ask for it, and the new file covers every criterion. No earlier test file was changed.
+
+   `lint`: lint: green (0.2 s)
