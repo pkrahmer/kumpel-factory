@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 679
 comments_read: [6727152793]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: review
+  started_at: '2026-11-08T21:20:13.545227Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -130,6 +134,11 @@ journal:
   at: '2026-11-08T21:20:08.350700Z'
   stage: doing
   run: 32b17520c7a648bcb1fb57aaeb2231e3
+- number: 23
+  speaker: factory
+  kind: started
+  at: '2026-11-08T21:20:13.545227Z'
+  stage: review
 ---
 
 # Claude runs carry the project's CLAUDE.md in the system prompt
@@ -329,3 +338,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     Not touched: the docs criterion (9) belongs to the documenter.
 
     `duplicates`: duplicates: 7 new, 39 known, 4 gone
+23. factory: started review as vm.
