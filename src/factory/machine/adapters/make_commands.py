@@ -98,7 +98,11 @@ class MakeProjectCommands(ProjectCommands):
 
 
 class ContainerMakeCommands(ProjectCommands):
-    """Runs `make sync && make <command>` in a check container on the base with the taken files."""
+    """Runs a project command in a check container on the base with the taken files.
+
+    A check runs `make sync && make <command>`; a start fact runs `make <command>` alone,
+    on the base the stage's preparation has just synced.
+    """
 
     def __init__(
         self,

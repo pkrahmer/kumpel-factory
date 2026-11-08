@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: tests
 blocked: null
 round: 2
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 662
 comments_read: [6721852631, 6722094144]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T13:39:41.905972Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -145,6 +141,12 @@ journal:
   kind: started
   at: '2026-11-08T13:39:41.905972Z'
   stage: doing
+- number: 25
+  speaker: coder
+  kind: result
+  at: '2026-11-08T13:42:07.437647Z'
+  stage: doing
+  run: cb4d028b05f34b389f3b99d042ebc4b5
 ---
 
 # Each stage's start facts come from the factory
@@ -445,3 +447,21 @@ Expect: `True`
     - The two closing criteria are now 14 (`make check`) and 15 (docs).
     - Criterion 8's "operator template" stays in the Interface and the criterion. The human said in entry 15 to read it as void, so it is not a finding.
 24. factory: started doing as vm.
+25. coder: Fixed the reviewer's finding 3 from entry 23. Findings 1 and 2 add criteria that only need tests, so I hand the item to the tester. `make check` is green (`check: green`).
+
+    What I changed:
+    - `src/factory/machine/adapters/make_commands.py`: rewrote the class docstring of `ContainerMakeCommands` so that it covers both operations. It says the class runs a project command in a check container on the base with the taken files. A check runs `make sync && make <command>`. A start fact runs `make <command>` alone, on the base that the stage's preparation has just synced. Nothing else changed in the code.
+
+    For the tester (from entry 23):
+    - **Criterion 12:** each `context` command runs under its own `time_limit` from `project_commands`. Add a test where two `context` commands with different `time_limit`s each reach `ProjectCommands.start_fact` with their own limit, for example through a recording `ProjectCommands` like `RecordingCommands` in `tests/pipeline/application/test_stage_finish.py`. The code that reads the limit is `TaskComposer._start_fact` in `src/factory/pipeline/application/task.py`.
+    - **Criterion 13:** a start fact run through the wiring's recording project commands is written to the command records, as a check's run is. Add a test that a start fact run through `RecordingProjectCommands.start_fact` (`src/factory/machine/application/project_commands.py`) reaches the inner `start_fact` and writes its `CommandRecord`, as the existing tests of `RecordingProjectCommands.run` do. No test runs this code today.
+
+    The code for both criteria is already in place, so both new tests should pass without a code change.
+
+    Main choice: I fixed the docstring in this round instead of waiting for the tests to come back, because it does not depend on them and the next review round then has only the new tests to read. The alternative was to change no code and end with `tests` alone.
+
+    What the journal changed: criteria 12 and 13 are already in the Description, before the two closing ones. I did not rewrite anything.
+
+    Refactor: the diff is one docstring, so there was nothing to refactor.
+
+    `check`: check: green
