@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 659
 comments_read: [6720500729, 6720585535]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T10:54:30.308599Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -92,6 +96,11 @@ journal:
   at: '2026-11-08T10:54:25.661729Z'
   stage: tests
   run: 1d07528cd8d64d279f81965af1aa484b
+- number: 16
+  speaker: factory
+  kind: started
+  at: '2026-11-08T10:54:30.308599Z'
+  stage: doing
 ---
 
 # Every role has the same tools and the same decision tool
@@ -229,3 +238,4 @@ Expect: exactly one line, `model: opus`
     I ran `uv run pytest -q tests/agents/adapters/test_claude_runtime_shared_schema.py` once: all 4 tests pass with the coder's implementation. `make lint`: lint: green (0.1 s).
 
     `lint`: lint: green (0.1 s)
+16. factory: started doing as vm.
