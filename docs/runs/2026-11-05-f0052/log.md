@@ -268,3 +268,4 @@ Times are UTC. The plan: `night-plan.md`.
 - 03:34Z: F0057-A0002 PR #653 merged: accepted with stories. Proposed S0010 (origin/develop as one constant), S0011 (project guide names Kumpel's scripts), S0012 (procedure after an acceptance that proposes stories). factory-vm moved to 88484da91. Waiting for the human: run the three or close.
 - 07:05Z: the human chose to run S0010, S0011 and S0012, and gave the yes for the ruleset on main after the promotion. Proposed marks removed. F0057-S0012 (Kumpel's procedure after an acceptance that proposes stories) started.
 - 07:26Z: F0057-S0012 PR #654 merged (10 runs, $1.68). F0057-S0011 (the project guide names Kumpel's archive and promotion) started.
+- 07:40Z: F0057-S0011 PR #655 merged (docs route, 5 runs, $0.85). F0057-S0010 (the working branch's remote ref is one constant) started.
