@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 664
 comments_read: [6722586434]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: docs
+  started_at: '2026-11-08T14:30:36.485427Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -141,6 +145,11 @@ journal:
   at: '2026-11-08T14:30:31.321487Z'
   stage: review
   run: 8e4ed249d6e742a390921cb4f3075272
+- number: 25
+  speaker: factory
+  kind: started
+  at: '2026-11-08T14:30:36.485427Z'
+  stage: docs
 ---
 
 # The context markers are escaped too
@@ -337,3 +346,4 @@ Expect: `1`
     - Smoke test: the output's `</context>` becomes `&lt;/context>`, so only the block's own closing marker is left and the count is 1.
 
     Earlier tests: none changed. The diff only adds `tests/agents/domain/test_prompts_context_markers.py`, so no leave was needed. The leave to edit `MARKERS` in `tests/agents/domain/test_prompts.py` and `tests/pipeline/application/test_stage_context.py` was not used.
+25. factory: started docs as vm.
