@@ -1,5 +1,5 @@
 ---
-stage: intake
+stage: tests
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 650
 comments_read: [6716086925]
 handed_over: null
-claim:
-  instance: vm
-  stage: intake
-  started_at: '2026-11-08T02:18:40.055174Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -40,6 +36,12 @@ journal:
   kind: started
   at: '2026-11-08T02:18:40.055174Z'
   stage: intake
+- number: 6
+  speaker: intake
+  kind: result
+  at: '2026-11-08T02:19:00.111456Z'
+  stage: intake
+  run: 022fac1620484f3e9c3b769fee6272d0
 ---
 
 # promote.sh reuses an open promotion
@@ -60,12 +62,12 @@ journal:
   - Then, in every case: with the switch on it merges `<number>` with `merge_method: merge` and the message `Promoted by Kumpel after <id>'s acceptance.`, as today. With the switch off it prints `promotion opened: #<number>, for the human to merge` for a new one and `promotion open: #<number>, for the human to merge` for a reused one.
 - A failed `GET` stops the script with the hosting client's message and exit status, and nothing is opened.
 - Tests: a new module `tests/operator_scripts/test_operator_promote_reuse.py` with the `curl` stand-in.
-- The human's leave, to be given when refining: `tests/operator_scripts/test_operator_develop.py::test_promote_opens_the_promotion_and_merges_it_only_with_the_switch_on` answers the new `GET` route with an empty list, so far as the new request requires. It keeps its name and what it checks.
+- The human's leave (journal entry 4): `tests/operator_scripts/test_operator_develop.py::test_promote_opens_the_promotion_and_merges_it_only_with_the_switch_on` answers the new `GET` route with an empty list, so far as the new request requires. It keeps its name and what it checks.
 
 ## Acceptance criteria
 
-1. With no open promotion (the `GET` answers `[]`), `promote.sh F0001` sends `POST /pulls` with the title and body of today. With the switch off it prints `promotion opened: #4711, for the human to merge` (one test).
-2. With an open promotion #4711 whose body lists F0001's stories, `promote.sh F0002` sends no `POST`. It sends one `PATCH /pulls/4711` whose body is the old body, a blank line and F0002's block. The rows of one test:
+1. With no open promotion (the `GET` answers `[]`), `promote.sh F0001` sends `POST /pulls` with the title and body of today. With the switch off it prints `promotion opened: #4711, for the human to merge`. The stand-in also sees the `GET /repos/<repository>/pulls` with the query parameters `state=open`, `base=main`, `head=<owner>:develop` (`<owner>` the part of `SITE_REPOSITORY` before its `/`) and `per_page=1` (one test).
+2. With an open promotion #4711 whose body lists F0001's stories, `promote.sh F0002` sends no `POST`. It sends one `PATCH /pulls/4711` whose body is the old body, a blank line and F0002's block, and which carries no `title`. The rows of one test:
    - Switch off: it prints `promotion open: #4711, for the human to merge`.
    - Switch on: it then sends `PUT /pulls/4711/merge` with `merge_method: merge` and `Promoted by Kumpel after F0002's acceptance.`.
 3. With an open promotion #4711 whose body already holds F0001's block, `promote.sh F0001` sends neither `POST` nor `PATCH`, and with the switch off prints `promotion open: #4711, for the human to merge` (one test).
@@ -95,3 +97,10 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
    2. Yes, in criterion 1's test.
    3. Yes: no `title` in the PATCH, in criterion 2.
 5. factory: started intake as vm.
+6. intake: accepted
+   - Interface: names `operator/skill/kumpel/scripts/promote.sh <feature id>`, the exact GET route and the PATCH/POST/PUT requests, the printed lines, the new test module. Human's leave (journal entry 4) for the one old test in `test_operator_develop.py`; I changed the Interface line from "to be given when refining" to "(journal entry 4)".
+   - Criteria: carried in from the human's answer (journal entry 4): criterion 1 now also checks the GET query parameters and the owner from `SITE_REPOSITORY` (answer 2); criterion 2 now has the PATCH carry no `title` (answer 3). Each criterion is one test or one parametrized test. Both sides of each rule are covered: no promotion open, one open, block already present, GET failure.
+   - Smoke test: runs pytest without `-q`, which is right because `addopts` already sets it. The `Expect:` line (ends in `passed in <seconds>s`, no `failed`) is checkable.
+   - Docs criterion: names the two documents and what the reader must know (an open promotion is reused and gains the next feature's stories). It dictates no sentences.
+   - Architecture: the change is in the operator's script and its tests under `tests/operator_scripts/`, which fits the project layout.
+   - Scope: within F0057's Kumpel promotion (S0003, decisions 3 to 5). It is not in "Out of scope". The route is `tests`, because the Interface changes a script and a test.
