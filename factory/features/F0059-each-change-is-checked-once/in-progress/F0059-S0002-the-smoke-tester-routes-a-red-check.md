@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 673
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T16:29:59.436899Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -36,6 +40,11 @@ journal:
   at: '2026-11-08T16:29:54.503814Z'
   stage: tests
   run: a4eee1da7f504230bf71ebd6a4678a47
+- number: 6
+  speaker: factory
+  kind: started
+  at: '2026-11-08T16:29:59.436899Z'
+  stage: doing
 ---
 
 # The smoke tester routes a red check
@@ -107,3 +116,4 @@ Expect: a count of 1 or more.
    Note for the coder: `tests/agent_files/test_claude_agent_texts_docs_slip.py` requires "end with `docs`" and "end with `approval`" to each appear exactly once in the smoke tester's Stage section. Write the new routes as "decides `doing`" and "decides `docs`" (as the Interface does), and leave steps 5 and 6 as they are.
 
    `lint`: lint: green (0.2 s)
+6. factory: started doing as vm.
