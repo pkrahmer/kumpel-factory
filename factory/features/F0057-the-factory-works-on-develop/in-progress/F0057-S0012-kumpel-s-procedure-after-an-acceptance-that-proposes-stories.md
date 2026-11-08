@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 654
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-08T07:07:19.213414Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -25,6 +29,11 @@ journal:
   at: '2026-11-08T07:07:14.483687Z'
   stage: intake
   run: 9dad4a913c754b45aa882da848d11ed2
+- number: 4
+  speaker: factory
+  kind: started
+  at: '2026-11-08T07:07:19.213414Z'
+  stage: tests
 ---
 
 # Kumpel's procedure after an acceptance that proposes stories
@@ -77,3 +86,4 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
    - Docs criterion: it names what the reader must know. In the playbook's step 8, the archive and promotion follow the next accepted acceptance. In install.md, when the promotion waits and why. The `decisions.md` entry applies only if the human chooses a behaviour change. It dictates no sentences.
    - Architecture: it fits. Docs and Kumpel's skill text only, with a test under `tests/operator_scripts/` as CLAUDE.md lays out. No code or script is touched.
    - Scope: it is within F0057, which covers Kumpel's procedure and the operator's documents on `develop` and `main`. Nothing in "Out of scope" is touched. Route is `tests`, because `operator/skill/*` is not a path the documenter may write.
+4. factory: started tests as vm.
