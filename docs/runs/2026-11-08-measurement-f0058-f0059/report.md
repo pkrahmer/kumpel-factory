@@ -7,6 +7,8 @@ Date: 2026-11-08. The same demo, demo-todo F0001 (four stories and the acceptanc
 
 Both runs stop at the accepted acceptance; the three stories the measured run's acceptance proposed (S0005 to S0007) were not run. Figures come from the cost records and journals of the `done/` work items (`measure.py` in the session's scratchpad).
 
+> **Correction (2026-11-08, later):** this report priced every role at opus. The baseline ran intake and the documenter on sonnet; priced at the models each role used, the baseline cost $8.32 and the measured run $8.40, about the same, not 7 % less. See [../2026-11-08-measurement-f0060/report.md](../2026-11-08-measurement-f0060/report.md).
+
 ## Results
 
 | | Baseline | Measured | Change |
