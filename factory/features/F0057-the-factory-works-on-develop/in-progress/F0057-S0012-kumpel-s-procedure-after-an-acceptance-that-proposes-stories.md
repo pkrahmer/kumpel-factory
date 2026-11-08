@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 654
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T07:08:05.884095Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -45,6 +41,12 @@ journal:
   kind: started
   at: '2026-11-08T07:08:05.884095Z'
   stage: doing
+- number: 7
+  speaker: coder
+  kind: result
+  at: '2026-11-08T07:12:51.934616Z'
+  stage: doing
+  run: 787c10b5fc90469b8149bb4fe7bbcd2d
 ---
 
 # Kumpel's procedure after an acceptance that proposes stories
@@ -112,3 +114,17 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
 
    `lint`: lint: green (0.2 s)
 6. factory: started doing as vm.
+7. coder: Built: `operator/skill/kumpel/references/approving.md`, *After a feature's acceptance*. This is a text change only. No script or test changed.
+   - Step 1 has a new continuation line. When the accepted acceptance proposed stories, the feature's `backlog/` holds them. The refusal `<feature id> is not finished: <path> is in backlog/` is then expected and is not a fault. Kumpel tells the human that the archive and the promotion wait for the feature's next accepted acceptance, and starts nothing else for the feature.
+   - Step 2 now says that `promote.sh` reuses an open promotion: it adds the feature's stories to the open pull request and opens no second one. With the switch off it prints `promotion open: #<number>, for the human to merge`, and Kumpel tells the human the same. I checked the wording against `operator/skill/kumpel/scripts/archive-feature.sh` (`refuse "$story is in $folder/"`) and `promote.sh` (`echo "promotion $state: #$number, for the human to merge"`).
+
+   Main choice: I put the new case for step 1 on a continuation line under step 1, not inside step 1's first line. `tests/operator_scripts/test_operator_archive_outcome.py::test_approving_names_the_refusal_of_a_feature_whose_acceptance_was_not_accepted` reads only that first line and checks `is not finished: its last acceptance`. Keeping the first line as it was leaves that test untouched. The new test reads a step together with its continuation lines. The alternative I rejected was rewriting step 1's first line into a longer list of refusals. That would make the other refusals harder to read and would put the existing test's phrase at risk.
+
+   Refactor: I read the diff and found nothing to change.
+
+   Noticed, not touched: step 1's first line still says "report that to the human" for every refusal. The continuation line narrows that for the `backlog/` case. The documenter still has the docs criterion: `docs/operator-playbook.md` step 8 and `docs/operator-guide/install.md` *The promotion*. The journal did not change the task's meaning, so the Description stays as it is.
+
+   `make check`: check: green (test: green, 109.5 s).
+
+   `check`: check: green
+   `duplicates`: duplicates: 6 new, 39 known, 4 gone
