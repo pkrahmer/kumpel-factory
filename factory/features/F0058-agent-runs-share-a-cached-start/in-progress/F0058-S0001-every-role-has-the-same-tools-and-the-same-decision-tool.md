@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 659
 comments_read: [6720500729, 6720585535, 6720667293]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: smoke-test
+  started_at: '2026-11-08T11:14:36.743766Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -186,6 +190,11 @@ journal:
   at: '2026-11-08T11:14:31.774076Z'
   stage: docs
   run: 35151118c05d4f1bab52e2672bf76003
+- number: 33
+  speaker: factory
+  kind: started
+  at: '2026-11-08T11:14:36.743766Z'
+  stage: smoke-test
 ---
 
 # Every role has the same tools and the same decision tool
@@ -488,3 +497,4 @@ Expect: exactly one line, `model: opus`
     `check`: check: green
     `secrets`: secrets: green (2.0 s)
     `documents`: documents ok (62.2 s)
+33. factory: started smoke-test as vm.
