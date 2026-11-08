@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 682
 comments_read: [6727864627]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: smoke-test
+  started_at: '2026-11-08T22:26:48.402929Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -86,6 +90,11 @@ journal:
   at: '2026-11-08T22:26:43.506961Z'
   stage: docs
   run: d81fcdc3f2794932af6e1511985f72a9
+- number: 15
+  speaker: factory
+  kind: started
+  at: '2026-11-08T22:26:48.402929Z'
+  stage: smoke-test
 ---
 
 # The reviewer's role names its route to the tester
@@ -263,3 +272,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     `guides`: guides: green (9.8 s)
     `secrets`: secrets: green (1.7 s)
     `documents`: documents ok (66.4 s)
+15. factory: started smoke-test as vm.
