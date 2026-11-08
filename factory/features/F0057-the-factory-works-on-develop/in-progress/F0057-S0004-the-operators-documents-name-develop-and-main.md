@@ -1,11 +1,11 @@
 ---
 stage: tests
-blocked: question
+blocked: null
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 646
-comments_read: [6715370076]
+comments_read: [6715370076, 6715449873]
 handed_over: null
 claim: null
 journal:
@@ -65,6 +65,11 @@ journal:
   stage: tests
   run: 62794c19435f4faf8aa5e3216a099317
   blocked: question
+- number: 11
+  speaker: human
+  kind: comment
+  at: '2026-11-08T01:10:28.785314Z'
+  stage: tests
 ---
 
 # The operator's documents name develop and main
@@ -174,3 +179,4 @@ Expect: `documents ok (<seconds> s)`
     Not touched: `tests/agent_files/test_claude_agent_texts.py:144` also forbids `promote`, but in the agent files, not the operator documents. I would leave it as it is unless you say otherwise.
 
     Criterion → test mapping: none yet. Files created: none. Modules the test run could not import: none, because I did not run the tests.
+11. 2026-11-08 human: (a), with your leave for the pinned test; the coder removes both words from GLOSSARY_FORBIDDEN. The agent-file test stays as it is.
