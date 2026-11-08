@@ -1,5 +1,5 @@
 ---
-stage: review
+stage: docs
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 680
 comments_read: [6727432579, 6727512748, 6727549619]
 handed_over: null
-claim:
-  instance: vm
-  stage: review
-  started_at: '2026-11-08T21:54:39.150951Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -173,6 +169,12 @@ journal:
   kind: started
   at: '2026-11-08T21:54:39.150951Z'
   stage: review
+- number: 30
+  speaker: reviewer
+  kind: result
+  at: '2026-11-08T21:55:25.754269Z'
+  stage: review
+  run: 7fafba04e83345c4893ccf69e41ed262
 ---
 
 # A review whose findings need only tests goes to the tester
@@ -461,3 +463,30 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     `duplicates`: duplicates: 7 new, 39 known, 4 gone
 29. factory: started review as vm.
+30. reviewer: no findings
+
+    All three findings from round 0 (entry 22) are fixed:
+    - Finding 1: `agents/agents/reviewer.md` `### docs-review` now replaces "steps 1 to 4 above". In `docs-review`, step 4 can no longer send findings to `doing`.
+    - Finding 2: `test_the_tester_answers_the_reviewers_test_findings_and_hands_to_the_coder` now has the row `after-review` for the condition. Every fragment is checked against the one sentence that starts with "When the latest result before your run is the reviewer's". I read that sentence in `agents/agents/tester.md`: no ". " cuts it before "each finding", so every row checks the new text.
+    - Finding 3: the duplicate check of `SYSTEM_PROMPT` against the file is gone. Criterion 4's second half rests on the existing test in `tests/agents/adapters/test_claude_runtime_system_prompt.py`.
+
+    Checked against the criteria:
+    - Criteria 1 and 2: step 4 of the reviewer's `## Stage` covers `tests` when every finding needs only tests of the story's own work, all findings to `doing` otherwise, and `doing` as before when `tests` is not allowed. The tests read these from the lines of the code-route `## Stage` that name `tests`.
+    - Criterion 3: the tester's step 0 has the new case.
+    - Criterion 4: R12 holds the new list once, with `review → tests` right after `review → doing`. The file and `SYSTEM_PROMPT` are equal.
+    - Criterion 5: two rows of one parametrized test, with `round_cap: 2`. The third rework is held at `review` with one `round_cap` post.
+    - Criterion 6: `make check` after the coder was green (entry 28).
+
+    I ran the seven affected test files myself (`uv run pytest -q`), and all passed. Architecture: no factory logic changed, only the agent texts and the shipped prompt constant in `factory.agents.domain`. No suppression markers. The Description matches what was built, and the docs criterion is still right for the documenter.
+
+    Earlier tests:
+    - `tests/agent_files/test_claude_agent_texts_docs_route.py`: the human's leave, entry 16 (fragment "steps 1 to 4" after this story's change to the reviewer's `## Stage`).
+    - `tests/agent_files/test_claude_agent_texts_docs_slip.py`: the human's leave, entry 4 (R12's text in `REWORK_RULE`).
+    - `tests/agent_files/test_claude_agent_texts_review_groups.py`: the human's leave, entry 11 (the step-4 `.replace`) and entry 16 (the R12 mapping `.replace`).
+    - `tests/pipeline/application/test_docs_route.py`: the standing leave to move a shared test helper. `_step`, `WRITES` and `MAKEFILE` moved to `tests/support/two_routes_support.py`, and every test keeps its name and its checks.
+    - `tests/support/shared_rules_support.py`: the human's leave, entry 4 (the R12 entry), and entries 11 and 16 (the reviewer and tester `Stage` checksums).
+    - `tests/support/two_routes_support.py`: the standing leave to move a shared test helper (it receives `decide`, `STAGE_WRITES` and `EVERY_TARGET_MAKEFILE`). `TWO_ROUTES` is unchanged.
+
+    Notes:
+    - `src/factory/agents/domain/prompts.py:121-123`: the R12 line wrap is uneven (a short "`round`, capped by " fragment). This is cosmetic and the text is correct.
+    - `agents/agents/reviewer.md` Role, "`docs` passes, `doing` sends the work item back": it does not name `tests`. The Interface limits the change to `## Stage`, so this is left for a later story if the human wants it.
