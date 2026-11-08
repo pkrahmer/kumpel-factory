@@ -1,5 +1,5 @@
 ---
-stage: docs-review
+stage: docs-approval
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 667
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: docs-review
-  started_at: '2026-11-08T15:12:48.498813Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -67,6 +63,12 @@ journal:
   kind: started
   at: '2026-11-08T15:12:48.498813Z'
   stage: docs-review
+- number: 11
+  speaker: reviewer
+  kind: result
+  at: '2026-11-08T15:13:20.965010Z'
+  stage: docs-review
+  run: 71b3b2066fd84ebb8b6115185a6e1501
 ---
 
 # The operator guide's start facts match the template
@@ -145,3 +147,15 @@ Expect: `0`.
    `secrets`: secrets: green (0.3 s)
    `documents`: documents ok (61.0 s)
 10. factory: started docs-review as vm.
+11. reviewer: no findings
+
+    I compared the diff of `docs/operator-guide/pipeline.md` (*Start facts* and the `context` row of the stage-field table) with the template on the branch and with `docs/project-guide/style.md`:
+    - Round 1 finding 1 is fixed. `docs/operator-guide/pipeline.md:52` now says that `facts-diff` and `facts-changes` measure from the merge base with `origin/develop` and that `facts-files` lists the tracked files as they are. This matches `operator/template/Makefile:128-140`.
+    - Round 1 finding 2 is fixed. Each excerpted file has one relative link above its block, `[pipeline.yml](../../operator/template/factory/pipeline.yml)` and `[Makefile](../../operator/template/Makefile)`, as style rule 8 asks.
+    - Criterion 1: the table names the three targets with one line each. The stage mapping (`review`; `doing` and `docs`; `tests`) matches `operator/template/factory/pipeline.yml:23-26`, and the YAML excerpt's lines match `:10-12` and `:23-25` word for word.
+    - Criterion 2: the make example is `base_ref` and `facts-diff` exactly as `operator/template/Makefile:128-133` writes them, so it measures from `git merge-base HEAD origin/develop`. No `develop...HEAD` is left in the section.
+    - Criterion 3: the "project's own" paragraph says that a project may change or rename a target, or drop a stage's `context`, without changing the factory.
+    - The start-fact rules (order, the cut, `failed:`, the lease) are unchanged apart from the block name in the example.
+    - Smoke greps: the `facts-*` names are counted at least 3 times, and `develop...HEAD` 0 times.
+
+    A borderline point, which I did not count as a finding: line 52 says "Each leaves out the factory's own files under `factory/`". The untracked-file half of `facts-changes` (`git ls-files --others --exclude-standard`, `Makefile:136`) has no `':!factory'` pathspec. The start facts run on the rolled-back base, which normally has no untracked files, so the sentence holds in practice. The round 1 reviewer also accepted it.
