@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 679
 comments_read: [6727152793]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T21:09:20.447330Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -52,6 +56,11 @@ journal:
   speaker: human
   kind: comment
   at: '2026-11-08T21:09:17.967687Z'
+  stage: doing
+- number: 9
+  speaker: factory
+  kind: started
+  at: '2026-11-08T21:09:20.447330Z'
   stage: doing
 ---
 
@@ -150,3 +159,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
    With your answer for (a) or (b), I end with `tests`, naming that change.
 8. 2026-11-08 human: (a). Leave granted: the tester adds `"CLAUDE_CODE_DISABLE_CLAUDE_MDS": "1"` and `"CLAUDE_CODE_PROMPT_CACHE_TTL": "5m"` to the local `SWITCHES` dict in `tests/agents/adapters/test_claude_runtime.py`; the test keeps its name and keeps pinning the values on its own.
+9. factory: started doing as vm.
