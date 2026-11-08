@@ -1,5 +1,5 @@
 ---
-stage: docs
+stage: smoke-test
 blocked: null
 round: 2
 attempts: 1
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 645
 comments_read: [6714658360, 6714963482]
 handed_over: null
-claim:
-  instance: vm
-  stage: docs
-  started_at: '2026-11-08T00:49:50.988211Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -229,6 +225,12 @@ journal:
   kind: started
   at: '2026-11-08T00:49:50.988211Z'
   stage: docs
+- number: 40
+  speaker: documenter
+  kind: result
+  at: '2026-11-08T00:56:34.215019Z'
+  stage: docs
+  run: 94cb4c130c7740e1a92fee73d8846d6d
 ---
 
 # Kumpel works on develop and promotes accepted features to main
@@ -642,3 +644,25 @@ Expect: `off`
     - `tests/operator_scripts/test_operator_develop.py:322` `test_a_settings_file_without_the_promote_switch_reads_it_as_off`: the name now covers only the `read` row. `set-on`, `get-unknown` and `set-unknown` would fit a name like "an old settings file knows the promote switch and nothing more".
     - `tests/operator_scripts/test_operator_develop.py:291` and `:322`: the switch's new-file rows and old-file rows are still two functions. The setups differ, as noted in round 1.
 39. factory: started docs as vm.
+40. documenter: Docs, round 2. I wrote the docs criterion (criterion 10) and cross-read the other documents against the diff. `make documents` ends with `documents ok (57.6 s)`. I did not run `make check`: I changed only documents.
+
+    Files changed:
+    - `operator/README.md`, Settings table: new row for the switch `promote` (off by default). Kumpel merges the promotion of `develop` to `main` after a feature's acceptance; with it off, Kumpel opens the pull request and the human merges it.
+    - `operator/README.md`, step 5: a new file has `merge` and `promote` off. A file written before `promote` existed lacks it: `get promote` reads it as off and `set promote on` adds it. I read this in `settings.sh` and in `test_operator_develop.py`.
+    - `operator/README.md`, "How Kumpel's acts are told from yours": every commit Kumpel makes has Kumpel as author and committer (this replaces "a start commit has the author…"). It also says that Kumpel commits and pushes to `develop` and never to `main`, which changes only when a promotion pull request is merged.
+    - `docs/operator-guide/site.md`: the list of switches no longer names three. It points to the Settings table in `operator/README.md` and does not repeat the list. I could not write `promote` there: the document check forbids that word in the guide, and `operator/README.md` is not among the checked documents.
+
+    The three file-table rows in `operator/README.md` (`archive-feature.sh`, `promote.sh`, `kumpel-commit.sh`) were already in place from the coder, under the human's leave in journal 14. I checked them against the scripts and found them current.
+
+    Cross-read and found current: `operator/skill/kumpel/SKILL.md`, the four reference texts and both `kumpel.md` commands, all changed in the diff. `docs/decisions.md` already holds decision 3 on the `promote` switch (the criterion says no change), and I added nothing to it. I wrote no "Rejected" line.
+
+    Findings: none. The code matches the Interface and the criteria.
+
+    Stale text I saw and did not touch, because it is unrelated to this story:
+    - `docs/operator-guide/stops.md` says "on `main`" for fixes to `pipeline.yml` and agent files. That is the stage-file and pipeline text of other stories (the cut-over to `develop` is F0057-S0004 and S0005).
+
+    I skipped no project skill.
+
+    `check`: check: green
+    `secrets`: secrets: green (0.8 s)
+    `documents`: documents ok (58.2 s)

@@ -68,7 +68,7 @@ Where to read next:
    sh operator/skill/kumpel/scripts/settings.sh init <owner/name> <checkout>
    ```
 
-   The file is `~/.config/kumpel/settings.json`, or the path in `KUMPEL_SETTINGS`. A new file has `merge` off, and `answer` and `start_next` on.
+   The file is `~/.config/kumpel/settings.json`, or the path in `KUMPEL_SETTINGS`. A new file has `merge` and `promote` off, and `answer` and `start_next` on. A file written before `promote` existed lacks it: `get promote` reads it as off, and `set promote on` adds it.
 
 ## What you need
 
@@ -81,7 +81,7 @@ Where to read next:
 Kumpel works with your token, so it signs everything it does. A reader of the pull request, the journal or the history can then tell its acts from yours.
 
 - A comment ends with the line `— Kumpel, for the human who owns this project` and the marker `<!-- kumpel -->`.
-- A start commit has the author `Kumpel <kumpel@noreply.invalid>`.
+- Every commit Kumpel makes (a start, an archive of a finished feature) has `Kumpel <kumpel@noreply.invalid>` as author and committer. Kumpel commits and pushes to `develop`, the factory's working branch, and never to `main`: `main` changes only when a promotion pull request from `develop` is merged.
 - A merge commit says `Merged by Kumpel after the six approval checks.` These are the six checks Kumpel judges on a story at the [approval](../docs/project-guide/glossary.md) stage; [approving.md](skill/kumpel/references/approving.md) lists them.
 
 ## Reference
@@ -128,6 +128,7 @@ The switches live in the settings file. Change one with the command `/kumpel <sw
 | `merge` | Kumpel merges an approved story itself | off | `/kumpel merge on` |
 | `answer` | Kumpel answers the factory's questions | on | `/kumpel answer off` |
 | `start_next` | Kumpel starts the next story when one is archived | on | `/kumpel start_next off` |
+| `promote` | Kumpel merges the promotion of `develop` to `main` after a feature's acceptance; with it off, Kumpel opens the pull request and you merge it | off | `/kumpel promote on` |
 
 The environment variable:
 
