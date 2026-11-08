@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 661
 comments_read: [6721548904]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T12:47:57.677225Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -106,6 +102,12 @@ journal:
   kind: started
   at: '2026-11-08T12:47:57.677225Z'
   stage: doing
+- number: 18
+  speaker: coder
+  kind: result
+  at: '2026-11-08T12:52:09.314924Z'
+  stage: doing
+  run: 7732de6b3e584021b438007899491f3e
 ---
 
 # The bill shows how well the cache works
@@ -256,3 +258,13 @@ Expect: the help names the cache figures and the hit rate.
 
     `lint`: lint: green (0.2 s)
 17. factory: started doing as vm.
+18. coder: Round 1: The tester pinned criterion 7 in entry 16. It is now a `-h` row beside `--help` in `tests/entry/test_bill_cache.py::test_the_help_prints_the_usage_naming_the_cache_figures`. That was the reviewer's only finding, and the code already met it: `_HELP_FLAGS = ("-h", "--help")` in `src/factory/entry/bill.py` covers both flags. I changed no code this round, so there is nothing new for the refactor pass.
+
+    - Built (round 0, unchanged): `src/factory/watching/domain/bills.py`, `src/factory/watching/application/costs.py` and `src/factory/entry/bill.py`. Entry 10 gives the main choice (finished texts in `WorkItemBill`) and the alternatives I rejected.
+    - Description: the journal added criterion 7 but did not change the meaning of the task, so the Description stays as written.
+    - Noticed, not touched: nothing new.
+
+    `check`: check: green
+
+    `check`: check: green
+    `duplicates`: duplicates: 7 new, 39 known, 4 gone
