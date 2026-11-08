@@ -1,11 +1,11 @@
 ---
 stage: docs-only
-blocked: attempts_cap
+blocked: null
 round: 1
-attempts: 2
+attempts: 0
 crashes: 0
 pull_request: 665
-comments_read: []
+comments_read: [6722914653]
 handed_over: null
 claim: null
 journal:
@@ -77,6 +77,11 @@ journal:
   at: '2026-11-08T14:46:46.883453Z'
   stage: docs-only
   blocked: attempts_cap
+- number: 13
+  speaker: human
+  kind: comment
+  at: '2026-11-08T14:48:28.827965Z'
+  stage: docs-only
 ---
 
 # The operator guide says what keeps the cached start
@@ -154,3 +159,4 @@ Expect: at least one line in the section *A project's own agents*.
 12. factory: Stage docs-only stalled 2 times. The last time: Stage docs-only stalled (attempt 2 of 2): the agent run died without a result
 
     Comment anything to retry: the attempts go back to 0 and the stage runs again. Close the pull request to discard the story instead: it goes back to the backlog as you wrote it, and its branch and bill are deleted.
+13. 2026-11-08 human: The human: the API key ran out; it is emptied, so the runs fall back to the subscription login. Retry.
