@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 662
 comments_read: [6721852631]
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-08T13:07:12.864167Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -51,6 +47,12 @@ journal:
   kind: started
   at: '2026-11-08T13:07:12.864167Z'
   stage: tests
+- number: 8
+  speaker: tester
+  kind: result
+  at: '2026-11-08T13:11:09.845180Z'
+  stage: tests
+  run: a3f54b09525a4b139bd898a37a9df388
 ---
 
 # Each stage's start facts come from the factory
@@ -155,3 +157,28 @@ Expect: `True`
    - Architecture: the stage key and the lease rule belong in pipeline/domain. The commands run through the existing project-commands interface in the check container, as checks do. The blocks are built in agents/domain prompts. No tool is called outside its wrapper. The contract schema is regenerated with `factory.entry.contract`.
    - Scope: within F0058, whose decision 6 matches this story, and not in its Out of scope. The human's leave names every earlier test the story may change. Route `tests`, because the Interface changes `src/`.
 7. factory: started tests as vm.
+8. tester: Tests written for every criterion. They fail for the right reason: loading refuses `stages.tests.context` as an unknown key, and neither system prompt mentions `<context>` yet. One run of the new files gave 16 failed. The stage without `context` passes now, and must keep passing. `make lint` is green. I skipped the type check, as the stage says.
+
+   - criterion 1: `tests/pipeline/application/test_stage_context.py::test_the_context_blocks_follow_the_role_instructions_in_their_order_before_the_facts` (rows a-then-b, b-then-a)
+   - criterion 2: `tests/pipeline/adapters/test_pipeline_context.py::test_a_context_name_must_be_a_project_command` (rows project-command, unknown)
+   - criterion 3: `tests/pipeline/application/test_stage_context.py::test_an_output_beyond_the_limit_is_cut_with_a_line_naming_the_cut_characters` (rows 60000 whole, 60001 cut). The cut row expects one non-blank line after the first 60,000 characters, with the number `1` as a word in it.
+   - criterion 4: `tests/pipeline/application/test_stage_context.py::test_a_failed_or_timed_out_command_gives_a_failed_line_and_the_run_starts` (rows fails, out-of-time). The out-of-time row uses a subclass of `ContainerMakeCommands` whose `run` returns a `time_limit` `CheckResult` for that one command. A `time_limit` is in whole minutes, so a real timeout cannot run within a test.
+   - criterion 5: `tests/pipeline/application/test_stage_context.py::test_a_marker_text_in_an_output_reaches_the_message_escaped`
+   - criterion 6: `tests/pipeline/application/test_stage_context.py::test_a_stage_without_context_gets_no_block_and_runs_no_command_before_its_agent`. The existing `tests/pipeline/application/test_task.py::test_the_request_shares_the_allowed_decisions_and_the_facts_of_the_context` also still pins the unchanged message.
+   - criterion 7: `tests/pipeline/application/test_stage_context.py::test_the_context_commands_run_in_the_check_container_before_the_checks_not_on_the_host`
+   - criterion 8: `tests/agent_files/test_context_system_prompt.py::test_the_system_prompt_names_the_context_blocks_as_facts_not_to_gather_again` (rows shipped = `agents/system-prompt.md`, fallback = `SYSTEM_PROMPT` in `src/factory/agents/domain/prompts.py`)
+   - criterion 9: `tests/pipeline/adapters/test_pipeline_context.py::test_the_context_time_limits_count_toward_the_lease` (rows fits: 40+5+10+5 = 60; exceeds: 61)
+   - criterion 10: `tests/pipeline/adapters/test_pipeline_context.py::test_a_definition_at_either_contract_loads_with_a_stage_carrying_context` (rows 1.0, 1.1)
+   - criteria 11 and 12: no test of their own; they are `make check` and the docs stage.
+
+   Files created: `tests/pipeline/application/test_stage_context.py`, `tests/pipeline/adapters/test_pipeline_context.py`, `tests/agent_files/test_context_system_prompt.py`. I changed no earlier test, so I did not use the human's leave. Every module imported; the failures are assertions and refused definitions, not collection errors.
+
+   How the stage tests are built, for the coder:
+   - They run a whole `tests` stage through `StageRunner` on the `boundaries` fixture's fake dataset, with `ContainerMakeCommands` as `project_commands`, and read the prompt that `FakeAgentRuntime` received.
+   - The Makefile targets print the outputs, so the full output has to reach the message through `ProjectCommands.run`.
+   - They find a block by its `<context name="…">` opening and the next `</context>`. They check order by position. They do not check the blank lines between parts.
+   - A failed block must hold a line that starts with `failed: `. The reason itself is not pinned.
+
+   Open, for the reviewer and the human: criterion 8 names "the operator template". No system prompt exists under `operator/template` (nor anywhere under `operator/`); the only two are the shipped `agents/system-prompt.md` and the `SYSTEM_PROMPT` fallback, which says the same. I tested those two and did not invent a template file. If the human meant another file, its row is missing.
+
+   `lint`: lint: green (0.1 s)
