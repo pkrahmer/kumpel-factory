@@ -1,5 +1,5 @@
 ---
-stage: docs
+stage: smoke-test
 blocked: null
 round: 2
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 662
 comments_read: [6721852631, 6722094144]
 handed_over: null
-claim:
-  instance: vm
-  stage: docs
-  started_at: '2026-11-08T13:49:08.056612Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -189,6 +185,12 @@ journal:
   kind: started
   at: '2026-11-08T13:49:08.056612Z'
   stage: docs
+- number: 33
+  speaker: documenter
+  kind: result
+  at: '2026-11-08T13:54:55.271024Z'
+  stage: docs
+  run: f866b7940def40c692425ef77dbf6cd0
 ---
 
 # Each stage's start facts come from the factory
@@ -569,3 +571,22 @@ Expect: `True`
     - `tests/shared/domain/test_contract_version_4.py`: the human's leave, entry 15.
     - `tests/shared/domain/test_contract_version_4_2.py`: the human's leave, entry 15.
 32. factory: started docs as vm.
+33. documenter: Documented the stage key `context` and the start facts. `make documents` ended `documents ok (62.0 s)`. I changed only documents, so I did not run `make check`; the factory's checks after this stage decide.
+
+    Files changed:
+    - `docs/project-guide/pipeline.md`: adds `context` to the stage's fields. The lease rule and rule 7's fault table now include `context` (`stage <s>: context <c> is not a project command`). The contract rule notes 1.1 and that 1.0 also loads with `context`. *The prompt* now shows the `<context>` blocks between the role and the facts. The steps of `StageLauncher.launch` now follow the code: prepare, then the start facts and compose, then `run_agent`, with the cost record begun after the start facts. A new section, *Start facts*, covers: where the commands run, their time limits, the command records, that a start fact never reaches `KnownResults`, the rollback before the agent, the 60,000-character cut and its exact line, the `failed:` reasons, escaping, the lease, and a link to the decision.
+    - `docs/project-guide/agents.md`: the system prompt's new sentence about `<context>` blocks, that the fallback `SYSTEM_PROMPT` says the same, and where the blocks sit in the first message.
+    - `docs/project-guide/machine.md`: adds `ProjectCommands.start_fact` and its `CommandOutput`. `MakeProjectCommands.start_fact`/`run`. `ContainerMakeCommands.start_fact` runs without `sync`, and why. `run_agent` now rolls the dataset back to its base first.
+    - `docs/project-guide/work.md` and `docs/operator-guide/records.md`: the records contract is now 4.5 (it was 4.4, which is now stale).
+    - `docs/operator-guide/pipeline.md`: a `context` row in the stage keys table, `context` in the lease rule, and a new *Start facts* section with one example (a `diff` project command and its Makefile target) and the size limit, the failure line, the lease and the contract.
+    - `docs/decisions.md`: a new entry, "A stage's start facts come from project commands the factory runs": the decision, why (from the Description), and the human's choice of `start_fact` without `sync` (entry 15). It has no "Rejected" line, because the story names no rejected option for the decision as a whole.
+
+    Examples: I ran the operator guide's YAML through `RuamelPipelineDefinitionReader.parse` with `contract: '1.1'`, and it loaded with `context == ['diff']`. I did not run the example Makefile target `diff:` (`git diff --stat develop...HEAD`) inside a stage.
+
+    Cross-read and found current: `docs/project-guide/README.md`, `glossary.md`, the rest of `machine.md` (the `sync` contract line still holds: the sync runs before every check, and start facts are not checks), `docs/operator-guide/README.md`, `agent-runtime.md`, `stops.md`, and the rest of the operator guide's `pipeline.md`. Its smallest definition at `'1.0'` still loads.
+
+    Stale, not touched: nothing unrelated to this story.
+
+    `check`: check: green
+    `secrets`: secrets: green (3.2 s)
+    `documents`: documents ok (61.4 s)

@@ -474,7 +474,7 @@ The fields of `JournalRecord` after `number`, `speaker` and `kind`:
 
 ### The records contract
 
-- `contract_schema(entry)` is the schema's text: `$schema` (the 2020-12 dialect), `x-records-contract` (`RECORDS_CONTRACT`, `4.4`), then the model's `model_json_schema(mode=...)` unchanged, indented by 2 and ending in one newline.
+- `contract_schema(entry)` is the schema's text: `$schema` (the 2020-12 dialect), `x-records-contract` (`RECORDS_CONTRACT`, `4.5`), then the model's `model_json_schema(mode=...)` unchanged, indented by 2 and ending in one newline.
 - `schema_file_name(entry)` is `<name>.schema.json`.
 - `write_contract(folder)` replaces the five files and leaves others alone. `main` prints `contract: 5 schemas written`, and returns 2 with a usage line for more than one argument.
 

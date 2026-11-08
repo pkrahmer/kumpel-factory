@@ -72,6 +72,7 @@ A stage has these fields:
 - `approval`: the human decides.
 - `checks`: project commands run after the agent.
 - `reports`: project commands run after green, recorded only.
+- `context`: project commands run before the agent, whose outputs are the stage's start facts in its first message (*Start facts* below).
 - `round_cap`: none means no cap.
 
 A role has these fields:
@@ -111,8 +112,8 @@ Some rules look across keys, so they run only once every field is valid. This se
 
 `PipelineDefinition` has one validator that applies twelve rules, so every reader and every ref gets them. It collects the faults of all rules and refuses once. The faults are joined by `; `. They come in the order of the rules and, inside a rule, in the order of the stages or roles in the text. The reader reports the validator's message as the `fault`, without pydantic's `Value error, ` prefix.
 
-- **The contract.** `contract` is `<digits>.<digits>`. The major, compared as an integer, must be `CONTRACT_MAJOR` (1): `01.0` is read, `2.0`, `0.9` and `10.0` are not. Any minor is read (`1.0`, `1.7`, `1.10`).
-- **The lease.** Take each stage with a role. The role's `time_limit` plus the `time_limit` of each command in the stage's `checks` and `reports` must be at most the role's `lease_duration`. A command listed twice counts twice. A name that is no project command counts nothing. A stage without a role, such as an approval or `done`, is not measured. A role used by two stages is measured at each. With the defaults, 40 + 10 for one check + 10 for one report = 60 fits the lease of 60. A stage with two checks and a report adds up to 70 and does not.
+- **The contract.** `contract` is `<digits>.<digits>`. The major, compared as an integer, must be `CONTRACT_MAJOR` (1): `01.0` is read, `2.0`, `0.9` and `10.0` are not. Any minor is read (`1.0`, `1.7`, `1.10`). The format is at 1.1 since the stage key `context`; a definition at `1.0` loads too and may carry it.
+- **The lease.** Take each stage with a role. The role's `time_limit` plus the `time_limit` of each command in the stage's `checks`, `reports` and `context` must be at most the role's `lease_duration`. A command listed twice counts twice. A name that is no project command counts nothing. A stage without a role, such as an approval or `done`, is not measured. A role used by two stages is measured at each. With the defaults, 40 + 10 for one check + 10 for one report = 60 fits the lease of 60. A stage with two checks and a report adds up to 70 and does not.
 - Rules 10 and 11 apply to every stage except `done`, and only when the stage `done` exists. Without it the end of the pipeline is unknown, and rule 3's fault is the one that matters. A stage with an empty `next` has nowhere to send a forward outcome or an approval. A stage with neither a role nor `approval: true` runs no agent and waits for no human. Rule 10's faults come before rule 11's, each in the order of the stages.
 - A stage no `next` names (such as `acceptance`) is accepted: there is no rule on reachability.
 - The twelfth rule is the `not_read` rule of *The keys*; it comes last.
@@ -127,7 +128,7 @@ The faults, in the order of the rules (`<s>` a stage, `<t>` a stage name, `<r>` 
 | 4 | `stage <s>: next names unknown stage <t>`, once for each unknown name |
 | 5 | in this order: `stage <s>: role <r> is not defined in roles`; `role <r>: write_paths is empty`; `stage <s>: an approval stage has no role` |
 | 6 | `stage name <n> is reserved`; `role name <n> is reserved` (`human`, `factory`, `question`) |
-| 7 | `stage <s>: check <c> is not a project command`; `stage <s>: report <c> is not a project command` |
+| 7 | `stage <s>: check <c> is not a project command`; `stage <s>: report <c> is not a project command`; `stage <s>: context <c> is not a project command` |
 | 8 | `role <r> at stage <s>: <total> min exceed lease_duration <lease> min` |
 | 9 | `acceptance_stage <t> is not a stage with a role` |
 | 10 | `stage <s>: next is empty` |
@@ -179,10 +180,11 @@ The caller gives `TaskComposer` the `Boundaries`, the `PipelineDefinition` and t
 
 ### The prompt
 
-`compose_prompt(PromptFacts)` is the run's whole first message: three parts, separated by one blank line each. What the system prompt says about them, and why they come in this order, is in *The system prompt and the first message* in [agents.md](agents.md).
+`compose_prompt(PromptFacts)` is the run's whole first message: three parts, and between the second and the third one block per start fact, all separated by one blank line each. What the system prompt says about them, and why they come in this order, is in *The system prompt and the first message* in [agents.md](agents.md).
 
 1. The `<work-item>` block: `<work-item>`, a newline, `body` with its four marker texts escaped (`<` as `&lt;`), a newline unless the body ends with one, `</work-item>`.
 2. The `<role-instructions role="<role>">` block, built the same way from `role_instructions`, unescaped, and closed by `</role-instructions>`.
+   - Then one `<context name="<command>">` block per item of `start_facts`, in the order of the stage's `context`, built the same way and closed by `</context>` (*Start facts* below). A stage without `context` has none, and its message is the three parts alone.
 3. The run's facts, these lines joined with one newline, no trailing newline:
 
 | Line | When |
@@ -198,6 +200,19 @@ The caller gives `TaskComposer` the `Boundaries`, the `PipelineDefinition` and t
 
 - The Format check line goes to the first stage of the pipeline definition only; every later stage has `findings=None` and no such line.
 - The Mode line is decided from the journal's data, never from an entry's text. At a stage whose role is `tester`, `last_record(document, kind="result")` is read. When its speaker is `coder`, the line names its number. The last `result` record is used, not the last record, so a later `stall`, `crash` or `comment` record does not hide the test change. A `result` record by the tester, no `result` record, or any other role gives no Mode line.
+
+### Start facts
+
+A stage may name project commands under `context`. Their outputs are the stage's start facts: facts the agent would otherwise gather with its first tool calls (a diff, a file list, the recent log). The factory knows only the commands' names; the project's Makefile decides what each shows.
+
+- `TaskComposer.start_facts(stage)` runs each `context` command in its order through `boundaries.project_commands.start_fact(command, time_limit=...)`, under the `time_limit` of that project command. It runs after `prepare`, so the commands see the base the agent will see. In an instance that is a check container on the rolled-back base (machine.md, *The checks*), never the host, and `RecordingProjectCommands` writes a command record for each run as for a check.
+- A start fact never reaches `KnownResults`, so its result is never reused as a passed check.
+- A file a command writes on the dataset is gone when the agent starts: `ContainerEnvironment.run_agent` rolls the dataset back to its base first, so neither the agent nor the take sees it.
+- A green command gives its whole output. An output longer than `CONTEXT_LIMIT` (60,000 characters) is cut to its first 60,000, followed by the line `[<n> more characters cut here; run the project command <command> yourself for its whole output]`.
+- A command that fails, runs out of its time limit or cannot start gives a block holding one line `failed: <reason>`, and the run goes ahead: a start fact is a help, not a gate. The reasons are `exit status <n>: <last line>` (or `exit status <n>` without a last line), `ran out of its time limit of <n> min`, and the message of the `ProjectCommandError`.
+- Each block's text has the marker texts escaped as in the work item; `<context` and `</context>` are not among them.
+- The commands count toward the lease (rule 7 and *The lease* in *The rules of the definition*).
+- Why: see *A stage's start facts come from project commands the factory runs* in the decision log.
 
 ### The request
 
@@ -259,8 +274,9 @@ Starting a stage means claiming the work item, finding its pull request and runn
 5. Read the work item file back from the work tree. `StartedStage.document` is what the stage-start commit holds, not the document given to the claim.
 6. `WorkItemOpening.ensure_pull_request`: find or create the pull request.
 7. `WritePathService.at(stage_start, path)` gives the `WritePathSettings`, from the definition at the stage-start commit.
-8. `TaskComposer.compose` builds the request (prompt, environment, allowed decisions).
-9. `stage_environment.prepare(stage_start.commit, branch, sync_time_limit=...)`, then `stage_environment.run_agent(request, run=PatientRuns(boundaries).run)`. The agent runs through `PatientRuns`, in the [stage environment](glossary.md) (see [machine.md](machine.md), *The stage environment*). The [cost record](glossary.md) is begun between the two and completed after the run. The sync limit is the `time_limit` of the definition's `sync` project command. Without one it is the default of a project command, 10 minutes. A `SnapshotError` or `ContainerError` from `prepare` ends the launch, after the claim and before any run.
+8. `stage_environment.prepare(stage_start.commit, branch, sync_time_limit=...)`.
+9. `TaskComposer.start_facts(stage)` runs the stage's `context` commands on the prepared base (*Start facts*), and `TaskComposer.compose` builds the request (prompt, environment, allowed decisions) with them.
+10. `stage_environment.run_agent(request, run=PatientRuns(boundaries).run)`. The agent runs through `PatientRuns`, in the [stage environment](glossary.md) (see [machine.md](machine.md), *The stage environment*). The [cost record](glossary.md) is begun after the start facts and completed after the run. The sync limit is the `time_limit` of the definition's `sync` project command. Without one it is the default of a project command, 10 minutes. A `SnapshotError` or `ContainerError` from `prepare` (step 8) ends the launch, after the claim and before any run.
 
 - No agent run precedes the pushed claim. When `run` is called, `origin/<branch>` already holds the stage-start commit with the claim and the journal record `factory`, `started`. When step 4 fails, no run starts. The stage-start commit is the last commit before the run. For a branch that existed it is one commit above the old head, and the merge of `develop` in `prepare` comes before it. For a new work item it is also the opening commit.
 - The stage-start commit does not change `pull_request`: it is `None` for a new work item and otherwise the number already recorded. The number of the pull request found or created in step 6 is in `StartedStage.pull_request` and in the prompt; the stage's next commit records it. No local record of the run is written; the claim's `started_at` says when the stage began.

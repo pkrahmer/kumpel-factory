@@ -213,7 +213,7 @@ It is in `stage_environment.py`, beside the interface.
 
 ### run_agent
 
-`run_agent(request, *, run=None)` calls `(run or boundaries.agent_runtime.run)(request)` and returns the result. Nothing is sealed, searched or removed. The dataset is rolled back by the next `prepare`, so nothing the agent leaves survives.
+`run_agent(request, *, run=None)` first rolls the dataset back to its base, which drops whatever a check container left there (a start fact's files included), then calls `(run or boundaries.agent_runtime.run)(request)` and returns the result. Nothing is sealed, searched or removed. The dataset is rolled back by the next `prepare`, so nothing the agent leaves survives.
 
 ### take
 
@@ -309,7 +309,7 @@ The stage's checks see the taken result on a clean base. `ContainerMakeCommands`
 
     ContainerMakeCommands(..., extra_environment={}, ca_bundle=None)
 
-- It rolls the dataset back to the base, copies in the files the take brought into the host's work tree, and runs `make sync && make <command>` in a container with the command's time limit.
+- It rolls the dataset back to the base, copies in the files the take brought into the host's work tree, and runs `make sync && make <command>` in a container with the command's time limit. `start_fact` does the same without the `sync`: the stage's `prepare` has just synced that base, and the sync's lines would only fill the start fact.
 - The container gets `{**extra_environment, **CHECK_ENVIRONMENT, "PATH": path}`. The constants and the image's `path` win.
 - `ca_bundle` is mounted read-only at its own path. `build_boundaries` hands it the same extras as the sync and the agent.
 - A file a check makes stays in its container's dataset and is reset away by the next run. It never reaches the host.
@@ -410,9 +410,11 @@ See also: *The items of the preflight* in the *Reference*.
 The factory reaches a project's build only through one interface, so another stack can bring its own tool. `ProjectCommands` is an abstract base class in [project_commands.py](../../src/factory/machine/application/project_commands.py) (`factory.machine.application.project_commands`). `MakeProjectCommands` in `make_commands.py` is the first implementation, and `ContainerMakeCommands` is the second (*The checks*). The pipeline uses the results, and so does the preflight's probe.
 
     ProjectCommands.run(command, *, time_limit) -> CheckResult
+    ProjectCommands.start_fact(command, *, time_limit) -> CommandOutput
     MakeProjectCommands(directory, kill_points=None, *, executable="make")
 
-- `run` starts `<executable> --no-print-directory <command>` in `directory` through `run_process`, with stderr merged into stdout. `directory` is where make finds the project's Makefile.
+- `run` runs a check or a report; `start_fact` runs a stage's start fact (*Start facts* in [pipeline.md](pipeline.md)) with nothing before it and returns a `CommandOutput` (`factory.pipeline.domain.checks`): a `CheckResult` that also holds the whole `output`. A red or timed-out command is a result; `ProjectCommandError` means it could not start.
+- `MakeProjectCommands.start_fact` starts `<executable> --no-print-directory <command>` in `directory` through `run_process`, with stderr merged into stdout, and `run` is the same call. `directory` is where make finds the project's Makefile.
 - The environment is the current one less `MAKELEVEL`, `MAKEFLAGS` and `MFLAGS`. Without that, a run inside `make check` (where `MAKELEVEL` is set) would print `make[N]: Entering directory` lines that a run on its own does not.
 - `MakeProjectCommands` runs `make` as the factory's own user. Every instance runs a project command in a check container, and `MakeProjectCommands` stays for the suite.
 - The string `"make"` appears in `make_commands.py` alone. [test_make_search.py](../../tests/guards/test_make_search.py) allows exactly that one.
