@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 0
 attempts: 0
@@ -80,6 +80,11 @@ journal:
   at: '2026-11-08T07:51:52.444809Z'
   stage: smoke-test
   run: 9357af28d91b41e0ae94e414f6b83496
+- number: 14
+  speaker: factory
+  kind: done
+  at: '2026-11-08T07:52:41.620523Z'
+  stage: approval
 ---
 
 # The working branch's remote ref is one constant
@@ -250,3 +255,4 @@ Expect: `origin/develop`
     - A grep of `src/factory` finds no `_WORK_REF` left.
 
     Nothing is open.
+14. factory: done (pull request merged); cost: 6 runs, 5.7 min, 37 turns, 188853 tokens in (648219 more from cache), 13126 out, $1.16
