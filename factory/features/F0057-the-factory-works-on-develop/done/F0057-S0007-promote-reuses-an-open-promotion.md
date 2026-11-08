@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 1
 attempts: 0
@@ -141,6 +141,11 @@ journal:
   at: '2026-11-08T02:38:42.718527Z'
   stage: smoke-test
   run: 587a39ac431c4700a8acecf3aa977ca2
+- number: 25
+  speaker: factory
+  kind: done
+  at: '2026-11-08T02:42:36.427699Z'
+  stage: approval
 ---
 
 # promote.sh reuses an open promotion
@@ -376,3 +381,4 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
     Open, carried from entries 16, 18 and 22 and not a finding:
     - Criterion 4 still says "exits non-zero" while the test checks exactly 22. That is still true of 22.
     - When the open pull request's body is `null`, the PATCH body starts with a blank line.
+25. factory: done (pull request merged); cost: 11 runs, 11.9 min, 74 turns, 312994 tokens in (1483726 more from cache), 30443 out, $2.24
