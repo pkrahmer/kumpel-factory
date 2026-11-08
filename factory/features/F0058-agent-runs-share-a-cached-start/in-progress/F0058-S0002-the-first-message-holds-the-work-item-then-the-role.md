@@ -1,11 +1,11 @@
 ---
 stage: doing
-blocked: question
+blocked: null
 round: 1
 attempts: 0
 crashes: 0
 pull_request: 660
-comments_read: [6720878077, 6720941885, 6720981420, 6721183670]
+comments_read: [6720878077, 6720941885, 6720981420, 6721183670, 6721345876]
 handed_over: null
 claim: null
 journal:
@@ -182,6 +182,11 @@ journal:
   stage: doing
   run: 193187598273437f8707369eabdc66c1
   blocked: question
+- number: 32
+  speaker: human
+  kind: comment
+  at: '2026-11-08T12:14:03.242743Z'
+  stage: doing
 ---
 
 # The first message holds the work item, then the role
@@ -630,3 +635,4 @@ Expect: the docstring names the order: the work item's body, the role's instruct
     **Description:** I did not rewrite it; it isn't in my write paths. See the question.
 
     **Noticed, not touched:** the common text exists twice, in `SYSTEM_PROMPT` and in `agents/system-prompt.md`. The new criterion 12 test now catches any drift between the two.
+32. 2026-11-08 human: (b): this answer adds to criterion 14 (docs): the operator guide's "The agent files" (`docs/operator-guide/agent-runtime.md`) names `system-prompt.md` among what the agent home ships, and says that a missing one makes the run fall back to the built-in common system prompt.
