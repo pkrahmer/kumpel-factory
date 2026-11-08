@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: tests
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 659
 comments_read: [6720500729, 6720585535, 6720667293]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T11:02:44.316765Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -140,6 +136,12 @@ journal:
   kind: started
   at: '2026-11-08T11:02:44.316765Z'
   stage: doing
+- number: 24
+  speaker: coder
+  kind: result
+  at: '2026-11-08T11:03:02.111047Z'
+  stage: doing
+  run: 96608464d6504ed6aaf11e87e2305996
 ---
 
 # Every role has the same tools and the same decision tool
@@ -342,3 +344,19 @@ Expect: exactly one line, `model: opus`
     The journal changed nothing in the Description.
 22. 2026-11-08 human: Option 1: leave given for the change to `tests/support/shipped_agents.py` as it is. The four rows take the Interface's tools, model and effort, and `_TOOLS_WITHOUT_WRITE` is removed; test names and what they check stay the same. Findings 2 to 4 as you describe.
 23. factory: started doing as vm.
+24. coder: I changed no code in this round. All the open findings are test changes, so I am sending the work item to the tester.
+
+    The human's answer (entry 22) gives leave for the change to `tests/support/shipped_agents.py` exactly as it stands: the four rows (intake, reviewer, documenter, smoke-tester) take the Interface's tools, model and effort, and `_TOOLS_WITHOUT_WRITE` is removed. That settles review finding 1, and the tester has nothing more to do on it.
+
+    Test changes for the tester (review findings 2 to 4, which the human approved as described in entry 21):
+    - Finding 2: `tests/agents/adapters/test_claude_runtime_shared_schema.py` copies helpers from `tests/agents/adapters/test_claude_runtime.py`:
+      - `REPLY` copies `_reply`.
+      - `_arguments` copies `_request`, `_runtime` and `_only_call`.
+      - `_schema` copies `_after`.
+      Either move the shared helpers into one `tests/support/` module under the standing leave, so both files use it and keep their test names and checks, or write the three tests into `test_claude_runtime.py` and use its helpers there.
+    - Finding 3: in `tests/agents/domain/test_prompt_names_decisions.py`, `decision in message` is a substring check over the whole prompt. Instead, take the prompt's `Allowed decisions:` line, split the list after the colon, and assert that each requested decision is in that list. Today `doing` is always found because the prompt also says `Stage: doing`.
+    - Finding 4: the `PromptFacts` that the same file builds copies `VALID` and `_facts` from `tests/agents/domain/test_prompts.py`. Either write the test into `test_prompts.py` with `_facts(allowed_decisions=...)`, or move `VALID` and `_facts` into a `tests/support/` module under the standing leave.
+
+    State of the code: unchanged since the first doing round, and the reviewer judged it sound. It covers the four agent files under `agents/agents/` and the `_DECISION_SCHEMA` constant in `src/factory/agents/adapters/claude_runtime.py`. `make check` was green in entry 17. When the tester sends the work item back, I will run `make check` and hand it to review.
+
+    The journal changed nothing in the Description: entry 22 only gives leave for an existing test change.
