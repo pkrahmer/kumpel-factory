@@ -1,17 +1,13 @@
 ---
-stage: review
+stage: doing
 blocked: null
-round: 0
+round: 1
 attempts: 0
 crashes: 0
 pull_request: 661
 comments_read: [6721548904]
 handed_over: null
-claim:
-  instance: vm
-  stage: review
-  started_at: '2026-11-08T12:45:52.218863Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -73,6 +69,12 @@ journal:
   kind: started
   at: '2026-11-08T12:45:52.218863Z'
   stage: review
+- number: 12
+  speaker: reviewer
+  kind: result
+  at: '2026-11-08T12:46:59.845121Z'
+  stage: review
+  run: 014e836c85e44d829a430a90e32194ac
 ---
 
 # The bill shows how well the cache works
@@ -102,8 +104,9 @@ As answered by the human in journal entry 4:
 4. A work item with no prompt tokens shows `-` for its hit rate.
 5. Every earlier line of the bill is unchanged, and the posted cost table and the acceptance report are unchanged.
 6. `factory-bill --help` prints the usage naming cache read, cache written and hit rate, and exits 0.
-7. `make check` stays green.
-8. docs: the operator's documents that show the bill name the three new figures and how to read the hit rate.
+7. `factory-bill -h` prints the same help as `factory-bill --help` and exits 0.
+8. `make check` stays green.
+9. docs: the operator's documents that show the bill name the three new figures and how to read the hit rate.
 
 ## Smoke test
 
@@ -187,3 +190,18 @@ Expect: the help names the cache figures and the hit rate.
     `check`: check: green
     `duplicates`: duplicates: 7 new, 39 known, 4 gone
 11. factory: started review as vm.
+12. reviewer: Reviewed `git diff develop...HEAD -- . ':!factory'`: `src/factory/entry/bill.py`, `src/factory/watching/application/costs.py`, `src/factory/watching/domain/bills.py`, `tests/entry/test_bill.py`, `tests/entry/test_bill_cache.py` and `tests/support/bill_cache_support.py`.
+
+    Findings:
+
+    1. criterion 7 added: it needs its test. `src/factory/entry/bill.py` `_HELP_FLAGS = ("-h", "--help")` builds a behaviour that no criterion names: `factory-bill -h` used to exit 2 with `not a work item id: -h`, and now it prints the help and exits 0. No test covers it, since `tests/entry/test_bill_cache.py::test_the_help_prints_the_usage_naming_the_cache_figures` runs only `--help`. I added criterion 7 to the work item: "`factory-bill -h` prints the same help as `factory-bill --help` and exits 0". The closing criteria are now 8 (`make check`) and 9 (docs). Fix: the coder ends with `tests`, and the tester pins `-h`. The two flags are sides of one rule, so the best fit is a parametrized row beside `--help` in the help test.
+
+    What I checked and found sound:
+    - Group 1: criteria 1 to 6 each have a test that checks what the criterion says. The figures in the mixed case come out right: tester 60 %, coder 340/400 = 85 %, reviewer 90 %, total 490/600 = 82 %. Rounding half up is pinned at the exact halves (1/8 and 1/200). The `-` side and the non-zero side of the hit rate are both tested. Criterion 5 compares the output, with the cache section removed, against `cost_table` and `cost_line`; the hand-over and the acceptance report use the same functions, and their existing tests are unchanged. The journal records `make check` green after the coder.
+    - Group 2: the domain stays pure. `hit_rate`, `cache_line`, `cache_table`, `RoleBill` and `bills_by_role` live in `factory.watching.domain.bills`, and the new `_groups` is shared with `bills_by_stage` rather than copied. The change to `WorkItemBill` in `costs.py` lies outside the two files the Interface names. That is not a finding: `WorkItemBill` is used only by `factory.entry.bill`, so the posted cost table and the acceptance report stay unchanged, and no contract model changed.
+    - Group 3: no markers, no secrets, no command built from strings.
+    - Group 4: the new public names have docstrings. Rounding uses `Decimal` with `ROUND_HALF_UP`, like `one_decimal` and `_dollars`.
+    - Group 5: the journal names the main choice (finished texts in `WorkItemBill`) and the two alternatives it rejected, and the Description still matches what was built.
+
+    Earlier tests:
+    - `tests/entry/test_bill.py`: changed under the human's leave in the Interface (journal entry 4, carried in by intake in entry 6). Its four tests keep their names, and each still checks the same output with the cache section removed.
