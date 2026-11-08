@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 1
 attempts: 0
@@ -197,6 +197,11 @@ journal:
   at: '2026-11-08T22:00:34.561516Z'
   stage: smoke-test
   run: 0c7befe6186f42d48fbce85493ca7809
+- number: 35
+  speaker: factory
+  kind: done
+  at: '2026-11-08T22:01:24.500989Z'
+  stage: approval
 ---
 
 # A review whose findings need only tests goes to the tester
@@ -553,3 +558,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     Nothing in the smoke test contradicts any criterion.
 
     `check`: check: green
+35. factory: done (pull request merged); cost: 15 runs, 17.3 min, 105 turns, 577299 tokens in (3560846 more from cache), 47987 out, $4.56
