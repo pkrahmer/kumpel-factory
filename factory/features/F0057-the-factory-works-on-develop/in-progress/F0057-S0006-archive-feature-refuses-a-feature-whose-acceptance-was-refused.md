@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 649
 comments_read: [6715900227]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: docs
+  started_at: '2026-11-08T02:09:04.784444Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -93,6 +97,11 @@ journal:
   at: '2026-11-08T02:08:59.474970Z'
   stage: review
   run: ed1c472c3526481fa3d3a2066d970e8f
+- number: 16
+  speaker: factory
+  kind: started
+  at: '2026-11-08T02:09:04.784444Z'
+  stage: docs
 ---
 
 # archive-feature.sh refuses a feature whose acceptance was refused
@@ -239,3 +248,4 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
 
     Earlier tests:
     - tests/operator_scripts/test_operator_develop.py: the standing leave to move a shared test helper (the feature constants, `finished_feature` and `tree` moved to `tests/support/archive_feature_support.py`). Also the human's leave in journal entry 4: `ACCEPTANCE` gains the front matter `stage: done` and `outcome: accepted`. Every test keeps its name and what it checks.
+16. factory: started docs as vm.
