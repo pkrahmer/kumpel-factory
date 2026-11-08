@@ -1,17 +1,13 @@
 ---
-stage: review
+stage: doing
 blocked: null
-round: 0
+round: 1
 attempts: 0
 crashes: 0
 pull_request: 679
 comments_read: [6727152793]
 handed_over: null
-claim:
-  instance: vm
-  stage: review
-  started_at: '2026-11-08T21:12:41.586670Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -95,6 +91,12 @@ journal:
   kind: started
   at: '2026-11-08T21:12:41.586670Z'
   stage: review
+- number: 16
+  speaker: reviewer
+  kind: result
+  at: '2026-11-08T21:13:51.842237Z'
+  stage: review
+  run: 9e36bfc458794610b53d10e0e2215b42
 ---
 
 # Claude runs carry the project's CLAUDE.md in the system prompt
@@ -228,3 +230,19 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     `duplicates`: duplicates: 7 new, 39 known, 4 gone
 15. factory: started review as vm.
+16. reviewer: Findings:
+
+    1. `src/factory/agents/adapters/claude_runtime.py:342` (`_project_instructions`): `path.is_file()` follows symbolic links. The Interface says "a regular file `CLAUDE.md`", and a link is not one. The read also runs on the host, not in the container, so a committed `CLAUDE.md` link that points anywhere on the host (a login file, for example) is read and sent to the provider inside the system prompt. The rest of the code never follows links on the dataset (`pipeline/application/take.py:174`, `machine/adapters/disk_space.py:30`). Fix: test the path with `lstat` and `stat.S_ISREG`, so a link adds nothing, as a directory does. The tester then adds a `link` row to `test_a_checkout_without_a_root_claude_md_file_gets_the_system_prompt_alone`. That row needs this code change, so I am reporting it as a finding and not adding a criterion myself.
+    2. `src/factory/agents/adapters/claude_runtime.py:332` (`_ended_line`) and `:358-361`: these lines copy an existing helper. `factory.agents.domain.prompts._block(opening, text, closing)` (`prompts.py:225`) already builds `opening\ntext[\n]closing` with the same newline rule. Fix: make `_block` public in `prompts.py` (an adapter may import the domain) and build the `<project-instructions>` block with it. That drops `_ended_line` and the second copy of the newline logic.
+    3. `src/factory/agents/adapters/claude_runtime.py:337` and `:350`: the private functions `_project_instructions` and `_instructions_text` carry docstrings. CLAUDE.md, under *Docs*, says there should be none on private names. Fix: remove both docstrings, and keep a `#` comment only where it gives a reason.
+
+    Checked and found sound:
+    - Every criterion from 1 to 7 has a test named after it, and each test checks what its criterion says. Criterion 2's sides and criterion 4's sides are rows of one parametrized test. Criterion 3 covers the failing side of the UTF-8 rule. Entry 14 reports `make check` green.
+    - `request.working_directory` is the dataset's checkout on the host (`pipeline/application/take.py:39`), so the file is read as the run's checkout holds it at the start.
+    - opencode is unchanged.
+    - No marker silences a check, and no secret is added.
+    - In `make duplicates`, the three "new" findings in `claude_runtime` and `opencode_runtime` are line shifts of known findings, not new code.
+    - The Description and the docs criterion match what was built. Entry 7 records the main choice and what was rejected (the adapter reads the file, not the shared `system_prompt_text`).
+
+    Earlier tests:
+    - `tests/agents/adapters/test_claude_runtime.py`: changed under the human's leave in entry 8. Only the two switches were added to its local `SWITCHES` dict, and the test keeps its name.
