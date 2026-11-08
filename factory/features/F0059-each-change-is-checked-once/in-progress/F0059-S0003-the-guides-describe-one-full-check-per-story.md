@@ -1,5 +1,5 @@
 ---
-stage: docs-only
+stage: docs-review
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 675
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: docs-only
-  started_at: '2026-11-08T17:01:20.960123Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -56,6 +52,12 @@ journal:
   kind: started
   at: '2026-11-08T17:01:20.960123Z'
   stage: docs-only
+- number: 9
+  speaker: documenter
+  kind: result
+  at: '2026-11-08T17:03:57.430522Z'
+  stage: docs-only
+  run: fede1f6a1ac94234b8c375f389853fcb
 ---
 
 # The guides describe one full check per story
@@ -172,3 +174,20 @@ Expect: `0`
    1. `docs/operator-guide/pipeline.md:131`. Problem: the sentence "It also leaves out the documenter's write paths (…), because no test of `make check` reads them: `make test` runs … in the docs stages." is about 50 words and has two parentheses. That breaks rule 2 of `docs/project-guide/style.md`: split a sentence of more than about 25 words, and use at most one parenthesis per sentence. Fix: split it into three sentences. The first says what is left out, the second why `make test` does not read the documents, and the third what `make guides` runs. Keep one parenthesis at most in each.
    2. `docs/project-guide/README.md:231`. Problem: "So `make check` reads none of the documenter's files" is not true of the code. `make check` runs `secrets` (`Makefile:21`), and `secrets` scans every file changed against `origin/develop`, documents included (`Makefile:64-72`). Fix: say that no test of `make check` reads the documenter's files, as the operator guide says at line 131.
 8. factory: started docs-only as vm.
+9. documenter: Fixed the reviewer's two findings from docs-review. Both changes are in documents only.
+
+   - `docs/operator-guide/pipeline.md:131` (finding 1): split the 50-word sentence with two parentheses into three sentences, with no parenthesis in the first two and one in the third.
+     - The first lists what is left out of the key: `README.md`, `docs/*`, `operator/README.md` and the folder READMEs.
+     - The second says why no test of `make check` reads them: `make test` runs `-m "not documents"`.
+     - The third says what `make guides` runs: the marked tests, in the docs stages.
+   - `docs/project-guide/README.md:231` (finding 2): "So `make check` reads none of the documenter's files" now reads "So no test of `make check` reads the documenter's files". It no longer contradicts `secrets`, which scans every file changed against `origin/develop`, documents included. The operator guide uses the same words.
+
+   Checks:
+   - `make documents` ended `documents ok (61.5 s)`.
+   - I did not run `make check`, because only documents changed.
+   - No line of the smoke-test greps was touched.
+
+   `check`: check: green (not run again: passed on tree 54896b72b82a at 2026-11-08T16:57:15Z)
+   `guides`: guides: green (9.7 s)
+   `secrets`: secrets: green (0.5 s)
+   `documents`: documents ok (63.4 s)

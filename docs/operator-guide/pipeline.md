@@ -128,7 +128,7 @@ A pattern that cannot name a path inside the checkout stops the definition from 
 project command lint: not_read /etc/* must be a path pattern inside the checkout
 ```
 
-kumpel-factory's own definition, `factory/pipeline.yml`, leaves out the Markdown and JSON Lines files that no test reads, and folders that hold no code and that no test reads. `make lint` reads every Python file of the tree, wherever it lies, so no folder with code is left out. It also leaves out the documenter's write paths (`README.md`, `docs/*`, `operator/README.md` and the folder READMEs), because no test of `make check` reads them: `make test` runs `-m "not documents"` and leaves out the tests marked `documents`, and the project command `guides` (`make guides`) runs those in the docs stages. A documents-only change can therefore turn `make guides` red, and leaves the passed `make check` to be reused.
+kumpel-factory's own definition, `factory/pipeline.yml`, leaves out the Markdown and JSON Lines files that no test reads, and folders that hold no code and that no test reads. `make lint` reads every Python file of the tree, wherever it lies, so no folder with code is left out. It also leaves out the documenter's write paths: `README.md`, `docs/*`, `operator/README.md` and the folder READMEs. No test of `make check` reads them, because `make test` runs `-m "not documents"` and so leaves out the tests marked `documents`. The project command `guides` (`make guides`) runs those marked tests in the docs stages. A documents-only change can therefore turn `make guides` red, and leaves the passed `make check` to be reused.
 
 ```yaml
 project_commands:
