@@ -1,5 +1,5 @@
 ---
-stage: review
+stage: docs
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 652
 comments_read: [6716487122]
 handed_over: null
-claim:
-  instance: vm
-  stage: review
-  started_at: '2026-11-08T03:17:37.054253Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -95,6 +91,12 @@ journal:
   kind: started
   at: '2026-11-08T03:17:37.054253Z'
   stage: review
+- number: 16
+  speaker: reviewer
+  kind: result
+  at: '2026-11-08T03:18:16.700881Z'
+  stage: review
+  run: 7a91a4b0c0d744ae984664e955148e03
 ---
 
 # The code names the working branch by its role
@@ -128,7 +130,7 @@ What stays as it is:
 3. Every earlier test passes, changed only under the leave.
 4. The new guard, a third row of its test, fails on a file it writes under its scope that holds `f"origin/{WORK_BRANCH}"` and passes on a file that builds the name from `REMOTE`; it passes on the repository.
 5. `make check` stays green.
-6. docs: `docs/project-guide/machine.md` and `docs/project-guide/watching.md` name the new names where they named the old ones; `docs/decisions.md`: none.
+6. docs: `docs/project-guide/machine.md`, `docs/project-guide/pipeline.md` and `docs/project-guide/watching.md` name the new names where they named the old ones; `docs/decisions.md`: none.
 
 ## Smoke test
 
@@ -275,3 +277,31 @@ Expect: `0`
     `check`: check: green (not run again: passed on tree 6c0222e1925c at 2026-11-08T03:11:26Z)
     `duplicates`: duplicates: 6 new, 39 known, 4 gone
 15. factory: started review as vm.
+16. reviewer: Round 1. I reviewed `git diff develop...HEAD -- . ':!factory'` and the work item. No commit since my round-0 review (entry 12) changes code or tests. The code diff is the same one, and I read it again against groups 1 to 6.
+
+    no findings
+
+    description corrected: criterion 6 "docs: `docs/project-guide/machine.md` and `docs/project-guide/watching.md` name the new names ..." -> "docs: `docs/project-guide/machine.md`, `docs/project-guide/pipeline.md` and `docs/project-guide/watching.md` name the new names ...". This was my one round-0 finding. The coder made this same edit in entry 14, but the factory dropped it because the work item is outside the coder's write paths. The code on the branch settles the correction: `src/factory/entry/run.py:235` is `_follow_work_branch`, while `docs/project-guide/pipeline.md:468` still names `_ProjectImageStart._follow_main`. Nothing else in the work item changed.
+
+    Still checked, no finding:
+    - Group 1, criteria and tests:
+      - Criteria 1 and 4: `tests/guards/test_work_branch_search.py` checks the repository in one test. A second test is parametrized, with three failing rows for criterion 1, four passing rows for the kept names, and the two `REMOTE` rows for criterion 4.
+      - Criterion 2: `tests/entry/test_wiring_work_branch_names.py` has four rows. The refused key `main_commit` is passed through a variable typed `type[BaseModel]`.
+      - Criterion 3: the earlier tests changed only under the leave (list below).
+      - `make check` was green after the coder (entries 10 and 14).
+    - Answers 2 and 3, checked by reading:
+      - No bare `main` local is left in `preflight.py` or `evaluation.py`.
+      - The comment in `check_story.py` now says "the working branch".
+    - Groups 2 to 4: no layer change, no suppression marker, and no copied helper. `_WORK_REF` in `opening.py` replaces the old `_MAIN` constant. It adds no new copy.
+    - Docs: the diff changes no document. `docs/project-guide/machine.md:723,727,729` and `watching.md:13` still name the old names, which the documenter fixes next under criterion 6.
+
+    Open, not part of this story (the coder's notes, entries 10 and 14): `_WORK_REF = f"{REMOTE}/{WORK_BRANCH}"` is defined in nine modules. Moving it to one shared constant would be a story of its own.
+
+    Earlier tests:
+    - tests/conftest.py: the human's leave (Interface, 2026-11-08: the `remote` docstring)
+    - tests/guards/test_work_branch_search.py: none needed (it only adds imports, constants, helpers and two tests; the earlier tests are unchanged)
+    - tests/pipeline/application/handlers/test_merged.py: the human's leave (Interface, 2026-11-08: the module docstring)
+    - tests/pipeline/application/test_repository_waiter.py: the human's leave (Interface, 2026-11-08: `NO_MAIN` -> `NO_WORK_BRANCH`)
+    - tests/pipeline/domain/test_evaluation_due.py: the human's leave (Interface, 2026-11-08: `main_commit` -> `work_commit`)
+    - tests/pipeline/domain/test_evaluation_reject.py: the human's leave (Interface, 2026-11-08: `main_commit` -> `work_commit`)
+    - tests/support/evaluation_support.py: the human's leave (Interface, 2026-11-08: `main_commit` -> `work_commit`)
