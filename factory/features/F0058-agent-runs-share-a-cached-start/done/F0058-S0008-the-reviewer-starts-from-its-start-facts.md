@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 0
 attempts: 0
@@ -80,6 +80,11 @@ journal:
   at: '2026-11-08T15:35:53.252189Z'
   stage: smoke-test
   run: 41ecbd59d23647c7aa3622804f2be177
+- number: 14
+  speaker: factory
+  kind: done
+  at: '2026-11-08T15:36:42.698238Z'
+  stage: approval
 ---
 
 # The reviewer starts from its start facts
@@ -226,3 +231,4 @@ Expect: a line ending in `passed` with no `failed`.
     - 5: `docs/project-guide/agents.md:306` (the new reviewer bullet) and `:325` (the `reviewer | docs-review` row) say that the reviewer reads the diff from its start fact and runs its diff command only as the fallback.
 
     The smoke test contradicts no criterion.
+14. factory: done (pull request merged); cost: 6 runs, 5.9 min, 32 turns, 175223 tokens in (745240 more from cache), 16085 out, $1.87
