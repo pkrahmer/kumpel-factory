@@ -1,6 +1,6 @@
 ---
 stage: docs
-blocked: null
+blocked: attempts_cap
 round: 1
 attempts: 2
 crashes: 0
@@ -177,6 +177,12 @@ journal:
   stage: docs
   run: fa48475be9ab499b83e11e83c4e4b432
   reason: check_red
+- number: 31
+  speaker: factory
+  kind: question
+  at: '2026-11-08T20:48:25.018918Z'
+  stage: docs
+  blocked: attempts_cap
 ---
 
 # The rules every role shares stand in the system prompt
@@ -546,3 +552,9 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     Bytecode compiled 4164 files in 88ms
     sync: green (0.1 s)
     Bytecode compiled 4164 files in 50ms
+31. factory: Stage docs stalled 2 times. The last time: Stage docs stalled (attempt 2 of 2): a check is red after the stage: `documents`
+    Bytecode compiled 4164 files in 88ms
+    sync: green (0.1 s)
+    Bytecode compiled 4164 files in 50ms
+
+    Comment anything to retry: the attempts go back to 0 and the stage runs again. Close the pull request to discard the story instead: it goes back to the backlog as you wrote it, and its branch and bill are deleted.
