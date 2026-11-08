@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 672
 comments_read: [6723592271, 6723685612, 6723780619]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: smoke-test
+  started_at: '2026-11-08T16:25:00.014866Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -164,6 +168,11 @@ journal:
   at: '2026-11-08T16:24:54.688412Z'
   stage: docs
   run: a4ce7516a048413b96b4eb14dd835604
+- number: 29
+  speaker: factory
+  kind: started
+  at: '2026-11-08T16:25:00.014866Z'
+  stage: smoke-test
 ---
 
 # The coder starts from the tester's tests, and the guards that read the documents are marked
@@ -494,3 +503,4 @@ Expect: a line `<n> tests collected`, `<n>` greater than 0.
     `check`: check: green
     `secrets`: secrets: green (0.8 s)
     `documents`: documents ok (61.0 s)
+29. factory: started smoke-test as vm.
