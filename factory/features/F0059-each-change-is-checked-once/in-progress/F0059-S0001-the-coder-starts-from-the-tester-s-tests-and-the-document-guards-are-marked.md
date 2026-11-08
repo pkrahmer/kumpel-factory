@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 672
 comments_read: [6723592271, 6723685612]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T16:05:29.895734Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -92,6 +96,11 @@ journal:
   at: '2026-11-08T16:05:25.021639Z'
   stage: review
   run: bf3c316599b649109e471e4a1722b3d1
+- number: 16
+  speaker: factory
+  kind: started
+  at: '2026-11-08T16:05:29.895734Z'
+  stage: doing
 ---
 
 # The coder starts from the tester's tests, and the guards that read the documents are marked
@@ -259,3 +268,4 @@ Expect: a line `<n> tests collected`, `<n>` greater than 0.
     - `tests/conftest.py`: the Interface's leave (marker registration only).
     - `tests/guards/test_agent_folder_names.py`, `test_area_guides.py`, `test_folder_readmes.py`, `test_license_headers.py`, `test_operator_guide_files.py`, `test_operator_guide_pointers_search.py`, `test_project_guide_files.py`, `test_root_operator_folders_removed.py`, `test_test_folder_readmes.py`, `test_work_branch_search.py`: the Interface's leave (marker line and `pytest` import only).
     - `tests/operator_scripts/test_operator_site_check.py`: the human's answer, entry 9 (marker line only).
+16. factory: started doing as vm.
