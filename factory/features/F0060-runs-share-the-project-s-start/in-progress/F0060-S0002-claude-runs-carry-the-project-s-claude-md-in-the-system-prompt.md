@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 679
 comments_read: [6727152793]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-08T21:17:06.040245Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -108,6 +112,11 @@ journal:
   at: '2026-11-08T21:17:00.112898Z'
   stage: doing
   run: 6197ace24f514588b6ec6b0f8081b20c
+- number: 19
+  speaker: factory
+  kind: started
+  at: '2026-11-08T21:17:06.040245Z'
+  stage: tests
 ---
 
 # Claude runs carry the project's CLAUDE.md in the system prompt
@@ -274,3 +283,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     Refactor: I found nothing more to change beyond the three findings. The journal does not change the task's meaning, so `## Description` stays as it is.
 
     Not touched: the docs criterion (9) belongs to the documenter.
+19. factory: started tests as vm.
