@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 651
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: docs-only
+  started_at: '2026-11-08T02:43:37.598316Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -25,6 +29,11 @@ journal:
   at: '2026-11-08T02:43:33.009475Z'
   stage: intake
   run: 1a36392f8680469c85735dc04423d368
+- number: 4
+  speaker: factory
+  kind: started
+  at: '2026-11-08T02:43:37.598316Z'
+  stage: docs-only
 ---
 
 # The operator's documents on the archive, the promotion and the default branch
@@ -73,3 +82,4 @@ Expect: `documents ok (<seconds> s)`
    - Docs criterion: it names what the reader must know (archive and promotion, why auto-delete stays off, the default branch, what a project without `develop` shows). It dictates no sentences.
    - Architecture: documents only, so there is no layer or area impact.
    - Scope: it fits F0057's goal of the operator's documents naming `develop` and `main`. It touches no "Out of scope" item. It is a follow-up gap found at acceptance, and it is not a new feature.
+4. factory: started docs-only as vm.
