@@ -278,3 +278,4 @@ Times are UTC. The plan: `night-plan.md`.
 - 10:10 F0058 (agent runs share a cached start) added: feature and three stories in backlog
 - 10:41 F0058-S0001 (every role has the same tools and the same decision tool) started
 - 11:20 F0058-S0001 merged (PR #659, 15 runs, $3.21), VM moved; S0002 got a test leave and started
+- 11:21 F0057 time split measured (journals and cost records), added to the e2e eval

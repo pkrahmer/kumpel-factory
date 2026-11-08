@@ -95,3 +95,26 @@ So speed comes from fewer runs and turns, not from faster tools. Opus's estimate
 - the smoke test and the documenter in parallel (about 2 minutes).
 
 A cheaper or faster model for intake, the documenter and the smoke tester would also shorten their runs.
+
+## Where the factory's time goes (F0057, measured)
+
+F0057's 12 stories took 351 minutes from each story's start to its approval, in 107 stage runs. The split comes from the journals (stage start and result) and the cost records (each run's duration, model time and tool time).
+
+| Part | Minutes | Share |
+| :- | -: | -: |
+| Tests and checks run by the agents themselves (tool time, mostly `make check` and pytest) | about 107 | 30 % |
+| Checks run by the factory after a stage, plus container start-up | 83 | 24 % |
+| The model thinking and writing | about 91 | 26 % |
+| Between stages: questions to the human, approvals, stalls | 101 | 29 % |
+
+The shares add up to a little more than 100 %, because the cost records also hold runs that ended without a result.
+
+- **Running tests and checks is about half of all the time.** The coder spent 57 of its 77 minutes in tools, mostly its own `make check`, and the factory then runs `make check` again after the coder (34 minutes over 26 runs). The documenter spent 23 of its 30 minutes in tools, and the docs stages' checks (`make check`, `make secrets`, `make documents`) took another 46 minutes over 17 runs, about 2.7 minutes each. The tester spent 26 minutes running tests.
+- **The model itself is only about a quarter.** The reviewer and intake are almost pure model time and are fast.
+- **Waits are the other big part.** F0057-S0002 alone waited 36 minutes between stages, mostly for answers.
+- **Container start-up is small.** The tests stage, whose only check is `make lint`, shows 1.4 minutes over 19 runs beyond the agent's own time.
+
+So the shared cache will lower the cost, but the time is in the checks and the waits. The biggest time levers:
+1. One `make check` per state of the code instead of two: the coder runs only the tests it touched, and the factory's check is the gate.
+2. A lighter check after a docs-only change.
+3. Fewer questions and rework rounds, through stories that name the earlier tests they may change.
