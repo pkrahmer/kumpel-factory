@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 672
 comments_read: [6723592271]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: intake
+  started_at: '2026-11-08T15:51:52.194556Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -30,6 +34,11 @@ journal:
   speaker: human
   kind: comment
   at: '2026-11-08T15:51:49.885706Z'
+  stage: intake
+- number: 5
+  speaker: factory
+  kind: started
+  at: '2026-11-08T15:51:52.194556Z'
   stage: intake
 ---
 
@@ -83,3 +92,4 @@ Expect: a line `<n> tests collected`, `<n>` greater than 0.
    1. (a). Drop `-q` from the smoke test command: `uv run pytest --strict-markers -m documents --collect-only 2>&1 | tail -1`; the Expect line stays.
    2. Yes: criteria 1 and 2 drop `-q` too, so the output lists node ids; `--strict-markers` may stay.
    3. Yes: the tester meets criterion 3 with its search, named in its entry; no test function is needed for it.
+5. factory: started intake as vm.
