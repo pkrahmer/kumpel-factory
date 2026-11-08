@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 672
 comments_read: [6723592271, 6723685612]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-08T15:58:45.829234Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -58,6 +62,11 @@ journal:
   speaker: human
   kind: comment
   at: '2026-11-08T15:58:43.455872Z'
+  stage: tests
+- number: 10
+  speaker: factory
+  kind: started
+  at: '2026-11-08T15:58:45.829234Z'
   stage: tests
 ---
 
@@ -144,3 +153,4 @@ Expect: a line `<n> tests collected`, `<n>` greater than 0.
    (a). Leave to add `pytestmark = pytest.mark.documents` (and the `pytest` import if missing) to `tests/operator_scripts/test_operator_site_check.py`, the whole module, and nothing else in it.
 
    Confirmed: `tests/guards/test_guide_index_problems.py` and `tests/guards/test_document_tests_write_their_documents.py` stay unmarked, since they read no document on the real checkout. The four modules your search added stay marked.
+10. factory: started tests as vm.
