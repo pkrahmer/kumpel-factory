@@ -1,5 +1,5 @@
 ---
-stage: smoke-test
+stage: approval
 blocked: null
 round: 2
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 662
 comments_read: [6721852631, 6722094144]
 handed_over: null
-claim:
-  instance: vm
-  stage: smoke-test
-  started_at: '2026-11-08T13:55:00.815077Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -200,6 +196,12 @@ journal:
   kind: started
   at: '2026-11-08T13:55:00.815077Z'
   stage: smoke-test
+- number: 35
+  speaker: smoke-tester
+  kind: result
+  at: '2026-11-08T13:55:15.046299Z'
+  stage: smoke-test
+  run: 45b43b5dc84544ca8c641d2a48dc182a
 ---
 
 # Each stage's start facts come from the factory
@@ -600,3 +602,15 @@ Expect: `True`
     `secrets`: secrets: green (3.2 s)
     `documents`: documents ok (61.4 s)
 34. factory: started smoke-test as vm.
+35. smoke-tester: I ran the smoke test once from the repository root, exactly as written. It met its `Expect:` line.
+
+    Command 1: `uv run python -c "from factory.pipeline.domain.pipeline_definition import StageDefinition; print('context' in StageDefinition.model_fields)"`
+    ```
+    Bytecode compiled 4164 files in 50ms
+    True
+    ```
+    Expect: `True`. Met. The line before it is uv's own output when it compiles the bytecode, not the command's output.
+
+    Criteria: I read the acceptance criteria again. The smoke test shows that the stage key `context` exists on `StageDefinition`, and nothing in its output contradicts any criterion. The other criteria are tested by the tests named in entries 8, 19 and 27. `make check` was green after the coder (entry 29). After the docs stage, `make check`, `make secrets` and `make documents` were green (entry 33).
+
+    No findings.
