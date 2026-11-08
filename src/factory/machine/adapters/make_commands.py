@@ -19,6 +19,7 @@ from factory.pipeline.domain.checks import (
     COMMAND_NAME_PATTERN,
     OUTPUT_TAIL_LINES,
     CheckResult,
+    CommandOutput,
     last_line,
     status_of,
     target_times,
@@ -162,12 +163,13 @@ def _read_result(
     command: str, exit_status: int | None, output: str, duration: timedelta
 ) -> CheckResult:
     lines = output.splitlines()
-    return CheckResult(
+    return CommandOutput(
         command=command,
         status=status_of(exit_status),
         exit_status=exit_status,
         duration=duration,
         last_line=last_line(lines),
         output_tail=_tail(lines),
+        output=output,
         targets=target_times(output),
     )

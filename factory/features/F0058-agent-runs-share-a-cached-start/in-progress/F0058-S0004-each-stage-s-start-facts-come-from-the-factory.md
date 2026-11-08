@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 662
 comments_read: [6721852631]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T13:11:14.753564Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -62,6 +58,12 @@ journal:
   kind: started
   at: '2026-11-08T13:11:14.753564Z'
   stage: doing
+- number: 10
+  speaker: coder
+  kind: result
+  at: '2026-11-08T13:24:33.038223Z'
+  stage: doing
+  run: 22780fb365bf448f959efc65e7ec94a1
 ---
 
 # Each stage's start facts come from the factory
@@ -192,3 +194,35 @@ Expect: `True`
 
    `lint`: lint: green (0.1 s)
 9. factory: started doing as vm.
+10. coder: Built the stage key `context` and the start facts. All tests pass, the tester's three new files included, and `make check` is green (`check: green`, coverage 99.21 %).
+
+    What I built:
+    - `src/factory/pipeline/domain/pipeline_definition.py`: `StageDefinition.context: list[str] = []`. `_command_faults` refuses a `context` name that is not a project command, as it does for checks and reports. `_minutes_at_stage` adds the `context` time limits to the lease total. The `PipelineDefinition` docstring says the contract is 1.1 since `context` and that 1.0 loads too. Loading checks only the major, so both load.
+    - `src/factory/contract/pipeline-definition.schema.json`: regenerated with `uv run python -m factory.entry.contract`.
+    - `src/factory/agents/domain/prompts.py`:
+      - `StartFact` holds the command, its output, and the reason when it failed. `PromptFacts.start_facts` holds the list.
+      - `compose_prompt` puts one `<context name="…">` block per fact after the role block and before the run's facts. A stage with no facts gets the same message as before.
+      - Outputs are cut after `CONTEXT_LIMIT` (60,000 characters), followed by one line naming the cut characters and telling the agent to run the project command itself. A failed fact gives `failed: <reason>`. The S0002 marker texts are escaped with the existing `_escape_markers`.
+      - The fallback `SYSTEM_PROMPT` gets the new sentence about `<context>` blocks. So does the shipped `agents/system-prompt.md`.
+    - `src/factory/pipeline/application/task.py`:
+      - `TaskComposer.start_facts(stage)` runs each `context` command through `boundaries.project_commands` (the check container) under its own time limit.
+      - A red result gives `failed: exit status <n>: <last line>`, and a timeout gives `failed: ran out of its time limit of <n> min`. A `ProjectCommandError` (the command could not start) gives its message.
+      - `TaskContext.start_facts` carries the facts into the prompt.
+    - `src/factory/pipeline/application/stage.py`: `StageLauncher.launch` now prepares the stage environment first, then gathers the start facts on the new base, then composes the request. Before this change, compose came before prepare.
+    - `src/factory/machine/application/stage_environment.py`: `ContainerEnvironment.run_agent` now rolls the dataset back to its base before the agent runs. Otherwise a file a start fact's command left on the dataset would reach the agent and the take.
+    - `src/factory/pipeline/domain/checks.py` and `src/factory/machine/adapters/make_commands.py`: `CommandOutput(CheckResult)` keeps the whole `output`, and `whole_output(result)` reads it. A result without it falls back to `output_tail`. Both make implementations now return `CommandOutput`.
+
+    Main choice, and what I rejected:
+    - To get the whole output out of `ProjectCommands.run`, I first added `output: str` to `CheckResult`. `tests/pipeline/domain/test_checks.py::test_fields_are_exactly_the_generic_eight` pins its fields exactly, and that test is outside the human's leave. So I used a subclass instead. Its cost is one `isinstance` check in `whole_output`.
+    - I also rejected a new abstract `ProjectCommands` method for start facts. The tester's `_SlowCommands` overrides only `run`, so its out-of-time row would have stopped working. A new abstract method on `StageEnvironment` for the rollback would have broken the test implementations in `test_stage_environment_calls.py` and `test_stall_environment.py`.
+    - If the reviewer prefers the plain field, that needs the human's leave for `test_checks.py`.
+
+    Open, for the reviewer and the human:
+    - **Records contract version.** The Interface says the generated schema rises with the contract. The schemas carry the shared records version `RECORDS_CONTRACT = "4.4"`, and the version rule calls an added optional field a minor rise (4.5). Three earlier tests pin "4.4": `tests/shared/domain/test_contract_version_4.py`, `tests/shared/domain/test_contract_version_4_2.py` and `tests/pipeline/domain/test_contract.py:54`. None of them is in the leave, so I left it at 4.4. Raising it needs the human's word and a test change by the tester.
+    - **The operator template.** As the tester noted, no system prompt exists under `operator/template`, so only the shipped file and the fallback carry the new sentence.
+    - **Not touched.** Docs (`docs/project-guide`, operator guide, `docs/decisions.md`) are the documenter's. `factory/pipeline.yml` stays at 1.0 for the human.
+
+    Refactor: I read my diff once and turned an if/else that ruff flagged into `_context_text`. Nothing else needed changing.
+
+    `check`: check: green
+    `duplicates`: duplicates: 7 new, 39 known, 4 gone

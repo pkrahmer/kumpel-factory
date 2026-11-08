@@ -96,6 +96,17 @@ class CheckResult(BaseModel):
         return self.status == "passed"
 
 
+class CommandOutput(CheckResult):
+    """A check result that keeps the command's whole output, as a stage's start fact needs."""
+
+    output: str
+
+
+def whole_output(result: CheckResult) -> str:
+    """The whole output where `result` kept it, else the tail of it that every result holds."""
+    return result.output if isinstance(result, CommandOutput) else result.output_tail
+
+
 def command_ending(result: CheckResult) -> str:
     """How `result` ended: `exit status <n>`, `signal <n>` or `time_limit`."""
     if result.exit_status is None:
