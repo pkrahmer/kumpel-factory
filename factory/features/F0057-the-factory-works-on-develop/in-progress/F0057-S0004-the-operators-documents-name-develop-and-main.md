@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 646
 comments_read: [6715370076]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: docs-only
+  started_at: '2026-11-08T01:04:09.458261Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -42,6 +46,11 @@ journal:
   at: '2026-11-08T01:04:04.291193Z'
   stage: intake
   run: 2435763283c24c4da595bcada092ae31
+- number: 7
+  speaker: factory
+  kind: started
+  at: '2026-11-08T01:04:09.458261Z'
+  stage: docs-only
 ---
 
 # The operator's documents name develop and main
@@ -98,3 +107,4 @@ Expect: `documents ok (<seconds> s)`
    - Architecture: no code is touched, so the layers are unaffected. `main_branch_failing` keeps its name as `CLAUDE.md` and decision 6 require.
    - Scope: within F0057 (S0004 is the operator's documents), and `docs/runs/` and decision-log entries are excluded as the feature says.
    Route: docs-only.
+7. factory: started docs-only as vm.
