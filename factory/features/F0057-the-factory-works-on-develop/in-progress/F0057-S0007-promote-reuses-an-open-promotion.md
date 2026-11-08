@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 650
 comments_read: [6716086925]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: intake
+  started_at: '2026-11-08T02:18:40.055174Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -30,6 +34,11 @@ journal:
   speaker: human
   kind: comment
   at: '2026-11-08T02:18:37.663661Z'
+  stage: intake
+- number: 5
+  speaker: factory
+  kind: started
+  at: '2026-11-08T02:18:40.055174Z'
   stage: intake
 ---
 
@@ -85,3 +94,4 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
 4. 2026-11-08 human: 1. Yes, that leave, exactly that change.
    2. Yes, in criterion 1's test.
    3. Yes: no `title` in the PATCH, in criterion 2.
+5. factory: started intake as vm.
