@@ -1,17 +1,13 @@
 ---
 stage: intake
-blocked: null
+blocked: question
 round: 0
 attempts: 0
 crashes: 0
-pull_request: null
+pull_request: 659
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: intake
-  started_at: '2026-11-08T10:42:00.046925Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -23,6 +19,13 @@ journal:
   kind: started
   at: '2026-11-08T10:42:00.046925Z'
   stage: intake
+- number: 3
+  speaker: intake
+  kind: question
+  at: '2026-11-08T10:42:16.102298Z'
+  stage: intake
+  run: ef6a83a45f83442b91a5a7273813c5ae
+  blocked: question
 ---
 
 # Every role has the same tools and the same decision tool
@@ -71,3 +74,12 @@ Expect: exactly one line, `model: opus`
 
 1. 2026-11-08 human: created.
 2. factory: started intake as vm.
+3. intake: Format check passed. Questions:
+
+   1. The Interface says the `--json-schema` `decision` is a string and "its description says the run's message names the allowed decisions". No criterion tests that. Criterion 3 only compares two schemas. Please add one, for example: "the schema's `decision` property has type `string` and no `enum`, and its description mentions the allowed decisions". I would choose that.
+
+   2. The Description says "The run's message still names the allowed decisions". Nothing tests it. Please add a criterion, for example: "the message built for a request contains each of its `allowed_decisions`". This matters most because the schema no longer lists them.
+
+   3. The Interface says "No other launch argument changes". No criterion pins it, and two coders could read it differently. Please add a criterion, for example: "the launch arguments of a request, with the `--json-schema` value removed, equal those before this story". Alternatively, say it is not tested and drop the line. I would add the criterion.
+
+   Everything else is fine: criteria 1, 2, 4 and 5 each have one test, and the refused side is covered by criteria 4 and 5. The smoke commands are runnable and their Expect lines are checkable. The docs criterion names what the reader must know and dictates no sentences. The architecture fits, because only the `agents` adapters and `agents/agents/*.md` change. The scope fits S0001 in `feature.md`.
