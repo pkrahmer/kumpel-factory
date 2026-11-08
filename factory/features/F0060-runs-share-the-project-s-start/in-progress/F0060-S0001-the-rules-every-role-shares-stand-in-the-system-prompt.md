@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 678
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T19:48:51.380168Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -36,6 +40,11 @@ journal:
   at: '2026-11-08T19:48:43.831153Z'
   stage: tests
   run: 733b412fd5fe4a4fab2a3aeddf2ead65
+- number: 6
+  speaker: factory
+  kind: started
+  at: '2026-11-08T19:48:51.380168Z'
+  stage: doing
 ---
 
 # The rules every role shares stand in the system prompt
@@ -140,3 +149,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    Open: none.
 
    `lint`: lint: green (0.1 s)
+6. factory: started doing as vm.
