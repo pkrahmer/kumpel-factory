@@ -1,17 +1,13 @@
 ---
 stage: tests
-blocked: null
+blocked: question
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 680
 comments_read: [6727432579, 6727512748]
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-08T21:43:33.103723Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -90,6 +86,13 @@ journal:
   kind: started
   at: '2026-11-08T21:43:33.103723Z'
   stage: tests
+- number: 15
+  speaker: tester
+  kind: question
+  at: '2026-11-08T21:44:40.279304Z'
+  stage: tests
+  run: 6978cd659a804a55939073b7a0bb3a3d
+  blocked: question
 ---
 
 # A review whose findings need only tests goes to the tester
@@ -230,3 +233,22 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     Noticed, not touched: the Description is unchanged, because the human's answers change no meaning of the task.
 14. factory: started tests as vm.
+15. tester: Question: one test still fails after the changes you allowed in entry 11. Fixing it needs one more `.replace` in the same test, which your leave does not cover. May I add it?
+
+    I made the changes from entry 11. They are left in the working tree:
+    - `tests/agent_files/test_claude_agent_texts_review_groups.py::test_the_rest_of_the_reviewer_body_is_unchanged`: I added a `findings_to_the_tester` string holding step 4 of the reviewer's `## Stage`, newline included, and one more `.replace(findings_to_the_tester, "")` in `earlier`.
+    - `tests/support/shared_rules_support.py`, `PARTS_BEFORE`: the reviewer's `Stage` checksum is now `1905995793` and the tester's is `1483730218`.
+
+    Test run (`uv run pytest -q` on the files below), and `make lint` is green:
+    - `tests/agent_files/test_shared_rules_system_prompt.py`, `tests/agent_files/test_review_to_tests_agent_files.py` and `tests/agent_files/test_claude_agent_texts_docs_slip.py` all pass.
+    - `test_the_rest_of_the_reviewer_body_is_unchanged` still fails: `tests/agent_files/test_claude_agent_texts_review_groups.py:113: AssertionError`, the CRC32 check against `_EARLIER_BODY_CRC32`.
+
+    Why it still fails: the test builds the earlier reviewer body by putting `RULES_BEFORE` from `tests/support/shared_rules_support.py` back in as a `## Rules` section. Under your leave in entry 4, the tester changed `RULES_BEFORE`'s R12 entry to the new list. So the rebuilt body now holds `review → doing, review → tests, ` where the earlier body held `review → doing, `, and the checksum differs. The coder's entry 10 put the failure down to step 4 alone. Step 4 was only part of it.
+
+    I tried one more `.replace("review → doing, review → tests, ", "review → doing, ")` in `earlier`. With it, the test passes (9 passed in the file). I then reverted it, because it is outside the leave.
+
+    Options:
+    (a) Allow that one extra `.replace` in `test_the_rest_of_the_reviewer_body_is_unchanged`. It maps the new R12 list back to the earlier one, as the test already does for each later story's text. The test keeps its name and checks the same thing. I would choose (a).
+    (b) Put R12's old text back in `RULES_BEFORE`. That breaks `test_the_rules_in_the_system_prompt_are_the_coders_rules_word_for_word`, which compares `RULES_BEFORE` with the current system prompt, so it goes against entry 4.
+
+    Files changed: `tests/agent_files/test_claude_agent_texts_review_groups.py`, `tests/support/shared_rules_support.py`.

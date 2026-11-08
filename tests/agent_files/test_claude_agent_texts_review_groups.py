@@ -90,6 +90,15 @@ def test_the_rest_of_the_reviewer_body_is_unchanged() -> None:
         "1. Read the work item and `git diff develop...HEAD -- README.md docs "
         "operator/README.md` in your first command. Nothing else is under review."
     )
+    # A later story let the reviewer send findings that need only tests to the tester.
+    findings_to_the_tester = (
+        "4. When `tests` is among the allowed decisions and every finding needs only a change to "
+        "the tests of the work item's own story, end with `tests` instead of `doing`: the tester "
+        "answers them, and the coder runs once after it. When any finding needs a change outside "
+        "those tests, all findings go to `doing`. When `tests` is not among the allowed "
+        "decisions, findings go to `doing` as before. The entry with the findings is the same "
+        "either way.\n"
+    )
     # The earlier body named the working branch `main`, before it became `develop`.
     earlier = (
         review_reads_the_diff.sub(lambda _: review_reads_both, body, count=1)
@@ -97,6 +106,7 @@ def test_the_rest_of_the_reviewer_body_is_unchanged() -> None:
         .replace(untested_side_is_a_note, untested_side_is_a_finding)
         .replace(work_item_in_the_first_message, "")
         .replace(docs_review_reads_the_diff, docs_review_reads_both)
+        .replace(findings_to_the_tester, "")
         .replace("develop", "main")
     )
 
