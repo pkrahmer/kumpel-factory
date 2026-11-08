@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 682
 comments_read: [6727864627]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: intake
+  started_at: '2026-11-08T22:14:18.982510Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -30,6 +34,11 @@ journal:
   speaker: human
   kind: comment
   at: '2026-11-08T22:14:16.468777Z'
+  stage: intake
+- number: 5
+  speaker: factory
+  kind: started
+  at: '2026-11-08T22:14:18.982510Z'
   stage: intake
 ---
 
@@ -96,3 +105,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    - **Scope:** within F0060 and not in its Out of scope.
    - **Route:** once you answer, it would be `tests`, because `agents/agents/reviewer.md` is outside the documenter's paths.
 4. 2026-11-08 human: (a). The proposed words are my leave, with `tests/agent_files/test_claude_agent_texts_review_groups.py` named as the file of `test_the_rest_of_the_reviewer_body_is_unchanged`; also any other earlier test whose only failure is this story's change of the reviewer's `## Role`, updated the same way and named in the entry. Carry it into the Interface and drop the proposal markers.
+5. factory: started intake as vm.
