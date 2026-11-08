@@ -29,7 +29,7 @@ Read the code of the story's main change once yourself: the six checks are about
 
 When the merge accepted a feature's acceptance (its last work item, `<feature id>-A...`), and the factory's archive commit for it is on `develop`:
 
-1. Archive the feature: `sh scripts/archive-feature.sh <feature id>`. It refuses a feature with a story still in `backlog/` or `in-progress/`, or whose last acceptance is not in `done/`; report that to the human. Log the archive.
+1. Archive the feature: `sh scripts/archive-feature.sh <feature id>`. It refuses a feature with a story still in `backlog/` or `in-progress/`, or whose last acceptance is not in `done/`, or whose last acceptance in `done/` is not accepted (`<feature id> is not finished: its last acceptance <path> is not accepted`); report that to the human. Log the archive.
 2. Promote it: `sh scripts/promote.sh <feature id>` opens the pull request from `develop` to `main`. With the switch `promote` on, it merges it with a merge commit; with it off, it prints the pull request's number: tell the human that the promotion waits for their merge. Log it either way.
 
 The promotion is the only way anything reaches `main`.

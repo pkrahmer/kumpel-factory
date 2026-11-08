@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 0
 attempts: 1
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 649
 comments_read: [6715900227]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T02:01:23.633164Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -80,6 +76,12 @@ journal:
   kind: started
   at: '2026-11-08T02:01:23.633164Z'
   stage: doing
+- number: 13
+  speaker: coder
+  kind: result
+  at: '2026-11-08T02:07:56.134850Z'
+  stage: doing
+  run: bb9a75e2a6be4d2db3500340d6ca8c83
 ---
 
 # archive-feature.sh refuses a feature whose acceptance was refused
@@ -193,3 +195,21 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
 
     `lint`: lint: green (0.2 s)
 12. factory: started doing as vm.
+13. coder: `archive-feature.sh` now refuses a feature whose last acceptance in `done/` does not say `outcome: accepted` in its front matter. All the new tests pass and `make check` is green.
+
+    Built:
+    - `operator/skill/kumpel/scripts/archive-feature.sh`: a new `accepted()` function runs after the existing checks. It is a small awk script that reads only the lines between the first two lines that are exactly `---`. It succeeds only when it finds the exact line `outcome: accepted` there and the block has its closing `---`. If not, the script refuses through the existing `refuse` helper with `<id> is not finished: its last acceptance <path> is not accepted` and exit status 1. This happens before any `git mv`, commit or push, so the checkout and the remote stay as they were. The four earlier refusals are unchanged. The script's header comment now also names the outcome rule.
+    - `operator/skill/kumpel/references/approving.md`, *After a feature's acceptance*, step 1: names the new refusal and its text among the refusals Kumpel reports to the human.
+
+    Checks: the new module and `tests/operator_scripts/test_operator_develop.py` pass (37 tests). `make check` was green, including `check: green`. After that run I changed only the wrapping of the script's header comment and reran those two test files, which passed. The factory's own `make check` will cover that last change.
+
+    Main choice: the outcome is read with one awk pass that follows the Interface's rule ("the block between its first two `---` lines"). That one pass covers the unclosed-front-matter row and the `outcome:`-only-in-body row without special cases. I rejected `sed -n '/^---$/,/^---$/p' | grep -qx 'outcome: accepted'`. sed's range runs to the end of the file when there is no closing `---`, so an unclosed front matter with `outcome: accepted` would have been accepted.
+
+    Refactor: on reading my diff, the only change was rewrapping the header comment so no line runs long.
+
+    Noticed but not touched: the awk script does not require the opening `---` to be the file's first line. A report whose body has two `---` rules with `outcome: accepted` between them would pass. That is what the Interface's wording says, and the factory always writes the front matter at the top. Stricter parsing would be a new story.
+
+    The journal did not change the task's meaning beyond what intake already carried into the Description, so I left the Description as it is.
+
+    `check`: check: green
+    `duplicates`: duplicates: 6 new, 39 known, 4 gone
