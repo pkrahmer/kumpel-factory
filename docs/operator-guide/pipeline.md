@@ -67,7 +67,7 @@ project_commands:
 stages:
   tests: {role: tester, next: [doing], checks: [lint], reports: [test], context: [facts-files]}
   doing: {role: coder, next: [review, tests], context: [facts-changes]}
-  review: {role: reviewer, next: [docs, doing], round_cap: 3, context: [facts-diff]}
+  review: {role: reviewer, next: [docs, doing, tests], round_cap: 3, context: [facts-diff]}
 ```
 
 Its [Makefile](../../operator/template/Makefile) finds the base with `git merge-base` against `origin/develop`, so a checkout without a local `develop` branch works too:
@@ -95,7 +95,7 @@ A definition may hold more than one route and more than one [approval](../projec
 
 The smoke test of the template reads `smoke-test: {role: smoke-tester, next: [approval, doing, docs], checks: [check], round_cap: 3}`. It is the template's one full check: `make check` runs after the smoke tester, and no stage before it lists `check`. A finding that is only a slip in a document goes from the smoke test straight to `docs`. There the documenter fixes it and hands back to the smoke test. This counts as a round against the `round_cap`, as a return to `doing` does.
 
-The review stage may send a story straight to the tester when every finding needs only a change to the story's own tests, such as an untested side of a rule. The tester writes or changes exactly the tests the findings name and hands to the coder, so the coder runs once before the next review. When any finding needs a change outside those tests, all findings go to `doing`. This needs `tests` in the `next` of `review`, for example `review: {role: reviewer, next: [docs, doing, tests], round_cap: 3}`. The template's `review` lists only `[docs, doing]`, so without that change the reviewer sends every finding to `doing`. A move from `review` to `tests` counts as a round against the `round_cap`, as a return to `doing` does.
+The review stage may send a story straight to the tester when every finding needs only a change to the story's own tests, such as an untested side of a rule. The tester writes or changes exactly the tests the findings name and hands to the coder, so the coder runs once before the next review. When any finding needs a change outside those tests, all findings go to `doing`. This needs `tests` in the `next` of `review`. The template's `review` already lists it: `review: {role: reviewer, next: [docs, doing, tests], round_cap: 3, context: [facts-diff]}`. In a definition whose `review` lists only `[docs, doing]`, the reviewer sends every finding to `doing`. A move from `review` to `tests` counts as a round against the `round_cap`, as a return to `doing` does.
 
 ### The docs route
 

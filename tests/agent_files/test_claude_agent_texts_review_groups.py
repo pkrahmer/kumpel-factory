@@ -99,11 +99,21 @@ def test_the_rest_of_the_reviewer_body_is_unchanged() -> None:
         "decisions, findings go to `doing` as before. The entry with the findings is the same "
         "either way.\n"
     )
+    # A later story named the route to the tester in the Role's two sentences on sending back.
+    route_to_the_tester = (
+        "`doing` sends the work item back, and `tests` sends it to the tester when step 4 of the "
+        "Stage allows it. Never both"
+    )
+    route_to_the_tester_in_notes = (
+        "sends it back, with `doing` or, by step 4 of the Stage, with `tests`."
+    )
     # The same story added `review → tests` to R12's list of rework rounds.
     review_to_tests_rework = "review → doing, review → tests, "
     # The earlier body named the working branch `main`, before it became `develop`.
     earlier = (
         review_reads_the_diff.sub(lambda _: review_reads_both, body, count=1)
+        .replace(route_to_the_tester, "`doing` sends the work item back. Never both")
+        .replace(route_to_the_tester_in_notes, "sends it back with `doing`.")
         .replace(_ALL_GROUPS, _STOP_AT_THE_FIRST)
         .replace(untested_side_is_a_note, untested_side_is_a_finding)
         .replace(work_item_in_the_first_message, "")

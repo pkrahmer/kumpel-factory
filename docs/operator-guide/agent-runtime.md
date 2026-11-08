@@ -390,6 +390,14 @@ The smoke tester has two ways out when it finds something:
 
 Both count as [rounds](../project-guide/glossary.md).
 
+The reviewer has three ways out:
+
+- With no findings, it ends with `docs` and the story goes to the documenter.
+- When every finding needs only a change to the story's own tests, and the `next` of `review` lists `tests`, it ends with `tests`. The tester writes or changes exactly the tests the findings name, and the coder runs once after it.
+- With any other finding, or when `review` does not list `tests`, it ends with `doing`.
+
+Both `tests` and `doing` count as rounds.
+
 ## Reference
 
 ### The settings of this page
