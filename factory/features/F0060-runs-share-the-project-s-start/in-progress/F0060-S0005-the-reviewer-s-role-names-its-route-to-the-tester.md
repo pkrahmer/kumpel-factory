@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 682
 comments_read: [6727864627]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T22:19:35.173410Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -53,6 +57,11 @@ journal:
   at: '2026-11-08T22:19:29.836597Z'
   stage: tests
   run: 0dd4e3ee161d44b5b760920f93abefa6
+- number: 9
+  speaker: factory
+  kind: started
+  at: '2026-11-08T22:19:35.173410Z'
+  stage: doing
 ---
 
 # The reviewer's role names its route to the tester
@@ -161,3 +170,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    The factory left out changes outside the write paths: agents/agents/reviewer.md.
 
    `lint`: lint: green (0.1 s)
+9. factory: started doing as vm.
