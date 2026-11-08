@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 679
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-08T21:02:46.672604Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -25,6 +29,11 @@ journal:
   at: '2026-11-08T21:02:41.665536Z'
   stage: intake
   run: 3ee7cd9924634453b2aeb50bcc2fb6bf
+- number: 4
+  speaker: factory
+  kind: started
+  at: '2026-11-08T21:02:46.672604Z'
+  stage: tests
 ---
 
 # Claude runs carry the project's CLAUDE.md in the system prompt
@@ -79,3 +88,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    - Architecture: the change stays inside the Claude runtime's adapter (R12 wrapper). It adds no new module, dependency or interface, and touches no DTO in the contract.
    - Scope: this is S0002 of `feature.md` (the root `CLAUDE.md` in the system prompt, the switch-off, the five-minute cache). It matches decisions 3 and 4, and it stays clear of "Out of scope": OpenCode handling, nested files and the story text are untouched.
    Route: `tests`, because the Interface changes `src/`.
+4. factory: started tests as vm.
