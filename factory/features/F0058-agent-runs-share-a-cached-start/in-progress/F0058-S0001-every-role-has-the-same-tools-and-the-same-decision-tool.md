@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 659
 comments_read: [6720500729]
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-08T10:46:29.787251Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -51,6 +47,12 @@ journal:
   kind: started
   at: '2026-11-08T10:46:29.787251Z'
   stage: tests
+- number: 8
+  speaker: tester
+  kind: result
+  at: '2026-11-08T10:48:57.214337Z'
+  stage: tests
+  run: 4c6da60ae0044da8970b9f09db42c606
 ---
 
 # Every role has the same tools and the same decision tool
@@ -124,3 +126,25 @@ Expect: exactly one line, `model: opus`
    - Architecture: only the `agents` adapters and the agent files change. The write paths stay in the factory.
    - Scope: this matches S0001 in `feature.md` and decisions 1 to 3. Route: `tests`, because the Interface changes code.
 7. factory: started tests as vm.
+8. tester: I wrote the tests for criteria 1 to 8. They are red on purpose: the agent files still hold the old tools, model and effort, and the runtime still writes the decision `enum` into the schema.
+
+   - criterion 1: tests/agent_files/test_shared_start_agent_files.py::test_every_agent_file_has_the_same_tools_in_the_same_order (one row per file under `agents/agents/`)
+   - criterion 2: tests/agent_files/test_shared_start_agent_files.py::test_every_agent_file_runs_on_opus_at_its_roles_effort (one row per file). tests/agent_files/test_shared_start_agent_files.py::test_the_shipped_agents_are_the_seven_with_an_effort checks that the effort table covers every agent file.
+   - criterion 3: tests/agents/adapters/test_claude_runtime_shared_schema.py::test_requests_with_different_decisions_get_the_same_json_schema
+   - criterion 4: tests/agents/adapters/test_claude_runtime.py::test_reply_without_a_usable_decision_is_no_result (row "decision not allowed"). This test already exists and I left it unchanged; its stand-in does not read the schema.
+   - criterion 5: tests/pipeline/application/test_take_refuses_write_and_edit.py::test_a_file_written_outside_the_work_item_is_refused. The rows are intake, reviewer and smoke-tester, each with Write and Edit. Each role's write paths come from the template pipeline definition and go through `take.is_refused`. A Write row is a new file and an Edit row is an existing one. Each row also checks that the work item itself is not refused. The verdict does not depend on the tool, so this test already passes.
+   - criterion 6: tests/agents/adapters/test_claude_runtime_shared_schema.py::test_the_decision_is_any_string_described_as_named_in_the_message. The decision must be type `string` with no `enum`, and its description must contain "message" and "allowed decisions".
+   - criterion 7: tests/agents/domain/test_prompt_names_decisions.py::test_the_message_names_each_allowed_decision. I read "the message built for a request" as the prompt that `compose_prompt` builds, which the runtime passes as `-p`.
+   - criterion 8: tests/agents/adapters/test_claude_runtime_shared_schema.py::test_the_other_launch_arguments_are_as_before. Two rows with different `allowed_decisions`. With the `--json-schema` value removed, the arguments must equal today's list.
+
+   Files I created: tests/agent_files/test_shared_start_agent_files.py, tests/agents/adapters/test_claude_runtime_shared_schema.py, tests/agents/domain/test_prompt_names_decisions.py, tests/pipeline/application/test_take_refuses_write_and_edit.py.
+
+   Earlier test files I changed, because they pinned what this story changes:
+   - tests/support/shipped_agents.py: in the shared table of shipped agents, intake is now opus/medium with all seven tools, documenter is now opus, and reviewer and smoke-tester now have all seven tools. I removed `_TOOLS_WITHOUT_WRITE`. The values now say what the Description states, and the test names and what they check are unchanged. Without this, test_shipped_agents_effect.py and test_claude_files.py would stay red after the coder's change.
+   - tests/agents/adapters/test_claude_runtime.py::test_json_schema_asks_for_an_allowed_decision_and_an_entry: it compared the whole schema, `enum` included. It now checks that `decision` is a string and takes the decision property from the schema itself; the rest of the schema is compared exactly as before. I took this change as covered by criterion 4's "an earlier test may change only in how it builds the schema".
+
+   If the human sees either change to an earlier test as beyond that leave, the reviewer can raise it.
+
+   Test run, before implementation: the new tests and the earlier tests that read the agent files fail on wrong values, for example test_claude_files.py::test_front_matter_holds_the_four_applied_keys_with_their_values[intake|reviewer|documenter|smoke-tester] and test_shipped_agents_effect.py::test_call_passes_exactly_the_agent_tools[smoke-tester]. Every module imported; nothing failed to import. `make lint` is green.
+
+   `lint`: lint: green (0.2 s)

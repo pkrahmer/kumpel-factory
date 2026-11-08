@@ -175,10 +175,11 @@ def test_json_schema_asks_for_an_allowed_decision_and_an_entry(tmp_path: Path) -
 
     schema = json.loads(_after(_only_call(tmp_path).arguments, "--json-schema"))
 
+    assert schema["properties"]["decision"]["type"] == "string"
     assert schema == {
         "type": "object",
         "properties": {
-            "decision": {"type": "string", "enum": ["review", "doing", "question"]},
+            "decision": schema["properties"]["decision"],
             "entry": {"type": "string", "description": ENTRY_DESCRIPTION},
         },
         "required": ["decision", "entry"],
