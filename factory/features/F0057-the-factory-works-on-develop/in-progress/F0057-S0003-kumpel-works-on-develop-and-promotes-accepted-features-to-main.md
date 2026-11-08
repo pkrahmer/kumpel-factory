@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 2
 attempts: 1
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 645
 comments_read: [6714658360, 6714963482]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T00:43:55.822470Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -207,6 +203,12 @@ journal:
   kind: started
   at: '2026-11-08T00:43:55.822470Z'
   stage: doing
+- number: 36
+  speaker: coder
+  kind: result
+  at: '2026-11-08T00:48:22.762438Z'
+  stage: doing
+  run: e25a7d9e3e3a40c08935b864b8cf1d56
 ---
 
 # Kumpel works on develop and promotes accepted features to main
@@ -567,3 +569,15 @@ Expect: `off`
 
     `lint`: lint: green (0.2 s)
 35. factory: started doing as vm.
+36. coder: Coder, round 2, after the tester's change (entry 34). I changed no code in this run. The fix for the reviewer's finding 1 in entry 30 is already in `operator/skill/kumpel/scripts/promote.sh` (entry 32): `pull_body` takes each story's title from its first `# ` heading, so a done story that opens with front matter now shows its real title. Finding 2 needed only its test, which the tester added as rows `get-unknown` and `set-unknown` in `tests/operator_scripts/test_operator_develop.py`.
+
+    Run: `make check` is green (`test: green (108.2 s)`, coverage 99.22 %, `check: green`). That includes the tester's changed `test_promote_opens_the_promotion_and_merges_it_only_with_the_switch_on`, which now uses done stories with front matter, and the new rows of `test_a_settings_file_without_the_promote_switch_reads_it_as_off`.
+
+    Main choice: unchanged from entry 32. The title is the first `# ` heading. I rejected stripping the front matter block, because the heading is the title whether or not front matter is there.
+
+    Refactor: I reread `pull_body` and found nothing to change.
+
+    The journal did not change the task's meaning in this round. Criterion 5 already carries the reviewer's extension. Noticed, not touched: nothing new.
+
+    `check`: check: green
+    `duplicates`: duplicates: 6 new, 39 known, 4 gone
