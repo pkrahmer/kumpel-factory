@@ -1,5 +1,5 @@
 ---
-stage: docs
+stage: smoke-test
 blocked: null
 round: 0
 attempts: 1
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 649
 comments_read: [6715900227]
 handed_over: null
-claim:
-  instance: vm
-  stage: docs
-  started_at: '2026-11-08T02:09:04.784444Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -102,6 +98,12 @@ journal:
   kind: started
   at: '2026-11-08T02:09:04.784444Z'
   stage: docs
+- number: 17
+  speaker: documenter
+  kind: result
+  at: '2026-11-08T02:13:35.890006Z'
+  stage: docs
+  run: 8ef931d20d08471ca19ea2adfc849110
 ---
 
 # archive-feature.sh refuses a feature whose acceptance was refused
@@ -249,3 +251,25 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
     Earlier tests:
     - tests/operator_scripts/test_operator_develop.py: the standing leave to move a shared test helper (the feature constants, `finished_feature` and `tree` moved to `tests/support/archive_feature_support.py`). Also the human's leave in journal entry 4: `ACCEPTANCE` gains the front matter `stage: done` and `outcome: accepted`. Every test keeps its name and what it checks.
 16. factory: started docs as vm.
+17. documenter: I documented the new rule and found no findings for the coder. `make documents` ended with `documents ok (59.1 s)`. I did not run `make check`, because I changed only documents.
+
+    I read `archive-feature.sh` on the branch before writing. A feature is finished only when its last acceptance in `done/` has `outcome: accepted` between its first two `---` lines. Otherwise the script exits 1 with `<id> is not finished: its last acceptance <path> is not accepted`. That matches the Interface and the criteria.
+
+    Files changed:
+    - `operator/README.md`: the file table row for `archive-feature.sh` now says a feature is archived only when its last acceptance in `done/` says `outcome: accepted`, so a refused acceptance is not archived. The `promote.sh` row says it follows an accepted acceptance.
+    - `docs/operator-guide/install.md`, *The promotion*: only a feature whose last acceptance was accepted is archived and promoted. The factory books a refused acceptance in `done/` too, and Kumpel reports the refusal to the human.
+
+    Cross-read and found current:
+    - `operator/skill/kumpel/references/approving.md` (the coder's change; step 1 names the refusal).
+    - The script's header comment.
+    - The `promote` switch rows in `operator/README.md`.
+
+    I did not run `docs/decisions.md`: the docs criterion says none for it. I wrote no "Why" or "Rejected" lines.
+
+    Stale text unrelated to this story: none seen.
+
+    Open, from the coder and the reviewer, not a doc issue: the opening `---` need not be the file's first line, as the Interface words it.
+
+    `check`: check: green
+    `secrets`: secrets: green (0.5 s)
+    `documents`: documents ok (66.9 s)

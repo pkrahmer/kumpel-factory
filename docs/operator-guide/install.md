@@ -56,7 +56,7 @@ The approvals are zero because the factory, Kumpel and you act under one identit
 
 ### The promotion
 
-After a feature's acceptance Kumpel archives the feature on `develop`. Then it promotes `develop` to `main`: `operator/skill/kumpel/scripts/promote.sh <feature id>` opens a pull request from `develop` to `main` that lists the feature's stories. With the switch `promote` on (`/kumpel promote on`) Kumpel merges it, always with a merge commit, never a squash or a rebase, so `main` keeps `develop`'s commits as they are. With `promote` off, Kumpel opens the pull request and you merge it. See [operator/README.md](../../operator/README.md) for the switches.
+After a feature's acceptance Kumpel archives the feature on `develop`, but only when its last acceptance was accepted: `archive-feature.sh` reads `outcome:` in the front matter of the last acceptance report in `done/` and refuses unless it says `outcome: accepted`. The factory books a refused acceptance in `done/` too, so a refused feature is neither archived nor promoted; Kumpel reports the refusal to you. Then it promotes `develop` to `main`: `operator/skill/kumpel/scripts/promote.sh <feature id>` opens a pull request from `develop` to `main` that lists the feature's stories. With the switch `promote` on (`/kumpel promote on`) Kumpel merges it, always with a merge commit, never a squash or a rebase, so `main` keeps `develop`'s commits as they are. With `promote` off, Kumpel opens the pull request and you merge it. See [operator/README.md](../../operator/README.md) for the switches.
 
 ### Fixes go to `develop`
 
