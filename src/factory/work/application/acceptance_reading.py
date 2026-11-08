@@ -21,7 +21,7 @@ from factory.shared.domain.identifiers import (
 from factory.shared.domain.paths import (
     FEATURES_DIRECTORY,
     REMOTE,
-    WORK_BRANCH,
+    WORK_REF,
     LifecycleFolder,
     work_item_path,
 )
@@ -38,8 +38,6 @@ from factory.work.domain.acceptance import (
 )
 from factory.work.domain.work_item import WorkItemDocument, WorkItemSnapshot
 
-_WORK_REF = f"{REMOTE}/{WORK_BRANCH}"
-
 
 class AcceptanceReader:
     """Reads the acceptance status of every feature from the last fetch; it writes nothing."""
@@ -50,7 +48,7 @@ class AcceptanceReader:
         self._reader = boundaries.work_item_reader
         self._definition = definition
 
-    def feature_files(self, feature: FeatureId, *, ref: str = _WORK_REF) -> FeatureFiles:
+    def feature_files(self, feature: FeatureId, *, ref: str = WORK_REF) -> FeatureFiles:
         """The file names directly in the feature's lifecycle folders at `ref`."""
         directory = self._directories(ref).get(feature)
         if directory is None:
@@ -65,7 +63,7 @@ class AcceptanceReader:
         branches = self._acceptance_branches()
         return [
             self._feature_acceptance(feature, directory, branches)
-            for feature, directory in sorted(self._directories(_WORK_REF).items())
+            for feature, directory in sorted(self._directories(WORK_REF).items())
         ]
 
     def due_features(self) -> list[FeatureId]:
@@ -96,19 +94,19 @@ class AcceptanceReader:
         """
         if self._definition.acceptance_stage is None:
             return []
-        directories = self._directories(_WORK_REF)
+        directories = self._directories(WORK_REF)
         paths = self._branch_report_paths(directories)
         # The working branch's path wins: a merged report not yet recorded is where it lies.
-        paths.update(self._main_report_paths(directories))
+        paths.update(self._work_report_paths(directories))
         return [
             self._snapshot(work_item, path)
             for work_item, path in sorted(paths.items(), key=lambda item: work_item_order(item[0]))
         ]
 
-    def _main_report_paths(self, directories: dict[FeatureId, str]) -> dict[WorkItemId, str]:
+    def _work_report_paths(self, directories: dict[FeatureId, str]) -> dict[WorkItemId, str]:
         paths: dict[WorkItemId, str] = {}
         for feature, directory in directories.items():
-            for file_name in self._names(_WORK_REF, directory, "in-progress"):
+            for file_name in self._names(WORK_REF, directory, "in-progress"):
                 parsed = parse_work_item_file_name(file_name)
                 if parsed is not None and _is_report_of(parsed.id, feature):
                     paths[parsed.id] = work_item_path(directory, "in-progress", file_name)
@@ -144,7 +142,7 @@ class AcceptanceReader:
             folder="in-progress",
             branch=branch,
             branch_commit=branch_commit,
-            document=self._document(branch_ref if on_branch else _WORK_REF, path)[0],
+            document=self._document(branch_ref if on_branch else WORK_REF, path)[0],
         )
 
     def _directories(self, ref: str) -> dict[FeatureId, str]:
@@ -186,9 +184,9 @@ class AcceptanceReader:
     def _feature_acceptance(
         self, feature: FeatureId, directory: str, branches: dict[WorkItemId, str]
     ) -> FeatureAcceptance:
-        files = self._files(feature, directory, _WORK_REF)
+        files = self._files(feature, directory, WORK_REF)
         reports = [
-            *self._main_reports(directory, files),
+            *self._work_reports(directory, files),
             *self._branch_reports(feature, directory, branches),
         ]
         return FeatureAcceptance(
@@ -199,7 +197,7 @@ class AcceptanceReader:
             next_acceptance=next_acceptance_id(feature, (report.id for report in reports)),
         )
 
-    def _main_reports(self, directory: str, files: FeatureFiles) -> list[ReportFacts]:
+    def _work_reports(self, directory: str, files: FeatureFiles) -> list[ReportFacts]:
         folders: list[tuple[LifecycleFolder, list[str]]] = [
             ("in-progress", files.in_progress),
             ("done", files.done),
@@ -210,7 +208,7 @@ class AcceptanceReader:
                 parsed = parse_work_item_file_name(file_name)
                 if parsed is not None and is_acceptance(parsed.id):
                     path = work_item_path(directory, folder, file_name)
-                    reports.append(self._report(parsed.id, folder, _WORK_REF, path))
+                    reports.append(self._report(parsed.id, folder, WORK_REF, path))
         return reports
 
     def _branch_reports(
@@ -231,7 +229,7 @@ class AcceptanceReader:
         self, work_item: WorkItemId, folder: LifecycleFolder, ref: str, path: str
     ) -> ReportFacts:
         _, state = self._document(ref, path)
-        return ReportFacts(id=work_item, folder=folder, state=state, on_branch=ref != _WORK_REF)
+        return ReportFacts(id=work_item, folder=folder, state=state, on_branch=ref != WORK_REF)
 
     def document(self, ref: str, path: str) -> WorkItemDocument:
         """The work item at `path` on `ref`; `WorkItemFormatError` when missing or unreadable."""

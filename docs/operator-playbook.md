@@ -28,14 +28,14 @@ Revised on 2026-10-19 from the draft of 2026-10-18, its review aid and the human
 
    The factory claims it at its next tick, unless a work item waits for you or an earlier acceptance is due.
 7. **The stories,** one after another (section 3).
-8. **The acceptance** opens by itself after the last story. Its report says accepted, accepted with stories, or not accepted. A merge accepts it, whatever its report recommends; a close with a comment refuses it. Proposed stories land in `backlog/`. Pre-check every one of them before it starts, documents-only ones included, and apply the edits. Then start them in turn, in the order the human sets. A further acceptance follows them.
+8. **The acceptance** opens by itself after the last story. Its report says accepted, accepted with stories, or not accepted. A merge accepts it, whatever its report recommends; a close with a comment refuses it. After an accepted feature is archived, its promotion follows (when the acceptance proposed stories, `archive-feature.sh` refuses with `is in backlog/`: the archive and the promotion then wait for the feature's next accepted acceptance, not this one, and Kumpel starts nothing else for the feature): `operator/skill/kumpel/scripts/promote.sh <feature id>` opens, or extends, the pull request from `develop` to `main`. With the switch `promote` on Kumpel merges it; with it off you merge it (see *The promotion* in [the operator guide](operator-guide/install.md)). Proposed stories land in `backlog/`. Pre-check every one of them before it starts, documents-only ones included, and apply the edits. Then start them in turn, in the order the human sets. A further acceptance follows them.
 9. **End a loop of follow-ups.** When an acceptance proposes stories of the same kind again, decide whether they are worth it. Record in `feature.md` what is accepted as it is, so that the next acceptance does not propose them again (F0019, the write guard by the kernel: decision 22).
 
 **Mutation testing is not part of a feature.** No stage and no acceptance runs `make mutants`. Mutation testing runs only as sweeps outside the factory (section 4). F0031 (no stage runs mutation testing) takes it out of the acceptance reviewer's text; until it is merged, `CLAUDE.md` already says so.
 
 ## 3. A story, from start to merge
 
-**Watch.** Follow the board (`factory-watch` in the container): it shows a story blocked on you. A stop of the machine or the repository makes the container unhealthy; `factory-health` names it, and `factory/stops.jsonl` on `main` records it. Only the factory log (`/state/factory.log`) shows a failed iteration (`iteration failed`) and a stop's detail. Watch the board and the health; read the log at each heartbeat.
+**Watch.** Follow the board (`factory-watch` in the container): it shows a story blocked on you. A stop of the machine or the repository makes the container unhealthy; `factory-health` names it, and `factory/stops.jsonl` on `develop` records it. Only the factory log (`/state/factory.log`) shows a failed iteration (`iteration failed`) and a stop's detail. Watch the board and the health; read the log at each heartbeat.
 
 Since F0026 (the board shows only real crashes), the board shows a stage of its own instance as `held by <instance>` while its lease runs, and as `crash:` once the lease has run out. Two cases show `crash:` without a crash: a stage that waits out a provider limit past its lease (the log's wait line tells), and a live stage that uses every limit, for up to about a minute past its lease. A real crash also leaves a `crash` entry in the journal.
 
@@ -43,12 +43,12 @@ Since F0026 (the board shows only real crashes), the board shows a stage of its 
 - Read the last comment on its pull request. The comment is posted one tick after the board shows the block. Answer only after it is there: an earlier comment does not count.
 - Answer in one comment on the pull request. Name the option by its letter and repeat its exact words, for example **(a)** and the option's text, then the reason. The factory reads no words; the agents read your comment in the journal, so say exactly what you mean.
 - Say anything beyond the options in exact words too: which rows to add, which test may change, and any leave for the reviewer (which section it may edit, and how).
-- When the answer is a new decision, also write it into `feature.md` on `main` (principle 2).
+- When the answer is a new decision, also write it into `feature.md` on `develop` (principle 2).
 
-**Never edit a running story's work item, on `main` or on its branch.** The intake and the reviewer rewrite the story on its branch. A human's edit of the same file on `main` conflicts at the next stage start, and the stage stalls twice and reaches the attempts cap (F0019-S0004). The human may not push to a work item's branch either: a push while a stage runs makes its result push fail and counts as a crash, and the session's permission system refuses it. Instead:
+**Never edit a running story's work item, on `develop` or on its branch.** The intake and the reviewer rewrite the story on its branch. A human's edit of the same file on `develop` conflicts at the next stage start, and the stage stalls twice and reaches the attempts cap (F0019-S0004). The human may not push to a work item's branch either: a push while a stage runs makes its result push fail and counts as a crash, and the session's permission system refuses it. Instead:
 - An answer that changes the Interface, a criterion or the smoke test gives the reviewer leave for exactly those edits, in exact words. The reviewer makes them on its next run.
 - A stale Description is the reviewer's to rewrite when the human's answers, the Interface or the criteria settle what it should say (F0034). An answer that settles the meaning is therefore enough; the reviewer names each correction in its entry as `description corrected:`.
-- If you did edit the work item on `main`, revert that edit on `main`.
+- If you did edit the work item on `develop`, revert that edit on `develop`.
 
 **At a cap.**
 - *Round cap* (`blocked=round_cap`): read the reviewer's open findings. Your answer sets the round count back to 0, so the stage gets its whole `round_cap` again: two more rounds. The factory does not read your words; an answer cannot grant only one round. To keep the next rounds narrow, name in the answer the findings they must fix; the reviewer reads the answer in the journal. Quality points in the story's own tests: more rounds for those, or let it go forward with them recorded. Findings on criteria, architecture or security: a decision; usually more rounds with the fix named.
@@ -57,11 +57,11 @@ Since F0026 (the board shows only real crashes), the board shows a stage of its 
 - For both, find the cause first, in the stall or crash entries and the factory log, before you write "retry". Any comment then retries. A retry against an unchanged cause only spends another run (F0019-A0001 crashed twice on one leftover folder).
 
 **At approval** (`stage=approval`, the pull request no longer a draft). The description is written before the push, so wait for the draft flag to clear. Then `git fetch` and make six checks:
-1. **Files in scope.** `git diff --stat origin/main...origin/work-item/<id> -- . ':!factory'`: only files the story names, plus `README.md` and `docs/` from its docs criterion.
+1. **Files in scope.** `git diff --stat origin/develop...origin/work-item/<id> -- . ':!factory'`: only files the story names, plus `README.md` and `docs/` from its docs criterion.
 2. **The reviewer.** Its last entry has no findings, or only ones the human accepted. Read its `Notes:` (they no longer send the story back) and any `criterion <n> added` and any `description corrected:`.
 3. **The smoke test.** The smoke tester's entry meets every `Expect:`.
 4. **Earlier tests.** Every earlier test that changed names its leave: the standing leave to move a shared helper, or a numbered decision of the feature. A change without one is not merged.
-5. **Write paths.** `git diff --stat origin/main...origin/work-item/<id> -- factory`: only the work item and its `.costs.jsonl`. And none of `Makefile`, `pyproject.toml`, `uv.lock`, `CLAUDE.md`, `.secrets.baseline` or `security/` in the first list. (The kernel and the undo already revert such writes; this is a second line.)
+5. **Write paths.** `git diff --stat origin/develop...origin/work-item/<id> -- factory`: only the work item and its `.costs.jsonl`. And none of `Makefile`, `pyproject.toml`, `uv.lock`, `CLAUDE.md`, `.secrets.baseline` or `security/` in the first list. (The kernel and the undo already revert such writes; this is a second line.)
 6. **The cost.** The cost table: nothing far above the stories before it without a reason in the journal.
 
 A green check need not have run again. Since F0023 (a known result is not checked again), a stage may log `` `check`: check: green (not run again: passed on tree <12 characters> at <time>) ``. Mostly the docs stage logs it, and also a doing stage after a send-back. That line is a pass.
@@ -70,7 +70,7 @@ Then merge: `gh pr merge <n> --merge`, never with `--delete-branch`; a merged st
 
 **After the merge.**
 1. Wait for the factory's archive commit (`work item <id>: merged, archived`), so that the rebuild and your next start sit on top of it.
-2. **Before every push to `main`, pull.** The factory pushes `main` for archives and for `stops recorded`.
+2. **Before every push to `develop`, pull.** The factory pushes `develop` for archives and for `stops recorded`.
 3. Rebuild `self` (section 4, *Rebuilds*).
 4. Start the next story.
 
@@ -111,7 +111,7 @@ Then merge: `gh pr merge <n> --merge`, never with `--delete-branch`; a merged st
 
 | Seen | Cause | Done |
 |---|---|---|
-| A stage stalled twice: "merging the main branch conflicts" | the human edited the running work item on `main` while the intake had changed it on the branch | merged `main` into the branch by hand; rule: never edit a running work item; answer in the pull request with a leave for the reviewer |
+| A stage stalled twice: "merging the develop branch conflicts" | the human edited the running work item on `develop` while the intake had changed it on the branch | merged `develop` into the branch by hand; rule: never edit a running work item; answer in the pull request with a leave for the reviewer |
 | The factory stopped: `repository_unavailable` | `make mutants` left `mutants/seed/.git`, owned by the agent user, which the factory user could not remove | removed as root; since F0032 every `make mutants` removes `mutants/` before it runs |
 | An agent's write refused under the guard | a tool's state folder not in `tool_paths` (the demo's nested `.ruff_cache`) | added to `tool_paths` after a hand probe |
 | `make check` red only inside v1.1's container | the entrypoint's `umask 002` made the tests' checkouts group-writable, which the seal refuses | the tests set `umask 022` themselves (`tests/conftest.py`), and `make mutants` runs under `umask 022` |
@@ -140,7 +140,7 @@ Then merge: `gh pr merge <n> --merge`, never with `--delete-branch`; a merged st
 | Rule above | As code | State |
 |---|---|---|
 | Count the human's interventions and the hours the factory waited | journal records with their cause; the cost table and the acceptance report count them | built (F0021, the factory records what the human did) |
-| Machine stops seen only in the instance's log | stop records on `main` (`factory/stops.jsonl`) | built (F0021) |
+| Machine stops seen only in the instance's log | stop records on `develop` (`factory/stops.jsonl`) | built (F0021) |
 | Test-quality findings at the round cap | from round 1 on, such points are the reviewer's `Notes:` and do not send the story back | built (F0021-S0005) |
 | A criterion that only pins built behaviour needs the human's yes | the reviewer's leave to add a criterion | built (F0021) |
 | The board's false crash at a long stage | the board judges its own instance's claim by the lease | built (F0026, the board shows only real crashes) |
@@ -170,7 +170,7 @@ Sources: W, M, S, U are the review aid's findings; P3 is its part 3 (what the ni
 14. Watch: the board's crash display as F0026 left it, in place of the "until F0026" text (M7, adapted: F0026 is built).
 15. When the story asks: a waiting question holds back all work; an earlier comment does not count (M12).
 16. When the story asks: one answer comment, the option's letter and exact words, the reason, any leave in exact words (L: how a question is answered).
-17. Never edit: no edit on `main` and no push to the branch; a leave for the reviewer; a stale Description is the reviewer's, until then corrected in the answer; revert an edit on `main` (Q4, M5).
+17. Never edit: no edit on `develop` and no push to the branch; a leave for the reviewer; a stale Description is the reviewer's, until then corrected in the answer; revert an edit on `develop` (Q4, M5).
 18. Round cap: an answer resets the count, so it grants two more rounds; name the findings to fix (W1, Q7).
 19. Attempts cap and crash cap described apart (W4).
 20. Approval check 1 and 5: exact commands with `origin/work-item/<id>`, and the `factory` diff for check 5 (U1).
@@ -200,4 +200,4 @@ Sources: W, M, S, U are the review aid's findings; P3 is its part 3 (what the ni
 44. Section 7: the provider-limit wait marked built by F0020 (S3, updated: F0020 is accepted).
 45. Section 7: new rows for F0026, the reviewer's Description edit (Q4) and a one-round answer (Q7); the heartbeat row names the host drive (U2).
 
-**Finished features live in `factory/archive/`** (the human, 2026-11-04). The factory reads only `factory/features/`, where the open features are; after a feature's last acceptance is merged and archived into its `done/`, move its whole folder to `factory/archive/` by hand (`git mv`), as its own commit. The Factory Timeline reads both folders.
+**Finished features live in `factory/archive/`** (the human, 2026-11-04). The factory reads only `factory/features/`, where the open features are; after a feature's last acceptance is merged and archived into its `done/`, Kumpel moves its whole folder to `factory/archive/` with `operator/skill/kumpel/scripts/archive-feature.sh <feature id>`, as the commit `<id>: archived` on `develop`. The script refuses while a story is left in `backlog/` or `in-progress/`. It also refuses while the feature has no acceptance, or while the last acceptance is not in `done/` or does not say `outcome: accepted`. The Factory Timeline reads both folders.

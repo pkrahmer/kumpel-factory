@@ -24,7 +24,7 @@ from factory.entry.wiring import (
     machine_stop_exit_of,
     read_environment_settings,
     read_hosting_token,
-    stage_file_on_main,
+    stage_file_on_work_branch,
     stage_image_report,
     system_clock,
 )
@@ -225,14 +225,14 @@ class _ProjectImageStart:
     def prepare(self) -> bool:
         if not self._waiter.prepare():
             return False
-        if not self._follow_main():
+        if not self._follow_work_branch():
             return False
         return self._tick is not None
 
     def tick(self) -> bool:
         return self._tick is not None and self._tick()
 
-    def _follow_main(self) -> bool:
+    def _follow_work_branch(self) -> bool:
         boundaries = self._inputs.boundaries
         stops = StopService(boundaries)
         try:
@@ -249,7 +249,7 @@ class _ProjectImageStart:
             stops.raise_stop(stop)
             return False
         stops.clear_stop("fetch_failed")
-        stage_file = stage_file_on_main(boundaries.git)
+        stage_file = stage_file_on_work_branch(boundaries.git)
         # The same file again builds nothing, and one that failed is not tried again.
         if self._followed and stage_file == self._stage_file:
             return True
@@ -280,7 +280,8 @@ class _ProjectImageStart:
         # The tick's preflight must see the factory's own stop, or a probe it cuts off is judged.
         carried = replace(built, stop_requested=boundaries.stop_requested)
         chosen_boundaries = _sized(carried, chosen.sizes)
-        # `_follow_main` fetches before every tick and raises or clears `fetch_failed` itself.
+        # `_follow_work_branch` fetches before every tick and raises or clears `fetch_failed`
+        # itself.
         tick = build_tick(chosen_boundaries, chosen.settings)
         self._tick = activity_tick(tick, inputs.idle, fetched=True)
 

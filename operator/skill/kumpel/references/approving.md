@@ -8,19 +8,29 @@ A story at `stage:approval` has passed every stage. Gather the facts with `sh sc
 2. **Earlier tests.** A test file another story wrote (`M` in the list) changed only under a leave: the standing leave to move a shared helper (every test keeps its name and what it checks, the tester's entry names the file) or a leave you or the human gave in an answer. Read its diff when in doubt: an assertion that changed meaning is a finding.
 3. **The journal's end.** The smoke test ran, met every `Expect:` line, and found nothing; no finding is left open.
 4. **The `Expect:` lines.** They match what the smoke tester reports.
-5. **Markers.** No new `noqa`, `type: ignore`, `pragma: no cover`, skip or xfail, unless the same marker already stands on `main` for the same reason.
+5. **Markers.** No new `noqa`, `type: ignore`, `pragma: no cover`, skip or xfail, unless the same marker already stands on `develop` for the same reason.
 6. **The cost.** Plausible for the story's size; a cost far above its kind is worth a line to the human.
 
 Read the code of the story's main change once yourself: the six checks are about the process; a wrong behaviour slips through them.
 
 ## Then
 
-- **All green, switch `merge` on:** `sh scripts/merge.sh <n> <id>`; its merge commit says Kumpel merged it. Wait until `main` holds the factory's archive commit (`work item <id>: merged, archived`), then log it.
+- **All green, switch `merge` on:** `sh scripts/merge.sh <n> <id>`; its merge commit says Kumpel merged it. Wait until `develop` holds the factory's archive commit (`work item <id>: merged, archived`), then log it.
 - **All green, switch `merge` off:** post the verdict as a comment that starts with `Kumpel: ready to merge.`, the six checks in one line each, and ends with `<!-- kumpel verdict -->`, posted with `sh scripts/comment.sh <n> <file>`, which signs it; tell the human. The wait script stops reporting the approval once your verdict is the newest comment.
-- **A small finding** (a document slip, a false positive for a baseline): merge or recommend merging, then fix it on `main` yourself and log it. Do not send the story back for it.
+- **A small finding** (a document slip, a false positive for a baseline): merge or recommend merging, then fix it on `develop` yourself and log it. Do not send the story back for it.
 - **A real finding:** a comment that names it, for the human, posted with `sh scripts/comment.sh <n> <file>`.
 
 ## After a merge
 
 - When the merge changed the factory's own code and the factory runs from that repository (its self-build), the instance needs the new code: on a VM the rebuild of `docs/operator-guide/machine.md`, *The rebuild after a merge*, in a job its next execution. A project's merge never needs it.
-- With `start_next` on, once the archive commit is on `main`, ask `sh scripts/next-story.sh` and start the story it names (`sh scripts/start-story.sh <id>`).
+- With `start_next` on, once the archive commit is on `develop`, ask `sh scripts/next-story.sh` and start the story it names (`sh scripts/start-story.sh <id>`).
+
+## After a feature's acceptance
+
+When the merge accepted a feature's acceptance (its last work item, `<feature id>-A...`), and the factory's archive commit for it is on `develop`:
+
+1. Archive the feature: `sh scripts/archive-feature.sh <feature id>`. It refuses a feature with a story still in `backlog/` or `in-progress/`, or whose last acceptance is not in `done/`, or whose last acceptance in `done/` is not accepted (`<feature id> is not finished: its last acceptance <path> is not accepted`); report that to the human. Log the archive.
+   When the accepted acceptance proposed stories, so that the feature's `backlog/` holds them, the refusal `<feature id> is not finished: <path> is in backlog/` is expected and no fault: tell the human that the archive and the promotion wait for the feature's next accepted acceptance, after those stories are done, and start nothing else for the feature.
+2. Promote it: `sh scripts/promote.sh <feature id>` opens the pull request from `develop` to `main`. With the switch `promote` on, it merges it with a merge commit; with it off, it prints the pull request's number: tell the human that the promotion waits for their merge. When a promotion is still open, it opens no second one but adds the feature's stories to the open one, and with the switch off prints `promotion open: #<number>, for the human to merge`: tell the human the same. Log it either way.
+
+The promotion is the only way anything reaches `main`.

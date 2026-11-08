@@ -313,7 +313,7 @@ The stage's checks see the taken result on a clean base. `ContainerMakeCommands`
 - The container gets `{**extra_environment, **CHECK_ENVIRONMENT, "PATH": path}`. The constants and the image's `path` win.
 - `ca_bundle` is mounted read-only at its own path. `build_boundaries` hands it the same extras as the sync and the agent.
 - A file a check makes stays in its container's dataset and is reset away by the next run. It never reaches the host.
-- What is copied is what differs from `HEAD` on the host (`git.changed_paths("HEAD")`), not a list the take kept. After the take that is the taken files, the restored work item and the factory's cost record. At the preflight's `lint` on `main` it is nothing.
+- What is copied is what differs from `HEAD` on the host (`git.changed_paths("HEAD")`), not a list the take kept. After the take that is the taken files, the restored work item and the factory's cost record. At the preflight's `lint` on `develop` it is nothing.
 - Nothing is remembered between the take and the checks: `HEAD` and the host's work tree already say what the take brought, so no list is kept that could disagree with them.
 - The copy is `copy_changed`, so the take and the checks share one rule for links, modes, deletions and refused paths.
 
@@ -345,7 +345,7 @@ See also: *The preflight*.
 
 ## The project's stage image
 
-A project adds a layer to the stage image with the file `<project>/factory/stage.Containerfile` on its `main`. The operator's side is in [machine.md](../operator-guide/machine.md), *The project's stage file*. The factory builds the layer when the file is valid and uses the result for every container run.
+A project adds a layer to the stage image with the file `<project>/factory/stage.Containerfile` on its `develop`. The operator's side is in [machine.md](../operator-guide/machine.md), *The project's stage file*. The factory builds the layer when the file is valid and uses the result for every container run.
 
     stage_layer(text, base_identity) -> StageLayer
     Images.build(layer, base, tag, time_limit) -> ImageBuild
@@ -363,11 +363,11 @@ A project adds a layer to the stage image with the file `<project>/factory/stage
 - It returns the settings unchanged without a stage file.
 - When the file builds, it returns the settings with `stage_image` = the project tag and `image` = the layer's identity.
 - It raises the machine [stop](glossary.md) `stage_image_failed` and returns `None` when the file breaks the rule or does not build.
-- No [tick](glossary.md) is built until a `main` with another file.
+- No [tick](glossary.md) is built until a `develop` with another file.
 - A check that finds a valid file, or none, clears the stop.
 - The boundaries are built a second time from the chosen settings, so every container run and the preflight's stamp take the project image.
 - The `PATH` comes from `images.path(<the image in use>)` in `build_boundaries`, kept in `Boundaries.image_path`. The sync environment, `ContainerMakeCommands` and the agent environment (`production_environment(boundaries.image_path)`, the scripts folder first) take it. An image whose `path` raises gives `SYSTEM_PATH`.
-- `run_instance` has `_ProjectImageStart` call `chosen_image` once the checkout is ready, and again whenever the stage file changes on a new `origin/main`. *How the stage file is followed* in the *Reference* has the exact order.
+- `run_instance` has `_ProjectImageStart` call `chosen_image` once the checkout is ready, and again whenever the stage file changes on a new `origin/develop`. *How the stage file is followed* in the *Reference* has the exact order.
 
 See also: *The preflight* and *The podman adapter*.
 
@@ -396,10 +396,10 @@ Before a stage may start, the preflight checks the machine: the tools, the datas
 - There is no `agent-environment` item, because the agent's `HOME` is a path inside the container.
 - `opencode_item` checks the aliases only.
 - Both probes go through the environment like a stage.
-- `agent_run_probe_item` resolves `origin/main`. Without one the item fails with `no origin/main to prepare the stage environment from`, and no run starts.
+- `agent_run_probe_item` resolves `origin/develop`. Without one the item fails with `no origin/develop to prepare the stage environment from`, and no run starts.
 - It then calls `stage_environment_of(boundaries).prepare(main, WORK_BRANCH, sync_time_limit=PROBE_TIME_LIMIT)` and `run_agent` on the same object.
 - `SnapshotError` and `ContainerError` from `prepare` fail the item with their message.
-- `Preflight._run_probe` calls the same `prepare` after it puts the checkout on `main` and before `lint`. `Preflight.run` catches both errors beside `GitError` and `ProjectCommandError` and stops with `the probe on main could not run: <error>`.
+- `Preflight._run_probe` calls the same `prepare` after it puts the checkout on `develop` and before `lint`. `Preflight.run` catches both errors beside `GitError` and `ProjectCommandError` and stops with `the probe on develop could not run: <error>`.
 
 Tests: [test_preflight_metadata_block.py](../../tests/machine/application/test_preflight_metadata_block.py), [test_wiring_metadata_block.py](../../tests/entry/test_wiring_metadata_block.py), [test_container_items.py](../../tests/machine/application/test_container_items.py), [test_opencode_item_container.py](../../tests/machine/application/test_opencode_item_container.py), [test_machine_checks_container.py](../../tests/machine/application/test_machine_checks_container.py), [test_agent_run_probe_environment.py](../../tests/hosting/application/test_agent_run_probe_environment.py), [test_preflight_run_environment.py](../../tests/machine/application/test_preflight_run_environment.py) and [test_wiring_container_extras.py](../../tests/entry/test_wiring_container_extras.py).
 
@@ -505,7 +505,7 @@ See also: *The checks*, *Project commands* and *The order of `KnownResults.run`*
 Nothing is kept between runs. Every run removes `mutants/` first, so mutmut makes it anew, copies the other files under `src/` (the contract's schemas) afresh and runs its stats again. A run pays the stats every time.
 
 - The modules come from `MODULES`, dotted modules or packages, each run by its pattern `<name>.*`.
-- Or they come from `FEATURE=<id>`: the modules under `src/factory` that the [feature](glossary.md)'s [story](glossary.md) commits changed on `origin/main`. They are found from the commit subjects that start `work item <id>-S<nnnn>:`. The pattern of `FEATURE_MODULES` in the `Makefile` also matches older subjects that open with one other word in place of `work item`. It needs a checkout with its history.
+- Or they come from `FEATURE=<id>`: the modules under `src/factory` that the [feature](glossary.md)'s [story](glossary.md) commits changed on `origin/develop`. They are found from the commit subjects that start `work item <id>-S<nnnn>:`. The pattern of `FEATURE_MODULES` in the `Makefile` also matches older subjects that open with one other word in place of `work item`. It needs a checkout with its history.
 - `MODULES` wins when both are given.
 - With neither, the target prints `mutants: set MODULES or FEATURE, as in make mutants MODULES=factory.machine.domain.disk or make mutants FEATURE=F0012` and fails.
 - When the feature changed no module, it prints `mutants: no module under src/factory changed by <id>` and exits 0.
@@ -670,11 +670,11 @@ Every container path reaches the script as an argument (`$1` checkout, `$2` home
 
 Why the fetch is so wide:
 
-- It takes every branch, not only the stage's, because a detached checkout would leave the agent without `main` and the branch, and the coder's and reviewer's instructions read `git diff main` and the branch's log.
+- It takes every branch, not only the stage's, because a detached checkout would leave the agent without `develop` and the branch, and the coder's and reviewer's instructions read `git diff develop` and the branch's log.
 - `--prune` drops a branch deleted on the host.
 - `--update-head-ok` is needed because git refuses to fetch into the checked-out branch, an unborn one included, as a fresh `git init` has.
-- The second refspec makes the checkout know `origin/main` and `origin/<branch>` as a clone would, because the project's commands read `origin/main`.
-- `make secrets` limits itself to the files a branch changed against `origin/main`. Without that ref it scans every tracked file, and old hex values in finished acceptance reports would stop the check.
+- The second refspec makes the checkout know `origin/develop` and `origin/<branch>` as a clone would, because the project's commands read `origin/develop`.
+- `make secrets` limits itself to the files a branch changed against `origin/develop`. Without that ref it scans every tracked file, and old hex values in finished acceptance reports would stop the check.
 
 ### The seven steps of the take
 
@@ -719,14 +719,14 @@ The refusals of `read_settings`:
 
 ### How the stage file is followed
 
-- `_ProjectImageStart` in [run.py](../../src/factory/entry/run.py) (`factory.entry.run`) calls `chosen_image` once the checkout is ready, after a fetch, and again whenever the stage file changes on a new `origin/main`.
-- `_ProjectImageStart.prepare` fetches before every tick, beside where the preflight probes `main`. It reads the file with `stage_file_on_main` and compares its text with the one last handled. Equal text is equal digest, and it also covers a refused file, which has none.
+- `_ProjectImageStart` in [run.py](../../src/factory/entry/run.py) (`factory.entry.run`) calls `chosen_image` once the checkout is ready, after a fetch, and again whenever the stage file changes on a new `origin/develop`.
+- `_ProjectImageStart.prepare` fetches before every tick, beside where the preflight probes `develop`. It reads the file with `stage_file_on_work_branch` and compares its text with the one last handled. Equal text is equal digest, and it also covers a refused file, which has none.
 - The same text builds nothing and does not retry a failed one.
 - A different text calls `chosen_image`. It passes a `StageImageReport` (`stage_image_report`: log, clock, the commit's first 12 hex digits) when a stage file exists or at the start. A later follow without a stage file passes none. Given a report, `chosen_image` writes the `stage image:` lines and puts `at <commit>: ` before the stop's detail.
 - A passed build gives a new tick on boundaries built from the chosen settings (image, identity and `Boundaries.image_path` change together). A tick that is running keeps its own, so the change takes effect between stages.
-- `prepare` guards its fetch. `_follow_main` catches `FetchFailed` (any other `GitError` is not caught and reaches the scheduler's `iteration failed`), raises the repository stop `fetch_failed` with `str(error)` as its detail through `StopService`, and returns `False`. Then `prepare` returns `False` and no tick runs in that iteration. It reads no stage file then and leaves the image, identity, `PATH` and the stage file last handled as they were.
+- `prepare` guards its fetch. `_follow_work_branch` catches `FetchFailed` (any other `GitError` is not caught and reaches the scheduler's `iteration failed`), raises the repository stop `fetch_failed` with `str(error)` as its detail through `StopService`, and returns `False`. Then `prepare` returns `False` and no tick runs in that iteration. It reads no stage file then and leaves the image, identity, `PATH` and the stage file last handled as they were.
 - A fetch that passes calls `clear_stop("fetch_failed")` and compares as above.
-- This is the one fetch of the iteration. `_choose` builds the tick with `fetched=True` (`activity_tick(..., fetched=True)`), so `Tick.run` does not fetch again and does not raise or clear `fetch_failed` itself. `_follow_main` is the only place that does in `factory-run`.
+- This is the one fetch of the iteration. `_choose` builds the tick with `fetched=True` (`activity_tick(..., fetched=True)`), so `Tick.run` does not fetch again and does not raise or clear `fetch_failed` itself. `_follow_work_branch` is the only place that does in `factory-run`.
 - A failed build drops the tick: no tick runs while the stop stands.
 - A removed file returns to the base and logs `back to the base`.
 - `Images.build` removes the untagged images, so the previous project image goes.

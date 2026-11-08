@@ -15,7 +15,10 @@ from support.git_support import (
 from support.operator_support import CURL_STAND_IN, ROOT, hosting_env, run_script
 
 # The branch the skill scripts start, approve, archive and reset on, not the factory's.
-SCRIPTS_BRANCH = "main"
+SCRIPTS_BRANCH = "develop"
+# The remote's default branch, which only a promotion reaches.
+DEFAULT_BRANCH = "main"
+KUMPEL = "Kumpel <kumpel@noreply.invalid>"
 SKILL = ROOT / "operator" / "skill" / "kumpel"
 SCRIPTS = SKILL / "scripts"
 REPOSITORY = "owner/repo"
@@ -119,6 +122,29 @@ class Operator:
         return found
 
 
+# The promotion pull request's number the stand-in answers with.
+PULL_NUMBER = 4711
+# The switches a promotion test starts from, before it sets `promote`.
+OLD_SWITCHES = {"merge": False, "answer": True, "start_next": True}
+
+
+# The query for the open promotion, a pull request from the owner's `develop` to `main`.
+OPEN_PROMOTION = (
+    f"{PREFIX}/pulls?state=open&base=main&head={REPOSITORY.partition('/')[0]}:develop&per_page=1"
+)
+
+
+def write_switches(operator: Operator, switches: dict[str, bool]) -> None:
+    """A settings file that holds `switches`."""
+    operator.settings_file.parent.mkdir(parents=True)
+    operator.settings_file.write_text(json.dumps({"switches": switches}), encoding="utf-8")
+
+
+def requests_that_change(operator: Operator) -> list[Request]:
+    """The recorded requests other than reads, in order."""
+    return [request for request in recorded_requests(operator.records) if request.method != "GET"]
+
+
 def make_operator(tmp_path: Path) -> Operator:
     """The operator's machine with a full site file (a token command, no `gh`) and no answers."""
     folders = {name: tmp_path / name for name in ("site", "records", "tmp", "bin")}
@@ -148,10 +174,13 @@ def make_operator(tmp_path: Path) -> Operator:
 def make_bare_remote(root: Path, files: dict[str, str]) -> tuple[Path, Path]:
     """A bare remote `root/remote.git` whose `SCRIPTS_BRANCH` holds `files`, and its seed.
 
+    `DEFAULT_BRANCH` holds the same commit and is the remote's `HEAD`, so a clone starts on it.
     The seed has the remote as `origin` and has fetched it.
     """
     remote = make_remote(root, files, branch=SCRIPTS_BRANCH)
     seed = root / "seed"
+    run_git(seed, "push", "-q", str(remote), f"{SCRIPTS_BRANCH}:{DEFAULT_BRANCH}")
+    run_git(remote, "symbolic-ref", "HEAD", f"refs/heads/{DEFAULT_BRANCH}")
     run_git(seed, "remote", "add", "origin", str(remote))
     run_git(seed, "fetch", "-q", "origin")
     return remote, seed
@@ -179,8 +208,9 @@ def comment_routes(number: int, bodies: list[str]) -> dict[str, object]:
 
 
 def commits(*messages: str) -> dict[str, object]:
-    """The route of the newest commits on `main`, newest first."""
-    return {f"{PREFIX}/commits?per_page=20": [{"commit": {"message": text}} for text in messages]}
+    """The route of the newest commits on `SCRIPTS_BRANCH`, newest first."""
+    route = f"{PREFIX}/commits?sha={SCRIPTS_BRANCH}&per_page=20"
+    return {route: [{"commit": {"message": text}} for text in messages]}
 
 
 ARCHIVE = "work item F0001-S0000: merged, archived"

@@ -33,7 +33,7 @@ contract: 5 schemas written
 
 With two or more arguments the command prints `usage: python -m factory.entry.contract [<folder>]` to standard error, writes nothing and exits with status 2.
 
-**Where a work item's records are.** While the work item is in progress they are on its branch `work-item/<id>`: the factory writes the front matter and the cost file there at every [stage](../project-guide/glossary.md). From the merge on they are on `main`, moved to `done/` by the commit the factory makes after the merge. A work item in `in-progress/` on `main` without a merge shows only the state it had at its start.
+**Where a work item's records are.** While the work item is in progress they are on its branch `work-item/<id>`: the factory writes the front matter and the cost file there at every [stage](../project-guide/glossary.md). From the merge on they are on `develop`, moved to `done/` by the commit the factory makes after the merge. A work item in `in-progress/` on `develop` without a merge shows only the state it had at its start.
 
 **The approval.** A work item enters the [approval](../project-guide/glossary.md) with its last `result` record in the journal. No record marks the entry, so a reader takes the approval's start from that record's `at` and its end from the `done` record's `at`.
 
@@ -64,7 +64,7 @@ Every agent run writes a cost record beside its work item; it holds the run's du
 
 With an id it prints the cost table, an empty line and `Cost: <line>`. With no argument it does that for every work item in flight, each block headed by its id and separated from the next by an empty line. A work item in flight is one that has a branch `work-item/<id>` on the remote.
 
-The command reads the remote-tracking refs only (`origin/<the work item's branch>`, or `origin/main` for an archived work item), never your working tree and never the journal. It does not fetch, which is why step 1 comes first. Two checkouts that have fetched the same remote show the same bill.
+The command reads the remote-tracking refs only (`origin/<the work item's branch>`, or `origin/develop` for an archived work item), never your working tree and never the journal. It does not fetch, which is why step 1 comes first. Two checkouts that have fetched the same remote show the same bill.
 
 | Exit status | Meaning |
 |---|---|
@@ -125,7 +125,7 @@ A run whose cost the runtime did not report (a run that died, or one the time li
 
 `factory-watch` is the window on what the factory would do next. It evaluates once, as a [tick](../project-guide/glossary.md) would after its fetch. It judges its own [instance](../project-guide/glossary.md)'s [claim](../project-guide/glossary.md) by the [lease](../project-guide/glossary.md), because a tick never looks while its own stage runs. It prints two things: the event of that evaluation, and the board. It has no options; `--help` shows its usage.
 
-It reads the remote-tracking refs as the last tick left them. It fetches nothing, so after a push to the remote the output stays the same until a tick has fetched. It writes nothing: no file in the checkout, nothing to the remote or the hosting service, no health status entry, no log line. It loads the pipeline definition at the head commit of `origin/main` and raises or clears no stop. The one hosting-service read it makes is the one an idle tick makes: the pull request (and its comments) of a waiting work item.
+It reads the remote-tracking refs as the last tick left them. It fetches nothing, so after a push to the remote the output stays the same until a tick has fetched. It writes nothing: no file in the checkout, nothing to the remote or the hosting service, no health status entry, no log line. It loads the pipeline definition at the head commit of `origin/develop` and raises or clears no stop. The one hosting-service read it makes is the one an idle tick makes: the pull request (and its comments) of a waiting work item.
 
 ```
 event: <key>  <detail, when there is one>
@@ -137,7 +137,7 @@ F0001-S0001  Domain model  in-progress  stage=tests  blocked=-  claim=factory-1 
 ```
 
 - The first line is `event: <key>`, followed by two spaces and the detail when the event has one.
-- A [feature](../project-guide/glossary.md) row counts the story files in `backlog`, `in-progress` and `done`. `.gitkeep`, `feature.md` and files that are not work item names do not count. A feature with no story file has no row. The title is the first `# ` title of the feature's `feature.md` on `origin/main`, else the directory's name. `acceptance` is the feature's [acceptance](../project-guide/glossary.md) status, or `-` when the pipeline definition has no `acceptance_stage`. The status is one of `incomplete`, `due`, `in_flight`, `merged_unrecorded`, `accepted` or `refused`. "When a feature acceptance is due" in [work-items.md](work-items.md) explains them.
+- A [feature](../project-guide/glossary.md) row counts the story files in `backlog`, `in-progress` and `done`. `.gitkeep`, `feature.md` and files that are not work item names do not count. A feature with no story file has no row. The title is the first `# ` title of the feature's `feature.md` on `origin/develop`, else the directory's name. `acceptance` is the feature's [acceptance](../project-guide/glossary.md) status, or `-` when the pipeline definition has no `acceptance_stage`. The status is one of `incomplete`, `due`, `in_flight`, `merged_unrecorded`, `accepted` or `refused`. "When a feature acceptance is due" in [work-items.md](work-items.md) explains them.
 - A work item row exists for each story in `in-progress/` and for each running acceptance. A running acceptance is one that is opened, waiting with a question or at its approval, or merged with the merge not yet recorded. A row has the columns below. An absent value is `-`.
 
   | Column | Meaning |
@@ -158,10 +158,10 @@ F0001-S0001  Domain model  in-progress  stage=tests  blocked=-  claim=factory-1 
   | Exit status | Meaning |
   |---|---|
   | 0 | it printed the event and the board |
-  | 1 | the pipeline definition on `origin/main` is invalid, or an agent file is refused. The fault goes to standard error as `factory-watch: <fault>`, or `factory-watch: agent <name>: <fault>` for an agent file. Standard output stays empty and no stop is raised. |
+  | 1 | the pipeline definition on `origin/develop` is invalid, or an agent file is refused. The fault goes to standard error as `factory-watch: <fault>`, or `factory-watch: agent <name>: <fault>` for an agent file. Standard output stays empty and no stop is raised. |
   | 2 | an unknown option: standard error gets the usage line and `factory-watch: error: unrecognized arguments: <option>`. Or the environment is invalid, or the token file cannot be read: standard error gets `factory-watch: settings invalid: <variable>: <fault>`, never a traceback. Standard output stays empty either way. |
 
-  A repository whose `origin/main` does not resolve (a clone that never fetched) ends with a git error.
+  A repository whose `origin/develop` does not resolve (a clone that never fetched) ends with a git error.
 
 - `factory-watch` reads the same environment as `factory-run` (see the table of *Configuration* in [install.md](install.md)) and uses the same settings, so it looks at the instance the container runs. It needs the same two path settings, `FACTORY_CLAUDE_HOME` and `FACTORY_IMAGE_ID_FILE`. Run it with the environment file of the service (`operator/vm/setup.sh` writes it).
 

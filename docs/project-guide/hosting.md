@@ -20,7 +20,7 @@ The factory reaches the hosting service, meaning pull requests and their comment
 - Nothing else may call the hosting service.
 - Build a comment from the service's data with `PullRequestComment.from_body`, so that `by_factory` and `key` always agree with the body.
 - Labels are a projection of the [stage](glossary.md): they are written and never read back. No operation returns them and `PullRequestView` has no label field.
-- `LABEL_PREFIX` (`"stage:"`) in [paths.py](../../src/factory/shared/domain/paths.py) is the prefix of those labels, and `WORK_BRANCH` there is `"main"`.
+- `LABEL_PREFIX` (`"stage:"`) in [paths.py](../../src/factory/shared/domain/paths.py) is the prefix of those labels, and `WORK_BRANCH` there is `"develop"`.
 - `post_comment` returns `"already_posted"` when the key is already on the pull request.
 
 See also: *The marker and the post key* below, and *Asking the human* in [pipeline.md](pipeline.md).
@@ -153,7 +153,7 @@ Push never forces. It runs `git push --porcelain --set-upstream origin refs/head
 
 ### Deleting and merging branches
 
-A merge or a discard of a [work item](glossary.md) removes its branch from the remote and from the checkout. The tick and the recovery delete branches at other times too, as *Who uses them* below says. Preparing a stage merges the main branch into the work item's branch. Both return a value for the outcomes a caller must decide on, and raise `GitError` for the rest.
+A merge or a discard of a [work item](glossary.md) removes its branch from the remote and from the checkout. The tick and the recovery delete branches at other times too, as *Who uses them* below says. Preparing a stage merges the working branch (`develop`) into the work item's branch. Both return a value for the outcomes a caller must decide on, and raise `GitError` for the rest.
 
     GitCli.delete_remote_branch(branch) -> PushOutcome
     GitCli.delete_branch(branch) -> None
@@ -178,7 +178,7 @@ A merge or a discard of a [work item](glossary.md) removes its branch from the r
 - An unknown `ref`, and any other refusal that leaves no merge in progress (for example local changes the merge would overwrite), is a `GitError` and changes nothing.
 - `delete_branch` deletes the local branch even when it is not merged. The checked-out branch is a `GitError` and stays. A branch that does not exist is no error and changes nothing.
 
-Who uses them: preparing a stage merges the main branch into a work item's branch. After a merge or a discard, the merge and discard handlers delete the work item's branch from the remote and the checkout. At every tick, the restore of the checkout deletes the local branch of each work item that has a remote branch or is in progress, so a rejected push is not kept. The stale-branch cleanup of the recovery deletes the remote branches of stories that are back in the backlog or done.
+Who uses them: preparing a stage merges the working branch (`develop`) into a work item's branch. After a merge or a discard, the merge and discard handlers delete the work item's branch from the remote and the checkout. At every tick, the restore of the checkout deletes the local branch of each work item that has a remote branch or is in progress, so a rejected push is not kept. The stale-branch cleanup of the recovery deletes the remote branches of stories that are back in the backlog or done.
 
 ### Restoring the checkout
 
@@ -238,7 +238,7 @@ Why: see `decisions.md`.
 |---|---|
 | `changed_paths` | the preflight and the make-based [project commands](glossary.md): the paths changed since a commit |
 | `revert_paths` | the take: puts a deleted or unreadable work item back from the stage-start commit |
-| `merge` | the stage's preparation: merges the main branch into the work item's branch |
+| `merge` | the stage's preparation: merges the working branch (`develop`) into the work item's branch |
 | `ignored` | the take: which changed paths of the [dataset](glossary.md) the host's own ignore rules ignore (see *The take*, `machine.md`) |
 | `status`, `reset_to` | the tick: looks at the checkout and resets it to the remote; `status` is also read by the claim and by the stall handling |
 | `reset_to` | also the stage's preparation and the crash recovery: a stall or a crash |
@@ -250,15 +250,15 @@ Why: see `decisions.md`.
 
 Git is not faked. Tests use real git on a bare remote in `tmp_path`, and check results with plain git through `run_git`, not through other `GitCli` methods.
 
-- The `remote` fixture is a bare repository with the [pipeline definition](glossary.md), the story form and one [feature](glossary.md) with one story on `main`.
+- The `remote` fixture is a bare repository with the [pipeline definition](glossary.md), the story form and one [feature](glossary.md) with one story on `develop`.
 - `make_remote` builds it once per session, once per pytest-xdist worker, as the `remote_template` fixture. Each test gets a copy of the whole folder, seed and bare repository, made by `copy_remote(template, root)` without a git process, so what a test pushes stays its own. A test that needs a remote of its own layout builds it with `make_remote`.
 - `checkout` is a `GitCli` on a clone of it, with the identity `TEST_IDENTITY`.
 - [git_support.py](../../tests/support/git_support.py) has the helpers: `run_git` (through `run_process`, same isolation, author `Test Author`), `write_executable` for a stand-in `executable`, and `remote_commit(remote, branch)`, which reads a branch of the bare remote with plain git and gives `None` when it is absent.
 - The autouse fixture `reopened_tmp_path` in `tests/conftest.py` calls `reopen(tmp_path)` from [tmp_path_support.py](../../tests/support/tmp_path_support.py) after every test that uses `tmp_path`, after the test's own teardowns. It gives the owner read, write and search permission on every folder and read and write on every other entry, links not followed. So a test that closes a folder, or a mutant of the seal that closes `.git`, leaves nothing pytest cannot remove, and a test need not open what it closed for that reason.
 - The `human` fixture (`HumanClone` in [human_clone.py](../../tests/support/human_clone.py)) is a second clone of `remote`, the writer a push test needs besides `checkout`. It is built with `TEST_IDENTITY` and drives `GitCli`. Every push it makes must return `"pushed"`.
-- `human.start(path)` moves a story file from the [backlog](glossary.md) (`backlog/`) to `in-progress/` on `main`, commits and pushes.
-- `human.push_file(branch, path, text)` writes the file on that branch (created from `origin/main` if the remote has none), commits and pushes.
-- `human.merge(branch, method)` brings `origin/<branch>` into `main` and pushes it. `"merge"` makes a merge commit, `"squash"` makes one ordinary commit that leaves the branch tip outside the history of `main`, and `"rebase"` replays the branch's commits with no merge commit.
+- `human.start(path)` moves a story file from the [backlog](glossary.md) (`backlog/`) to `in-progress/` on `develop`, commits and pushes.
+- `human.push_file(branch, path, text)` writes the file on that branch (created from `origin/develop` if the remote has none), commits and pushes.
+- `human.merge(branch, method)` brings `origin/<branch>` into `develop` and pushes it. `"merge"` makes a merge commit, `"squash"` makes one ordinary commit that leaves the branch tip outside the history of `develop`, and `"rebase"` replays the branch's commits with no merge commit.
 
 ## Reference
 
@@ -335,7 +335,7 @@ Besides everything `check_git_argument` refuses, it refuses:
 - the whole values `HEAD` and `@`, because git pushes the checked-out branch under its own name;
 - anything `git check-ref-format --branch` would refuse, applied in the domain without calling git: `^`, `~`, `?`, `[`, `\`, space and control characters, `..`, `@{`, a leading, trailing or doubled `/`, a trailing `.`, and a component that starts with `.` or ends with `.lock`. `push("^main")` is a negative refspec that pushes nothing yet exits 0.
 
-A plus or an `@` inside a name (`a+b`, `a@b`) and `feature/HEAD` are fine. The refusal is a `ValueError` before git and before `BEFORE_PUSH`. It refuses a name git itself allows (`+main`); the factory's names (`main`, `work-item/<id>`) never take that form.
+A plus or an `@` inside a name (`a+b`, `a@b`) and `feature/HEAD` are fine. The refusal is a `ValueError` before git and before `BEFORE_PUSH`. It refuses a name git itself allows (`+main`); the factory's names (`develop`, `work-item/<id>`) never take that form.
 
 ### Where `check_git_argument` applies
 

@@ -15,4 +15,4 @@ Follow the forms. One story is one coder's forty minutes; split where a layer is
 
 ## Small fixes
 
-A story still in `backlog/` may be corrected on `main` (run the form check again, commit with the reason). A story in progress is changed only through an answer on its pull request.
+A story still in `backlog/` may be corrected on `develop` (run the form check again, commit with the reason). A story in progress is changed only through an answer on its pull request.

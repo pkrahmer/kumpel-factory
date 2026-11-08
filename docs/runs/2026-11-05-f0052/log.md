@@ -250,3 +250,24 @@ Times are UTC. The plan: `night-plan.md`.
 - 23:06Z: F0057-S0002 PR #644: new test wrote --initial-branch=main, guard caught it. Answered (a): OTHER_BRANCH constant in the test.
 - 23:19Z: F0057-S0002 PR #644 doing round 2: visible texts still say main. Answered (a) plus finding 2; asked that further word-only leftovers become notes.
 - 23:37Z: F0057-S0002 PR #644 asked at docs (decisions only in feature.md). Answered (a): pasted decisions 1-7. Lesson again: decisions a story must write go into the story.
+- 23:46Z: F0057-S0002 PR #644 merged (23 runs, $8.06). Cut-over: archive 227774b18 on main; Makefile and CLAUDE.md to origin/develop and the coder's demo write paths removed (b8e321ee6, on main); develop created at b8e321ee6; my move_vm.sh and approval.sh point at develop; factory-vm moved to origin/develop, active, no stops. Ruleset on main: waits for the human's yes.
+- 23:48Z: F0057-S0003 PR #645 (base develop) asked 8 at intake. Answered all as proposed; commit helper is operator/skill/kumpel/scripts/kumpel-commit.sh; route tests.
+- 00:19Z: F0057-S0003 PR #645 asked at doing (guard literal in a new test; operator/README.md needs the new scripts; old settings without promote). Answered: tester fixes the literal; coder gets a temporary write path for operator/README.md; get defaults a missing switch to off.
+- 00:59Z: F0057-S0003 PR #645 merged into develop (19 runs, $9.68); docs read against the scripts. Coder's temporary operator/README.md path removed. No VM move (no src/ or agents/ change). F0057-S0004 (the operator's documents name develop and main): started.
+- 01:01Z: F0057-S0004 PR #646 asked at intake (2 criteria). Answered yes to both proposals.
+- 01:10Z: F0057-S0004 PR #646 asked at tests: promote/promoted are forbidden v1 words. Answered (a): both leave GLOSSARY_FORBIDDEN, leave for the pinned test; story now changes code.
+- 01:27Z: F0057-S0004 PR #646 merged (9 runs, $1.91; promote/promoted left the v1 words). factory-vm moved to 02cf60732. F0057-S0005 (the project guide names develop and main): started.
+- 01:43Z: F0057-S0005 PR #647 merged (docs route, 5 runs, $0.89). Acceptance F0057-A0001 opened as PR #648.
+- 01:56Z: F0057-A0001 PR #648 merged: accepted with stories ($2.75). Feature $24.34, 69 runs, 14 answers, 0.5 h waited. Proposed S0006 (archive refuses a refused acceptance), S0007 (promote reuses an open promotion), S0008 (operator docs gaps), S0009 (code names by role). API spend since the switch: $27.09. F0057-S0006 started.
+- 01:58Z: F0057-S0006 PR #649 asked 5 at intake. Answered all as proposed.
+- 02:18Z: F0057-S0007 PR #650 asked 3 at intake. Answered all as proposed.
+- 02:42Z: F0057-S0007 PR #650 merged (11 runs, $2.24); promote.sh finds an open promotion and adds to it. No VM move. S0008, S0009 refined (leave given). F0057-S0008 (operator documents on archive, promotion and the default branch) started.
+- 03:01Z: F0057-S0008 PR #651 merged (docs route, 6 runs, $0.83). F0057-S0009 (the code names the working branch by its role) started.
+- 03:03Z: F0057-S0009 PR #652 asked 5 at intake. Answered as proposed except 2: bare main variables untested (guard too fragile), reviewer reads.
+- 03:24Z: F0057-S0009 PR #652 merged (9 runs, $2.15; the noqa is the renamed old line). Acceptance F0057-A0002 opened as PR #653; VM move waits until it is closed.
+- 03:34Z: F0057-A0002 PR #653 merged: accepted with stories. Proposed S0010 (origin/develop as one constant), S0011 (project guide names Kumpel's scripts), S0012 (procedure after an acceptance that proposes stories). factory-vm moved to 88484da91. Waiting for the human: run the three or close.
+- 07:05Z: the human chose to run S0010, S0011 and S0012, and gave the yes for the ruleset on main after the promotion. Proposed marks removed. F0057-S0012 (Kumpel's procedure after an acceptance that proposes stories) started.
+- 07:26Z: F0057-S0012 PR #654 merged (10 runs, $1.68). F0057-S0011 (the project guide names Kumpel's archive and promotion) started.
+- 07:40Z: F0057-S0011 PR #655 merged (docs route, 5 runs, $0.85). F0057-S0010 (the working branch's remote ref is one constant) started.
+- 07:54Z: F0057-S0010 PR #656 merged (6 runs, $1.16).
+- 08:01Z: F0057-A0003 PR #657 merged: accepted, no stories. factory-vm moved to eb0d906c0. F0057 archived by hand (Kumpel's scripts need a site file this machine lacks).

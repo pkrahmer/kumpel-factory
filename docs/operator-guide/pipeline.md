@@ -4,7 +4,7 @@ A topic of the [operator guide](README.md). It covers the file that configures y
 
 ## The pipeline definition
 
-The [pipeline definition](../project-guide/glossary.md) is the project's configuration: its [stages](../project-guide/glossary.md), the [roles](../project-guide/glossary.md) that work in them, the [project commands](../project-guide/glossary.md) and the limits. The factory reads it only as it stands on `origin/main`, so a change takes effect when it is merged.
+The [pipeline definition](../project-guide/glossary.md) is the project's configuration: its [stages](../project-guide/glossary.md), the [roles](../project-guide/glossary.md) that work in them, the [project commands](../project-guide/glossary.md) and the limits. The factory reads it only as it stands on `origin/develop`, so a change takes effect when it is merged.
 
 This is the smallest useful definition. It loads:
 
@@ -28,9 +28,9 @@ The order of the stages in the file is the pipeline's order. The first `next` of
 
 1. Edit `factory/pipeline.yml` in a clone of the project.
 2. Check it against the rules below, most of all the stage `done` and the [lease](../project-guide/glossary.md).
-3. Merge the change to `main`. The factory reads the new text at its next [tick](../project-guide/glossary.md).
+3. Merge the change to `develop`. The factory reads the new text at its next [tick](../project-guide/glossary.md).
 
-A refused definition [stops](../project-guide/glossary.md) the factory with `pipeline_definition_invalid` until you fix it on `main` (see "The stop `pipeline_definition_invalid`" in [stops.md](stops.md)).
+A refused definition [stops](../project-guide/glossary.md) the factory with `pipeline_definition_invalid` until you fix it on `develop` (see "The stop `pipeline_definition_invalid`" in [stops.md](stops.md)).
 
 ### The rules you meet most often
 
@@ -185,7 +185,7 @@ How a file is read depends on its folder and on whether it has front matter:
 
 - A story in `backlog` is read as a specification. Front matter there is a finding.
 - A story in `in-progress` or `done` with front matter is read as a work item, and its state is checked too.
-- A story there without front matter is a started story as you moved it on `main`, where the state lives on the work item's branch. It is checked like a backlog story, with no complaint about missing state.
+- A story there without front matter is a started story as you moved it on `develop`, where the state lives on the work item's branch. It is checked like a backlog story, with no complaint about missing state.
 
 ### The findings
 

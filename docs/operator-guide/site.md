@@ -115,7 +115,7 @@ A key marked *required for a job* may stay unset when you do not run the job; `S
 
 The skill's scripts live in `operator/skill/kumpel/scripts/`. They read `SITE_REPOSITORY` and `SITE_CHECKOUT` from the site file, or from the environment when it sets them. Only then do they look at the skill's `settings.json`.
 
-- When the site gives both, `settings.json` holds only the switches (`merge`, `answer`, `start_next`) and `settings.sh init` takes no argument.
+- When the site gives both, `settings.json` holds only the switches (listed under Settings in [operator/README.md](../../operator/README.md)) and `settings.sh init` takes no argument.
 - When the site gives one or none, `settings.sh init` needs `<owner/name> <checkout>`, and the JSON file keeps them.
 - A missing or faulty site file does not stop `settings.sh`. The JSON file answers, and a faulty file's message goes to standard error.
 
@@ -232,11 +232,11 @@ The script works through the hosting API alone and needs no checkout. It resolve
 
 1. It closes every open pull request whose head branch starts with `work-item/` (`closed #<n>`).
 2. It deletes every branch under `work-item/` (`deleted <branch>`).
-3. It moves `main` to the tag's commit by force (`moved main to <7 characters>`).
+3. It moves `develop` to the tag's commit by force (`moved develop to <7 characters>`).
 
-Nothing else is touched: no other branch, no tag, no other pull request. Without `--yes` it prints the counts and the target (`would close 2 open work-item pull request(s)`, `would delete 3 work-item branch(es)`, `would move main to <commit>`). Then it prints `run again with --yes` and exits 1. A reset that finds nothing to close or delete still moves `main`.
+Nothing else is touched: no other branch, no tag, no other pull request. Without `--yes` it prints the counts and the target (`would close 2 open work-item pull request(s)`, `would delete 3 work-item branch(es)`, `would move develop to <commit>`). Then it prints `run again with --yes` and exits 1. A reset that finds nothing to close or delete still moves `develop`. `main` is left alone: only a promotion moves it (`left main alone; only a promotion moves it`).
 
-The force-push cannot be undone. The commits `main` held are no longer on any branch, and the closed pull requests and deleted branches are not restored.
+The force-push cannot be undone. The commits `develop` held are no longer on any branch, and the closed pull requests and deleted branches are not restored.
 
 It refuses to run in these cases:
 
@@ -252,7 +252,7 @@ A failing call stops the script at that call with the hosting client's message a
 
 ### Merging a story from the skill
 
-The same skill folder merges a [story](../project-guide/glossary.md): `merge.sh <pr> <id>` (see *A merge archives the story* in [work-items.md](work-items.md)). It merges with a merge commit. Then it polls the latest 20 commits of `main` for `work item <id>: merged, archived`. It polls every `KUMPEL_POLL_SECONDS` seconds (15), for at most `KUMPEL_ARCHIVE_WAIT` seconds (300). It prints `merged #<pr>` and `archived <id>` and exits 0. Start the next story only after `archived`.
+The same skill folder merges a [story](../project-guide/glossary.md): `merge.sh <pr> <id>` (see *A merge archives the story* in [work-items.md](work-items.md)). It merges with a merge commit. Then it polls the latest 20 commits of `develop` for `work item <id>: merged, archived`. It polls every `KUMPEL_POLL_SECONDS` seconds (15), for at most `KUMPEL_ARCHIVE_WAIT` seconds (300). It prints `merged #<pr>` and `archived <id>` and exits 0. Start the next story only after `archived`.
 
 | What you see | What it means | What you do |
 |---|---|---|
@@ -260,7 +260,7 @@ The same skill folder merges a [story](../project-guide/glossary.md): `merge.sh 
 | `merge.sh: #<pr> is a draft`, exit 1 | the factory has not handed the pull request over | wait for the factory; nothing was merged |
 | `merge.sh: #<pr> is not at stage:approval`, exit 1 | the work item has not reached the [approval](../project-guide/glossary.md) | wait for the label `stage:approval`; nothing was merged |
 | `merge.sh: #<pr> is not the pull request of <id>`, exit 1 | the pull request's branch is not `work-item/<id>` | give the right number and id; nothing was merged |
-| `merge.sh: merged, but no archive commit for <id> after <N> s`, exit 1 | the pull request is merged, but the archive commit did not appear in time | look at the history of `main` and the factory's log; do not start the next story until `archived` shows |
+| `merge.sh: merged, but no archive commit for <id> after <N> s`, exit 1 | the pull request is merged, but the archive commit did not appear in time | look at the history of `develop` and the factory's log; do not start the next story until `archived` shows |
 
 ### Telling Kumpel's acts from the human's
 

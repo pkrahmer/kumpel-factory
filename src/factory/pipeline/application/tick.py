@@ -26,13 +26,11 @@ from factory.shared.domain.errors import (
     PushFailed,
 )
 from factory.shared.domain.identifiers import Name, branch_name, work_item_of_branch
-from factory.shared.domain.paths import REMOTE, WORK_BRANCH
+from factory.shared.domain.paths import WORK_BRANCH, WORK_REF
 from factory.watching.application.watcher import Watcher
 from factory.work.application.work_items import RemoteWorkItems
 
 HandlerFactory = Callable[[PipelineDefinition], Mapping[EventKind, Handler]]
-
-_WORK_REF = f"{REMOTE}/{WORK_BRANCH}"
 
 
 class TickOutcome(BaseModel):
@@ -194,7 +192,7 @@ class Tick:
             self._boundaries.log.line(f"discarded uncommitted changes: {', '.join(changes)}")
         # Cleaning in place first, so that the switch to the working branch meets no local change.
         git.reset_to("HEAD")
-        git.checkout(WORK_BRANCH, start_point=_WORK_REF)
+        git.checkout(WORK_BRANCH, start_point=WORK_REF)
         # A local branch of a work item may hold a rejected push; the next stage starts
         # from the remote's branch instead.
         for work_item in self._work_items_with_branches():

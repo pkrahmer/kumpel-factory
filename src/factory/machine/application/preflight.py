@@ -41,7 +41,7 @@ from factory.shared.domain.errors import (
     ProjectCommandError,
     SnapshotError,
 )
-from factory.shared.domain.paths import REMOTE, WORK_BRANCH
+from factory.shared.domain.paths import WORK_BRANCH, WORK_REF
 from factory.shared.domain.printed_lines import printed_lines
 from factory.shared.domain.settings import (
     API_LOGIN_FILE_VARIABLE,
@@ -58,7 +58,6 @@ PROBE_COMMAND = "lint"
 # A constant, the default of every project command: the preflight needs no pipeline definition.
 PROBE_TIME_LIMIT = timedelta(minutes=10)
 
-_WORK_REF = f"{REMOTE}/{WORK_BRANCH}"
 _SHORT_COMMIT = 12
 _MAIN_FAILING: RepositoryStopReason = "main_branch_failing"
 _PREFLIGHT_FAILED: RepositoryStopReason = "preflight_failed"
@@ -76,7 +75,7 @@ _METADATA_ITEM = "metadata-block"
 # curl writes `000` as the HTTP code when it got no answer: refused, unreachable or timed out.
 _NOT_CONNECTED = "000"
 _HTTP_CODE = re.compile(r"[0-9]{3}")
-_NO_WORK_BRANCH_TO_PREPARE = f"no {_WORK_REF} to prepare the stage environment from"
+_NO_WORK_BRANCH_TO_PREPARE = f"no {WORK_REF} to prepare the stage environment from"
 
 PROBE_AGENT = "coder"
 PROBE_PROMPT = "Probe: end with the decision question and the entry probe."
@@ -275,15 +274,15 @@ def agent_run_probe_item(
 ) -> PreflightItem:
     """Run the agent runtime once with a stage's flags; it passes when the run completes."""
     # A flag the pinned runtime rejects would end every real run `died` without saying why.
-    main = boundaries.git.resolve(_WORK_REF)
-    if main is None:
+    work = boundaries.git.resolve(WORK_REF)
+    if work is None:
         return PreflightItem(name=_PROBE_ITEM, passed=False, detail=_NO_WORK_BRANCH_TO_PREPARE)
     try:
         installed = boundaries.agent_definitions.read(PROBE_AGENT)
         agent = installed.model_copy(update={"budget_usd": PROBE_BUDGET_USD})
         request = _probe_request(boundaries, agent, environment)
         stage_environment = stage_environment_of(boundaries)
-        stage_environment.prepare(main, WORK_BRANCH, sync_time_limit=PROBE_TIME_LIMIT)
+        stage_environment.prepare(work, WORK_BRANCH, sync_time_limit=PROBE_TIME_LIMIT)
         result = stage_environment.run_agent(request)
     except (AgentDefinitionError, AgentRuntimeError, SnapshotError, ContainerError) as error:
         return PreflightItem(name=_PROBE_ITEM, passed=False, detail=str(error))
@@ -506,10 +505,10 @@ class Preflight:
         if stamp is None or stamp.main_failed is None:
             return
         try:
-            main = self._boundaries.git.resolve(_WORK_REF)
+            work = self._boundaries.git.resolve(WORK_REF)
         except GitError:
             return
-        if main != stamp.main_failed and not self._changes_only_stop_records(stamp.main_failed):
+        if work != stamp.main_failed and not self._changes_only_stop_records(stamp.main_failed):
             self._stops.clear_stop(_MAIN_FAILING)
 
     def _changes_only_stop_records(self, since: CommitId) -> bool:
@@ -522,24 +521,24 @@ class Preflight:
         return changes_only_stop_records(paths)
 
     def _probe(self, stamp: PreflightStamp) -> RepositoryStopReason | None:
-        main = self._boundaries.git.resolve(_WORK_REF)
-        if main is None:
+        work = self._boundaries.git.resolve(WORK_REF)
+        if work is None:
             return None
-        if stamp.main_failed == main:
-            self._keep_failing_stop(main)
+        if stamp.main_failed == work:
+            self._keep_failing_stop(work)
             return _MAIN_FAILING
-        if stamp.main_probed != main:
-            return self._run_probe(stamp, main)
+        if stamp.main_probed != work:
+            return self._run_probe(stamp, work)
         self._stops.clear_stop(_MAIN_FAILING)
         return None
 
-    def _run_probe(self, stamp: PreflightStamp, main: CommitId) -> RepositoryStopReason | None:
+    def _run_probe(self, stamp: PreflightStamp, work: CommitId) -> RepositoryStopReason | None:
         # The working branch only: a work item's red branch is its own concern, not the machine's.
         git = self._boundaries.git
-        git.checkout(WORK_BRANCH, start_point=_WORK_REF)
-        git.reset_to(_WORK_REF)
+        git.checkout(WORK_BRANCH, start_point=WORK_REF)
+        git.reset_to(WORK_REF)
         stage_environment_of(self._boundaries).prepare(
-            main, WORK_BRANCH, sync_time_limit=PROBE_TIME_LIMIT
+            work, WORK_BRANCH, sync_time_limit=PROBE_TIME_LIMIT
         )
         result = self._boundaries.project_commands.run(PROBE_COMMAND, time_limit=PROBE_TIME_LIMIT)
         if self._boundaries.stop_requested():
@@ -548,18 +547,18 @@ class Preflight:
             return None
         if result.passed:
             self._stops.clear_stop(_MAIN_FAILING)
-            self._stamps.write(PreflightStamp(image=stamp.image, main_probed=main))
+            self._stamps.write(PreflightStamp(image=stamp.image, main_probed=work))
             return None
-        self._raise("repository", _MAIN_FAILING, _failing_detail(result, main))
+        self._raise("repository", _MAIN_FAILING, _failing_detail(result, work))
         # Remembered, so that idle ticks run no project command until a fix is pushed.
-        self._stamps.write(PreflightStamp(image=stamp.image, main_failed=main))
+        self._stamps.write(PreflightStamp(image=stamp.image, main_failed=work))
         return _MAIN_FAILING
 
-    def _keep_failing_stop(self, main: CommitId) -> None:
+    def _keep_failing_stop(self, work: CommitId) -> None:
         status = self._boundaries.health.read()
         if any(stop.reason == _MAIN_FAILING for stop in status.stops):
             return
-        commit = main[:_SHORT_COMMIT]
+        commit = work[:_SHORT_COMMIT]
         detail = f"{PROBE_COMMAND} is red on {WORK_BRANCH} at {commit} (probed earlier)"
         self._raise("repository", _MAIN_FAILING, detail)
 
@@ -570,8 +569,8 @@ class Preflight:
         self._stops.raise_stop(stop)
 
 
-def _failing_detail(result: CheckResult, main: CommitId) -> str:
-    commit = main[:_SHORT_COMMIT]
+def _failing_detail(result: CheckResult, work: CommitId) -> str:
+    commit = work[:_SHORT_COMMIT]
     if result.status == "time_limit":
         return f"{PROBE_COMMAND} reached its time_limit on {WORK_BRANCH} at {commit}"
     if not result.last_line.strip():

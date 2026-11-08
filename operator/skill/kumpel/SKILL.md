@@ -41,5 +41,6 @@ When the human asks you to review or draft a story or feature: `references/shapi
 | `merge` | run the checks, post the verdict as a comment, the human merges | merge after green checks |
 | `answer` | answer only what the feature's decisions settle; anything beyond waits for the human, said in one line in the chat | also answer beyond the decisions, marked **For the morning** |
 | `start_next` | tell the human the next story is ready | start it |
+| `promote` | open the promotion of `develop` to `main` after a feature's acceptance, the human merges it | merge the promotion |
 
-`answer` is on by default, `merge` off, `start_next` on (the human, 2026-10-31).
+`answer` is on by default, `merge` off, `start_next` on (the human, 2026-10-31). `promote` is off by default.

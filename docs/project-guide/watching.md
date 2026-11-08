@@ -10,14 +10,14 @@ The watcher is `Watcher` in [watcher.py](../../src/factory/watching/application/
 
     Watcher(boundaries, instance, *, observer=False).evaluate(definition) -> Event
     evaluate(facts: EvaluationInput, lookup, claim_status) -> Event
-    EvaluationInput(definition, snapshots, main_commit, illegal_changes=[], due=[])
+    EvaluationInput(definition, snapshots, work_commit, illegal_changes=[], due=[])
     waiting(state, definition) -> bool
     question_posted(snapshot, comments) -> bool
 
-- `Watcher.evaluate` reads the head of `origin/main`, the [work items](glossary.md) in progress and the running [acceptances](glossary.md), and sorts them by `(work_item_order(id), path)`.
+- `Watcher.evaluate` reads the head of `origin/develop`, the [work items](glossary.md) in progress and the running [acceptances](glossary.md), and sorts them by `(work_item_order(id), path)`.
 - `due` comes from `AcceptanceReader(boundaries, definition).due_features()`; `AcceptanceReader` is in [acceptance_reading.py](../../src/factory/work/application/acceptance_reading.py).
 - It does not fetch; the caller fetches first.
-- `GitError` passes through, also when `origin/main` does not resolve (the message names `origin/main`), and so does `WorkItemFormatError`.
+- `GitError` passes through, also when `origin/develop` does not resolve (the message names `origin/develop`), and so does `WorkItemFormatError`.
 - The lookup it passes to `evaluate` calls `get_pull_request`, and `list_comments` only while the pull request is open.
 - `ClaimService` is in [claims.py](../../src/factory/pipeline/application/claims.py). With `observer=False` (the tick) the claim status is `ClaimService.status`: an own [claim](glossary.md) is `own`, so it is a `crash` at any age.
 - With `observer=True` the claim status is `ClaimService.observed_status`, which calls `observed_claim_status` in [lease.py](../../src/factory/pipeline/domain/lease.py). An own claim within its [lease](glossary.md) is `held`, and the event is `idle` with the detail `<work item> is held by <instance>`. An own claim at or past its lease is `own` again.
@@ -36,7 +36,7 @@ An event says what the factory should do about one work item, or that it should 
 - `Event` is frozen and forbids unknown keys.
 - `key` is `<kind>:<work item id>`, else `<kind>:<feature id>`, else `<kind>:-`.
 - `idle` and `acceptance_due` take no work item; every other kind needs one. `feature` (the [feature](glossary.md)'s id) is set for `acceptance_due` and for no other kind. A violation raises `ValidationError`.
-- `remote_state` is the snapshot's `branch_commit`, else the head of `origin/main`. An event with no work item carries the head of `origin/main`.
+- `remote_state` is the snapshot's `branch_commit`, else the head of `origin/develop`. An event with no work item carries the head of `origin/develop`.
 - `detail` is for display. No code reads it back.
 - `evaluate` makes every kind: `run`, `comment`, `ask`, `merged`, `closed`, `reject`, `hand_over`, `crash`, `expired`, `duplicate`, `pull_request_lookup`, `acceptance_due` and `idle`. `build_handlers` registers a handler for each of them.
 - `reject` is an illegal stage change (see *The move rule*); `RejectHandler` handles it.
@@ -52,7 +52,7 @@ See also: *The handlers of the events* and *An illegal stage change is put back*
 3. **The agent at work.** The first work item with a claim decides by the claim's status: `crash`, `expired` or `idle`.
 4. **New work.** The runnable work items and the features whose acceptance is due compete in one order. The first gives `run`, `ask` or `acceptance_due`.
 
-Nothing matched: `idle` at the head of `origin/main`.
+Nothing matched: `idle` at the head of `origin/develop`.
 
 - A waiting work item holds back all new work, so no work item starts while another waits for the human.
 - While a claim is held, nothing else runs, so one agent runs at a time.
@@ -79,9 +79,9 @@ A stage changes only through the pipeline. The move rule finds a stage change th
 - `is_legal_change` is true when `correction` is set, when the stage is unchanged, when `to_stage` is in the `next` of `from_stage`, or when `to_stage` is `done` and `from_stage` is an approval stage. A stage the definition lacks is never a legal side.
 - `factory_moves` lists every move the factory may make: every name in every stage's `next`, in stage order, then each approval stage to `done`, no pair twice. All of them are legal under `is_legal_change`.
 - A handler that moves a work item must take its target from the definition, or that proof does not hold.
-- `last_stage_change` judges only the newest commit beyond `origin/main` that touched the file, so an older illegal change that a later commit buried is not seen.
+- `last_stage_change` judges only the newest commit beyond `origin/develop` that touched the file, so an older illegal change that a later commit buried is not seen.
 - `Watcher.evaluate` fills `illegal_changes` with one `IllegalChange` for each snapshot, in snapshot order, whose change is not legal. An acceptance's branch is held to the same rule as a story's.
-- After a merge by any method (merge commit, squash, rebase) the branch's commits may still be beyond `origin/main` and show a stage change nobody made by hand. So `evaluate` reads the pull request before it decides on `reject`.
+- After a merge by any method (merge commit, squash, rebase) the branch's commits may still be beyond `origin/develop` and show a stage change nobody made by hand. So `evaluate` reads the pull request before it decides on `reject`.
 - It skips the change of the waiting work item only when the lookup returned a merged pull request. A failed lookup skips nothing.
 
 When `last_stage_change` gives `None`, and what `reject` carries, is in the *Reference*, *The move rule*.
@@ -96,7 +96,7 @@ See also: *An illegal stage change is put back* in `pipeline.md`.
     main(argv=None, *, boundaries=None, instance=None, out=None, err=None) -> int
     render_event(event) -> str
 
-- `run_watch` resolves `origin/main` (`GitError` when it does not), loads the definition at that commit with `PipelineLoader(boundaries).load(commit)`, evaluates once with `Watcher(boundaries, instance, observer=True)`, and writes `render_event(event)`, a blank line and the board.
+- `run_watch` resolves `origin/develop` (`GitError` when it does not), loads the definition at that commit with `PipelineLoader(boundaries).load(commit)`, evaluates once with `Watcher(boundaries, instance, observer=True)`, and writes `render_event(event)`, a blank line and the board.
 - It loads at the commit and not at the ref, so that it raises or clears no [stop](glossary.md).
 - It fetches nothing and writes no file. On success it returns 0.
 - A `PipelineDefinitionInvalid` or an `AgentDefinitionInvalid` gives 1 and a line `factory-watch: <fault>` on `err`.
@@ -113,7 +113,7 @@ The board is the table `factory-watch` prints: one row for each feature with its
     feature_rows(stories, titles) -> list[FeatureRow]
     render_board(features, rows) -> str
 
-- `read` takes the story files of the three folders from `RemoteWorkItems.list_stories`, the feature titles from `Git.show_file("origin/main", ...)` of each `feature.md`, and the rows from `running_work_items` in `acceptance_reading.py`.
+- `read` takes the story files of the three folders from `RemoteWorkItems.list_stories`, the feature titles from `Git.show_file("origin/develop", ...)` of each `feature.md`, and the rows from `running_work_items` in `acceptance_reading.py`.
 - `running_work_items` joins the snapshots of `RemoteWorkItems.read` and of `AcceptanceReader.snapshots()`, sorted by `(work_item_order(id), path)`. `Watcher.evaluate` calls the same function, so the board and the watcher order work items alike.
 - A report that `snapshots()` cannot read raises `WorkItemFormatError` from `read`.
 - `read` ends with `AcceptanceReader(boundaries, definition).fill_board(rows)`, which sets `FeatureRow.acceptance`. It stays `None` without an `acceptance_stage`.
@@ -222,7 +222,7 @@ A bill is the sum of cost records and nothing else. The cost line in a `done` jo
 - `cost_line` and `cost_table` build the text that `records.md` describes. Minutes and dollars are rounded half up with `Decimal.quantize`. The minutes are computed from `Decimal(str(seconds))` to avoid float half-way errors.
 - `one_decimal` gives one decimal, rounded half up. It is the one rounding helper of the module: the minutes and the human's hours both call it, so there is no second copy.
 - `WorkItemBill` has `work_item`, `total`, `stages`, `line` and `table`.
-- `for_work_item` reads only remote-tracking refs: `origin/<branch>` when it exists, else `origin/main`.
+- `for_work_item` reads only remote-tracking refs: `origin/<branch>` when it exists, else `origin/develop`.
 - It finds the first `.md` file under the features directory whose name parses to the id; none gives `None`.
 - It reads that file's sidecar with `show_file`; no sidecar means no records.
 - A local commit that was not pushed, and the contents of the dataset, have no influence, so a fresh clone shows the same bill.
@@ -268,7 +268,7 @@ The factory also records how long it waited for the human. [human_waits.py](../.
 - The parenthesis is left out when `<n>` is 0. The word is `questions` for 1 as well.
 - The causes follow the order of the values of `Blocked`, and the hours are the sum of the waits in hours, rounded with `one_decimal`. No waits give `0 questions answered, 0.0 h waited`.
 - `cost_table_post(table, human=None)` in [post_texts.py](../../src/factory/hosting/domain/post_texts.py) appends an empty line and `Human: <human>` when `human` is set. `HandOverHandler` and `AcceptanceHandOver` pass `human_line(human_waits(journal))` of the document they read, and the post's key is unchanged.
-- `AcceptanceService.facts` passes the line of the waits of every story in the feature's `done/` on `origin/main`, read with `AcceptanceReader.document`. It leaves out an acceptance report and a [backlog](glossary.md) story. A done story file that `parse` refuses adds no wait.
+- `AcceptanceService.facts` passes the line of the waits of every story in the feature's `done/` on `origin/develop`, read with `AcceptanceReader.document`. It leaves out an acceptance report and a [backlog](glossary.md) story. A done story file that `parse` refuses adds no wait.
 
 See also: *The handlers of the events* in `pipeline.md`.
 
@@ -317,17 +317,17 @@ The detail of *The four tiers*. The order of the checks inside `evaluate` is: in
 4. **New work.** Two kinds of candidate share one ranking:
    - The runnable work items (the stage has a role and the work item does not wait; a stage without a role, such as `done`, is skipped), keyed by `work_item_order(id)`.
    - The features in `EvaluationInput.due`, keyed by `(<feature id>, 1, "")`.
-   - The first candidate decides. A work item gives `run`, or `ask` with the detail `attempts cap` when `attempts` has reached `attempts_cap` (the [attempts cap](glossary.md)). A due feature gives `acceptance_due`: no work item, `feature` set, `remote_state` the head of `origin/main`, detail `acceptance of <feature> is due`.
+   - The first candidate decides. A work item gives `run`, or `ask` with the detail `attempts cap` when `attempts` has reached `attempts_cap` (the [attempts cap](glossary.md)). A due feature gives `acceptance_due`: no work item, `feature` set, `remote_state` the head of `origin/develop`, detail `acceptance of <feature> is due`.
 
 `question_posted` is true when a comment by the factory, for this work item, with the key kind of `blocked` and the number of the latest `question` record, exists.
 
 ### The move rule
 
-`last_stage_change(snapshot)` runs `Git.log("origin/<branch>", since="origin/main", path=<story file>)`, so only commits not reachable from `origin/main` count. The newest of them, `C`, decides. The result is `None` when:
+`last_stage_change(snapshot)` runs `Git.log("origin/<branch>", since="origin/develop", path=<story file>)`, so only commits not reachable from `origin/develop` count. The newest of them, `C`, decides. The result is `None` when:
 
 - the snapshot has no branch, or the log is empty;
 - `C` is a merge commit (more than one parent);
-- `C` is the opening commit: its parent is reachable from `origin/main` (the text the human started, which may say any stage);
+- `C` is the opening commit: its parent is reachable from `origin/develop` (the text the human started, which may say any stage);
 - the file does not exist at `C` (deleted) or at its parent (added), or the parent's text cannot be parsed;
 - the stage is the same at `C` and at its parent.
 

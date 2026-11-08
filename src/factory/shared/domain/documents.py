@@ -74,8 +74,6 @@ GLOSSARY_FORBIDDEN: Final = (
     "lanes",
     "stage table",
     "stages.yml",
-    "promote",
-    "promoted",
     "acceptor",
     "demonstration",
     "control surface",

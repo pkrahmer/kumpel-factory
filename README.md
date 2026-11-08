@@ -83,7 +83,7 @@ The factory runs as a service on a Linux VM with ZFS and rootless Podman. Every 
 
 In a Cloud Run job, `operator/vm/job-start.sh` builds the instance at every start; see *On Cloud Run* in [cloud-run.md](docs/operator-guide/cloud-run.md).
 
-A project can add tools to its stage image with a file `<project>/factory/stage.Containerfile` on its `main`; see *The project's stage file* in [machine.md](docs/operator-guide/machine.md).
+A project can add tools to its stage image with a file `<project>/factory/stage.Containerfile` on its `develop`; see *The project's stage file* in [machine.md](docs/operator-guide/machine.md).
 
 ### How it is built
 

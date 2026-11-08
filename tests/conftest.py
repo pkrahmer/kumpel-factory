@@ -152,7 +152,7 @@ def remote_template(tmp_path_factory: pytest.TempPathFactory) -> Path:
 
 @pytest.fixture
 def remote(tmp_path: Path, remote_template: Path) -> Path:
-    """Return a bare repository whose `main` holds a small factory layout."""
+    """Return a bare repository whose working branch holds a small factory layout."""
     return copy_remote(remote_template, tmp_path / "origin")
 
 

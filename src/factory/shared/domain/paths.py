@@ -11,6 +11,7 @@ from factory.shared.domain.identifiers import (
 
 REMOTE = "origin"
 WORK_BRANCH = "develop"
+WORK_REF = f"{REMOTE}/{WORK_BRANCH}"
 FACTORY_DIRECTORY = "factory"
 PIPELINE_DEFINITION_FILE = "factory/pipeline.yml"
 STORY_FORM_FILE = "factory/story-form.md"

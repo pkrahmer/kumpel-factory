@@ -1,6 +1,6 @@
 #!/bin/sh
 # SPDX-License-Identifier: Apache-2.0
-# The next story to start, from the checkout's main branch. Prints one line:
+# The next story to start, from the checkout's develop branch. Prints one line:
 #   next: <story id>       the first story of a feature's *Stories* list that is still in its backlog/
 #   busy: <work item id>   a work item is in progress; start nothing
 #   none                   every listed story is started or done
@@ -13,7 +13,7 @@ here=$(cd "$(dirname "$0")" && pwd -P)
 . "$here/../../../lib/site.sh"
 . "$here/../../../lib/hosting.sh"
 cd "$(sh "$here/settings.sh" get checkout)"
-git checkout -q main
+git checkout -q develop
 hosting_git pull -q --no-rebase
 for path in factory/features/*/in-progress/*.md; do
   [ -f "$path" ] || continue

@@ -30,7 +30,7 @@ from support.git_support import (
 from support.human_clone import HumanClone
 from support.settings_support import AGENT_HOME
 
-NO_MAIN = f"the repository has no {WORK_BRANCH} branch yet"
+NO_WORK_BRANCH = f"the repository has no {WORK_BRANCH} branch yet"
 NO_PIPELINE = f"{REMOTE}/{WORK_BRANCH} has no factory/pipeline.yml yet"
 OTHER_BRANCH = "main"
 
@@ -166,7 +166,9 @@ def test_a_remote_without_any_commit_is_a_stop_at_the_clocks_time(
     prepared = waiting.waiter.prepare()
 
     assert prepared is False
-    assert [(stop.detail, stop.at) for stop in waiting.unavailable()] == [(NO_MAIN, clock.now())]
+    assert [(stop.detail, stop.at) for stop in waiting.unavailable()] == [
+        (NO_WORK_BRANCH, clock.now())
+    ]
 
 
 def test_a_remote_with_main_but_no_develop_is_a_stop_naming_develop(
@@ -226,8 +228,8 @@ def test_a_repeated_fault_is_reported_once_and_a_changed_fault_again(
 
     assert after_repeat == 1
     assert waiting.log.stop_lines() == [
-        f"stop repository repository_unavailable: {NO_MAIN}",
+        f"stop repository repository_unavailable: {NO_WORK_BRANCH}",
         f"stop repository repository_unavailable: {NO_PIPELINE}",
-        f"stop repository repository_unavailable: {NO_MAIN}",
+        f"stop repository repository_unavailable: {NO_WORK_BRANCH}",
     ]
-    assert [stop.detail for stop in waiting.unavailable()] == [NO_MAIN]
+    assert [stop.detail for stop in waiting.unavailable()] == [NO_WORK_BRANCH]

@@ -9,13 +9,11 @@ from factory.pipeline.domain.events import Event
 from factory.pipeline.domain.pipeline_definition import PipelineDefinition
 from factory.shared.domain.errors import GitError
 from factory.shared.domain.identifiers import Name
-from factory.shared.domain.paths import REMOTE, WORK_BRANCH
+from factory.shared.domain.paths import WORK_REF
 from factory.work.application.acceptance_reading import AcceptanceReader, running_work_items
 from factory.work.application.work_items import RemoteWorkItems
 from factory.work.domain.move_rule import IllegalChange, is_legal_change
 from factory.work.domain.work_item import WorkItemSnapshot
-
-_WORK_REF = f"{REMOTE}/{WORK_BRANCH}"
 
 
 class Watcher:
@@ -33,7 +31,7 @@ class Watcher:
         Raises `GitError`, also when the working branch does not resolve, and `WorkItemFormatError`
         for a work item file that cannot be read.
         """
-        main_commit = self._main_commit()
+        work_commit = self._work_commit()
         boundaries = self._boundaries
         work_items = RemoteWorkItems(boundaries.git, boundaries.work_item_reader)
         acceptances = AcceptanceReader(boundaries, definition)
@@ -41,7 +39,7 @@ class Watcher:
         facts = EvaluationInput(
             definition=definition,
             snapshots=snapshots,
-            main_commit=main_commit,
+            work_commit=work_commit,
             illegal_changes=_illegal_changes(work_items, snapshots, definition),
             due=acceptances.due_features(),
         )
@@ -50,10 +48,10 @@ class Watcher:
         status_of = claims.observed_status if self._observer else claims.status
         return evaluate(facts, self._lookup, status_of)
 
-    def _main_commit(self) -> CommitId:
-        commit = self._boundaries.git.resolve(_WORK_REF)
+    def _work_commit(self) -> CommitId:
+        commit = self._boundaries.git.resolve(WORK_REF)
         if commit is None:
-            raise GitError(f"resolve {_WORK_REF}", None, f"{_WORK_REF} does not resolve")
+            raise GitError(f"resolve {WORK_REF}", None, f"{WORK_REF} does not resolve")
         return commit
 
     def _lookup(self, number: int) -> PullRequestObservation:

@@ -188,7 +188,7 @@ The command gives them the checkout's top-level entries and the real test of exi
 - In a pytest node id (a test file, then `::`, then the test name) only the path before `::` is read.
 - The text has no whitespace, does not start with `/` or `~`, and has no `:` before its first `/`.
 - So a web address such as `https://host/x` is no path, and neither is a scp-style git address such as `git@github.com:owner/project.git`. A `:` after the first `/` changes nothing.
-- It must either start with a top-level entry of the checkout or end in a file name with an extension. So a path whose first folder was renamed is still checked, and `origin/main` is not a path.
+- It must either start with a top-level entry of the checkout or end in a file name with an extension. So a path whose first folder was renamed is still checked, and `origin/develop` is not a path.
 - It exists when it resolves to something inside the checkout.
 - **A link:** the target of a relative Markdown link, read from the document's own folder (`../` included) with any `#fragment` left off. A web address, a `mailto:` address, an absolute path and a link to a heading alone (`#...`) are not checked.
 
