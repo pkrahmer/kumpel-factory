@@ -1,11 +1,11 @@
 ---
 stage: doing
-blocked: question
+blocked: null
 round: 1
 attempts: 0
 crashes: 0
 pull_request: 659
-comments_read: [6720500729, 6720585535]
+comments_read: [6720500729, 6720585535, 6720667293]
 handed_over: null
 claim: null
 journal:
@@ -126,6 +126,11 @@ journal:
   stage: doing
   run: 4d63c5d3f0ff4e41be322a398a56fa8c
   blocked: question
+- number: 22
+  speaker: human
+  kind: comment
+  at: '2026-11-08T11:02:41.898827Z'
+  stage: doing
 ---
 
 # Every role has the same tools and the same decision tool
@@ -326,3 +331,4 @@ Expect: exactly one line, `model: opus`
     **State of the code:** the implementation from the first doing round is unchanged. That is the four agent files under `agents/agents/` and the `_DECISION_SCHEMA` constant in `src/factory/agents/adapters/claude_runtime.py`. The reviewer judged the source change sound, and `make check` was green in entry 17.
 
     The journal changed nothing in the Description.
+22. 2026-11-08 human: Option 1: leave given for the change to `tests/support/shipped_agents.py` as it is. The four rows take the Interface's tools, model and effort, and `_TOOLS_WITHOUT_WRITE` is removed; test names and what they check stay the same. Findings 2 to 4 as you describe.
