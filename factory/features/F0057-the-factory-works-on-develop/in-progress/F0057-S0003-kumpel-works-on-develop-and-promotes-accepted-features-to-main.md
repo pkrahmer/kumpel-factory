@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 645
 comments_read: [6714658360]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-08T00:06:19.777436Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -60,6 +64,11 @@ journal:
   stage: tests
   run: cd391953352249b9a6cad5a13606e579
   reason: check_red
+- number: 10
+  speaker: factory
+  kind: started
+  at: '2026-11-08T00:06:19.777436Z'
+  stage: tests
 ---
 
 # Kumpel works on develop and promotes accepted features to main
@@ -168,3 +177,4 @@ Expect: `off`
    Found 3 errors.
    [*] 1 fixable with `--fix`.
    make: *** [Makefile:32: lint] Error 1
+10. factory: started tests as vm.
