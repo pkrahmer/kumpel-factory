@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 664
 comments_read: [6722586434]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T14:25:36.133642Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -119,6 +123,11 @@ journal:
   at: '2026-11-08T14:25:31.015301Z'
   stage: tests
   run: 658d089091cc4d7891255a0fac2ad067
+- number: 21
+  speaker: factory
+  kind: started
+  at: '2026-11-08T14:25:36.133642Z'
+  stage: doing
 ---
 
 # The context markers are escaped too
@@ -278,3 +287,4 @@ Expect: `1`
     Files created: none (the file was already there; I edited it).
 
     `lint`: lint: green (0.2 s)
+21. factory: started doing as vm.
