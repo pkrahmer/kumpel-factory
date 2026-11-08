@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 0
 attempts: 0
@@ -20,8 +20,13 @@ journal:
   at: '2026-11-08T07:58:52.469022Z'
   stage: acceptance
   run: 83ee91ca64a54d348fa75202b2dc3f3c
+- number: 3
+  speaker: factory
+  kind: done
+  at: '2026-11-08T08:00:46.196422Z'
+  stage: done
 stories: [F0057-S0001, F0057-S0002, F0057-S0003, F0057-S0004, F0057-S0005, F0057-S0006, F0057-S0007, F0057-S0008, F0057-S0009, F0057-S0010, F0057-S0011, F0057-S0012]
-outcome: null
+outcome: accepted
 ---
 
 # Acceptance of The factory works on develop
@@ -193,3 +198,4 @@ None. Every remaining item is a note, or the human's file or choice (check 6). A
    6 Decisions: no questions in S0010 to S0012. Defaults: `PIPELINE_REF` and `FORM_REF` are kept as aliases, S0012 changed no behaviour, and its new case sits on a continuation line. Still open for the human: the deferred promotion after proposed stories, no coder write path for corrections to the Description, the agent-file guard on `promote`, `reset-to-tag.sh` leaving `main` alone, and the stale duplicates baseline. No earlier test was changed.
    7 Slow checks: nothing beyond `make check`, which is green (`test: green (107.7 s)`, 99.22 %, 11020 tests). The slowest are the 10 s `ROOMY_LIMIT` tests. Free disk fell another 0.8 GB with used space unchanged, the third drop in a row, and no dependency or image change explains it.
    8 Cost: $34.85 over 124 runs. S0010 to S0012 cost $3.69 over 21 runs, and S0012 the most of them ($1.68, one review round on its own test). S0003 is still the costliest ($9.68). 17 questions were answered and the stories waited 0.6 h; S0010 to S0012 asked none. S0002 needed the human most (7).
+3. factory: done (pull request merged); cost: 1 runs, 6.0 min, 30 turns, 113777 tokens in (1794364 more from cache), 22530 out, $1.38
