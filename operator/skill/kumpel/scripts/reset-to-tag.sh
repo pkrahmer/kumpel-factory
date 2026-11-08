@@ -1,9 +1,10 @@
 #!/bin/sh
 # SPDX-License-Identifier: Apache-2.0
 # Reset the site's trial repository to tag <tag>, so that a run can be repeated: close its open
-# work-item pull requests, delete its work-item branches and move main to the tag's commit by
-# force. The move cannot be undone, so without --yes it only prints the plan. It works through the
-# API alone, and only on the repository that is both SITE_REPOSITORY and SITE_RESET_REPOSITORY.
+# work-item pull requests, delete its work-item branches and move develop to the tag's commit by
+# force; main is left alone, since only a promotion reaches it. The move cannot be undone, so
+# without --yes it only prints the plan. It works through the API alone, and only on the
+# repository that is both SITE_REPOSITORY and SITE_RESET_REPOSITORY.
 #   reset-to-tag.sh <tag> [--yes]
 set -eu
 case $# in
@@ -73,7 +74,8 @@ short=$(printf '%.7s' "$commit")
 if [ -z "$yes" ]; then
   echo "would close $(printf '%s' "$pulls" | grep -c .) open work-item pull request(s)"
   echo "would delete $(printf '%s' "$branches" | grep -c .) work-item branch(es)"
-  echo "would move main to $short"
+  echo "would move develop to $short"
+  echo "would leave main alone"
   echo "run again with --yes"
   exit 1
 fi
@@ -86,5 +88,6 @@ for branch in $branches; do
   hosting_repo_api DELETE "/git/refs/heads/$branch" >/dev/null || exit 1
   echo "deleted $branch"
 done
-hosting_repo_api PATCH /git/refs/heads/main "{\"sha\":\"$commit\",\"force\":true}" >/dev/null || exit 1
-echo "moved main to $short"
+hosting_repo_api PATCH /git/refs/heads/develop "{\"sha\":\"$commit\",\"force\":true}" >/dev/null || exit 1
+echo "moved develop to $short"
+echo "left main alone; only a promotion moves it"

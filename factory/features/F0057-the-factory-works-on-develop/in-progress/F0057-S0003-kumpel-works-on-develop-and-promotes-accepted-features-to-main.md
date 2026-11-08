@@ -1,17 +1,13 @@
 ---
 stage: doing
-blocked: null
+blocked: question
 round: 0
 attempts: 1
 crashes: 0
 pull_request: 645
 comments_read: [6714658360]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T00:13:15.927683Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -80,6 +76,13 @@ journal:
   kind: started
   at: '2026-11-08T00:13:15.927683Z'
   stage: doing
+- number: 13
+  speaker: coder
+  kind: question
+  at: '2026-11-08T00:18:13.889148Z'
+  stage: doing
+  run: b60dc63e3a9d41de919d7aa6db4cb4da
+  blocked: question
 ---
 
 # Kumpel works on develop and promotes accepted features to main
@@ -220,3 +223,19 @@ Expect: `off`
 
     `lint`: lint: green (0.1 s)
 12. factory: started doing as vm.
+13. coder: Question: `make check` is red because of two failures that are outside my write paths. Everything else is done and green.
+
+    What I built (left in the working tree):
+    - `operator/skill/kumpel/scripts/kumpel-commit.sh` (new): `kumpel_commit <message>` commits what is staged, with `Kumpel <kumpel@noreply.invalid>` as author and committer. `start-story.sh` and `archive-feature.sh` source it.
+    - `archive-feature.sh` (new): works on `develop`. It refuses a feature with an `<id>-S*.md` in `backlog/` or `in-progress/`, a feature with no acceptance, and a feature whose last acceptance (the highest `<id>-A*.md` across its folders) is not in `done/`. Otherwise it runs `git mv` into `factory/archive/`, commits `<id>: archived` as Kumpel, pulls, and pushes `origin develop`.
+    - `promote.sh` (new): refuses unless `factory/archive/<id>-*/` exists on `develop`. It POSTs `/pulls` with head `develop`, base `main` and title `<id>: promoted to main`; the body lists every `<id>-S*` story with the `# ` title of its file. With `promote` on, it PUTs the merge with `merge_method: merge` and `Promoted by Kumpel after <id>'s acceptance.`. With it off, it prints `promotion opened: #<n>, for the human to merge`.
+    - `start-story.sh`, `next-story.sh`, `approval.sh`: `develop` instead of `main`. `merge.sh` and `status.sh` look up `/commits?sha=develop&per_page=20`. `reset-to-tag.sh` moves `refs/heads/develop` and prints that it left `main` alone (as a plan line without `--yes`, after the move with it). `settings.sh` has a fourth switch, `promote`, off by default.
+    - Texts: `promote` added to the switches in `operator/claude/commands/kumpel.md` and `operator/opencode/command/kumpel.md`, and as a row in the switches table of `SKILL.md`. In `references/standing-orders.md`, *Safety* now says never push to `main` and that a fix goes to `develop` and reaches `main` with the next promotion; *The log* now says to commit the log and every fix on `develop` through `kumpel_commit`. In `references/approving.md`, `answering.md` and `shaping.md`, every "on `main`" for Kumpel's own writes is now `develop`, and `approving.md` gains *After a feature's acceptance* (archive, then promote).
+
+    Main choice: `promote.sh` reads the archived feature and the story titles from the checkout's `develop`, as `next-story.sh` does and as the tests expect. The alternative I rejected was reading them through the contents API, which would need more routes and is not what the tests record. Refactor pass: I read my diff and found nothing to change.
+
+    The two red tests in `make check`:
+    1. `tests/guards/test_work_branch_search.py::test_no_file_in_the_source_or_the_tests_writes_the_working_branch_by_name` fails with `E   Left contains one more item: 'tests/operator_scripts/test_operator_merge_reset.py: heads/main'`. The tester's new test `test_the_reset_moves_develop_and_says_that_main_is_left_alone` contains the literal `"/heads/main"` (`assert [request for request in machine.requests() if "/heads/main" in request.route] == []`), and the guard forbids that literal anywhere in `tests`. The code can't fix this; the test has to change. I propose (my choice) that the tester writes `f"/heads/{DEFAULT_BRANCH}"`, which checks the same thing. Route: `tests`.
+    2. `tests/operator_scripts/test_operator_site_check.py::test_the_operator_readme_names_every_script_and_library` fails with `E   AssertionError: assert ['kumpel-comm... 'promote.sh'] == []`. The three new scripts are not named in `operator/README.md`. Only the documenter may write that file, and the docs stage comes after doing, so this story can't leave doing green. Options: (a) the human adds the three rows (`archive-feature.sh`, `promote.sh`, `kumpel-commit.sh`) to the file table of `operator/README.md` on this branch, and the documenter finishes the docs criterion later (my choice); (b) the human gives the coder leave and a write path for `operator/README.md` for this story; (c) merge `kumpel_commit` into an existing script, dropping `kumpel-commit.sh`. Option (c) only removes one of the three names and goes against your answer in journal 4, item 7.
+
+    I noticed but did not touch: a settings file written before this change has no `promote` key. `settings.sh get promote` then exits with `unknown key: promote`, so `promote.sh` stops before it opens anything. The operator has to run `settings.sh init` again, or a later story could have `get` default a missing switch to off. The Description is unchanged: the intake left the criteria from journal 4 in the journal only, and my write paths do not include the work item.

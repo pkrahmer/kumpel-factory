@@ -5,7 +5,7 @@
 #   settings.sh show                         print the settings
 #   settings.sh init [<owner/name> <checkout>] write a new file with the defaults; no arguments when
 #                                            the site gives the repository and the checkout
-#   settings.sh set <switch> on|off          change one switch (merge, answer, start_next)
+#   settings.sh set <switch> on|off          change one switch (merge, answer, start_next, promote)
 #   settings.sh get <key>                    print one value (repository, checkout, or a switch)
 # The file: ${KUMPEL_SETTINGS:-$HOME/.config/kumpel/settings.json}.
 set -eu
@@ -45,7 +45,7 @@ case "$command" in
 import json, sys
 path, repository, checkout = sys.argv[1:]
 settings = {"repository": repository, "checkout": checkout} if repository else {}
-settings["switches"] = {"merge": False, "answer": True, "start_next": True}
+settings["switches"] = {"merge": False, "answer": True, "start_next": True, "promote": False}
 with open(path, "w", encoding="utf-8") as f:
     json.dump(settings, f, indent=2)
     f.write("\n")

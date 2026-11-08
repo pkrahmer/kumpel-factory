@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Merge pull request <pr> of work item <id> once it is open, ready and at stage:approval, with a
 # merge commit (the factory reads a story's state from its branch), and wait for the factory's
-# archive commit on main, so that the next story starts only after the merged one is archived.
+# archive commit on develop, so that the next story starts only after the merged one is archived.
 # Whether the story deserves the merge is the skill's judgement (references/approving.md).
 #   merge.sh <pr> <id>
 # The wait: KUMPEL_POLL_SECONDS between polls (15), KUMPEL_ARCHIVE_WAIT at most (300).
@@ -35,7 +35,7 @@ elif pull["head"]["ref"] != f"work-item/{item}":
 }
 
 archived() {
-  commits=$(hosting_repo_api GET "/commits?per_page=20") || return 1
+  commits=$(hosting_repo_api GET "/commits?sha=develop&per_page=20") || return 1
   printf '%s' "$commits" | python3 -I -c '
 import json, sys
 subject = f"work item {sys.argv[1]}: merged, archived"
