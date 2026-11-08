@@ -1,5 +1,5 @@
 ---
-stage: docs-approval
+stage: done
 blocked: null
 round: 1
 attempts: 0
@@ -69,6 +69,11 @@ journal:
   at: '2026-11-08T17:04:39.188959Z'
   stage: docs-review
   run: 9ed78d0481a1410fbcd6cd41fb48f1ff
+- number: 12
+  speaker: factory
+  kind: done
+  at: '2026-11-08T17:06:30.514116Z'
+  stage: docs-approval
 ---
 
 # The guides describe one full check per story
@@ -228,3 +233,4 @@ Expect: `0`
     - Smoke-test greps: on the diff, the expected counts are 0, 0, 0, 1 and 0. I did not run the greps.
 
     One point I weighed and did not count as a finding: step 3 of the docs route states the `not_read` reuse generally, though it is a property of kumpel-factory's definition. It follows the Interface's wording, and the route itself needs stages that only such a definition holds.
+12. factory: done (pull request merged); cost: 5 runs, 4.6 min, 25 turns, 140636 tokens in (471009 more from cache), 14809 out, $1.52
