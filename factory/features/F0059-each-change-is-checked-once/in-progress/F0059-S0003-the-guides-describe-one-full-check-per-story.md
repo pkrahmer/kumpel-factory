@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 675
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: docs-only
+  started_at: '2026-11-08T16:55:15.716406Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -25,6 +29,11 @@ journal:
   at: '2026-11-08T16:55:10.923524Z'
   stage: intake
   run: 594970d673e940baa1eba21e1321388b
+- number: 4
+  speaker: factory
+  kind: started
+  at: '2026-11-08T16:55:15.716406Z'
+  stage: docs-only
 ---
 
 # The guides describe one full check per story
@@ -95,3 +104,4 @@ Expect: `0`
    - Architecture: documents only, inside the documenter's write paths (`README.md`, `docs/*`). No code, test, contract or pipeline file changes. `factory/pipeline.yml`, `operator/template/*` and `CLAUDE.md` stay as they are.
    - Scope: this is the follow-up to the human's changes listed in F0059's `feature.md` (*The human's changes*, decisions 1 and 2). It keeps the guides true to them and does not touch the feature's *Out of scope*.
    - Route: `docs-only`, because every path the Interface changes is under `docs/`.
+4. factory: started docs-only as vm.
