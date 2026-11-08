@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 646
 comments_read: [6715370076, 6715449873]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: smoke-test
+  started_at: '2026-11-08T01:21:15.079363Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -114,6 +118,11 @@ journal:
   at: '2026-11-08T01:21:10.038676Z'
   stage: docs
   run: 867dde254e074f66bf566384b5805720
+- number: 20
+  speaker: factory
+  kind: started
+  at: '2026-11-08T01:21:15.079363Z'
+  stage: smoke-test
 ---
 
 # The operator's documents name develop and main
@@ -343,3 +352,4 @@ Expect: `documents ok (<seconds> s)`
     `check`: check: green (not run again: passed on tree 405de75d3b99 at 2026-11-08T01:14:52Z)
     `secrets`: secrets: green (1.6 s)
     `documents`: documents ok (57.7 s)
+20. factory: started smoke-test as vm.
