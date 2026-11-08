@@ -1,5 +1,5 @@
 ---
-stage: smoke-test
+stage: approval
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 678
 comments_read: [6726852112, 6726967345]
 handed_over: null
-claim:
-  instance: vm
-  stage: smoke-test
-  started_at: '2026-11-08T20:57:56.774986Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -208,6 +204,12 @@ journal:
   kind: started
   at: '2026-11-08T20:57:56.774986Z'
   stage: smoke-test
+- number: 36
+  speaker: smoke-tester
+  kind: result
+  at: '2026-11-08T21:00:20.278300Z'
+  stage: smoke-test
+  run: bab73604256845da8f0f702e09f574b0
 ---
 
 # The rules every role shares stand in the system prompt
@@ -604,3 +606,47 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     `secrets`: secrets: green (2.2 s)
     `documents`: documents ok (65.8 s)
 35. factory: started smoke-test as vm.
+36. smoke-tester: Smoke test, round 1. I ran the four commands from the repository root, as written and in order. Each output met its `Expect:` line.
+
+    1. `grep -c '^## Rules' agents/system-prompt.md agents/agents/*.md`: met. `system-prompt.md:1`, then one line per agent file, each ending in `:0`.
+    ```
+    agents/system-prompt.md:1
+    agents/agents/acceptance-reviewer.md:0
+    agents/agents/coder.md:0
+    agents/agents/documenter.md:0
+    agents/agents/intake.md:0
+    agents/agents/reviewer.md:0
+    agents/agents/smoke-tester.md:0
+    agents/agents/tester.md:0
+    ```
+
+    2. `grep -c '^R15\. ' agents/system-prompt.md`: met.
+    ```
+    1
+    ```
+
+    3. `uv run python -c "... print(SYSTEM_PROMPT == Path('agents/system-prompt.md').read_text(encoding='utf-8'))"`: met.
+    ```
+    Bytecode compiled 4164 files in 88ms
+    True
+    ```
+
+    4. `uv run pytest tests/agent_files/test_shared_rules_system_prompt.py`: met. The summary line shows only `passed`.
+    ```
+    .......................                                                  [100%]
+    23 passed in 0.07s
+    ```
+
+    I checked the criteria against the files once more:
+    - `agents/system-prompt.md` holds the orientation and then `## Rules`, with R1 to R15 once each and in order (lines 13 to 41).
+    - The orientation says that "The rules below apply to every agent in every stage" and that the `<role-instructions>` block holds the instructions of the role, to be followed with the same weight.
+    - The opening rule sentence now places `Stage` and `Role` in the `<role-instructions>` block.
+    - Every agent file's headings are `## Role` (where present), `## Stage`, `## Lessons`.
+
+    The smoke test contradicts none of the criteria.
+
+    Observation, not a finding: this run's own `<role-instructions>` still held `## Rules`. That is expected, because the factory sends the agent files from its installed agent home, which does not hold this branch's change yet.
+
+    Findings: none.
+
+    `check`: check: green
