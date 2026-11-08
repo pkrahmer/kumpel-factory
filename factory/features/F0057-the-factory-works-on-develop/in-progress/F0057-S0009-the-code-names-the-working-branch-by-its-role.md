@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 652
 comments_read: [6716487122]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: intake
+  started_at: '2026-11-08T03:04:16.853910Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -30,6 +34,11 @@ journal:
   speaker: human
   kind: comment
   at: '2026-11-08T03:04:14.459066Z'
+  stage: intake
+- number: 5
+  speaker: factory
+  kind: started
+  at: '2026-11-08T03:04:16.853910Z'
   stage: intake
 ---
 
@@ -92,3 +101,4 @@ Expect: `0`
    3. Confirmed, an untested comment change.
    4. (a), rename none.
    5. Keep the three rows.
+5. factory: started intake as vm.
