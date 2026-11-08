@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 2
 attempts: 0
@@ -202,6 +202,11 @@ journal:
   at: '2026-11-08T21:31:20.762846Z'
   stage: smoke-test
   run: e5f730db2a9543e380bc9054e83871e5
+- number: 36
+  speaker: factory
+  kind: done
+  at: '2026-11-08T21:33:12.805831Z'
+  stage: approval
 ---
 
 # Claude runs carry the project's CLAUDE.md in the system prompt
@@ -529,3 +534,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     Findings: none.
 
     `check`: check: green
+36. factory: done (pull request merged); cost: 16 runs, 20.4 min, 97 turns, 564041 tokens in (2895437 more from cache), 48963 out, $4.38
