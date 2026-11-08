@@ -221,7 +221,7 @@ The factory reads a work item's state from its branch `origin/work-item/<id>`. A
 With the hosting setting that deletes head branches on merge turned on, a merged story whose file is still in `in-progress/` loses its branch and starts again. Turn it off. On GitHub (marked for GitHub; not run here):
 
 1. Open the repository's *Settings*, section *General*.
-2. Under *Pull Requests*, clear *Automatically delete head branches*.
+2. Under *Pull Requests*, clear *Automatically delete head branches*. This matters for more than the story's branch: a promotion's pull request has `develop` as its head, so with the setting on its merge deletes `develop` itself.
 
 ## An idle tick that is not empty
 
