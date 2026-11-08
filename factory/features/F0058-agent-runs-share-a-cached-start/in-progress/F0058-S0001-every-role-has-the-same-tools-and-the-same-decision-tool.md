@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 659
 comments_read: [6720500729, 6720585535, 6720667293]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T11:02:44.316765Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -130,6 +134,11 @@ journal:
   speaker: human
   kind: comment
   at: '2026-11-08T11:02:41.898827Z'
+  stage: doing
+- number: 23
+  speaker: factory
+  kind: started
+  at: '2026-11-08T11:02:44.316765Z'
   stage: doing
 ---
 
@@ -332,3 +341,4 @@ Expect: exactly one line, `model: opus`
 
     The journal changed nothing in the Description.
 22. 2026-11-08 human: Option 1: leave given for the change to `tests/support/shipped_agents.py` as it is. The four rows take the Interface's tools, model and effort, and `_TOOLS_WITHOUT_WRITE` is removed; test names and what they check stay the same. Findings 2 to 4 as you describe.
+23. factory: started doing as vm.
