@@ -1,3 +1,30 @@
+---
+stage: intake
+blocked: null
+round: 0
+attempts: 0
+crashes: 0
+pull_request: null
+comments_read: []
+handed_over: null
+claim:
+  instance: vm
+  stage: intake
+  started_at: '2026-11-08T15:24:09.924510Z'
+  lease_duration: 60
+journal:
+- number: 1
+  speaker: human
+  kind: created
+  at: '2026-11-08T15:24:09.916753Z'
+  stage: intake
+- number: 2
+  speaker: factory
+  kind: started
+  at: '2026-11-08T15:24:09.924510Z'
+  stage: intake
+---
+
 # The reviewer starts from its start facts
 
 <!-- proposed by feature acceptance of 2026-11-08; refine before starting -->
@@ -46,3 +73,6 @@ uv run pytest tests/agent_files/test_reviewer_start_facts.py 2>&1 | tail -1
 Expect: a line ending in `passed` with no `failed`.
 
 ## Journal
+
+1. 2026-11-08 human: created.
+2. factory: started intake as vm.
