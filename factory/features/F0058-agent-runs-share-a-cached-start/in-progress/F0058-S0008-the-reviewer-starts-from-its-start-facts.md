@@ -1,17 +1,13 @@
 ---
-stage: intake
+stage: tests
 blocked: null
 round: 0
 attempts: 0
 crashes: 0
-pull_request: null
+pull_request: 669
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: intake
-  started_at: '2026-11-08T15:24:09.924510Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -23,6 +19,12 @@ journal:
   kind: started
   at: '2026-11-08T15:24:09.924510Z'
   stage: intake
+- number: 3
+  speaker: intake
+  kind: result
+  at: '2026-11-08T15:24:37.662734Z'
+  stage: intake
+  run: 16e40619ab6f4346b69c103c362767f9
 ---
 
 # The reviewer starts from its start facts
@@ -76,3 +78,10 @@ Expect: a line ending in `passed` with no `failed`.
 
 1. 2026-11-08 human: created.
 2. factory: started intake as vm.
+3. intake: accepted
+   - Interface: names the one file that changes, `agents/agents/reviewer.md` (the coder's write path `agents/*`). I checked both passages: *Stage* step 1 (line 81, "Read the diff in your first command") and *docs-review* step 1 (line 91, "... in your first command"). It says what each step keeps (the scope command, the generated/lock-file rules, the Makefile and `make check` sentences), what each loses, and the three fallback cases. No module under `src/factory/` changes. It names the new test `tests/agent_files/test_reviewer_start_facts.py` and the two earlier tests it changes. The human's leave for them is written into the story (`review_reads_the_diff` and `docs_review_reads_the_diff` in `test_claude_agent_texts_review_groups.py` lines 70-92; `DOCS_DIFF` in `test_claude_agent_texts_docs_route.py` line 13). Route: `tests`, because the changed path is outside the documenter's paths.
+   - Criteria: one parametrized test over the two steps can check each of 1-3. A row checks for `<context>`, `failed:` and `cut`, for the absence of "in your first command", for its own diff command, and for the absence of `facts-diff`. The refused sides are stated as absences (2, 3) and pass with the current text only for 3, so the rule has both sides. 4 and 5 close the list.
+   - Smoke test: runnable. `grep -c` gives counts that can be checked (`0`, and at least `2`; the file will hold the literal `<context>`, which is only escaped in this message). The pytest command passes no `-q`, since `addopts` already sets `-q`, so the `passed` summary line prints.
+   - Docs criterion: names what the reader must know (the reviewer reads the diff from its start fact and runs the command only as the fallback) and dictates no sentences. Note for the documenter: `docs/project-guide/agents.md` has a `reviewer | docs-review` row in the docs-route table (line 324). It has no `reviewer | review` row; the only other `reviewer` rows are the tools table (line 273) and the Documents checklist row (line 341). So the documenter places the `review` side where it fits. I judge this the documenter's choice, not a gap in the story.
+   - Architecture: one shipped agent file and tests under `tests/agent_files/`, mirroring the agent files as CLAUDE.md asks. The story names no project command in the shipped file (R8, the factory knows only `context` names). `factory/` and `src/` are not touched.
+   - Scope: inside F0058's scope item S0004 (start facts save the agent's turns): this makes the reviewer use the facts S0004 gives it. It changes neither the reviewer's effort nor its edits to criteria, both of which are out of scope. Other agents stay unchanged as the Description says.
