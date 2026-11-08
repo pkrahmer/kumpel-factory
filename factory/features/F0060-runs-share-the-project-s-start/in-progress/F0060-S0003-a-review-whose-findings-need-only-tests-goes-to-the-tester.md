@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 680
 comments_read: [6727432579, 6727512748, 6727549619]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: review
+  started_at: '2026-11-08T21:54:39.150951Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -164,6 +168,11 @@ journal:
   at: '2026-11-08T21:54:34.225224Z'
   stage: doing
   run: 331194a9dab4452c950625e809c434a5
+- number: 29
+  speaker: factory
+  kind: started
+  at: '2026-11-08T21:54:39.150951Z'
+  stage: review
 ---
 
 # A review whose findings need only tests goes to the tester
@@ -451,3 +460,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     Noticed, not touched: the Role's sentence "`docs` passes, `doing` sends the work item back" does not name `tests`. The Interface limits the change to `## Stage`. Docs criterion 7 is the documenter's.
 
     `duplicates`: duplicates: 7 new, 39 known, 4 gone
+29. factory: started review as vm.
