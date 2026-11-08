@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 680
 comments_read: [6727432579]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: intake
+  started_at: '2026-11-08T21:34:45.259023Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -30,6 +34,11 @@ journal:
   speaker: human
   kind: comment
   at: '2026-11-08T21:34:40.478403Z'
+  stage: intake
+- number: 5
+  speaker: factory
+  kind: started
+  at: '2026-11-08T21:34:45.259023Z'
   stage: intake
 ---
 
@@ -92,3 +101,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    - Architecture and scope: agent files and the shipped prompt only. This is S0003 as the feature's Scope lists it.
 4. 2026-11-08 human: 1. (a). Leave granted: the tester updates R12's text in `REWORK_RULE` of `tests/agent_files/test_claude_agent_texts_docs_slip.py` and in the R12 entry of `tests/support/shared_rules_support.py` to the new list; each keeps checking the same thing. `review → tests` goes right after `review → doing`: "Rework rounds (review → doing, review → tests, docs → doing, smoke-test → doing, smoke-test → docs, and the human's close at the approval) …". Please write this into the Interface.
    2. (b). I change `test_the_template_lets_the_smoke_test_hand_a_slip_to_docs_and_keeps_every_other_next` myself, in the same commit as the template's pipeline change after this story.
+5. factory: started intake as vm.
