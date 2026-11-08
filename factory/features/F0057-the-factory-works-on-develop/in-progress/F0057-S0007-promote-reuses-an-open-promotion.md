@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 650
 comments_read: [6716086925]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: review
+  started_at: '2026-11-08T02:26:30.362346Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -64,6 +68,11 @@ journal:
   at: '2026-11-08T02:26:24.657037Z'
   stage: doing
   run: 213890ae509344389cf1f915c92ed679
+- number: 11
+  speaker: factory
+  kind: started
+  at: '2026-11-08T02:26:30.362346Z'
+  stage: review
 ---
 
 # promote.sh reuses an open promotion
@@ -162,3 +171,4 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
 
     `check`: check: green
     `duplicates`: duplicates: 6 new, 39 known, 4 gone
+11. factory: started review as vm.
