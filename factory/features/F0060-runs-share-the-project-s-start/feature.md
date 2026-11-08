@@ -36,7 +36,7 @@ After S0001 is merged, on `develop`: `CLAUDE.md`, first paragraph, "(the shipped
 
 Once an instance runs code with S0002 (for `vm`, when it moves to the promoted F0060; `demo3` is not moved, and `demo4` is set up without them), on the VM (not in the repository): the trial lines `CLAUDE_CODE_PROMPT_CACHE_TTL=5m` and `FACTORY_CONTAINER_ENV=CLAUDE_CODE_PROMPT_CACHE_TTL` leave `factory.local.env` of the instances `vm` and `demo3`, and both restart. Then the next story's transcripts show `ephemeral_5m` writes and a first request that reads more than 6,683 tokens.
 
-After S0003 is merged, on `develop`: `review` gains `tests` as its third `next` in `factory/pipeline.yml`, `demo/todo-service/project/factory/pipeline.yml` and `operator/template/factory/pipeline.yml` (`next: [docs, doing, tests]`; `round_cap` and the leases stay).
+After S0003 is merged, on `develop`: `review` gains `tests` as its third `next` in `factory/pipeline.yml`, `demo/todo-service/project/factory/pipeline.yml` and `operator/template/factory/pipeline.yml` (`next: [docs, doing, tests]`; `round_cap` and the leases stay); in the same commit, the expectation `["docs", "doing"]` of the template's `review` in `tests/agent_files/test_claude_agent_texts_docs_slip.py` (`test_the_template_lets_the_smoke_test_hand_a_slip_to_docs_and_keeps_every_other_next`) becomes `["docs", "doing", "tests"]` (intake of S0003).
 
 ## Decisions taken for the human
 
@@ -45,3 +45,4 @@ After S0003 is merged, on `develop`: `review` gains `tests` as its third `next` 
 3. Only the project's root `CLAUDE.md` is carried, as the checkout of the run holds it. Claude Code's switch also stops it loading nested `CLAUDE.md` files on demand; no project of the factory has one, and the operator guide says so.
 4. The five-minute cache is a switch of the Claude runtime like its other switches, not a setting: the measurement shows no case where the one-hour cache pays.
 5. The route from review to tests counts as a rework round against `review`'s `round_cap`, by the rule that already counts every decision other than a stage's first `next`; a review with any finding outside the tests sends all its findings to `doing`, so no finding is split across two stages (2026-11-08).
+6. The leave for S0003 (the human, 2026-11-08, answer to intake): the tester updates R12's text in `REWORK_RULE` of `tests/agent_files/test_claude_agent_texts_docs_slip.py` and in the R12 entry of `tests/support/shared_rules_support.py`; `review → tests` stands right after `review → doing`.
