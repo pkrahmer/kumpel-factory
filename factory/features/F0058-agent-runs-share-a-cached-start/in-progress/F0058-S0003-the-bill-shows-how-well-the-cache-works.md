@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 661
 comments_read: [6721548904]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: review
+  started_at: '2026-11-08T12:45:52.218863Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -64,6 +68,11 @@ journal:
   at: '2026-11-08T12:45:46.868689Z'
   stage: doing
   run: e437e0e5728041f7a58d44119236f9b9
+- number: 11
+  speaker: factory
+  kind: started
+  at: '2026-11-08T12:45:52.218863Z'
+  stage: review
 ---
 
 # The bill shows how well the cache works
@@ -177,3 +186,4 @@ Expect: the help names the cache figures and the hit rate.
 
     `check`: check: green
     `duplicates`: duplicates: 7 new, 39 known, 4 gone
+11. factory: started review as vm.
