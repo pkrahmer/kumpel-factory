@@ -1,3 +1,30 @@
+---
+stage: intake
+blocked: null
+round: 0
+attempts: 0
+crashes: 0
+pull_request: null
+comments_read: []
+handed_over: null
+claim:
+  instance: vm
+  stage: intake
+  started_at: '2026-11-08T03:02:05.054757Z'
+  lease_duration: 60
+journal:
+- number: 1
+  speaker: human
+  kind: created
+  at: '2026-11-08T03:02:05.047236Z'
+  stage: intake
+- number: 2
+  speaker: factory
+  kind: started
+  at: '2026-11-08T03:02:05.054757Z'
+  stage: intake
+---
+
 # The code names the working branch by its role
 
 
@@ -38,3 +65,6 @@ grep -rnwE "stage_file_on_main|_main_report_paths|_main_reports|_main_commit|mai
 Expect: `0`
 
 ## Journal
+
+1. 2026-11-08 human: created.
+2. factory: started intake as vm.
