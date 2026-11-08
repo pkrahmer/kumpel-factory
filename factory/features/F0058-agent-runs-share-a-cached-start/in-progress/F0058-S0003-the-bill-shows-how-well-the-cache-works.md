@@ -1,3 +1,30 @@
+---
+stage: intake
+blocked: null
+round: 0
+attempts: 0
+crashes: 0
+pull_request: null
+comments_read: []
+handed_over: null
+claim:
+  instance: vm
+  stage: intake
+  started_at: '2026-11-08T12:32:38.041290Z'
+  lease_duration: 60
+journal:
+- number: 1
+  speaker: human
+  kind: created
+  at: '2026-11-08T12:32:38.033603Z'
+  stage: intake
+- number: 2
+  speaker: factory
+  kind: started
+  at: '2026-11-08T12:32:38.041290Z'
+  stage: intake
+---
+
 # The bill shows how well the cache works
 
 ## Description
@@ -31,3 +58,6 @@ uv run factory-bill --help
 Expect: the help names the cache figures and the hit rate.
 
 ## Journal
+
+1. 2026-11-08 human: created.
+2. factory: started intake as vm.
