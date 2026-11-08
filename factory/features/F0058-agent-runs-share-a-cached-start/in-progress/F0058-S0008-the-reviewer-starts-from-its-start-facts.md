@@ -1,5 +1,5 @@
 ---
-stage: smoke-test
+stage: approval
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 669
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: smoke-test
-  started_at: '2026-11-08T15:35:36.694717Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -78,6 +74,12 @@ journal:
   kind: started
   at: '2026-11-08T15:35:36.694717Z'
   stage: smoke-test
+- number: 13
+  speaker: smoke-tester
+  kind: result
+  at: '2026-11-08T15:35:53.252189Z'
+  stage: smoke-test
+  run: 41ecbd59d23647c7aa3622804f2be177
 ---
 
 # The reviewer starts from its start facts
@@ -198,3 +200,29 @@ Expect: a line ending in `passed` with no `failed`.
     `secrets`: secrets: green (0.6 s)
     `documents`: documents ok (60.9 s)
 12. factory: started smoke-test as vm.
+13. smoke-tester: Smoke test: all three commands met their `Expect:` lines. No findings.
+
+    1. `grep -c 'in your first command' agents/agents/reviewer.md`
+    ```
+    0
+    ```
+    Expect `0`: met.
+
+    2. `grep -c '<context>' agents/agents/reviewer.md` (the story escapes the literal as `&lt;context>`; I ran it with the literal, as intake noted)
+    ```
+    2
+    ```
+    Expect at least `2`: met.
+
+    3. `uv run pytest tests/agent_files/test_reviewer_start_facts.py 2>&1 | tail -1`
+    ```
+    2 passed in 0.01s
+    ```
+    Expect a line ending in `passed` with no `failed`: met.
+
+    Criteria, checked once more:
+    - 1 to 3: `agents/agents/reviewer.md` lines 81 (*Stage* step 1) and 91 (*docs-review* step 1) each hold `failed:`, `cut` and their own diff command (`git diff develop...HEAD -- . ':!factory'` and `git diff develop...HEAD -- README.md docs operator/README.md`). Neither names any `facts-` command.
+    - 4: the journal records `check: green` after the coder and after docs.
+    - 5: `docs/project-guide/agents.md:306` (the new reviewer bullet) and `:325` (the `reviewer | docs-review` row) say that the reviewer reads the diff from its start fact and runs its diff command only as the fallback.
+
+    The smoke test contradicts no criterion.
