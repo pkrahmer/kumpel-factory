@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 649
 comments_read: [6715900227]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-08T01:59:40.719704Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -60,6 +64,11 @@ journal:
   at: '2026-11-08T01:59:35.730078Z'
   stage: intake
   run: ed6e98bb0524411080a6ae143119229c
+- number: 10
+  speaker: factory
+  kind: started
+  at: '2026-11-08T01:59:40.719704Z'
+  stage: tests
 ---
 
 # archive-feature.sh refuses a feature whose acceptance was refused
@@ -142,3 +151,4 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
    - Architecture: the change is in an operator script, its reference file and its tests, and `promote.sh` is unchanged.
    - Scope: S0006 is not in `feature.md`'s Stories list, but the feature's acceptance proposed it, so I treat it as in scope.
    - Route: `tests`, because the script and `approving.md` are outside the documenter's write paths.
+10. factory: started tests as vm.
