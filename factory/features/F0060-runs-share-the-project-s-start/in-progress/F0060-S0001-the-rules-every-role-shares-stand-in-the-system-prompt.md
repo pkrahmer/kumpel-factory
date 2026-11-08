@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 678
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T20:03:14.932893Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -80,6 +84,11 @@ journal:
   at: '2026-11-08T20:03:09.771809Z'
   stage: review
   run: 370e643accc546d8b8c1849bc04300b4
+- number: 14
+  speaker: factory
+  kind: started
+  at: '2026-11-08T20:03:14.932893Z'
+  stage: doing
 ---
 
 # The rules every role shares stand in the system prompt
@@ -281,3 +290,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     - `tests/agent_files/test_first_message_agent_files.py`: the human's leave, "any other test whose only failure is this move" (journal entries 7 and 9).
     - `tests/agent_files/test_shipped_agents_r14.py`: the human's leave, "any other test whose only failure is this move" (journal entries 7 and 9).
     - `tests/support/shipped_agents.py`: none needed; it only adds the helper `shared_rules()`.
+14. factory: started doing as vm.
