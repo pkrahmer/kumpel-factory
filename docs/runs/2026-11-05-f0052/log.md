@@ -276,3 +276,4 @@ Times are UTC. The plan: `night-plan.md`.
 - 09:51 e2e demo-todo-2: transcript review (Haiku flags, Opus report, 0.48 USD) and caching/speed economics added to the eval
 - 09:58 e2e demo-todo-2: caching hypothesis checked against request shapes; corrected in the eval
 - 10:10 F0058 (agent runs share a cached start) added: feature and three stories in backlog
+- 10:41 F0058-S0001 (every role has the same tools and the same decision tool) started
