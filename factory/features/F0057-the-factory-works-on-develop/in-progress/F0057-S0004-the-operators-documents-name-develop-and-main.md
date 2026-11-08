@@ -1,5 +1,5 @@
 ---
-stage: docs
+stage: smoke-test
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 646
 comments_read: [6715370076, 6715449873]
 handed_over: null
-claim:
-  instance: vm
-  stage: docs
-  started_at: '2026-11-08T01:18:47.855377Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -112,6 +108,12 @@ journal:
   kind: started
   at: '2026-11-08T01:18:47.855377Z'
   stage: docs
+- number: 19
+  speaker: documenter
+  kind: result
+  at: '2026-11-08T01:21:10.038676Z'
+  stage: docs
+  run: 867dde254e074f66bf566384b5805720
 ---
 
 # The operator's documents name develop and main
@@ -311,3 +313,33 @@ Expect: `documents ok (<seconds> s)`
     Earlier tests:
     - `tests/pipeline/domain/test_documents.py`: changed under the human's leave, journal entry 11. Only the pinned-list test changed: its list and its name, from eighteen to sixteen.
 18. factory: started docs as vm.
+19. documenter: I wrote no new text this round. The documenter's work from journal entry 8 is on the branch, and the coder removed the blocker in entry 15. I read the diff and checked the result. Criteria 1 to 7 hold. `make documents` ends `documents ok (58.7 s)`. I did not run `make check`, because every file I touched is a document and I touched none. The coder reported it green.
+
+    **Files changed (by the documenter, kept as written):**
+    - `docs/operator-guide/install.md`: step 1 says a new project needs `develop`, created from `main`, and that the preflight names a missing `origin/develop`. New sections cover the branches, protecting `main` (ruleset with a required pull request, zero approvals, blocked force pushes and deletion, and why zero), the promotion (Kumpel archives, then merges `develop` into `main` with a merge commit, behind the switch `promote`), and "`main` is never fixed directly".
+    - `docs/operator-guide/stops.md`: `main-branch-failing` keeps its name and means the working branch `develop`.
+    - `docs/operator-guide/health.md`, `machine.md`, `pipeline.md`, `records.md`, `work-items.md`, `site.md`, `docs/operator-playbook.md`: the working branch is now `develop`.
+    - `README.md`: the story's diff against `develop` shows no change to it. The documenter's entry says it changed a line there. My `grep -nwE "main"` finds no mention of the working branch in it.
+
+    **The script's output.** I ran `grep -nwE "main" docs/operator-guide/*.md docs/operator-playbook.md README.md operator/README.md`. The mentions left as `main` are:
+    - `cloud-run.md:54`, `site.md:99`, `machine.md:297` and `machine.md:314`: the code repository's ref (`--ref main`, `SITE_CODE_REF`).
+    - `records.md:25`: the code's `main`, which holds accepted code.
+    - `stops.md:20`: only the stop's name, `main-branch-failing`, explained as the working branch.
+    - `site.md:237` and `work-items.md:139`: `main` is among the branches that are left alone.
+    - `install.md:11, 45, 47, 49, 55, 59, 63`: the new text on creating `develop`, protecting `main`, the promotion and fixes.
+    - `operator/README.md:84, 111, 131`: the promotion and the switch `promote`.
+
+    Each remaining mention means the line of accepted features or the code repository's own ref.
+
+    **Cross-read and found current:** `operator/README.md`, `docs/operator-guide/README.md` and `cloud-run.md`.
+
+    **Stale text I noticed and did not touch:**
+    - `docs/project-guide/` is outside the Interface. I did not check it for `main` as a working branch.
+    - `docs/runs/` and the entries of `docs/decisions.md` stay as the Interface says.
+    - The Interface says `README.md` is covered. I found no working-branch `main` in it, so nothing there needed an edit.
+
+    I used no `docs/decisions.md` entry, so there is no "Rejected" line to account for.
+
+    `check`: check: green (not run again: passed on tree 405de75d3b99 at 2026-11-08T01:14:52Z)
+    `secrets`: secrets: green (1.6 s)
+    `documents`: documents ok (57.7 s)
