@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 660
 comments_read: [6720878077, 6720941885, 6720981420]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T11:37:22.886949Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -87,6 +91,11 @@ journal:
   at: '2026-11-08T11:37:17.727997Z'
   stage: tests
   run: c515dc5c38c748cc9303806059b98117
+- number: 15
+  speaker: factory
+  kind: started
+  at: '2026-11-08T11:37:22.886949Z'
+  stage: doing
 ---
 
 # The first message holds the work item, then the role
@@ -315,3 +324,4 @@ Expect: the docstring names the order: the work item's body, the role's instruct
     Run: one `uv run pytest -q` over the files above plus `test_opencode_resumed_words.py`. The new and changed tests fail as test failures, not collection errors. For example, the `test_task.py` and `test_task_acceptance.py` tests fail because `PromptFacts` has no `body`, `role`, `role_instructions` or `round_cap` yet. Every module imported; no module was missing. `make lint`: green. I skipped the type check, as the stage says.
 
     `lint`: lint: green (0.1 s)
+15. factory: started doing as vm.
