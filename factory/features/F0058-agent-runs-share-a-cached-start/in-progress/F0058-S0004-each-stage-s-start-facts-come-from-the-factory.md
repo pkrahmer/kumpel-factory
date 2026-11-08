@@ -1,17 +1,13 @@
 ---
-stage: review
+stage: doing
 blocked: null
-round: 0
+round: 1
 attempts: 0
 crashes: 0
 pull_request: 662
 comments_read: [6721852631]
 handed_over: null
-claim:
-  instance: vm
-  stage: review
-  started_at: '2026-11-08T13:24:38.373452Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -73,6 +69,12 @@ journal:
   kind: started
   at: '2026-11-08T13:24:38.373452Z'
   stage: review
+- number: 12
+  speaker: reviewer
+  kind: result
+  at: '2026-11-08T13:27:23.021841Z'
+  stage: review
+  run: f086326a90a4400b9df29a601127f96a
 ---
 
 # Each stage's start facts come from the factory
@@ -126,8 +128,9 @@ The human's leave for earlier tests: this story may change these earlier tests w
 8. The common system prompt names the `<context>` blocks as start facts the agent need not gather again, in the shipped agent files and the operator template alike.
 9. Loading refuses a stage whose `context` time limits push the role's `time_limit` plus its checks', reports' and context's `time_limit`s past its `lease_duration`, and accepts one that fits (rows of one test).
 10. A definition with `contract: "1.0"` and one with `contract: "1.1"` both load, each with a stage carrying `context` (rows of one test).
-11. `make check` stays green.
-12. docs: the project guide's description of the pipeline definition names `context`, what the factory does with it, the size limit and the failure line; the operator's guide shows one example. `docs/decisions.md`: one entry, a stage's start facts come from project commands the factory runs before the agent, to save the agent's first turns.
+11. A file a `context` command writes on the dataset is not there when the agent's run starts, and the take after the run does not carry it.
+12. `make check` stays green.
+13. docs: the project guide's description of the pipeline definition names `context`, what the factory does with it, the size limit and the failure line; the operator's guide shows one example. `docs/decisions.md`: one entry, a stage's start facts come from project commands the factory runs before the agent, to save the agent's first turns.
 
 ## Smoke test
 
@@ -236,3 +239,14 @@ Expect: `True`
     `check`: check: green
     `duplicates`: duplicates: 7 new, 39 known, 4 gone
 11. factory: started review as vm.
+12. reviewer: Reviewed `git diff develop...HEAD -- . ':!factory'` against the work item. The tests cover criteria 1 to 10, and each test checks the criterion it is named after. Both sides of every stated limit are tested: the unknown name, 60,000 and 60,001 characters, the lease fitting and exceeded, contract 1.0 and 1.1, and both failure kinds. The coder's `make check` was green. No marker silences a check, and no string-built shell or SQL was added. `make duplicates` gave 7 new findings, and none of them is in a file this diff touches.
+
+    Findings:
+    1. `src/factory/shared/domain/contract.py:16` (`RECORDS_CONTRACT = "4.4"`) and `src/factory/contract/pipeline-definition.schema.json:3`: the schema gained the optional property `stages.*.context`, but `x-records-contract` stays at 4.4. The version rule in `docs/decisions.md:721` raises the minor for an added optional field, and the Interface says "the generated schema with it". Fix: raise it to 4.5 and regenerate with `uv run python -m factory.entry.contract`. That breaks `tests/shared/domain/test_contract_version_4.py:12,23`, `tests/shared/domain/test_contract_version_4_2.py:12,23` and `tests/pipeline/domain/test_contract.py:54`, which are outside the story's leave. The coder ends with `question` and asks the human for leave to change those three, for the tester.
+    2. `src/factory/pipeline/application/task.py:129-135`: each start fact runs through `ContainerMakeCommands.run`, whose script is `"$1" sync && "$1" … "$2"` (`src/factory/machine/adapters/make_commands.py:37`). The output that reaches the `<context>` block therefore starts with all of `make sync`'s output: in this project, the `uv sync --frozen` echo, uv's lines and `sync: green (…)`. That text counts toward the 60,000 characters, and it is not the command's output, which is what the Interface puts in the block. The base was synced by `prepare` just before. The tests miss this because `stage_makefile()` has a silent `sync`. Fix: the block holds only the command's own output. Either run the command without the sync on the just-prepared base, or keep the outputs apart. Add a test row with a `sync` that prints.
+    3. `src/factory/pipeline/domain/checks.py:99-107` (`CommandOutput`, `whole_output`): the caller gets the whole output back through an `isinstance` downcast that `ProjectCommands.run` (`src/factory/machine/application/project_commands.py:20`) does not declare. Any other implementation silently gives the start fact only `output_tail`, the last lines, and no error says so. The Interface needs the whole output to cut at 60,000 characters. Fix: let the interface declare the whole output. One way is an `output` field on `CheckResult`, which needs the human's leave for `tests/pipeline/domain/test_checks.py::test_fields_are_exactly_the_generic_eight`. The other is a declared operation that returns a DTO carrying it, which needs leave for the earlier test implementations of `ProjectCommands`, such as `tests/machine/application/test_interfaces.py:133`. Ask together with finding 1. The fix for finding 2 may settle this one too.
+    4. Criterion 11 added: it needs its test. `ContainerEnvironment.run_agent` (`src/factory/machine/application/stage_environment.py:151`) now rolls the dataset back before the agent, so a file a start fact's command leaves on the dataset neither reaches the agent nor the take. No test pins this: the criterion 7 test only checks that the host's checkout lacks `ran-a`. The new criterion is: "A file a `context` command writes on the dataset is not there when the agent's run starts, and the take after the run does not carry it."
+
+    Open, for the human, not a finding: criteria 8 and the Interface name "the operator template". No system prompt exists under `operator/template`. The two copies are the shipped `agents/system-prompt.md` and the built-in fallback `SYSTEM_PROMPT` (`src/factory/agents/domain/prompts.py:31`), which `docs/operator-guide/agent-runtime.md:353` describes as the same text. Both carry the sentence, and the tests cover both. If the human meant the fallback, the wording of criterion 8 can say so. I did not change it, because the journal does not settle it.
+
+    Earlier tests: none changed. Every test file in the diff is new (status `A`).
