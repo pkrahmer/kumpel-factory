@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 665
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: docs-only
+  started_at: '2026-11-08T14:46:32.951494Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -59,6 +63,11 @@ journal:
   stage: docs-only
   run: 461832ed135346dda76985629f991ca9
   reason: died
+- number: 10
+  speaker: factory
+  kind: started
+  at: '2026-11-08T14:46:32.951494Z'
+  stage: docs-only
 ---
 
 # The operator guide says what keeps the cached start
@@ -131,3 +140,4 @@ Expect: at least one line in the section *A project's own agents*.
    4. `docs/operator-guide/agent-runtime.md:338`, `:340`, `:342`: several new sentences run to about 30 to 40 words, against style rule 2 (split a sentence of more than about 25 words). They are the one that starts "Every shipped agent has the tools …; intake, the tester, …", "A project's agent shares the cached start … should share with", "A project's agent that differs … than plain input", and "The effect shows in `factory-bill`: … than the others". Fix: split each, for example the shipped values into one sentence on the tools and model and one on the efforts, and the cost sentence at its colon.
 8. factory: started docs-only as vm.
 9. factory: Stage docs-only stalled (attempt 1 of 2): the agent run died without a result
+10. factory: started docs-only as vm.
