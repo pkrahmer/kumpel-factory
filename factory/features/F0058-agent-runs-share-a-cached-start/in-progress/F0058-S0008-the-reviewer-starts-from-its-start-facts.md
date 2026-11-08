@@ -1,5 +1,5 @@
 ---
-stage: docs
+stage: smoke-test
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 669
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: docs
-  started_at: '2026-11-08T15:31:04.611746Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -67,6 +63,12 @@ journal:
   kind: started
   at: '2026-11-08T15:31:04.611746Z'
   stage: docs
+- number: 11
+  speaker: documenter
+  kind: result
+  at: '2026-11-08T15:35:31.689816Z'
+  stage: docs
+  run: 362dfdaad5d346159af04f08a307a298
 ---
 
 # The reviewer starts from its start facts
@@ -169,3 +171,20 @@ Expect: a line ending in `passed` with no `failed`.
    Earlier tests:
    - tests/agent_files/test_claude_agent_texts_review_groups.py: the human's leave written in the story's Interface ("may change ... the strings `review_reads_the_diff` and `docs_review_reads_the_diff` ... as far as the reviewer's new wording needs"). The tester made `review_reads_the_diff` a regex over the whole of step 1. It also had to rewrite its replacement partner `review_reads_both` and move that `.sub` to the front of the chain. The new wording differs from the earlier text over a longer stretch, so the old pair could not rebuild it. I judge both changes within "as far as the reviewer's new wording needs". The CRC test still checks the same earlier body.
 10. factory: started docs as vm.
+11. documenter: Documented that the reviewer now reads its diff from the start fact. No findings.
+
+    Changed:
+    - `docs/project-guide/agents.md`, list of the reviewer passages the tests pin: added one bullet. Step 1 of *Stage* and step 1 of `### docs-review` read the diff from the first message's `<context>` block (the stage's start fact, linking *Start facts* in pipeline.md). The reviewer runs its diff command itself only when no block holds the diff, when the block says `failed:`, or when the block ends in the cut line. Each step keeps its command as that fallback, because a project may give its stages no `context`. Neither step names a project command. `test_reviewer_start_facts.py` pins both steps. This bullet covers the `review` side of criterion 5, since the docs-route table has no `reviewer | review` row.
+    - `docs/project-guide/agents.md`, docs-route table, `reviewer | docs-review` row: the reviewer now reads `git diff develop...HEAD -- README.md docs operator/README.md` "from its start fact when one holds it", with a pointer to that bullet.
+
+    I read the diff of `agents/agents/reviewer.md` before writing. Both steps say what the docs now state.
+
+    Checked and current: `docs/project-guide/pipeline.md` *Start facts* (its cut line and `failed:` line match the steps' wording), `docs/operator-guide/pipeline.md` (`facts-diff` and its table; it lists only `review` for the template, which is true of the template's pipeline.yml), and `docs/decisions.md` *A stage's start facts come from project commands the factory runs* (no change needed, as criterion 5 says). The CRC note in agents.md, which says the checksum leaves out `### docs-review`, is still true.
+
+    Stale text not mine to fix: none seen.
+
+    `make documents`: documents ok (60.4 s). I changed only documents, so I did not run `make check`.
+
+    `check`: check: green
+    `secrets`: secrets: green (0.6 s)
+    `documents`: documents ok (60.9 s)
