@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 650
 comments_read: [6716086925]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: smoke-test
+  started_at: '2026-11-08T02:38:21.854645Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -130,6 +134,11 @@ journal:
   at: '2026-11-08T02:38:16.597521Z'
   stage: docs
   run: 7089577a92694c44a8ddc6d904349acf
+- number: 23
+  speaker: factory
+  kind: started
+  at: '2026-11-08T02:38:21.854645Z'
+  stage: smoke-test
 ---
 
 # promote.sh reuses an open promotion
@@ -339,3 +348,4 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
     `check`: check: green
     `secrets`: secrets: green (0.5 s)
     `documents`: documents ok (58.4 s)
+23. factory: started smoke-test as vm.
