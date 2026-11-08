@@ -122,6 +122,29 @@ class Operator:
         return found
 
 
+# The promotion pull request's number the stand-in answers with.
+PULL_NUMBER = 4711
+# The switches a promotion test starts from, before it sets `promote`.
+OLD_SWITCHES = {"merge": False, "answer": True, "start_next": True}
+
+
+# The query for the open promotion, a pull request from the owner's `develop` to `main`.
+OPEN_PROMOTION = (
+    f"{PREFIX}/pulls?state=open&base=main&head={REPOSITORY.partition('/')[0]}:develop&per_page=1"
+)
+
+
+def write_switches(operator: Operator, switches: dict[str, bool]) -> None:
+    """A settings file that holds `switches`."""
+    operator.settings_file.parent.mkdir(parents=True)
+    operator.settings_file.write_text(json.dumps({"switches": switches}), encoding="utf-8")
+
+
+def requests_that_change(operator: Operator) -> list[Request]:
+    """The recorded requests other than reads, in order."""
+    return [request for request in recorded_requests(operator.records) if request.method != "GET"]
+
+
 def make_operator(tmp_path: Path) -> Operator:
     """The operator's machine with a full site file (a token command, no `gh`) and no answers."""
     folders = {name: tmp_path / name for name in ("site", "records", "tmp", "bin")}
