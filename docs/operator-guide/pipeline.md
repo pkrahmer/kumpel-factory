@@ -49,24 +49,39 @@ A refused definition [stops](../project-guide/glossary.md) the factory with `pip
 
 Most agent runs begin by gathering the same facts: the diff, the list of changed files, the recent log. Each such call costs the agent a turn. A stage's `context` names project commands that gather these facts instead; the factory runs them before the agent, and the agent starts with their outputs. Your Makefile decides what each command shows.
 
+The template (`operator/template/Makefile` and `operator/template/factory/pipeline.yml`) ships three such targets. `facts-diff` and `facts-changes` measure from the point where the branch left `origin/develop`; `facts-files` lists the tracked files as they are. Each leaves out the factory's own files under `factory/`.
+
+| Target | What it shows | Stages in the template |
+|---|---|---|
+| `facts-diff` | the branch's changes: `git diff --stat`, then the whole diff, without `uv.lock` | `review` |
+| `facts-changes` | the changed files by name and status, then the new untracked files | `doing`, `docs` |
+| `facts-files` | every tracked file | `tests` |
+
+The template's [pipeline.yml](../../operator/template/factory/pipeline.yml) lists them like this:
+
 ```yaml
 project_commands:
-  check: {time_limit: 10}
-  lint: {time_limit: 2}
-  test: {time_limit: 5}
-  diff: {time_limit: 1}
+  facts-diff: {time_limit: 1}
+  facts-changes: {time_limit: 1}
+  facts-files: {time_limit: 1}
 stages:
-  review: {role: reviewer, next: [docs, doing], checks: [check], context: [diff]}
+  tests: {role: tester, next: [doing], checks: [lint], reports: [test], context: [facts-files]}
+  doing: {role: coder, next: [review, tests], checks: [check], context: [facts-changes]}
+  review: {role: reviewer, next: [docs, doing], round_cap: 3, context: [facts-diff]}
 ```
 
-with a target such as this in the project's `Makefile`:
+Its [Makefile](../../operator/template/Makefile) finds the base with `git merge-base`, so a checkout without a local `develop` branch works too:
 
 ```make
-diff:
-	@git diff --stat develop...HEAD
+base_ref = $$(git merge-base HEAD origin/develop 2>/dev/null || git rev-parse HEAD)
+
+facts-diff:
+	base=$(base_ref); git diff --stat "$$base" -- . ':!factory' ':!uv.lock'; echo; git diff "$$base" -- . ':!factory' ':!uv.lock'
 ```
 
-- The commands run in order, each under its own `time_limit`, in the check container on the stage's base, like a check but without `make sync` first. Each output becomes a `<context name="diff">` block of the first message, after the role's instructions.
+The targets are your project's own. The factory knows only the names a stage's `context` lists. You may change what a target shows, rename it, or drop a stage's `context`, and nothing in the factory changes with it.
+
+- The commands run in order, each under its own `time_limit`, in the check container on the stage's base, like a check but without `make sync` first. Each output becomes a `<context name="facts-diff">` block of the first message, after the role's instructions.
 - An output longer than 60,000 characters is cut to its first 60,000, followed by a line naming how many characters were cut and telling the agent to run the command itself.
 - A command that fails or runs out of time gives the block the line `failed: <reason>`, and the agent's run starts anyway. A start fact never holds a stage.
 - The commands' `time_limit`s count toward the lease.
@@ -148,7 +163,7 @@ The keys of a stage:
 | `approval` | the human decides in this stage; it has no role | `false` | `approval: true` |
 | `checks` | project commands that must pass after the agent | empty | `checks: [check]` |
 | `reports` | project commands run after green and only recorded | empty | `reports: [duplicates]` |
-| `context` | project commands run before the agent; each output goes into the agent's first message as a start fact | empty | `context: [diff]` |
+| `context` | project commands run before the agent; each output goes into the agent's first message as a start fact | empty | `context: [facts-diff]` |
 | `round_cap` | rounds the stage allows before the human is asked | none (no cap) | `round_cap: 3` |
 
 The keys of a role:
