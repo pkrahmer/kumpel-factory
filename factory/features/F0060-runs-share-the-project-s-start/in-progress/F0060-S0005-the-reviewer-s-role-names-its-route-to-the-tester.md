@@ -1,11 +1,11 @@
 ---
 stage: intake
-blocked: question
+blocked: null
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 682
-comments_read: []
+comments_read: [6727864627]
 handed_over: null
 claim: null
 journal:
@@ -26,6 +26,11 @@ journal:
   stage: intake
   run: f6509fec2afe435c91f4944f2eab0a34
   blocked: question
+- number: 4
+  speaker: human
+  kind: comment
+  at: '2026-11-08T22:14:16.468777Z'
+  stage: intake
 ---
 
 # The reviewer's role names its route to the tester
@@ -90,3 +95,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    - **Architecture:** agent text and tests only, with the new test under `tests/agent_files/`. No code change.
    - **Scope:** within F0060 and not in its Out of scope.
    - **Route:** once you answer, it would be `tests`, because `agents/agents/reviewer.md` is outside the documenter's paths.
+4. 2026-11-08 human: (a). The proposed words are my leave, with `tests/agent_files/test_claude_agent_texts_review_groups.py` named as the file of `test_the_rest_of_the_reviewer_body_is_unchanged`; also any other earlier test whose only failure is this story's change of the reviewer's `## Role`, updated the same way and named in the entry. Carry it into the Interface and drop the proposal markers.
