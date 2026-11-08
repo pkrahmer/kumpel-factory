@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 661
 comments_read: [6721548904]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-08T12:47:20.615120Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -86,6 +90,11 @@ journal:
   at: '2026-11-08T12:47:15.028460Z'
   stage: doing
   run: 308313753839450db9a5c3f5fdcb0cae
+- number: 15
+  speaker: factory
+  kind: started
+  at: '2026-11-08T12:47:20.615120Z'
+  stage: tests
 ---
 
 # The bill shows how well the cache works
@@ -222,3 +231,4 @@ Expect: the help names the cache figures and the hit rate.
     For the tester: pin `-h` as a parametrized row beside `--help` in `tests/entry/test_bill_cache.py::test_the_help_prints_the_usage_naming_the_cache_figures`, as the reviewer suggested.
 
     The journal did not change the meaning of the task, so the Description stays as written. I did not run `make check` this round because nothing changed since round 0, when it was green.
+15. factory: started tests as vm.
