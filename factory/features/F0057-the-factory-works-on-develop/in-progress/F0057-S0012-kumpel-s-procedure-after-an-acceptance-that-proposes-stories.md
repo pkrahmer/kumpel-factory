@@ -1,5 +1,5 @@
 ---
-stage: docs
+stage: smoke-test
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 654
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: docs
-  started_at: '2026-11-08T07:19:34.119764Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -111,6 +107,12 @@ journal:
   kind: started
   at: '2026-11-08T07:19:34.119764Z'
   stage: docs
+- number: 19
+  speaker: documenter
+  kind: result
+  at: '2026-11-08T07:23:50.920930Z'
+  stage: docs
+  run: 3476c727ba5347db8513558a20336796
 ---
 
 # Kumpel's procedure after an acceptance that proposes stories
@@ -273,3 +275,25 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
 
     Earlier tests: none. The only test file in the diff is the new one (status `A`). No test file that `develop` holds is changed, renamed or deleted.
 18. factory: started docs as vm.
+19. documenter: Docs round. I read the diff (`approving.md` and the new test) and the scripts `archive-feature.sh` and `promote.sh`.
+
+    Files changed:
+    - `docs/operator-playbook.md`, step 8: after an acceptance with proposed stories, `archive-feature.sh` refuses with `is in backlog/`. The archive and the promotion then wait for the feature's next accepted acceptance, not this one, and Kumpel starts nothing else for the feature.
+    - `docs/operator-guide/install.md`, *The promotion*: says when the promotion waits and why. The proposed stories sit in `backlog/`, so the archive refuses, and `promote.sh` refuses a feature that is not archived. The wait ends when a further acceptance is merged as accepted. It is no fault.
+
+    `make documents` ended with `documents ok (58.1 s)`. I did not run `make check`, because I changed only documents.
+
+    Cross-read and found current:
+    - `install.md`'s existing text on the reuse of an open promotion and the line `promotion open: #<number>, for the human to merge` matches `promote.sh`.
+    - The playbook's mention of extending an open promotion matches `promote.sh`.
+    - `approving.md` (the coder's change) matches the scripts.
+
+    `docs/decisions.md`: no entry. The human chose no change of behaviour, so the criterion says none, and I wrote no "Why" or "Rejected" line.
+
+    Findings for the coder: none.
+
+    Stale text noticed and not touched: none. The reviewer's note about the name `text` in the new test is not mine to fix.
+
+    `check`: check: green
+    `secrets`: secrets: green (0.5 s)
+    `documents`: documents ok (57.8 s)
