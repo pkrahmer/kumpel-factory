@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 649
 comments_read: [6715900227]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: intake
+  started_at: '2026-11-08T01:58:50.365369Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -30,6 +34,11 @@ journal:
   speaker: human
   kind: comment
   at: '2026-11-08T01:58:48.021805Z'
+  stage: intake
+- number: 5
+  speaker: factory
+  kind: started
+  at: '2026-11-08T01:58:50.365369Z'
   stage: intake
 ---
 
@@ -90,3 +99,4 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
    3. Yes, add it.
    4. Yes, both rows, refused the same way.
    5. Yes: confirm, and add a row to the new module for any that is missing.
+5. factory: started intake as vm.
