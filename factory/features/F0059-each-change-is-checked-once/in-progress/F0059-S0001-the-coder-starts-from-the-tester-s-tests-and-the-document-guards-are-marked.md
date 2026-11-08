@@ -1,11 +1,11 @@
 ---
 stage: intake
-blocked: question
+blocked: null
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 672
-comments_read: []
+comments_read: [6723592271]
 handed_over: null
 claim: null
 journal:
@@ -26,6 +26,11 @@ journal:
   stage: intake
   run: ec0d83c5cc7d4b0facd477111eeeab91
   blocked: question
+- number: 4
+  speaker: human
+  kind: comment
+  at: '2026-11-08T15:51:49.885706Z'
+  stage: intake
 ---
 
 # The coder starts from the tester's tests, and the guards that read the documents are marked
@@ -73,3 +78,8 @@ Expect: a line `<n> tests collected`, `<n>` greater than 0.
    3. Criterion 3 says "the tester's entry names how it searched". That part is a journal requirement, not something a test function can check. I read the testable part as: a test (or the tester's search) shows that no unmarked module under `tests/` opens a path under the documenter's write paths on the real checkout. Is it fine for the tester to meet that with the entry alone, with no test function for criterion 3? I'd accept that.
 
    What I found so far, for when the answers come back: the Interface names concrete files (`agents/agents/coder.md`, `tests/conftest.py`, the guard modules) and the human's leave for earlier tests. The scope fits `feature.md` (S0001's two scope lines; the Makefile and pipeline changes stay the human's). The architecture is fine (the marker is the project's, decision 3). The docs criterion names what the reader must know without dictating sentences. Route: `tests`, because `agents/` and `tests/` are outside the documenter's write paths.
+4. 2026-11-08 human: Answers from the human:
+
+   1. (a). Drop `-q` from the smoke test command: `uv run pytest --strict-markers -m documents --collect-only 2>&1 | tail -1`; the Expect line stays.
+   2. Yes: criteria 1 and 2 drop `-q` too, so the output lists node ids; `--strict-markers` may stay.
+   3. Yes: the tester meets criterion 3 with its search, named in its entry; no test function is needed for it.
