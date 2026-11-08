@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 645
 comments_read: [6714658360, 6714963482]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-08T00:33:09.639750Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -143,6 +147,11 @@ journal:
   at: '2026-11-08T00:33:04.457447Z'
   stage: doing
   run: d2bf7b4e132e4bdab9a844375f4eaff1
+- number: 25
+  speaker: factory
+  kind: started
+  at: '2026-11-08T00:33:09.639750Z'
+  stage: tests
 ---
 
 # Kumpel works on develop and promotes accepted features to main
@@ -410,3 +419,4 @@ Expect: `off`
        - `write_switches` (lines 139-143) should take the switches dict, so that the old-file test (lines 329-331) calls it instead of repeating its body.
 
     Noticed, not touched: the Description already carries the criteria from journals 4 and 14 (the reviewer added them in journal 22). Nothing in this round changes the meaning of the task.
+25. factory: started tests as vm.
