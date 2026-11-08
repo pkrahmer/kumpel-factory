@@ -15,11 +15,12 @@ from factory.agents.domain.agent_runs import (
     AgentRunResult,
     EndReason,
 )
-from factory.agents.domain.prompts import PromptFacts, allowed_decisions, compose_prompt
+from factory.agents.domain.prompts import compose_prompt
 from factory.agents.domain.provider_limits import ProviderLimit
 from factory.pipeline.application.boundaries import Boundaries
 from factory.shared.adapters.clock import ManualClock, ManualWaiter
 from factory.shared.domain.settings import InstanceSettings
+from support.first_message_support import CODER_FACTS
 from support.log_support import log_lines
 from support.settings_support import AGENT_HOME
 
@@ -342,19 +343,7 @@ def test_the_log_lines_give_whole_seconds_and_the_waits_are_kept_whole(
 def test_a_resumed_run_gets_the_whole_message_again_then_the_word_to_continue(
     patient: Boundaries, agent_runtime: FakeAgentRuntime
 ) -> None:
-    facts = PromptFacts(
-        work_item="F0001-S0003",
-        path="factory/features/F0001-demo/in-progress/F0001-S0003-demo.md",
-        stage="doing",
-        allowed_decisions=allowed_decisions(["doing"]),
-        branch="work-item/F0001-S0003",
-        pull_request=7,
-        round=0,
-        body="# Demo\n\n## Journal\n\n1. 2026-11-08 human: created.\n",
-        role="coder",
-        role_instructions="Write the code.",
-    )
-    message = compose_prompt(facts)
+    message = compose_prompt(CODER_FACTS)
     request = _request(patient).model_copy(update={"prompt": message})
     _queue(agent_runtime, _limited(cost="0.20"), _limited(cost="0.10"), _completed())
 

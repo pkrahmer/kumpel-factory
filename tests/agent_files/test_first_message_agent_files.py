@@ -5,9 +5,8 @@ from pathlib import Path
 
 import pytest
 
-from support.shipped_agents import AGENT_HOME
+from support.shipped_agents import AGENT_HOME, SYSTEM_PROMPT_FILE
 
-SYSTEM_PROMPT = AGENT_HOME / "system-prompt.md"
 SHIPPED = sorted((AGENT_HOME / "agents").glob("*.md"))
 READ_FIRST = [
     re.compile(r"^\d+\. Read (the work item|the story)\b", re.MULTILINE),
@@ -20,7 +19,7 @@ def _sentences(text: str) -> list[str]:
 
 
 def test_the_system_prompt_names_both_blocks_and_what_each_one_is() -> None:
-    text = SYSTEM_PROMPT.read_text(encoding="utf-8")
+    text = SYSTEM_PROMPT_FILE.read_text(encoding="utf-8")
     sentences = _sentences(text)
 
     assert "<work-item>" in text

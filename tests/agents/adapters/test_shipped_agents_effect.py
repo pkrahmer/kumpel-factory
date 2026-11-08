@@ -16,11 +16,10 @@ from support.shipped_agents import (
     AGENT_HOME,
     SHIPPED_AGENTS,
     SHIPPED_NAMES,
+    SYSTEM_PROMPT_FILE,
     ShippedAgent,
     front_matter_and_body,
 )
-
-SYSTEM_PROMPT_FILE = AGENT_HOME / "system-prompt.md"
 
 REPLY = json.dumps(
     {

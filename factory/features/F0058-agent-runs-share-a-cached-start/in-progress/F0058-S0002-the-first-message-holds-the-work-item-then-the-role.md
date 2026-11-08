@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 660
 comments_read: [6720878077, 6720941885, 6720981420, 6721183670]
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-08T12:08:42.769492Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -168,6 +164,12 @@ journal:
   kind: started
   at: '2026-11-08T12:08:42.769492Z'
   stage: tests
+- number: 29
+  speaker: tester
+  kind: result
+  at: '2026-11-08T12:10:30.046457Z'
+  stage: tests
+  run: 49542796ccc34734aa89a3e90260028d
 ---
 
 # The first message holds the work item, then the role
@@ -556,3 +558,27 @@ Expect: the docstring names the order: the work item's body, the role's instruct
 
     The factory left out changes outside the write paths: factory/features/F0058-agent-runs-share-a-cached-start/in-progress/F0058-S0002-the-first-message-holds-the-work-item-then-the-role.md.
 28. factory: started tests as vm.
+29. tester: Round 1. I made the three test changes the coder set out in entry 27 for the reviewer's findings 1, 3 and 4 (entry 25). I changed no code.
+
+    Criterion → test:
+    - criterion 12: tests/agents/adapters/test_claude_runtime_system_prompt.py::test_a_run_without_a_readable_system_prompt_file_gets_the_built_in_one_or_an_error. It has three rows: `no-file`, `missing-path` and `unreadable-file`.
+      - In the first two rows, the file after `--append-system-prompt-file` must equal `SYSTEM_PROMPT`, and `SYSTEM_PROMPT` must equal `agents/system-prompt.md`. This is the reviewer's equality check, folded into those two rows.
+      - In the third row, `AgentRuntimeError` must name the path. The "unreadable file" is a folder at the file's path: it exists, and reading it fails whatever user runs the test. A `chmod 000` file can still be read by root.
+      - The test runs through `ClaudeCodeRuntime` with the Claude stand-in.
+
+    Moves of shared test helpers, under the standing leave in `CLAUDE.md` *Tests*. Every earlier test keeps its name and checks the same thing.
+    - Finding 3: new support module `tests/support/first_message_support.py`. It holds `CODER_FACTS`, `CODER_BODY` and `CODER_INSTRUCTIONS`, the `PromptFacts` that two tests built for themselves. Changed earlier test files:
+      - `tests/agents/adapters/test_opencode_runtime.py`, in `test_the_message_holds_the_work_item_then_the_role_then_the_facts_then_the_result_block`;
+      - `tests/agents/application/test_patient_runs.py`, in `test_a_resumed_run_gets_the_whole_message_again_then_the_word_to_continue`.
+      I removed the imports of `PromptFacts` and `allowed_decisions` that the two files no longer use.
+    - Finding 4: `SYSTEM_PROMPT_FILE = AGENT_HOME / "system-prompt.md"` is now in `tests/support/shipped_agents.py`. Changed earlier test files:
+      - `tests/agent_files/test_first_message_agent_files.py`: its `SYSTEM_PROMPT` constant becomes the shared `SYSTEM_PROMPT_FILE`;
+      - `tests/agents/adapters/test_shipped_agents_effect.py`: its own `SYSTEM_PROMPT_FILE` is removed and the shared one imported.
+
+    Files created: `tests/agents/adapters/test_claude_runtime_system_prompt.py`, `tests/support/first_message_support.py`. Files changed: the four test files above and `tests/support/shipped_agents.py`.
+
+    Run: one `uv run pytest -q` over the five affected test files. All passed, since the code is already in place. Every module imported. `make lint`: green. I skipped the type check, as this stage's instructions say.
+
+    Open, for the coder: entry 27 ends with the factory's note that it left out the coder's edit to the work item. So criterion 14 in `## Description` still lacks the operator guide's `system-prompt.md` (the reviewer's finding 2).
+
+    `lint`: lint: green (0.2 s)

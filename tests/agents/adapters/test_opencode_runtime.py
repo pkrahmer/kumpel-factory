@@ -16,10 +16,11 @@ from factory.agents.adapters.opencode_runtime import (
     result_instructions,
 )
 from factory.agents.application.agent_runtime import AgentRuntime
-from factory.agents.domain.prompts import PromptFacts, allowed_decisions, compose_prompt
+from factory.agents.domain.prompts import compose_prompt
 from factory.shared.domain.errors import AgentRuntimeError
 from factory.shared.domain.kill_points import KillPoint, KillPoints
 from support.claude_stand_in import Step, read_calls, without_locale
+from support.first_message_support import CODER_BODY, CODER_FACTS, CODER_INSTRUCTIONS
 from support.opencode_stand_in import (
     MODELS,
     REPLY_EVENTS,
@@ -312,21 +313,9 @@ def test_a_run_that_cannot_start_names_the_reason(
 def test_the_message_holds_the_work_item_then_the_role_then_the_facts_then_the_result_block(
     tmp_path: Path,
 ) -> None:
-    body = "# Demo\n\n## Journal\n\n1. 2026-11-08 human: created.\n"
-    facts = PromptFacts(
-        work_item="F0001-S0003",
-        path="factory/features/F0001-demo/in-progress/F0001-S0003-demo.md",
-        stage="doing",
-        allowed_decisions=allowed_decisions(["doing"]),
-        branch="work-item/F0001-S0003",
-        pull_request=7,
-        round=0,
-        body=body,
-        role="coder",
-        role_instructions="Write the code.",
-    )
+    body = CODER_BODY
     request = opencode_request(tmp_path / "work").model_copy(
-        update={"prompt": compose_prompt(facts)}
+        update={"prompt": compose_prompt(CODER_FACTS)}
     )
     runtime = stand_in_runtime(tmp_path, [Step(stdout=REPLY_EVENTS)])
 
@@ -340,7 +329,7 @@ def test_the_message_holds_the_work_item_then_the_role_then_the_facts_then_the_r
     assert (
         message.index(body)
         < message.index('<role-instructions role="coder">')
-        < message.index("Write the code.")
+        < message.index(CODER_INSTRUCTIONS)
         < message.index("Round: 0")
         < message.index(block)
     )
