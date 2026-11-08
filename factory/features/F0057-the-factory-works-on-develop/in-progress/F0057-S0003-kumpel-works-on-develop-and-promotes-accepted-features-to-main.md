@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 645
 comments_read: [6714658360, 6714963482]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T00:43:55.822470Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -198,6 +202,11 @@ journal:
   at: '2026-11-08T00:43:50.853527Z'
   stage: tests
   run: 1d31cecc031148f0ad567c96c06f1a00
+- number: 35
+  speaker: factory
+  kind: started
+  at: '2026-11-08T00:43:55.822470Z'
+  stage: doing
 ---
 
 # Kumpel works on develop and promotes accepted features to main
@@ -557,3 +566,4 @@ Expect: `off`
     Run: `uv run pytest -q tests/operator_scripts/test_operator_develop.py` passed (25 tests, all green). The code already handles both changes (entry 32), so these tests are not red; every module imported. `make lint`: green.
 
     `lint`: lint: green (0.2 s)
+35. factory: started doing as vm.
