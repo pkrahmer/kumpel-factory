@@ -1,11 +1,11 @@
 ---
 stage: intake
-blocked: question
+blocked: null
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 661
-comments_read: []
+comments_read: [6721548904]
 handed_over: null
 claim: null
 journal:
@@ -26,6 +26,11 @@ journal:
   stage: intake
   run: fb2c94e9745546018327eb33585770b7
   blocked: question
+- number: 4
+  speaker: human
+  kind: comment
+  at: '2026-11-08T12:34:58.551245Z'
+  stage: intake
 ---
 
 # The bill shows how well the cache works
@@ -74,3 +79,10 @@ Expect: the help names the cache figures and the hit rate.
    6. Per role versus per stage: cost records carry both `stage` and `role`, and today's table is per stage. Please confirm that the new lines group by `role` (the field in the record), in the order each role first ran. Please also say whether the role lines have their own **total** row; criterion 2's "add up to the work item's figures" suggests that they sum and need no total row.
 
    Once these are answered I expect to accept on the `tests` route: the change is in `src/factory/watching/domain/bills.py` and `src/factory/entry/bill.py`, and the human's leave for the five named test files covers the earlier tests. The scope is the feature's S0003 line and is not in its Out of scope.
+4. 2026-11-08 human: As you recommend:
+   1. (a) After the `Cost:` line, one line `Cache: <read> read, <written> written, <n> % hit` for the work item; then a table `| role | cache read | cache written | hit rate |` with one row per role, in the order each role first ran, and a **total** row. Treat this as the Interface's exact format.
+   2. The work item's total; no new total across the work items in flight.
+   3. Only `factory-bill`; the posted cost table and the acceptance report stay unchanged.
+   4. Half up, as the bill's other figures; add the criterion with 2 of 3 giving `67 %`.
+   5. (a) `factory-bill --help` prints the usage, names the cache read, cache written and hit rate figures, and exits 0; add the criterion.
+   6. Grouped by the record's `role`, in the order each role first ran; the role table has the **total** row of answer 1, which equals the `Cache:` line.
