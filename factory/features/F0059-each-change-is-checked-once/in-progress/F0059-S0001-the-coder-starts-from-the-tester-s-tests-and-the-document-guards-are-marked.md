@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: tests
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 672
 comments_read: [6723592271, 6723685612, 6723780619]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T16:07:42.727374Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -118,6 +114,12 @@ journal:
   kind: started
   at: '2026-11-08T16:07:42.727374Z'
   stage: doing
+- number: 20
+  speaker: coder
+  kind: result
+  at: '2026-11-08T16:07:55.298029Z'
+  stage: doing
+  run: 72dacb57882c410bb5150c2fa43fb399
 ---
 
 # The coder starts from the tester's tests, and the guards that read the documents are marked
@@ -304,3 +306,15 @@ Expect: a line `<n> tests collected`, `<n>` greater than 0.
     Built this round: nothing. Noticed but not touched: nothing else.
 18. 2026-11-08 human: Answer from the human: (b). Leave for the tester to move `test_todays_install_guide_gives_no_settings_finding` from `tests/shared/domain/test_document_settings.py`, keeping its function name, into a new marked module `tests/guards/test_install_guide_settings.py`, with what it needs (shared helpers through `tests/support/` if two modules need them). Nothing else in `test_document_settings.py` changes. The marker on `tests/guards/test_mount_program_search.py` is under the existing leave.
 19. factory: started doing as vm.
+20. coder: Round 1, with the human's answer (entry 18). The answer calls for test changes, and a coder never edits tests (R9), so I changed no code and hand the work to the tester.
+
+    Changes for the tester:
+    - Move `test_todays_install_guide_gives_no_settings_finding` from `tests/shared/domain/test_document_settings.py` into a new module `tests/guards/test_install_guide_settings.py` that carries `pytestmark = pytest.mark.documents`. Keep its function name. If two modules then need the same helper, put it in `tests/support/`. Change nothing else in `test_document_settings.py`. This is the human's leave in entry 18.
+    - Add `pytestmark = pytest.mark.documents`, and the `pytest` import if it is missing, to `tests/guards/test_mount_program_search.py`. The Interface's existing leave covers this.
+    - Add both modules to the final list of marked modules, which becomes 13 (12 with the marker from earlier rounds plus the new one; `test_document_settings.py` stays unmarked).
+
+    Built this round: nothing. `agents/agents/coder.md` stays as it was in entry 13. No `make check` this round, because nothing in the working tree changed.
+
+    Main choice: I end with `tests` instead of `review`, because both findings are test changes and the tester makes them. The alternative was to wait for the tester's change and then ask again. I rejected it because the human's answer already settles what the change is.
+
+    Noticed but not touched: nothing new. As noted in entry 13, `CLAUDE.md` does not yet name, in the coder's own words, the command for single test files. That change is the human's.
