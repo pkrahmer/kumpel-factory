@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 672
 comments_read: [6723592271, 6723685612]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T15:59:36.927743Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -79,6 +75,12 @@ journal:
   kind: started
   at: '2026-11-08T15:59:36.927743Z'
   stage: doing
+- number: 13
+  speaker: coder
+  kind: result
+  at: '2026-11-08T16:04:03.767998Z'
+  stage: doing
+  run: a68e788cf1694871b14929d893796348
 ---
 
 # The coder starts from the tester's tests, and the guards that read the documents are marked
@@ -201,3 +203,20 @@ Expect: a line `<n> tests collected`, `<n>` greater than 0.
 
     `lint`: lint: green (0.2 s)
 12. factory: started doing as vm.
+13. coder: Built: `agents/agents/coder.md`, and nothing else. The tester's marker work (the `tests/conftest.py` registration, the eleven marked modules and the two new test files) already satisfied criteria 1 and 2. It needed no code.
+    - Role section: the first bullet now says to start by running only the test files the tester's latest entry names, with the command `CLAUDE.md` names for single test files, and to read their failures. "Finish with `make check` green." is unchanged.
+    - Stage step 1: it still reads the named files. It now also says to run only the test files the tester's latest entry names, with the command `CLAUDE.md` names for single test files, to read their failures.
+    - The text stays project-neutral. It names no new make target and no pytest option.
+
+    Main choice: I changed the existing role bullet and step 1 in place. The alternative was a new step 0 or a separate bullet, which I rejected because it would leave two "start" instructions that disagree. I left steps 2 to 6, the Rules and the Lessons untouched.
+
+    Run: `uv run pytest -q tests/agent_files` passes (it was 3 failed and 2 passed in the new module before the change). `make check` is green (test: green, 105.6 s, coverage 99.21 %).
+
+    Refactor: the diff is two sentences, and nothing needed changing.
+
+    Description: the journal (entries 4 and 9) already changed it during intake and the tests stage. Nothing in this stage changes its meaning.
+
+    Noticed but not touched: `CLAUDE.md` does not yet name a project command for single test files in the coder's words. It names the tester's `uv run pytest -q <files>` command. Pointing it at the coder too is among the human's changes (`CLAUDE.md` is the human's file).
+
+    `check`: check: green
+    `duplicates`: duplicates: 7 new, 39 known, 4 gone
