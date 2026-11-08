@@ -1,5 +1,5 @@
 ---
-stage: intake
+stage: tests
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 682
 comments_read: [6727864627]
 handed_over: null
-claim:
-  instance: vm
-  stage: intake
-  started_at: '2026-11-08T22:14:18.982510Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -40,11 +36,15 @@ journal:
   kind: started
   at: '2026-11-08T22:14:18.982510Z'
   stage: intake
+- number: 6
+  speaker: intake
+  kind: result
+  at: '2026-11-08T22:14:39.832988Z'
+  stage: intake
+  run: 01c7ace9b15447a0b444657abce5bc03
 ---
 
 # The reviewer's role names its route to the tester
-
-<!-- proposed by feature acceptance of 2026-11-08; refine before starting -->
 
 ## Description
 
@@ -55,7 +55,7 @@ F0060-S0003 gave the reviewer a third way out, `tests`, in step 4 of its `## Sta
 - `agents/agents/reviewer.md`, `## Role`:
   - The recommendation sentence becomes: "Your recommendation is your decision: `docs` passes, `doing` sends the work item back, and `tests` sends it to the tester when step 4 of the Stage allows it." The sentence after it ("Never both, …") stays.
   - In the notes paragraph, "is still a finding and sends it back with `doing`" becomes "is still a finding and sends it back, with `doing` or, by step 4 of the Stage, with `tests`".
-- The leave for earlier tests (to be given by the human when refining; proposed words): "`_RECOMMENDATION` and `_NOTES` of `tests/agent_files/test_claude_agent_texts_review_leave.py` take the new sentences; if F0060-S0004 is not merged first, the reviewer's `Role` checksum in `PARTS_BEFORE` of `tests/support/shared_rules_support.py` takes the new text's, and `test_the_rest_of_the_reviewer_body_is_unchanged` maps the new sentences back to the earlier ones by `.replace`; each test keeps its name and checks the same thing."
+- The leave for earlier tests (the human, journal entry 4): `_RECOMMENDATION` and `_NOTES` of `tests/agent_files/test_claude_agent_texts_review_leave.py` take the new sentences; if F0060-S0004 is not merged first, the reviewer's `Role` checksum in `PARTS_BEFORE` of `tests/support/shared_rules_support.py` takes the new text's, and `test_the_rest_of_the_reviewer_body_is_unchanged` of `tests/agent_files/test_claude_agent_texts_review_groups.py` maps the new sentences back to the earlier ones by `.replace`; any other earlier test whose only failure is this story's change of the reviewer's `## Role` is updated the same way, and the tester's entry names it; each test keeps its name and checks the same thing.
 - Tests: `tests/agent_files/test_reviewer_role_route_to_tests.py` for the criteria below.
 
 ## Acceptance criteria
@@ -106,3 +106,13 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    - **Route:** once you answer, it would be `tests`, because `agents/agents/reviewer.md` is outside the documenter's paths.
 4. 2026-11-08 human: (a). The proposed words are my leave, with `tests/agent_files/test_claude_agent_texts_review_groups.py` named as the file of `test_the_rest_of_the_reviewer_body_is_unchanged`; also any other earlier test whose only failure is this story's change of the reviewer's `## Role`, updated the same way and named in the entry. Carry it into the Interface and drop the proposal markers.
 5. factory: started intake as vm.
+6. intake: accepted
+
+   - Human's answer carried in from journal entry 4: the Interface's leave line now holds the human's leave and no longer the proposed words. It names `tests/agent_files/test_claude_agent_texts_review_groups.py` as the file of `test_the_rest_of_the_reviewer_body_is_unchanged`. It also covers any other earlier test whose only failure is this story's change of the reviewer's `## Role`, and says the tester's entry must name each one. I removed the "proposed by feature acceptance; refine before starting" marker. The Description is unchanged because the meaning of the task did not change.
+   - Interface: names `agents/agents/reviewer.md` `## Role` and quotes the exact old and new text of both sentences, which match the current file. It names the earlier tests the leave covers and the new test module `tests/agent_files/test_reviewer_role_route_to_tests.py`.
+   - Criteria: 1 and 2 each test both sides, the new text present exactly once and the old text gone, as rows of one parametrized test. 3 pins step 4 and `### docs-review` as unchanged. 4 is `make check` and 5 is `docs:`, the last two. Each can be tested by one test function without further decisions.
+   - Smoke test: the `grep -c` command can be run and expects `1`. The pytest command passes no `-q`, which is right because `addopts` already sets it, so the summary line can be checked.
+   - Docs criterion: names what the reader must know: the reviewer's ways out in `agent-runtime.md`, the template's `review` in `pipeline.md`, and the decision and its rejected alternative in `docs/decisions.md`. It dictates no sentences.
+   - Architecture: the story changes agent text and tests only, with the new test under `tests/agent_files/`. No code, contract or dependency changes.
+   - Scope: within F0060 (the reviewer's route to the tester) and not in its Out of scope.
+   - Route: `tests`, because `agents/agents/reviewer.md` is outside the documenter's write paths.
