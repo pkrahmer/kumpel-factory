@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 659
 comments_read: [6720500729]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T10:49:02.487923Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -53,6 +57,11 @@ journal:
   at: '2026-11-08T10:48:57.214337Z'
   stage: tests
   run: 4c6da60ae0044da8970b9f09db42c606
+- number: 9
+  speaker: factory
+  kind: started
+  at: '2026-11-08T10:49:02.487923Z'
+  stage: doing
 ---
 
 # Every role has the same tools and the same decision tool
@@ -148,3 +157,4 @@ Expect: exactly one line, `model: opus`
    Test run, before implementation: the new tests and the earlier tests that read the agent files fail on wrong values, for example test_claude_files.py::test_front_matter_holds_the_four_applied_keys_with_their_values[intake|reviewer|documenter|smoke-tester] and test_shipped_agents_effect.py::test_call_passes_exactly_the_agent_tools[smoke-tester]. Every module imported; nothing failed to import. `make lint` is green.
 
    `lint`: lint: green (0.2 s)
+9. factory: started doing as vm.
