@@ -1,17 +1,13 @@
 ---
-stage: docs-review
+stage: docs-only
 blocked: null
-round: 0
+round: 1
 attempts: 0
 crashes: 0
 pull_request: 675
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: docs-review
-  started_at: '2026-11-08T17:00:35.074101Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -45,6 +41,12 @@ journal:
   kind: started
   at: '2026-11-08T17:00:35.074101Z'
   stage: docs-review
+- number: 7
+  speaker: reviewer
+  kind: result
+  at: '2026-11-08T17:01:15.758031Z'
+  stage: docs-review
+  run: a8e29700b6f242afb041bfba734df291
 ---
 
 # The guides describe one full check per story
@@ -144,3 +146,19 @@ Expect: `0`
    `secrets`: secrets: green (0.5 s)
    `documents`: documents ok (62.0 s)
 6. factory: started docs-review as vm.
+7. reviewer: Reviewed `git diff develop...HEAD -- README.md docs operator/README.md` (from the facts-diff block). I checked it against `operator/template/factory/pipeline.yml`, `operator/template/Makefile`, `factory/pipeline.yml`, the `Makefile` targets `check`, `test`, `guides` and `secrets`, and `docs/project-guide/style.md`.
+
+   What holds:
+   - Criterion 1: every quote now appears verbatim in the file it quotes.
+     - The template's `doing` line has no `checks`.
+     - `base_ref = $$(git merge-base HEAD origin/develop)` is `operator/template/Makefile:128`.
+     - The `smoke-test` line is template line 27.
+     - The `check:` line is `factory/pipeline.yml:10`.
+   - Criterion 2: the "turn `make check` red" sentence is gone, and `make guides` is named.
+   - Criterion 3: the "Until then" sentence is gone. `make guides` is named, with the docs stages and `make check guides`.
+   - The five smoke-test greps match their expected counts on the diff.
+   - Docs route step 3 says what the Interface asks for, and it is true of `factory/pipeline.yml:41`, where `docs-only` checks `check`, `guides`, `secrets` and `documents`.
+
+   Findings:
+   1. `docs/operator-guide/pipeline.md:131`. Problem: the sentence "It also leaves out the documenter's write paths (…), because no test of `make check` reads them: `make test` runs … in the docs stages." is about 50 words and has two parentheses. That breaks rule 2 of `docs/project-guide/style.md`: split a sentence of more than about 25 words, and use at most one parenthesis per sentence. Fix: split it into three sentences. The first says what is left out, the second why `make test` does not read the documents, and the third what `make guides` runs. Keep one parenthesis at most in each.
+   2. `docs/project-guide/README.md:231`. Problem: "So `make check` reads none of the documenter's files" is not true of the code. `make check` runs `secrets` (`Makefile:21`), and `secrets` scans every file changed against `origin/develop`, documents included (`Makefile:64-72`). Fix: say that no test of `make check` reads the documenter's files, as the operator guide says at line 131.
