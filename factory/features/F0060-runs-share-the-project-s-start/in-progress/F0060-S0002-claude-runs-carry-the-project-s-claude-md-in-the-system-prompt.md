@@ -1,5 +1,5 @@
 ---
-stage: smoke-test
+stage: approval
 blocked: null
 round: 2
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 679
 comments_read: [6727152793, 6727304331]
 handed_over: null
-claim:
-  instance: vm
-  stage: smoke-test
-  started_at: '2026-11-08T21:29:06.040709Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -200,6 +196,12 @@ journal:
   kind: started
   at: '2026-11-08T21:29:06.040709Z'
   stage: smoke-test
+- number: 35
+  speaker: smoke-tester
+  kind: result
+  at: '2026-11-08T21:31:20.762846Z'
+  stage: smoke-test
+  run: e5f730db2a9543e380bc9054e83871e5
 ---
 
 # Claude runs carry the project's CLAUDE.md in the system prompt
@@ -501,3 +503,29 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     `secrets`: secrets: green (2.5 s)
     `documents`: documents ok (68.4 s)
 34. factory: started smoke-test as vm.
+35. smoke-tester: I ran the smoke test as written, from the repository root. Both commands met their `Expect:` lines, so there are no findings.
+
+    1. `uv run python -c "from factory.agents.adapters.claude_runtime import SWITCHES; print(SWITCHES['CLAUDE_CODE_DISABLE_CLAUDE_MDS'], SWITCHES['CLAUDE_CODE_PROMPT_CACHE_TTL'])"` exited with status 0.
+       ```
+       Bytecode compiled 4164 files in 88ms
+       1 5m
+       ```
+       Met: the output is `1 5m`. The line before it is uv's own build message.
+
+    2. `uv run pytest tests/agents/adapters/test_claude_runtime_project_instructions.py` exited with status 0.
+       ```
+       Bytecode compiled 4164 files in 46ms
+       ..........                                                               [100%]
+       10 passed in 0.25s
+       ```
+       Met: the summary line has only `passed`, with no `failed` or `error`.
+
+    Criteria: the output contradicts none of them.
+    - Command 1 shows the two switches that criterion 4 asks for, with the values it names.
+    - The 10 tests that passed cover criteria 1 to 7. Criterion 2 includes the `link` row.
+    - Criterion 8 (`make check`) is checked by the factory after this stage. Entry 22 reported it green.
+    - Criterion 9 (docs) is not tested by these commands, and nothing in their output contradicts it.
+
+    Findings: none.
+
+    `check`: check: green
