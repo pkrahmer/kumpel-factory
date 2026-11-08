@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: tests
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 659
 comments_read: [6720500729, 6720585535]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T10:53:41.983215Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -79,6 +75,12 @@ journal:
   kind: started
   at: '2026-11-08T10:53:41.983215Z'
   stage: doing
+- number: 13
+  speaker: coder
+  kind: result
+  at: '2026-11-08T10:53:56.852963Z'
+  stage: doing
+  run: f4cab83a8891427fb6efd955e90255c5
 ---
 
 # Every role has the same tools and the same decision tool
@@ -201,3 +203,8 @@ Expect: exactly one line, `model: opus`
     Noticed but not touched: the comment above `__all__` in `claude_runtime.py` keeps old names exported for earlier callers. It is unrelated to this story. The journal changed nothing in the Description; it only added criteria 6 to 8, which intake already carried in.
 11. 2026-11-08 human: Option 1: the tester changes the helper's `work.mkdir()` to `work.mkdir(parents=True)`; the test keeps checking the same thing.
 12. factory: started doing as vm.
+13. coder: The human's answer in entry 11 calls for a test change. In `tests/agents/adapters/test_claude_runtime_shared_schema.py`, the helper `_arguments` (line 32) should call `work.mkdir(parents=True)` instead of `work.mkdir()`. That lets `test_requests_with_different_decisions_get_the_same_json_schema` create `tmp_path / "first" / "work"` and `tmp_path / "second" / "work"`, and the test still checks the same thing.
+
+    I changed no code in this round. The implementation from the last round is already committed: the four agent files under `agents/agents/` and the shared `_DECISION_SCHEMA` constant in `src/factory/agents/adapters/claude_runtime.py`. In that round's `make check`, this test was the only failure. When the tester sends the work item back, I will run `make check` and hand it to review.
+
+    The journal added nothing new to the Description. Entry 11 only picks option 1 from my question.
