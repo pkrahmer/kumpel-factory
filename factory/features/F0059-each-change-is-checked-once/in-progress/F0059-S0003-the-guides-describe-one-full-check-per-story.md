@@ -1,5 +1,5 @@
 ---
-stage: docs-review
+stage: docs-approval
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 675
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: docs-review
-  started_at: '2026-11-08T17:04:05.284784Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -67,6 +63,12 @@ journal:
   kind: started
   at: '2026-11-08T17:04:05.284784Z'
   stage: docs-review
+- number: 11
+  speaker: reviewer
+  kind: result
+  at: '2026-11-08T17:04:39.188959Z'
+  stage: docs-review
+  run: 9ed78d0481a1410fbcd6cd41fb48f1ff
 ---
 
 # The guides describe one full check per story
@@ -201,3 +203,28 @@ Expect: `0`
    `secrets`: secrets: green (0.5 s)
    `documents`: documents ok (63.4 s)
 10. factory: started docs-review as vm.
+11. reviewer: no findings
+
+    I reviewed `git diff develop...HEAD -- README.md docs operator/README.md` from the facts-diff block. I checked it against `operator/template/factory/pipeline.yml`, `operator/template/Makefile`, `factory/pipeline.yml`, the `Makefile` targets `check`, `test` and `guides`, `CLAUDE.md` and `docs/project-guide/style.md`.
+
+    - Round-0 findings:
+      - Finding 1 is fixed. `docs/operator-guide/pipeline.md:131` is now split into short sentences, and none of them has more than one parenthesis.
+      - Finding 2 is fixed. `docs/project-guide/README.md:231` now says "no test of `make check` reads the documenter's files". That is true: `check` is `lint types layers sast secrets licenses test`, and `test` runs `-m "not documents"`.
+    - Criterion 1: every quote appears word for word in the file it quotes.
+      - The template's `tests`, `doing` and `review` lines match `operator/template/factory/pipeline.yml:22-25`.
+      - `base_ref` matches `operator/template/Makefile:128`.
+      - The `smoke-test` line matches template line 27.
+      - The `check:` line matches `factory/pipeline.yml:10`.
+      - The sentence before the `base_ref` block holds: the merge-base is taken against `origin/develop`, so no local `develop` is needed.
+      - "No stage before it lists `check`" is true of the template.
+    - Criterion 2: the sentence saying a documents-only change can turn `make check` red is gone.
+      - Line 131 names `make guides` as the command that runs the marked tests.
+      - Step 3 of the docs route is true of `factory/pipeline.yml:41`: `docs-only` checks `check`, `guides`, `secrets` and `documents`, and `docs` checks `guides`, `secrets` and `documents`.
+    - Criterion 3: the "Until then" sentence is gone.
+      - `make test` runs `-m "not documents"`, as in the Makefile's `test` target.
+      - `make guides` runs `-m documents`. The guide says where: in the docs stages and in the coder's `make check guides`, as `CLAUDE.md:42` says.
+    - Criterion 6: both guides now say where the one full `make check` runs and which command checks the documents.
+    - Style: no sentence has more than one parenthesis, no story or feature IDs, no "no longer", and no sentence runs much past about 25 words.
+    - Smoke-test greps: on the diff, the expected counts are 0, 0, 0, 1 and 0. I did not run the greps.
+
+    One point I weighed and did not count as a finding: step 3 of the docs route states the `not_read` reuse generally, though it is a property of kumpel-factory's definition. It follows the Interface's wording, and the route itself needs stages that only such a definition holds.
