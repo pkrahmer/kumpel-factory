@@ -1,5 +1,5 @@
 ---
-stage: smoke-test
+stage: approval
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 659
 comments_read: [6720500729, 6720585535, 6720667293]
 handed_over: null
-claim:
-  instance: vm
-  stage: smoke-test
-  started_at: '2026-11-08T11:14:36.743766Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -195,6 +191,12 @@ journal:
   kind: started
   at: '2026-11-08T11:14:36.743766Z'
   stage: smoke-test
+- number: 34
+  speaker: smoke-tester
+  kind: result
+  at: '2026-11-08T11:14:55.523316Z'
+  stage: smoke-test
+  run: 1166a3eb691c491db648fdc40991c8d0
 ---
 
 # Every role has the same tools and the same decision tool
@@ -498,3 +500,20 @@ Expect: exactly one line, `model: opus`
     `secrets`: secrets: green (2.0 s)
     `documents`: documents ok (62.2 s)
 33. factory: started smoke-test as vm.
+34. smoke-tester: Ran the two smoke-test commands from the repository root, in order, exactly as written.
+
+    Command 1: `grep -h '^tools:' agents/agents/*.md | sort -u`
+    ```
+    tools: [Read, Grep, Glob, Edit, Bash, Write, Skill]
+    ```
+    Met its Expect: exactly one line, `tools: [Read, Grep, Glob, Edit, Bash, Write, Skill]`.
+
+    Command 2: `grep -h '^model:' agents/agents/*.md | sort -u`
+    ```
+    model: opus
+    ```
+    Met its Expect: exactly one line, `model: opus`.
+
+    Checked against the acceptance criteria: nothing in the output contradicts any criterion. To check criterion 2 I also read the `effort:` lines (`grep -H '^effort:' agents/agents/*.md`). They give acceptance-reviewer high, coder medium, documenter medium, intake medium, reviewer high, smoke-tester medium and tester medium, which is what the criterion asks for. The smoke test does not reach criteria 3 to 8 (the runtime's `--json-schema`, refusing a decision outside the allowed ones, the write-path verdict, the message, the launch arguments), 9 (`make check`) or 10 (docs). The factory's checks and the earlier stages cover those.
+
+    Findings: none.
