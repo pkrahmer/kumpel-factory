@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 0
 attempts: 1
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 649
 comments_read: [6715900227]
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-08T01:59:40.719704Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -69,6 +65,12 @@ journal:
   kind: started
   at: '2026-11-08T01:59:40.719704Z'
   stage: tests
+- number: 11
+  speaker: tester
+  kind: result
+  at: '2026-11-08T02:01:18.489759Z'
+  stage: tests
+  run: 0d1497c0fff544059754de59bcd675f2
 ---
 
 # archive-feature.sh refuses a feature whose acceptance was refused
@@ -152,3 +154,32 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
    - Scope: S0006 is not in `feature.md`'s Stories list, but the feature's acceptance proposed it, so I treat it as in scope.
    - Route: `tests`, because the script and `approving.md` are outside the documenter's write paths.
 10. factory: started tests as vm.
+11. tester: I wrote one test per criterion. They fail now on purpose: they are the coder's spec.
+
+    Mapping:
+    - criterion 1: tests/operator_scripts/test_operator_archive_outcome.py::test_archive_feature_archives_only_a_feature_whose_last_acceptance_was_accepted. It has 7 rows: accepted, refused, no-outcome-line, no-front-matter, no-closing-line, accepted-only-in-body, refused-then-accepted. Each refused row checks:
+      - exit status 1
+      - the refusal line, with the report's path, on stderr
+      - the remote's `develop` is unchanged
+      - the checkout is on `develop` and `git status --porcelain` is empty
+    - criterion 2: tests/operator_scripts/test_operator_archive_outcome.py::test_archive_feature_keeps_its_earlier_refusals_and_their_texts. It has 4 rows: story-in-backlog, story-in-progress, no-acceptance, last-acceptance-outside-done. Each checks exit status 1, the script's current text on stderr, and that the remote's `develop` is unchanged. The earlier test in tests/operator_scripts/test_operator_develop.py still covers this criterion's second half.
+    - criterion 3: tests/operator_scripts/test_operator_archive_outcome.py::test_approving_names_the_refusal_of_a_feature_whose_acceptance_was_not_accepted. It checks that the `1.` line under `## After a feature's acceptance` in `operator/skill/kumpel/references/approving.md` contains `is not finished: its last acceptance`.
+    - criteria 4 and 5: no test (`make check` and the docs).
+
+    Files:
+    - Created: tests/operator_scripts/test_operator_archive_outcome.py
+    - Created: tests/support/archive_feature_support.py
+    - Changed: tests/operator_scripts/test_operator_develop.py
+
+    Why test_operator_develop.py changed:
+    - **Standing leave to move a shared test helper (CLAUDE.md, Tests):** the new module needed the feature constants, `finished_feature` and `tree`, so I moved them from test_operator_develop.py into tests/support/archive_feature_support.py. test_operator_develop.py now imports them from there. Every test keeps its name and what it checks.
+    - **The human's leave (journal entry 4):** the acceptance report that `finished_feature` writes (`ACCEPTANCE`) now has the front matter `stage: done` and `outcome: accepted` before the same body. The new `ACCEPTANCE_BODY` holds that body without front matter, for the refused rows.
+
+    Test run (`uv run pytest -q` on the two files):
+    - 6 tests fail, all for the right reason. The five refused rows of criterion 1 get exit 0, because the script archives anyway. The criterion 3 test fails because step 1 of approving.md does not have the text yet.
+    - Everything else passes, test_operator_develop.py included. That is correct: those rows describe behaviour that already holds.
+    - No module failed to import. The script under test is a shell script, so the failures are wrong results, not import errors.
+
+    `make lint` is green. Nothing in the criteria needed interpreting.
+
+    `lint`: lint: green (0.2 s)
