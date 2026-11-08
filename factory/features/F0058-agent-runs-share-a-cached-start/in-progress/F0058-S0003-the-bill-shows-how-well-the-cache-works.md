@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 661
 comments_read: [6721548904]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T12:47:57.677225Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -97,6 +101,11 @@ journal:
   at: '2026-11-08T12:47:52.372479Z'
   stage: tests
   run: 99a9bea632304b4eae5c3ab9ba823c8b
+- number: 17
+  speaker: factory
+  kind: started
+  at: '2026-11-08T12:47:57.677225Z'
+  stage: doing
 ---
 
 # The bill shows how well the cache works
@@ -246,3 +255,4 @@ Expect: the help names the cache figures and the hit rate.
     `lint`: lint: green (0.1 s)
 
     `lint`: lint: green (0.2 s)
+17. factory: started doing as vm.
