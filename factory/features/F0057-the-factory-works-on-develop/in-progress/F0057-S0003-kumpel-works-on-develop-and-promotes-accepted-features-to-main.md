@@ -2,16 +2,12 @@
 stage: tests
 blocked: null
 round: 0
-attempts: 0
+attempts: 1
 crashes: 0
 pull_request: 645
 comments_read: [6714658360]
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-07T23:49:25.889667Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -51,6 +47,19 @@ journal:
   kind: started
   at: '2026-11-07T23:49:25.889667Z'
   stage: tests
+- number: 8
+  speaker: tester
+  kind: result
+  at: '2026-11-08T00:06:04.977579Z'
+  stage: tests
+  run: cd391953352249b9a6cad5a13606e579
+- number: 9
+  speaker: factory
+  kind: stall
+  at: '2026-11-08T00:06:05.180092Z'
+  stage: tests
+  run: cd391953352249b9a6cad5a13606e579
+  reason: check_red
 ---
 
 # Kumpel works on develop and promotes accepted features to main
@@ -122,3 +131,40 @@ Expect: `off`
    - Architecture: the change sits in `operator/skill/kumpel/scripts/`, `operator/skill/*`, `operator/claude/*` and `operator/opencode/*`, which are the coder's paths, with tests under `tests/operator_scripts/`. This matches the layout in CLAUDE.md.
    - Scope: within F0057's scope (S0003 line) and not in its out-of-scope list. Earlier tests change only as far as the human's 2026-11-07 leave allows. Route: tests.
 7. factory: started tests as vm.
+8. tester: Tests written from the numbered criteria and from the criteria the human added in journal 4 (the intake did not write those into the Description; I left it unchanged too).
+
+   Criterion → test:
+   - criterion 1 (start-story commits on `develop` as Kumpel, pushes `develop`, `main` untouched): tests/operator_scripts/test_operator_develop.py::test_start_story_commits_on_develop_as_kumpel
+   - criterion 2, with journal 4 items 1 and 2 (finished feature moved to `factory/archive/` on `develop` with subject `F0001: archived` and Kumpel as author and committer, the remote's `develop` holds it, `main` untouched, other features stay; refusal rows: story in backlog/, story in in-progress/, no acceptance, acceptance in in-progress/, last acceptance A0002 in in-progress/): test_operator_develop.py::test_archive_feature_moves_only_a_finished_feature_to_the_archive_on_develop
+   - criterion 3, with journal 4 item 3 (refusal when the feature is not archived on `develop`; POST /pulls with head `develop`, base `main`, title `F0001: promoted to main`, a body that lists the story ids and titles; switch on: PUT merge with `merge_method: merge` and `commit_message` `Promoted by Kumpel after F0001's acceptance.`; switch off: no merge, the number is printed): test_operator_develop.py::test_promote_opens_the_promotion_and_merges_it_only_with_the_switch_on
+   - criterion 4 (merge.sh finds the archive commit on `develop`, not on the default branch; rows for both sides): tests/operator_scripts/test_operator_merge_reset.py::test_the_merge_looks_for_the_archive_commit_on_develop
+   - criterion 5, with journal 4 item 6 (new file has `promote` off; `set promote on|off` works; another value is refused with exit 2 and `settings.sh: yes is neither on nor off`): test_operator_develop.py::test_the_promote_switch_is_off_in_a_new_file_and_set_like_the_others
+   - journal 4 item 4 (next-story, approval and status read `develop`, and status finds the archive commit there; one row per script on a remote where `develop` is ahead of `main`): test_operator_develop.py::test_next_story_approval_and_status_read_develop_not_main
+   - journal 4 item 5 (reset moves `develop` by force, sends no request for `main`, and prints a line that names `main`): test_operator_merge_reset.py::test_the_reset_moves_develop_and_says_that_main_is_left_alone
+   - journal 4 item 8 (both kumpel commands name `promote`; standing-orders.md says "never push to main" and "a fix goes to develop", checked with backticks removed and case ignored): test_operator_develop.py::test_the_texts_name_the_promote_switch_and_keep_kumpel_off_main
+
+   Files created: tests/operator_scripts/test_operator_develop.py.
+
+   Earlier test files changed:
+   - Under the human's leave of 2026-11-07, limited to the branch name, the lookup on `develop` and the new switch. Every test keeps its name and what it checks.
+     - tests/support/operator_skill_support.py: `SCRIPTS_BRANCH` is now `develop`, and `commits()` answers `/commits?sha=develop&per_page=20`. `make_bare_remote` also gives the remote a `main` at the same commit as its `HEAD`, so a clone starts on `main` and each script must switch to `develop` itself.
+     - tests/operator_scripts/test_operator_merge_reset.py: the commits route, "would move/moved develop to", `ALLOWED_CHANGE` allows `develop` instead of `main`, and the only-moves test ignores the line about `main`.
+     - tests/operator_scripts/test_operator_skill_scripts.py: `DEFAULT_SWITCHES` gains `promote: False`, the `show` line gains `promote off`, and the commits failure route uses `sha=develop`.
+   - Under the standing leave to move a shared test helper: `KUMPEL` moved from tests/operator_scripts/test_operator_skill_signature.py to tests/support/operator_skill_support.py, and that test file now imports it.
+
+   Test run: no module failed to import, because these are shell scripts and every test imports. The one run of the four files failed as intended: every new test failed, along with the earlier tests that now expect `develop`, the new route or the `promote` switch. `archive-feature.sh` and `promote.sh` do not exist yet.
+
+   Open:
+   - `make lint` was interrupted when the session ended and I have no result for it. I did run `ruff format` on the new file. The factory's lint check after this stage will show whether it is green.
+   - `promote.sh` is tested against a git checkout: it must find the archived feature and the story titles in the checkout's `develop`, as `next-story.sh` does, not through the API's contents. If the coder wants to read them through the API, that is a question for the human.
+   - The reset test checks only that some printed line names `main`. The wording of that line is the coder's choice.
+9. factory: Stage tests stalled (attempt 1 of 2): a check is red after the stage: `lint`
+   Bytecode compiled 4164 files in 81ms
+   sync: green (0.1 s)
+   Bytecode compiled 4164 files in 53ms
+   tests/operator_scripts/test_operator_merge_reset.py:252:101: E501 Line too long (102 > 100)
+   tests/operator_scripts/test_operator_skill_signature.py:3:1: I001 [*] Import block is un-sorted or un-formatted
+   tests/support/operator_skill_support.py:189:101: E501 Line too long (119 > 100)
+   Found 3 errors.
+   [*] 1 fixable with `--fix`.
+   make: *** [Makefile:32: lint] Error 1

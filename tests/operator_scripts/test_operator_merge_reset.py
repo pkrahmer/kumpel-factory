@@ -167,7 +167,7 @@ def pull_request(
 
 
 def commit_list(*subjects: str) -> list[dict[str, object]]:
-    """The newest commits on `main`, newest first."""
+    """The newest commits on `develop`, newest first."""
     return [{"sha": "e" * 40, "commit": {"message": f"{text}\n"}} for text in subjects]
 
 
@@ -179,7 +179,7 @@ def merge_answers(
     return {
         "GET /pulls/5": ok(pull_request() if pull is None else pull),
         "PUT /pulls/5/merge": ok({"merged": True, "sha": "f" * 40}),
-        "GET /commits?per_page=20": commits or ok(commit_list(ARCHIVE, "earlier work")),
+        "GET /commits?sha=develop&per_page=20": commits or ok(commit_list(ARCHIVE, "earlier work")),
     }
 
 
@@ -209,7 +209,7 @@ def test_an_approved_pull_request_is_merged_and_its_archive_awaited(
     assert isinstance(body, dict)
     assert body[field] == value
     routes = [request.route for request in machine.requests()]
-    assert "/commits?per_page=20" in routes[routes.index("/pulls/5/merge") :]
+    assert "/commits?sha=develop&per_page=20" in routes[routes.index("/pulls/5/merge") :]
     assert in_order("\n".join(printed(result)), ["merged #5", f"archived {ITEM}"])
 
 
@@ -249,7 +249,7 @@ def test_a_merge_the_host_refuses_stops_without_polling(machine: Machine) -> Non
     assert f"hosting: PUT {PREFIX}/pulls/5/merge: 405 Pull Request is not mergeable" in printed(
         result
     )
-    assert "/commits?per_page=20" not in [request.route for request in machine.requests()]
+    assert "/commits?sha=develop&per_page=20" not in [request.route for request in machine.requests()]
 
 
 @pytest.mark.parametrize(
@@ -294,7 +294,7 @@ def test_the_merge_waits_for_the_archive_commit(
     [
         pytest.param("GET /pulls/5", [*BROKEN], 1, False, id="pull-request"),
         pytest.param(
-            "GET /commits?per_page=20",
+            "GET /commits?sha=develop&per_page=20",
             [*BROKEN, (200, commit_list(ARCHIVE, "earlier work"))],
             0,
             True,
@@ -316,7 +316,7 @@ def test_a_failing_read_of_the_merge_is_reported(
     route = failing_read.split(" ", 1)[1]
     assert f"hosting: GET {PREFIX}{route}: 500 Server Error" in printed(result)
     routes = [request.route for request in machine.requests()]
-    assert ("/commits?per_page=20" in routes) is polled
+    assert ("/commits?sha=develop&per_page=20" in routes) is polled
     if polled:
         assert in_order("\n".join(printed(result)), ["merged #5", f"archived {ITEM}"])
     else:
@@ -430,7 +430,7 @@ def test_without_yes_the_reset_prints_its_plan_and_changes_nothing(machine: Mach
         [
             "would close 2 open work-item pull request(s)",
             "would delete 3 work-item branch(es)",
-            f"would move main to {SHORT}",
+            f"would move develop to {SHORT}",
             "run again with --yes",
         ],
     )
@@ -469,7 +469,7 @@ def test_with_yes_the_reset_closes_deletes_and_moves_in_this_order(machine: Mach
             "closed #7",
             "closed #8",
             *(f"deleted {branch}" for branch in BRANCHES),
-            f"moved main to {SHORT}",
+            f"moved develop to {SHORT}",
         ],
     )
     assert "closed #9" not in printed(result)
@@ -517,7 +517,9 @@ def test_a_reset_with_nothing_to_close_or_delete_only_moves_main(machine: Machin
     assert machine.changes() == [
         Request("PATCH", f"/git/refs/heads/{SCRIPTS_BRANCH}", {"sha": COMMIT, "force": True})
     ]
-    assert printed(result) == [f"moved main to {SHORT}"]
+    assert [line for line in printed(result) if "main" not in line] == [
+        f"moved develop to {SHORT}"
+    ]
 
 
 @pytest.mark.parametrize(
@@ -567,8 +569,8 @@ RUNS: list[Callable[[], Run]] = [
         "reset-to-tag.sh", (TAG, "--yes"), failing(f"PATCH /git/refs/heads/{SCRIPTS_BRANCH}")
     ),
 ]
-# What a change may touch: a pull request, a work item's branch, `main`.
-ALLOWED_CHANGE = re.compile(r"^/pulls/\d+(/merge)?$|^/git/refs/heads/(work-item/.+|main)$")
+# What a change may touch: a pull request, a work item's branch, `develop`.
+ALLOWED_CHANGE = re.compile(r"^/pulls/\d+(/merge)?$|^/git/refs/heads/(work-item/.+|develop)$")
 
 
 @pytest.mark.parametrize(
@@ -607,3 +609,51 @@ def test_a_wrong_command_line_prints_the_usage_and_sends_nothing(
     assert result.exit_status == 2
     assert any(line.startswith(f"usage: {script} ") for line in result.stderr.splitlines())
     assert machine.requests() == []
+
+
+@pytest.mark.parametrize(
+    ("develop", "default", "exit_status", "line"),
+    [
+        pytest.param(
+            commit_list(ARCHIVE, "earlier work"),
+            commit_list("earlier work"),
+            0,
+            f"archived {ITEM}",
+            id="archive-on-develop",
+        ),
+        pytest.param(
+            commit_list("earlier work"),
+            commit_list(ARCHIVE, "earlier work"),
+            1,
+            f"merge.sh: merged, but no archive commit for {ITEM} after 0 s",
+            id="archive-only-on-the-default-branch",
+        ),
+    ],
+)
+def test_the_merge_looks_for_the_archive_commit_on_develop(
+    *,
+    machine: Machine,
+    develop: list[dict[str, object]],
+    default: list[dict[str, object]],
+    exit_status: int,
+    line: str,
+) -> None:
+    answers = merge_answers(commits=ok(develop))
+    answers["GET /commits?per_page=20"] = ok(default)
+    machine.answer(answers)
+    result = machine.run("merge.sh", "5", ITEM, KUMPEL_POLL_SECONDS="0", KUMPEL_ARCHIVE_WAIT="0")
+    assert result.exit_status == exit_status, result.stderr
+    assert line in printed(result)
+    assert "/commits?sha=develop&per_page=20" in [request.route for request in machine.requests()]
+
+
+def test_the_reset_moves_develop_and_says_that_main_is_left_alone(machine: Machine) -> None:
+    machine.answer(reset_answers())
+    result = machine.run("reset-to-tag.sh", TAG, "--yes")
+    assert result.exit_status == 0, result.stderr
+    assert machine.changes()[-1] == Request(
+        "PATCH", "/git/refs/heads/develop", {"sha": COMMIT, "force": True}
+    )
+    assert [request for request in machine.requests() if "/heads/main" in request.route] == []
+    assert f"moved develop to {SHORT}" in printed(result)
+    assert any("main" in line for line in printed(result)), printed(result)

@@ -24,7 +24,7 @@ from support.operator_skill_support import (
 )
 
 NO_ACCESS = "hosting: the token command failed; see SITE_TOKEN_CMD in the site file"
-DEFAULT_SWITCHES = {"merge": False, "answer": True, "start_next": True}
+DEFAULT_SWITCHES = {"merge": False, "answer": True, "start_next": True, "promote": False}
 FEATURE = "factory/features/F0001-example"
 ITEM = f"{FEATURE}/in-progress/F0001-S0001-first.md"
 BRANCH = "work-item/F0001-S0001"
@@ -354,7 +354,7 @@ JSON_SETTINGS = {
             ["show"],
             0,
             f"repository {REPOSITORY}, checkout {SITE_CHECKOUT}\n"
-            "switches: merge off, answer on, start_next on\n",
+            "switches: merge off, answer on, start_next on, promote off\n",
             id="show-site-wins",
         ),
         pytest.param(False, False, ["show"], 1, None, id="show-neither"),
@@ -555,7 +555,7 @@ def test_no_script_calls_gh() -> None:
     [
         pytest.param(f"{PREFIX}/issues/7", id="issue"),
         pytest.param(f"{PREFIX}/issues/7/comments?per_page=1&page=1", id="comments-page"),
-        pytest.param(f"{PREFIX}/commits?per_page=20", id="commits"),
+        pytest.param(f"{PREFIX}/commits?sha=develop&per_page=20", id="commits"),
     ],
 )
 def test_status_stops_at_a_failing_read_with_the_hosting_message(
