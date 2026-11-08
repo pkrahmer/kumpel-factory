@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 645
 comments_read: [6714658360, 6714963482]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: docs
+  started_at: '2026-11-08T00:49:50.988211Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -220,6 +224,11 @@ journal:
   at: '2026-11-08T00:49:45.871762Z'
   stage: review
   run: da72aa6de22a404eb720550d622fc212
+- number: 39
+  speaker: factory
+  kind: started
+  at: '2026-11-08T00:49:50.988211Z'
+  stage: docs
 ---
 
 # Kumpel works on develop and promotes accepted features to main
@@ -632,3 +641,4 @@ Expect: `off`
     Notes:
     - `tests/operator_scripts/test_operator_develop.py:322` `test_a_settings_file_without_the_promote_switch_reads_it_as_off`: the name now covers only the `read` row. `set-on`, `get-unknown` and `set-unknown` would fit a name like "an old settings file knows the promote switch and nothing more".
     - `tests/operator_scripts/test_operator_develop.py:291` and `:322`: the switch's new-file rows and old-file rows are still two functions. The setups differ, as noted in round 1.
+39. factory: started docs as vm.
