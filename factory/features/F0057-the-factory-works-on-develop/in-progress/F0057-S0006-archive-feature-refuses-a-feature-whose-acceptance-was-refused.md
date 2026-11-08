@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 649
 comments_read: [6715900227]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: smoke-test
+  started_at: '2026-11-08T02:13:40.926865Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -104,6 +108,11 @@ journal:
   at: '2026-11-08T02:13:35.890006Z'
   stage: docs
   run: 8ef931d20d08471ca19ea2adfc849110
+- number: 18
+  speaker: factory
+  kind: started
+  at: '2026-11-08T02:13:40.926865Z'
+  stage: smoke-test
 ---
 
 # archive-feature.sh refuses a feature whose acceptance was refused
@@ -273,3 +282,4 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
     `check`: check: green
     `secrets`: secrets: green (0.5 s)
     `documents`: documents ok (66.9 s)
+18. factory: started smoke-test as vm.
