@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 679
 comments_read: [6727152793]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T21:17:33.504536Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -128,6 +124,12 @@ journal:
   kind: started
   at: '2026-11-08T21:17:33.504536Z'
   stage: doing
+- number: 22
+  speaker: coder
+  kind: result
+  at: '2026-11-08T21:20:08.350700Z'
+  stage: doing
+  run: 32b17520c7a648bcb1fb57aaeb2231e3
 ---
 
 # Claude runs carry the project's CLAUDE.md in the system prompt
@@ -305,3 +307,25 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     `lint`: lint: green (0.2 s)
 21. factory: started doing as vm.
+22. coder: The tester's `link` row from entry 20 is in, so all three of the reviewer's findings from entry 16 are now covered, by code and by tests. This run changed no code. The fixes from entry 18 were already on the branch.
+
+    Run:
+    - `uv run pytest -q` on `tests/agents/adapters/test_claude_runtime_project_instructions.py` and `tests/agents/adapters/test_claude_runtime.py`: all pass.
+    - `make check`: ends with `check: green`.
+    - `make guides`: green.
+
+    What the story built (paths):
+    - `src/factory/agents/adapters/claude_runtime.py`:
+      - `SWITCHES` gains `CLAUDE_CODE_DISABLE_CLAUDE_MDS: "1"` and `CLAUDE_CODE_PROMPT_CACHE_TTL: "5m"`, with a comment that says why each is set.
+      - `_project_instructions` reads the root `CLAUDE.md` only when `lstat` shows a regular file. A link, a directory or a missing file adds nothing. An `OSError` or `UnicodeDecodeError` raises `AgentRuntimeError` naming the path.
+      - `_instructions_text` adds a blank line, the introducing sentence and the `<project-instructions>` block after the system prompt.
+      - `_write_files` writes that text once per run, so a resumed call reuses the same file.
+    - `src/factory/agents/domain/prompts.py`: `_block` is now the public `block`, which the runtime reuses for the block.
+
+    Main choice: the Claude adapter reads the file from the run's checkout when the run starts. Rejected: adding the block in the shared `system_prompt_text`, because opencode must not get it. Also rejected: resolving a link to see whether it points inside the checkout. A link is not a regular file, wherever it points.
+
+    Refactor: I read the diff again and found nothing more to change. The journal did not change the task's meaning, so `## Description` stays as it is.
+
+    Not touched: the docs criterion (9) belongs to the documenter.
+
+    `duplicates`: duplicates: 7 new, 39 known, 4 gone
