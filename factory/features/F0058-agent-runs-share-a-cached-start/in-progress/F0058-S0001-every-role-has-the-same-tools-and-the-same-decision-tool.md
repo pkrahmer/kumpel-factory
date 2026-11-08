@@ -1,17 +1,13 @@
 ---
 stage: doing
-blocked: null
+blocked: question
 round: 1
 attempts: 0
 crashes: 0
 pull_request: 659
 comments_read: [6720500729, 6720585535]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T11:00:33.105592Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -123,6 +119,13 @@ journal:
   kind: started
   at: '2026-11-08T11:00:33.105592Z'
   stage: doing
+- number: 21
+  speaker: coder
+  kind: question
+  at: '2026-11-08T11:00:55.134280Z'
+  stage: doing
+  run: 4d63c5d3f0ff4e41be322a398a56fa8c
+  blocked: question
 ---
 
 # Every role has the same tools and the same decision tool
@@ -306,3 +309,20 @@ Expect: exactly one line, `model: opus`
     - `tests/agents/adapters/test_claude_runtime.py` (`test_json_schema_asks_for_an_allowed_decision_and_an_entry`): the human's leave in criterion 4 ("an earlier test may change only in how it builds the schema"). Only the expected `decision` property changed.
     - `tests/support/shipped_agents.py`: none; see finding 1.
 20. factory: started doing as vm.
+21. coder: I changed no code this round. All four review findings are about tests, and the first one needs the human's leave before anything else can move.
+
+    **Question (finding 1):** The tester changed `tests/support/shipped_agents.py` in its first run. That support module belongs to an earlier story. The tester changed four rows (intake, reviewer, documenter, smoke-tester) to the Interface's values and removed `_TOOLS_WITHOUT_WRITE`. The reviewer found that no leave covers this change: it is not a move of a shared helper, the story does not name the file, and criterion 4's leave is only about how a test builds the schema. Without the change, `test_shipped_agents_effect.py` and `test_claude_files.py` stay red against the agent files the Interface asks for. So the old values cannot stay unless those tests change some other way. Options:
+    1. Give leave for the change as it is: the four rows take the Interface's tools, model and effort, and `_TOOLS_WITHOUT_WRITE` is removed. Test names and what they check stay the same. **I recommend this.**
+    2. Give leave for a narrower change that you name, for example keeping `_TOOLS_WITHOUT_WRITE` unused.
+    3. Refuse the change. The earlier tests would then pin the old tools and model, which contradicts the Interface. The story's agent-file change could not pass, and the Interface would have to change.
+
+    **What happens after your answer:** I will end with `tests`. The tester will then make findings 2 to 4 together with whatever your answer needs:
+    - Finding 2: move the copied helpers `REPLY`, `_arguments` and `_schema` from `tests/agents/adapters/test_claude_runtime_shared_schema.py` into a `tests/support/` module under the standing leave. The other way is to put those tests into `test_claude_runtime.py` and use its helpers there.
+    - Finding 3: in `tests/agents/domain/test_prompt_names_decisions.py`, check each decision against the prompt's `Allowed decisions:` list, not as a substring of the whole prompt.
+    - Finding 4: either write that test into `tests/agents/domain/test_prompts.py` using `_facts(allowed_decisions=...)`, or move `VALID` and `_facts` into a `tests/support/` module.
+
+    Finding 3 changes a test this story wrote, and findings 2 and 4 fall under the standing leave, so none of them needs another question.
+
+    **State of the code:** the implementation from the first doing round is unchanged. That is the four agent files under `agents/agents/` and the `_DECISION_SCHEMA` constant in `src/factory/agents/adapters/claude_runtime.py`. The reviewer judged the source change sound, and `make check` was green in entry 17.
+
+    The journal changed nothing in the Description.
