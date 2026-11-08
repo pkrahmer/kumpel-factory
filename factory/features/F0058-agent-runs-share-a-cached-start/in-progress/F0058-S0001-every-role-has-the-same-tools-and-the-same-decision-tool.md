@@ -1,17 +1,13 @@
 ---
 stage: doing
-blocked: null
+blocked: question
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 659
 comments_read: [6720500729]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T10:49:02.487923Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -62,6 +58,13 @@ journal:
   kind: started
   at: '2026-11-08T10:49:02.487923Z'
   stage: doing
+- number: 10
+  speaker: coder
+  kind: question
+  at: '2026-11-08T10:51:50.121166Z'
+  stage: doing
+  run: 71fcd213f30341aaaf7b09b71e7742c5
+  blocked: question
 ---
 
 # Every role has the same tools and the same decision tool
@@ -158,3 +161,27 @@ Expect: exactly one line, `model: opus`
 
    `lint`: lint: green (0.2 s)
 9. factory: started doing as vm.
+10. coder: I stopped with the implementation done and `make check` red on one test that no code can make pass.
+
+    What I built:
+    - `agents/agents/intake.md`, `documenter.md`, `reviewer.md` and `smoke-tester.md` now match the Interface. All seven agent files have `tools: [Read, Grep, Glob, Edit, Bash, Write, Skill]` and `model: opus`. Intake is now at `effort: medium`. The reviewer and the acceptance reviewer keep `high`.
+    - In `src/factory/agents/adapters/claude_runtime.py`, `_decision_schema(request)` is replaced by one module constant, `_DECISION_SCHEMA`. Its `decision` is a string with no `enum`, and its description says the decision is one of the allowed decisions the run's message names. `_answered` still refuses a decision outside `request.allowed_decisions`, and the other launch arguments are unchanged.
+    - Main choice: build the schema once at import, because it no longer depends on the request. I rejected keeping a function that ignores its argument. I made the names private because nothing outside the module uses them.
+
+    The blocking test: `tests/agents/adapters/test_claude_runtime_shared_schema.py::test_requests_with_different_decisions_get_the_same_json_schema` fails before it reaches the runtime. Its helper `_arguments` calls `work.mkdir()` on `tmp_path / "first" / "work"`, and `tmp_path / "first"` does not exist. Output from `uv run pytest -q tests/agents/adapters/test_claude_runtime_shared_schema.py --tb=short`:
+    ```
+    tests/agents/adapters/test_claude_runtime_shared_schema.py:32: in _arguments
+        work.mkdir()
+    E   FileNotFoundError: [Errno 2] No such file or directory: '/tmp/pytest-of-factory/pytest-1/test_requests_with_different_d0/first/work'
+    ```
+    The other three tests in that file pass, because they give `_arguments` the bare `tmp_path`. In `make check`, every earlier step and every other test passed (total coverage 99.22 %). This test is the only failure.
+
+    Options:
+    1. The tester changes the helper's `work.mkdir()` to `work.mkdir(parents=True)` in that test file. The test still checks the same thing. I recommend this.
+    2. The tester changes the test to create `tmp_path / "first"` and `tmp_path / "second"` before calling `_arguments`.
+
+    With either answer I will end with `tests` and name the change. No code change is needed on my side.
+
+    Refactor: I read my diff and nothing else needs changing.
+
+    Noticed but not touched: the comment above `__all__` in `claude_runtime.py` keeps old names exported for earlier callers. It is unrelated to this story. The journal changed nothing in the Description; it only added criteria 6 to 8, which intake already carried in.
