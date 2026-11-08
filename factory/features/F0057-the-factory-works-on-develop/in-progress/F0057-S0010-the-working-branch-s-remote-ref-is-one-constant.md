@@ -1,3 +1,30 @@
+---
+stage: intake
+blocked: null
+round: 0
+attempts: 0
+crashes: 0
+pull_request: null
+comments_read: []
+handed_over: null
+claim:
+  instance: vm
+  stage: intake
+  started_at: '2026-11-08T07:40:24.891854Z'
+  lease_duration: 60
+journal:
+- number: 1
+  speaker: human
+  kind: created
+  at: '2026-11-08T07:40:24.884561Z'
+  stage: intake
+- number: 2
+  speaker: factory
+  kind: started
+  at: '2026-11-08T07:40:24.891854Z'
+  stage: intake
+---
+
 # The working branch's remote ref is one constant
 
 
@@ -52,3 +79,6 @@ uv run python -c "from factory.shared.domain.paths import WORK_REF; print(WORK_R
 Expect: `origin/develop`
 
 ## Journal
+
+1. 2026-11-08 human: created.
+2. factory: started intake as vm.
