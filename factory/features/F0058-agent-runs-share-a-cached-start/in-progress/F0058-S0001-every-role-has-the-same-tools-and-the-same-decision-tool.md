@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 659
 comments_read: [6720500729, 6720585535, 6720667293]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T11:04:04.161441Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -162,6 +158,12 @@ journal:
   kind: started
   at: '2026-11-08T11:04:04.161441Z'
   stage: doing
+- number: 28
+  speaker: coder
+  kind: result
+  at: '2026-11-08T11:08:24.380590Z'
+  stage: doing
+  run: 6ca378092de3412d91b33cef0fe9d269
 ---
 
 # Every role has the same tools and the same decision tool
@@ -400,3 +402,19 @@ Expect: exactly one line, `model: opus`
 
     `lint`: lint: green (0.2 s)
 27. factory: started doing as vm.
+28. coder: I changed no code in this round. The open review findings were all about tests: finding 1 got the human's leave in entry 22, and the tester settled findings 2 to 4 in entry 26. With the tester's changes in place, I ran `make check` in the foreground and it is green: `test: green (108.8 s)`, `check: green`, total coverage 99.22 %.
+
+    What I built (unchanged since the first doing round):
+    - `agents/agents/intake.md`, `documenter.md`, `reviewer.md` and `smoke-tester.md`: every agent file now has `tools: [Read, Grep, Glob, Edit, Bash, Write, Skill]` and `model: opus`. Intake moved to `effort: medium`. The reviewer and the acceptance reviewer keep `high`.
+    - `src/factory/agents/adapters/claude_runtime.py`: one module constant, `_DECISION_SCHEMA`, replaces the per-request `_decision_schema(request)`. Its `decision` is a string with no `enum`. Its description, `_DECISION_DESCRIPTION`, says the decision is one of the allowed decisions that the run's message names. A comment gives the reason (the shared cached start). `_answered` still refuses a decision outside `request.allowed_decisions`, and no other launch argument changed.
+
+    Main choice: the schema is built once, when the module loads, because it no longer depends on the request. I rejected keeping a function that takes the request and ignores it.
+
+    Refactor: I read the diff against `develop` again. Nothing needs changing.
+
+    Noticed but not touched: the comment above `__all__` in `claude_runtime.py` keeps old names exported for earlier callers. That is unrelated to this story.
+
+    The journal did not change the Description: entries 21 to 26 only settled test findings.
+
+    `check`: check: green
+    `duplicates`: duplicates: 6 new, 39 known, 4 gone
