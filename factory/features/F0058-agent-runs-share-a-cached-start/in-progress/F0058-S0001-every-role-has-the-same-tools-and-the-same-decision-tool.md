@@ -1,5 +1,5 @@
 ---
-stage: intake
+stage: tests
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 659
 comments_read: [6720500729]
 handed_over: null
-claim:
-  instance: vm
-  stage: intake
-  started_at: '2026-11-08T10:46:07.615751Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -40,6 +36,12 @@ journal:
   kind: started
   at: '2026-11-08T10:46:07.615751Z'
   stage: intake
+- number: 6
+  speaker: intake
+  kind: result
+  at: '2026-11-08T10:46:24.851541Z'
+  stage: intake
+  run: 734c7f7de2b54a51aaefde992fbd6480
 ---
 
 # Every role has the same tools and the same decision tool
@@ -69,8 +71,11 @@ After this story, every role has the tools `Read, Grep, Glob, Edit, Bash, Write,
 3. Two requests with different `allowed_decisions` give the same `--json-schema` argument.
 4. A run whose decision is not in the request's `allowed_decisions` is refused, as before (an earlier test may change only in how it builds the schema).
 5. Intake, the reviewer and the smoke tester still cannot write outside `{work_item}`: the factory's write-path verdict refuses a written file outside it, with `Write` as with `Edit` (rows of one test).
-6. `make check` stays green.
-7. docs: the project guide's description of the agent files and of the launch arguments says that every role has the same tools and the same decision tool, and why (the shared cached start). `docs/decisions.md`: one entry, every role has the same tools, and five roles share one model and one effort, for the prompt cache; the write paths, not the tool list, limit what a role writes.
+6. The `--json-schema` argument's `decision` property has type `string` and no `enum`, and its description says the run's message names the allowed decisions.
+7. The message built for a request contains each of its `allowed_decisions`.
+8. The launch arguments of a request, with the `--json-schema` value removed, equal those before this story (the model and effort of intake and the documenter come from their agent files and are covered by criterion 2).
+9. `make check` stays green.
+10. docs: the project guide's description of the agent files and of the launch arguments says that every role has the same tools and the same decision tool, and why (the shared cached start). `docs/decisions.md`: one entry, every role has the same tools, and five roles share one model and one effort, for the prompt cache; the write paths, not the tool list, limit what a role writes.
 
 ## Smoke test
 
@@ -102,3 +107,10 @@ Expect: exactly one line, `model: opus`
    2. Add the criterion: the message built for a request contains each of its `allowed_decisions`.
    3. Add the criterion: the launch arguments of a request, with the `--json-schema` value removed, equal those before this story (the model and effort of intake and the documenter come from their agent files and are covered by criterion 2).
 5. factory: started intake as vm.
+6. intake: accepted. I carried in the human's answer (journal entry 4) by adding three criteria before the two closing ones: new 6 (the schema's `decision` is a string with no `enum`, and its description says the message names the allowed decisions), new 7 (the message contains each of the request's `allowed_decisions`) and new 8 (launch arguments other than `--json-schema` are unchanged). `make check` and `docs:` are now criteria 9 and 10. The Description did not change.
+   - Interface: it names concrete paths (`agents/agents/*.md` with their `tools`, `model` and `effort` values, and `factory.agents.adapters.claude_runtime`'s `--json-schema` argument). Every behaviour it states now has a criterion.
+   - Criteria: each is testable by one test function. The failing sides are covered: criterion 4 refuses a decision outside `allowed_decisions`, criterion 5 refuses a write outside `{work_item}`, and criterion 6 requires no `enum`. Each effort value has its own row in criterion 2.
+   - Smoke test: both `grep ... | sort -u` commands are runnable, and each `Expect:` line is checkable against the output. The commands run no pytest.
+   - Docs criterion: it names what the reader must know (same tools and decision tool for every role, and why) and the one decisions entry. It dictates no sentences.
+   - Architecture: only the `agents` adapters and the agent files change. The write paths stay in the factory.
+   - Scope: this matches S0001 in `feature.md` and decisions 1 to 3. Route: `tests`, because the Interface changes code.
