@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 1
 attempts: 0
@@ -231,6 +231,11 @@ journal:
   at: '2026-11-08T12:29:14.203898Z'
   stage: smoke-test
   run: a93acb0d41d24e09aa02ca480ccafbe2
+- number: 41
+  speaker: factory
+  kind: done
+  at: '2026-11-08T12:31:06.778741Z'
+  stage: approval
 ---
 
 # The first message holds the work item, then the role
@@ -801,3 +806,4 @@ Expect: the docstring names the order: the work item's body, the role's instruct
     I read the acceptance criteria again against this output. Nothing contradicts them. The docstring agrees with criterion 3 (the blocks come in order with one blank line between each part) and with criterion 5 (marker texts in the body are escaped). The command covers only the docstring, so it does not show criteria 1–2, 4 or 6–14 working at runtime.
 
     Findings: none.
+41. factory: done (pull request merged); cost: 17 runs, 49.7 min, 249 turns, 854719 tokens in (11001115 more from cache), 127919 out, $9.03
