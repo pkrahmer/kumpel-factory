@@ -309,3 +309,4 @@ Times are UTC. The plan: `night-plan.md`.
 - 17:06 UTC: F0059-S0003 (the guides describe one full check per story) approved, PR #675 merged (5 runs, $1.52).
 - 17:16 UTC: F0059-A0002 PR #676 merged: accepted, no stories (feature 25 runs, about $10.4). F0059 archived by hand. Instance demo3 set up for pkrahmer/kumpel-demo-todo-3 (the human made the repository; seeded main and develop with demo/todo-service/project at 73db6c861), code-ref develop, running.
 - 17:17 UTC: F0059 promoted (PR #677, f55b83ce8). Measurement run for F0058 and F0059 started: demo-todo F0001 on pkrahmer/kumpel-demo-todo-3, instance demo3, F0001-S0001 started.
+- 17:59 UTC: measurement run done: demo-todo-3 F0001 accepted (PR #5; 36 runs). Report in docs/runs/2026-11-08-measurement-f0058-f0059/report.md: turns -29 %, agent minutes -12 %, wall clock -16 %, cache written -9 %, hit 81 % (same), cost -7 % at one price list (recorded +36 % because the subscription writes the one-hour cache).
