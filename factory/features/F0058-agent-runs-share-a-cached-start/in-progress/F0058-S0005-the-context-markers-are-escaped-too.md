@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 664
 comments_read: [6722586434]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T14:18:08.602814Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -84,6 +80,12 @@ journal:
   kind: started
   at: '2026-11-08T14:18:08.602814Z'
   stage: doing
+- number: 14
+  speaker: coder
+  kind: result
+  at: '2026-11-08T14:23:18.906112Z'
+  stage: doing
+  run: 3d844aca03104fbe93d1349dc3072987
 ---
 
 # The context markers are escaped too
@@ -182,3 +184,17 @@ Expect: `1`
 
     `lint`: lint: green (0.2 s)
 13. factory: started doing as vm.
+14. coder: The tester changed the `near` row (entry 12), and `make check` is now green. It ends with `test: green (115.9 s)` and `check: green`, with total coverage at 99.21 %.
+
+    What I built: `_MARKER_TEXTS` in `src/factory/agents/domain/prompts.py:42` now also holds `"<context"` and `CONTEXT_CLOSE`. That change was made in an earlier run and is already on the branch (bae1a49ee). `_escape_markers` already applies the tuple to the work item's body and to each start fact's text (its output, the cut line and the `failed:` line), so no other code changed. The role's instructions are still not escaped. I changed no code in this run.
+
+    Main choice: `<context` is escaped as a bare prefix, like `<work-item` and `<role-instructions`, as the human confirmed in entry 8 (option A). Rejected: a matcher that escapes `<context` only when `>` or whitespace follows it. It would make one marker behave differently from the other four.
+
+    Refactor: I read the diff again (two tuple entries). Nothing needs changing.
+
+    Description: the journal did not change what the task means. The human's answer kept the Interface as written, so the Description stays as it is.
+
+    Noticed, not touched: nothing.
+
+    `check`: check: green
+    `duplicates`: duplicates: 7 new, 39 known, 4 gone
