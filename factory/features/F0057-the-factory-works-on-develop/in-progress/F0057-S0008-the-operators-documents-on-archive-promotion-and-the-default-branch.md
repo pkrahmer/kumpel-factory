@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 651
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: docs-only
+  started_at: '2026-11-08T02:52:30.858729Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -65,6 +69,11 @@ journal:
   at: '2026-11-08T02:52:25.877976Z'
   stage: docs-review
   run: 971ef6222f4e4ab2ae66ba1eadc4984c
+- number: 11
+  speaker: factory
+  kind: started
+  at: '2026-11-08T02:52:30.858729Z'
+  stage: docs-only
 ---
 
 # The operator's documents on the archive, the promotion and the default branch
@@ -177,3 +186,4 @@ Expect: `documents ok (<seconds> s)`
     3. `docs/operator-playbook.md:203`: the new text says the script "refuses unless the last acceptance in `done/` says `outcome: accepted`". `archive-feature.sh:27-35` also refuses while a story file is still in the feature's `backlog/` or `in-progress/`, and when the feature has no acceptance. The sentence also runs to about 60 words, against style rule 2. Fix: split it into sentences of at most about 25 words. Name both refusals, for example: "It refuses while a story is left in `backlog/` or `in-progress/`, or while the last acceptance in `done/` does not say `outcome: accepted`."
 
     No docs/decisions.md entry was expected, and none was written.
+11. factory: started docs-only as vm.
