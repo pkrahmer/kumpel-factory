@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 645
 comments_read: [6714658360, 6714963482]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: smoke-test
+  started_at: '2026-11-08T00:56:39.086514Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -231,6 +235,11 @@ journal:
   at: '2026-11-08T00:56:34.215019Z'
   stage: docs
   run: 94cb4c130c7740e1a92fee73d8846d6d
+- number: 41
+  speaker: factory
+  kind: started
+  at: '2026-11-08T00:56:39.086514Z'
+  stage: smoke-test
 ---
 
 # Kumpel works on develop and promotes accepted features to main
@@ -666,3 +675,4 @@ Expect: `off`
     `check`: check: green
     `secrets`: secrets: green (0.8 s)
     `documents`: documents ok (58.2 s)
+41. factory: started smoke-test as vm.
