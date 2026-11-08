@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 0
 attempts: 0
@@ -30,8 +30,13 @@ journal:
   at: '2026-11-08T15:44:05.012371Z'
   stage: acceptance
   run: 099f341d55544b8ea92889e1822c06b5
+- number: 5
+  speaker: factory
+  kind: done
+  at: '2026-11-08T15:45:55.490417Z'
+  stage: done
 stories: [F0058-S0001, F0058-S0002, F0058-S0003, F0058-S0004, F0058-S0005, F0058-S0006, F0058-S0007, F0058-S0008]
-outcome: null
+outcome: accepted
 ---
 
 # Acceptance of Agent runs share a cached start
@@ -244,3 +249,4 @@ None. The one gap A0003 found is closed by S0008, and what is left is noticed it
    8. Cost: 90 runs, 146.7 min, $29.07, about 89 % of input from the cache. S0002 still stands out ($9.03). S0008 cost $1.87 for 6 runs, with no rework. 13 questions were answered (12 `question`, 1 `attempts_cap`) and the stories waited 0.5 h; S0002 needed the human most and S0008 needed none.
 
    `make check` was green as found. Only the report changed. The temporary folder `/tmp/tmp.9twh9U4kDm` (the smoke script and a clone) could not be removed: the session's permission check refused both `rm -rf` and `shutil.rmtree`.
+5. factory: done (pull request merged); cost: 1 runs, 4.8 min, 26 turns, 68204 tokens in (1190264 more from cache), 16077 out, $1.11
