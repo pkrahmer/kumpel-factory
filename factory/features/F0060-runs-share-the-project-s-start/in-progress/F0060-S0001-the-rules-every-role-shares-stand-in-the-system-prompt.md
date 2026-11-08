@@ -1,11 +1,11 @@
 ---
 stage: docs
-blocked: question
+blocked: null
 round: 1
 attempts: 1
 crashes: 0
 pull_request: 678
-comments_read: []
+comments_read: [6726852112]
 handed_over: null
 claim: null
 journal:
@@ -154,6 +154,11 @@ journal:
   stage: docs
   run: 9c9a706daf4047c6ab53e352b4e3b2b7
   blocked: question
+- number: 27
+  speaker: human
+  kind: comment
+  at: '2026-11-08T20:42:19.653270Z'
+  stage: docs
 ---
 
 # The rules every role shares stand in the system prompt
@@ -500,3 +505,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     I would choose (b) for this story and (c) as a backlog story. With (b) the story moves on, and (c) stops the docs stage of every later story from failing in the same way. I ended with `question` rather than `smoke-test` because another forward decision would only be held red again by the same check (this is attempt 2 of 2).
 
     Stale text noticed, not mine: none.
+27. 2026-11-08 human: (a) Retry. The cause is the package index's speed, not the documents: a cold `uv run` in a fresh copy took 99 s at one moment and 7 s a few minutes later on the VM. The fix (the examples share the check's uv cache) is F0061, kept in the backlog for later.
