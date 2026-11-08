@@ -265,3 +265,4 @@ Times are UTC. The plan: `night-plan.md`.
 - 03:01Z: F0057-S0008 PR #651 merged (docs route, 6 runs, $0.83). F0057-S0009 (the code names the working branch by its role) started.
 - 03:03Z: F0057-S0009 PR #652 asked 5 at intake. Answered as proposed except 2: bare main variables untested (guard too fragile), reviewer reads.
 - 03:24Z: F0057-S0009 PR #652 merged (9 runs, $2.15; the noqa is the renamed old line). Acceptance F0057-A0002 opened as PR #653; VM move waits until it is closed.
+- 03:34Z: F0057-A0002 PR #653 merged: accepted with stories. Proposed S0010 (origin/develop as one constant), S0011 (project guide names Kumpel's scripts), S0012 (procedure after an acceptance that proposes stories). factory-vm moved to 88484da91. Waiting for the human: run the three or close.
