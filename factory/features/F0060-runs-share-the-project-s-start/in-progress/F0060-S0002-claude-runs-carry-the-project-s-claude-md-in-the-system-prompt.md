@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 679
 comments_read: [6727152793]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T21:13:56.700818Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -97,6 +101,11 @@ journal:
   at: '2026-11-08T21:13:51.842237Z'
   stage: review
   run: 9e36bfc458794610b53d10e0e2215b42
+- number: 17
+  speaker: factory
+  kind: started
+  at: '2026-11-08T21:13:56.700818Z'
+  stage: doing
 ---
 
 # Claude runs carry the project's CLAUDE.md in the system prompt
@@ -246,3 +255,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     Earlier tests:
     - `tests/agents/adapters/test_claude_runtime.py`: changed under the human's leave in entry 8. Only the two switches were added to its local `SWITCHES` dict, and the test keeps its name.
+17. factory: started doing as vm.
