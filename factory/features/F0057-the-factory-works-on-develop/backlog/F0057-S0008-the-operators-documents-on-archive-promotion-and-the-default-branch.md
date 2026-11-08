@@ -1,6 +1,5 @@
 # The operator's documents on the archive, the promotion and the default branch
 
-<!-- proposed by feature acceptance of 2026-11-08; refine before starting -->
 
 ## Description
 
