@@ -1,5 +1,5 @@
 ---
-stage: smoke-test
+stage: approval
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 673
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: smoke-test
-  started_at: '2026-11-08T16:40:40.584325Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -78,6 +74,12 @@ journal:
   kind: started
   at: '2026-11-08T16:40:40.584325Z'
   stage: smoke-test
+- number: 13
+  speaker: smoke-tester
+  kind: result
+  at: '2026-11-08T16:40:57.167570Z'
+  stage: smoke-test
+  run: b950e93910a14bd789b0baba4105fb27
 ---
 
 # The smoke tester routes a red check
@@ -213,3 +215,18 @@ Expect: a count of 1 or more.
     `secrets`: secrets: green (0.6 s)
     `documents`: documents ok (73.1 s)
 12. factory: started smoke-test as vm.
+13. smoke-tester: Ran the smoke test from the repository root. No findings.
+
+    Command 1: `grep -c 'check_red' agents/agents/smoke-tester.md`
+    ```
+    1
+    ```
+    Expect: a count of 1 or more. Met.
+
+    Note: the coder's entry says the command printed 2. It prints 1 now because `grep -c` counts lines, and `check_red` appears on one line, the first line of the rule (`agents/agents/smoke-tester.md:58`). That still meets the expectation.
+
+    Checked against the acceptance criteria:
+    - Criterion 1: the rule in `agents/agents/smoke-tester.md:58-61` says the four things the criterion asks for. It does not run the smoke test again, decides `doing` for code, test, type, lint, layer, security or licence failures or ones it cannot place, decides `docs` for failures in files only the documenter writes, and names each failure and its file in the entry. The rule names no command except `make check`. `uv run pytest -q tests/agent_files/test_claude_agent_texts_check_red.py`: all 24 tests passed.
+    - Criterion 2: the rule sits in the `## Stage` section, after steps 5 and 6, which are unchanged. `grep -rl check_red agents/agents/` lists only `smoke-tester.md`, so no other agent file has it.
+    - Criterion 3: the factory's `make check` after the coder and after the documenter was green (journal entries 7 and 11). I did not run it again.
+    - Criterion 4: `docs/project-guide/agents.md:366` describes the rule in one sentence and links the test module.
