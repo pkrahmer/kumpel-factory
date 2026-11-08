@@ -1,5 +1,5 @@
 ---
-stage: smoke-test
+stage: approval
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 650
 comments_read: [6716086925]
 handed_over: null
-claim:
-  instance: vm
-  stage: smoke-test
-  started_at: '2026-11-08T02:38:21.854645Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -139,6 +135,12 @@ journal:
   kind: started
   at: '2026-11-08T02:38:21.854645Z'
   stage: smoke-test
+- number: 24
+  speaker: smoke-tester
+  kind: result
+  at: '2026-11-08T02:38:42.718527Z'
+  stage: smoke-test
+  run: 587a39ac431c4700a8acecf3aa977ca2
 ---
 
 # promote.sh reuses an open promotion
@@ -349,3 +351,28 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
     `secrets`: secrets: green (0.5 s)
     `documents`: documents ok (58.4 s)
 23. factory: started smoke-test as vm.
+24. smoke-tester: Smoke test round 1. I ran the one command under `## Smoke test` from the repository root, exactly as written.
+
+    Command 1: `uv run pytest tests/operator_scripts/test_operator_promote_reuse.py 2>&1 | tail -1`
+
+    ```
+    5 passed in 0.72s
+    ```
+
+    Expect: a line ending in `passed in <seconds>s` with no `failed`. **Met.** The line ends in `passed in 0.72s`, and there is no `failed`.
+
+    Acceptance criteria read again:
+    - Criteria 1 to 4: the five tests in the module ran and passed. Those are criterion 1's test, criterion 2's two rows, and the tests for criteria 3 and 4.
+    - Criterion 5 (`make check`): the docs stage's checks recorded `check: green` (entry 22). The smoke test contradicts nothing there.
+    - Criterion 6 (docs):
+      - `docs/operator-guide/install.md` (*The promotion*) says that a promotion still open is reused, gets the new feature's stories added to its body, and keeps its title.
+      - The `promote.sh` row of `operator/README.md` says the script adds the feature's stories to the promotion still open.
+      - `docs/decisions.md` did not change.
+
+    The smoke test contradicts no criterion.
+
+    Findings: none.
+
+    Open, carried from entries 16, 18 and 22 and not a finding:
+    - Criterion 4 still says "exits non-zero" while the test checks exactly 22. That is still true of 22.
+    - When the open pull request's body is `null`, the PATCH body starts with a blank line.
