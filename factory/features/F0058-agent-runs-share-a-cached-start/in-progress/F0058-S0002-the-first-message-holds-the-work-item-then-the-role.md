@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 660
 comments_read: [6720878077, 6720941885, 6720981420, 6721183670]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T12:10:35.276166Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -170,6 +174,11 @@ journal:
   at: '2026-11-08T12:10:30.046457Z'
   stage: tests
   run: 49542796ccc34734aa89a3e90260028d
+- number: 30
+  speaker: factory
+  kind: started
+  at: '2026-11-08T12:10:35.276166Z'
+  stage: doing
 ---
 
 # The first message holds the work item, then the role
@@ -582,3 +591,4 @@ Expect: the docstring names the order: the work item's body, the role's instruct
     Open, for the coder: entry 27 ends with the factory's note that it left out the coder's edit to the work item. So criterion 14 in `## Description` still lacks the operator guide's `system-prompt.md` (the reviewer's finding 2).
 
     `lint`: lint: green (0.2 s)
+30. factory: started doing as vm.
