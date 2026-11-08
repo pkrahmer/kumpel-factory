@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 646
 comments_read: [6715370076, 6715449873]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: review
+  started_at: '2026-11-08T01:17:01.678738Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -92,6 +96,11 @@ journal:
   at: '2026-11-08T01:16:56.121489Z'
   stage: doing
   run: 6067e4ffa80b427a9d0302a90a7c4c39
+- number: 16
+  speaker: factory
+  kind: started
+  at: '2026-11-08T01:17:01.678738Z'
+  stage: review
 ---
 
 # The operator's documents name develop and main
@@ -251,3 +260,4 @@ Expect: `documents ok (<seconds> s)`
 
     `check`: check: green
     `duplicates`: duplicates: 6 new, 39 known, 4 gone
+16. factory: started review as vm.
