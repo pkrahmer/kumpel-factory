@@ -6,6 +6,18 @@ from pathlib import Path
 
 import pytest
 
+from support.archive_feature_support import (
+    ACCEPTANCE,
+    ARCHIVED,
+    FEATURE,
+    FEATURE_TEXT,
+    FIRST,
+    LOG_FORMAT,
+    OTHER,
+    THIRD,
+    finished_feature,
+    tree,
+)
 from support.git_support import clone, commit_all, remote_commit, run_git, write_files
 from support.operator_skill_support import (
     DEFAULT_BRANCH,
@@ -20,34 +32,8 @@ from support.operator_skill_support import (
 )
 from support.operator_support import ROOT
 
-FEATURE_FOLDER = "F0001-example"
-FEATURE = f"factory/features/{FEATURE_FOLDER}"
-ARCHIVED = f"factory/archive/{FEATURE_FOLDER}"
-OTHER = "factory/features/F0002-other"
-FEATURE_TEXT = "# Example feature\n\n## Stories\n\n- S0001: first\n- S0002: second\n"
-FIRST = "# First story\n\n## Journal\n\n1. human: created.\n"
-SECOND = "# Second story\n\n## Journal\n\n1. human: created.\n"
-THIRD = "# Third story\n\n## Journal\n\n1. human: created.\n"
-DONE_FRONT_MATTER = "---\nstage: done\n---\n"
-ACCEPTANCE = "# Acceptance of F0001\n\n## Journal\n\n1. factory: created.\n"
-LOG_FORMAT = "%s%n%an <%ae>%n%cn <%ce>"
 PULL_NUMBER = 4711
 OLD_SWITCHES = {"merge": False, "answer": True, "start_next": True}
-
-
-def finished_feature(folder: str) -> dict[str, str]:
-    """A feature in `folder` whose two stories and whose acceptance are done."""
-    return {
-        f"{folder}/feature.md": FEATURE_TEXT,
-        f"{folder}/done/F0001-S0001-first.md": DONE_FRONT_MATTER + FIRST,
-        f"{folder}/done/F0001-S0002-second.md": DONE_FRONT_MATTER + SECOND,
-        f"{folder}/done/F0001-A0001-acceptance.md": ACCEPTANCE,
-    }
-
-
-def tree(remote: Path, branch: str) -> list[str]:
-    """The files `branch` of `remote` holds."""
-    return run_git(remote, "ls-tree", "-r", "--name-only", branch).splitlines()
 
 
 def test_start_story_commits_on_develop_as_kumpel(operator: Operator) -> None:
