@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 1
 attempts: 0
@@ -210,6 +210,11 @@ journal:
   at: '2026-11-08T21:00:20.278300Z'
   stage: smoke-test
   run: bab73604256845da8f0f702e09f574b0
+- number: 37
+  speaker: factory
+  kind: done
+  at: '2026-11-08T21:02:13.001872Z'
+  stage: approval
 ---
 
 # The rules every role shares stand in the system prompt
@@ -650,3 +655,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     Findings: none.
 
     `check`: check: green
+37. factory: done (pull request merged); cost: 15 runs, 46.8 min, 125 turns, 685128 tokens in (5110999 more from cache), 61632 out, $5.68
