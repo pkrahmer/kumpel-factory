@@ -1,11 +1,11 @@
 ---
 stage: intake
-blocked: question
+blocked: null
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 660
-comments_read: []
+comments_read: [6720878077]
 handed_over: null
 claim: null
 journal:
@@ -26,6 +26,11 @@ journal:
   stage: intake
   run: bc9bd05655764478a08406de9e9a3aa9
   blocked: question
+- number: 4
+  speaker: human
+  kind: comment
+  at: '2026-11-08T11:25:55.356465Z'
+  stage: intake
 ---
 
 # The first message holds the work item, then the role
@@ -107,3 +112,9 @@ Expect: the docstring names the order: the work item's body, the role's instruct
    - **Architecture:** composing the prompt belongs in `factory.agents.domain.prompts` and the argument change in `factory.agents.adapters`. The new file under `agents/` is in the coder's write paths. The leave for earlier tests names each test file.
    - **Scope:** this is the feature's S0002 and matches decisions 4 and 5. OpenCode only follows the new order, as the feature's "Out of scope" says.
    - **Route, once answered:** `tests`, since the Interface changes `src/` and `agents/`.
+4. 2026-11-08 human: Agreed with all your suggestions:
+   1. The common system prompt is `agents/system-prompt.md`. `PromptFacts` gains `body: str`, `role: Name`, `role_instructions: str` and `round_cap: PositiveInt | None = None`, and `compose_prompt(facts)` keeps its signature. The body is read from the committed work item on the work item's branch at the stage's start, where the factory already reads the work item for the stage; the coder picks the module in the application layer that builds `PromptFacts` today. `claude_runtime._arguments` passes `agents/system-prompt.md` with `--append-system-prompt-file` in place of the role's instructions file.
+   2. Add to criterion 3: "in this order, each separated from the next by exactly one blank line".
+   3. The escaped form: the `<` of a marker text becomes `&lt;` (`<work-item` reads `&lt;work-item`). Add the criterion "a body without any marker text reaches the message byte for byte as in the file". The role's instructions are not escaped; they are the factory's own files.
+   4. A resumed run gets the whole new message again (work item, role, facts), since the journal has grown; add a criterion for it.
+   5. Add the criterion over the shipped agent files: none tells the agent to read its work item before it starts, and each says the work item is in the first message.
