@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: tests
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 664
 comments_read: [6722586434]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T14:24:26.758444Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -106,6 +102,12 @@ journal:
   kind: started
   at: '2026-11-08T14:24:26.758444Z'
   stage: doing
+- number: 18
+  speaker: coder
+  kind: result
+  at: '2026-11-08T14:24:41.723326Z'
+  stage: doing
+  run: ffcf1f4181344202b329e92f9380926b
 ---
 
 # The context markers are escaped too
@@ -235,3 +237,13 @@ Expect: `1`
 
     Earlier tests: none changed. The diff only adds `tests/agents/domain/test_prompts_context_markers.py`, and the leave to edit `MARKERS` in the two earlier test files was not used.
 17. factory: started doing as vm.
+18. coder: Both review findings (entry 16) need changes to tests only, so I changed no code and am handing the work item to the tester.
+
+    - New criterion 6 needs only its test. The code already covers it: `_context_block` in `src/factory/agents/domain/prompts.py` escapes the whole text that `_cut` returns, cut line included. The tester should add a test to `tests/agents/domain/test_prompts_context_markers.py` for it. The start fact's output is longer than `CONTEXT_LIMIT` and holds `</context>` before the cut. The test expects `&lt;/context>`, the line that names the cut, and one `</context>` for that fact.
+    - The copied helper falls under the standing leave in CLAUDE.md for moving a shared test helper. `VALID` and `_facts` in `tests/agents/domain/test_prompts_context_markers.py:16-31` copy `VALID` and `_facts` from `tests/agents/domain/test_prompts.py:29-52`. The tester should either build the facts from `CODER_FACTS` in `tests/support/first_message_support.py`, or move `VALID`/`_facts` into that module and have both test files import them from there. If they move them, every earlier test keeps its name and checks the same thing, and the entry names `tests/agents/domain/test_prompts.py` as changed.
+
+    What is built: `_MARKER_TEXTS` in `src/factory/agents/domain/prompts.py:42` holds `"<context"` and `CONTEXT_CLOSE`. This was done in an earlier run and is on the branch (bae1a49ee). The coder's last `make check` was green (entry 14).
+
+    Description: the reviewer already added criterion 6, and the journal changed nothing else about the task, so the Description stays as it is.
+
+    Noticed, not touched: nothing.
