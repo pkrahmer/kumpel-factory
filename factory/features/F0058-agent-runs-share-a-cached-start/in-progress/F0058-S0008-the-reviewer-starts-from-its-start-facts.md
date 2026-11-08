@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 669
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-08T15:24:42.349120Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -34,6 +30,12 @@ journal:
   kind: started
   at: '2026-11-08T15:24:42.349120Z'
   stage: tests
+- number: 5
+  speaker: tester
+  kind: result
+  at: '2026-11-08T15:25:47.676763Z'
+  stage: tests
+  run: c2418a9285b24e2d93d0f12d47970e23
 ---
 
 # The reviewer starts from its start facts
@@ -95,3 +97,15 @@ Expect: a line ending in `passed` with no `failed`.
    - Architecture: one shipped agent file and tests under `tests/agent_files/`, mirroring the agent files as CLAUDE.md asks. The story names no project command in the shipped file (R8, the factory knows only `context` names). `factory/` and `src/` are not touched.
    - Scope: inside F0058's scope item S0004 (start facts save the agent's turns): this makes the reviewer use the facts S0004 gives it. It changes neither the reviewer's effort nor its edits to criteria, both of which are out of scope. Other agents stay unchanged as the Description says.
 4. factory: started tests as vm.
+5. tester: Wrote the reviewer's start-fact tests: one parametrized test over the two steps, with one row for *Stage* step 1 and one for *docs-review* step 1, as criterion 2 asks.
+      - criterion 1: tests/agent_files/test_reviewer_start_facts.py::test_the_reviewer_reads_the_diff_from_its_context_block_and_runs_it_only_as_fallback (each row checks that the step holds `<context>`, `failed:` and `cut`)
+      - criterion 2: the same test (each row checks that the step no longer says "in your first command" and still holds its own diff command; the rows are `review` and `docs-review`)
+      - criterion 3: the same test (each row checks that the step names no `facts-` start-fact command). I read "any other project command" as the names a stage's `context` lists. I did not read it as `make check`, because the Interface keeps step 1's sentence about `make check`.
+      - criteria 4 and 5: no test (`make check`; docs).
+      - The step text the test checks runs from the line starting `1. ` (in the docs-review row, the first one after `### docs-review`) to the next numbered step, blank line or heading.
+      - Created: tests/agent_files/test_reviewer_start_facts.py.
+      - Changed under the human's leave: tests/agent_files/test_claude_agent_texts_review_groups.py, only the string `review_reads_the_diff`. It is now a pattern that takes the whole of *Stage* step 1, from `1. Review ` up to its Makefile sentence, and swaps in the earlier step 1 text (`review_reads_both`, now the full earlier step). The CRC check of the earlier body therefore holds whatever new wording the coder writes, as long as step 1 still begins `1. Review ` and keeps the sentence `Do not read the Makefile`. Against the current text it still passes. `docs_review_reads_the_diff` was left alone: the test cuts the docs-review subsection out of the body before replacing anything, so that string never matches. tests/agent_files/test_claude_agent_texts_docs_route.py was not changed: its `DOCS_DIFF` row only checks that the command is still in the subsection, which criterion 2 keeps.
+      - Run: `uv run pytest -q` on the three files. Both rows of the new test fail on the `<context>` assertion, the right reason, since the reviewer's text is not changed yet. The two earlier test files pass. `make lint` is green.
+      - Modules the runner could not import: none.
+
+   `lint`: lint: green (0.2 s)

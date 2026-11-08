@@ -67,13 +67,14 @@ def test_the_rest_of_the_reviewer_body_is_unchanged() -> None:
         "message, in the `<work-item>` block, so you do not read it before you start; read its "
         "file again only for text you changed during the run."
     )
-    review_reads_the_diff = (
-        "the work item in the first message is the only other input. Read the diff in your "
-        "first command: its `--stat`, and the diff"
-    )
+    # A later story let the reviewer read the diff from its start facts: the whole of step 1
+    # before its Makefile sentence goes back to the earlier text.
+    review_reads_the_diff = re.compile(r"(?m)^1\. Review .*? (?=Do not read the Makefile)")
     review_reads_both = (
-        "the work item is the only other input. Read both in your first command: the work "
-        "item, the diff's `--stat`, and the diff"
+        "1. Review `git diff develop...HEAD -- . ':!factory'` as the role section describes; the "
+        "work item is the only other input. Read both in your first command: the work item, the "
+        "diff's `--stat`, and the diff without the generated files `CLAUDE.md` names and lock "
+        "files (add `':!<path>'` for each; the stat still lists them). "
     )
     docs_review_reads_the_diff = (
         "1. Read `git diff develop...HEAD -- README.md docs operator/README.md` in your first "
@@ -85,10 +86,10 @@ def test_the_rest_of_the_reviewer_body_is_unchanged() -> None:
     )
     # The earlier body named the working branch `main`, before it became `develop`.
     earlier = (
-        body.replace(_ALL_GROUPS, _STOP_AT_THE_FIRST)
+        review_reads_the_diff.sub(lambda _: review_reads_both, body, count=1)
+        .replace(_ALL_GROUPS, _STOP_AT_THE_FIRST)
         .replace(untested_side_is_a_note, untested_side_is_a_finding)
         .replace(work_item_in_the_first_message, "")
-        .replace(review_reads_the_diff, review_reads_both)
         .replace(docs_review_reads_the_diff, docs_review_reads_both)
         .replace("develop", "main")
     )
