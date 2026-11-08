@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 667
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: docs-only
+  started_at: '2026-11-08T15:03:09.309875Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -25,6 +29,11 @@ journal:
   at: '2026-11-08T15:03:04.393548Z'
   stage: intake
   run: 5c275307b103426ab0cab092f4b243fe
+- number: 4
+  speaker: factory
+  kind: started
+  at: '2026-11-08T15:03:09.309875Z'
+  stage: docs-only
 ---
 
 # The operator guide's start facts match the template
@@ -70,3 +79,4 @@ Expect: `0`.
    - Docs criterion: it names what the reader must know (the targets, what each shows, which stage gets each, that a project may change or drop them) and why the project guide and `docs/decisions.md` need nothing. It quotes no sentences to paste.
    - Architecture: no code changes. The factory knows only the commands' names, so the project guide's *Start facts* stays true.
    - Scope: within F0058, which covers S0004's start facts and the human's template change after it. The story leaves the start-fact rules (order, the cut, `failed:`, the lease) as written, and none of the feature's "Out of scope" items applies.
+4. factory: started docs-only as vm.
