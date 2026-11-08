@@ -1,5 +1,5 @@
 ---
-stage: review
+stage: docs
 blocked: null
 round: 0
 attempts: 1
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 649
 comments_read: [6715900227]
 handed_over: null
-claim:
-  instance: vm
-  stage: review
-  started_at: '2026-11-08T02:08:01.542806Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -91,6 +87,12 @@ journal:
   kind: started
   at: '2026-11-08T02:08:01.542806Z'
   stage: review
+- number: 15
+  speaker: reviewer
+  kind: result
+  at: '2026-11-08T02:08:59.474970Z'
+  stage: review
+  run: ed1c472c3526481fa3d3a2066d970e8f
 ---
 
 # archive-feature.sh refuses a feature whose acceptance was refused
@@ -223,3 +225,17 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
     `check`: check: green
     `duplicates`: duplicates: 6 new, 39 known, 4 gone
 14. factory: started review as vm.
+15. reviewer: no findings
+
+    Read the diff (`operator/skill/kumpel/scripts/archive-feature.sh`, `operator/skill/kumpel/references/approving.md`, `tests/operator_scripts/test_operator_archive_outcome.py`, `tests/support/archive_feature_support.py`, `tests/operator_scripts/test_operator_develop.py`) against the work item.
+    - Criterion 1: the new `accepted()` awk check in `archive-feature.sh` reads only the lines between the first two lines that are exactly `---`. It passes only when it finds `outcome: accepted` there and the block is closed. It runs after the existing refusals and before `git mv`, through the existing `refuse` helper (exit status 1, the Interface's text). The parametrized test has seven rows: accepted, refused, no outcome line, no front matter, no closing `---`, outcome only in the body, and refused then accepted. Each refused row checks the exit status, the stderr line with the path, an unchanged remote `develop`, and that the checkout is on `develop` with a clean tree. The awk check handles each row as the Interface says. A real booked acceptance (`factory/archive/F0044-the-layers-go/done/F0044-A0002-acceptance.md`) carries `outcome: accepted` at column 0, as `src/factory/work/domain/acceptance.py` writes it.
+    - Criterion 2: four rows pin the earlier texts against the script's `refuse` calls, each with exit status 1 and an unchanged remote `develop`.
+    - Criterion 3: the test reads step 1 of *After a feature's acceptance*. `approving.md` gives the text exactly as the script prints it.
+    - The coder's journal entry 13 reports `check: green`. The factory's checks after the coder passed, since the work item reached review. I did not run the tests myself.
+    - Architecture and security: no `src/` change, no suppression marker. The script's input is the feature id, which it already handled before.
+    - Quality: `finished_feature`, `tree` and the constants were moved, not copied.
+    - Work item: the Description and the docs criterion (`operator/README.md`, `docs/operator-guide/install.md` *The promotion*) still match what was built. The journal names the main choice: one awk pass, with `sed` range plus `grep` rejected because an unclosed range runs to the end of the file.
+    - Open and not a finding: the opening `---` need not be the file's first line. The coder flagged it; it is what the Interface's wording says, and the factory always writes the front matter at the top.
+
+    Earlier tests:
+    - tests/operator_scripts/test_operator_develop.py: the standing leave to move a shared test helper (the feature constants, `finished_feature` and `tree` moved to `tests/support/archive_feature_support.py`). Also the human's leave in journal entry 4: `ACCEPTANCE` gains the front matter `stage: done` and `outcome: accepted`. Every test keeps its name and what it checks.
