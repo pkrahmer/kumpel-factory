@@ -256,3 +256,4 @@ Times are UTC. The plan: `night-plan.md`.
 - 00:59Z: F0057-S0003 PR #645 merged into develop (19 runs, $9.68); docs read against the scripts. Coder's temporary operator/README.md path removed. No VM move (no src/ or agents/ change). F0057-S0004 (the operator's documents name develop and main): started.
 - 01:01Z: F0057-S0004 PR #646 asked at intake (2 criteria). Answered yes to both proposals.
 - 01:10Z: F0057-S0004 PR #646 asked at tests: promote/promoted are forbidden v1 words. Answered (a): both leave GLOSSARY_FORBIDDEN, leave for the pinned test; story now changes code.
+- 01:27Z: F0057-S0004 PR #646 merged (9 runs, $1.91; promote/promoted left the v1 words). factory-vm moved to 02cf60732. F0057-S0005 (the project guide names develop and main): started.
