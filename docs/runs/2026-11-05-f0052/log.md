@@ -275,3 +275,4 @@ Times are UTC. The plan: `night-plan.md`.
 - 09:17 e2e demo-todo-2: F0001 accepted (PR #5), 40 runs, 8.27 USD; eval in docs/runs/2026-11-08-e2e-demo-todo-2/eval.md
 - 09:51 e2e demo-todo-2: transcript review (Haiku flags, Opus report, 0.48 USD) and caching/speed economics added to the eval
 - 09:58 e2e demo-todo-2: caching hypothesis checked against request shapes; corrected in the eval
+- 10:10 F0058 (agent runs share a cached start) added: feature and three stories in backlog
