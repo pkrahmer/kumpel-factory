@@ -2,6 +2,7 @@
 """The agent runtime that runs an agent as one `claude -p` call under the operator's login."""
 
 import json
+import stat
 import time
 import uuid
 from collections.abc import Mapping
@@ -58,6 +59,7 @@ from factory.agents.domain.agent_runs import (
     TokenCounts,
     resumed_result,
 )
+from factory.agents.domain.prompts import block
 from factory.agents.domain.provider_limits import ProviderLimit, limit_in_text, named_wait
 from factory.agents.domain.tool_uses import claude_tool_uses
 from factory.machine.application.containers import ContainerRuns
@@ -329,37 +331,25 @@ def _result(
     )
 
 
-def _ended_line(text: str) -> str:
-    return text if text.endswith("\n") else f"{text}\n"
-
-
 def _project_instructions(checkout: Path) -> str | None:
-    """The text of `checkout`'s root `CLAUDE.md`; `None` when it is no regular file.
-
-    A file that cannot be read as UTF-8 text is `AgentRuntimeError`.
-    """
     path = checkout / _PROJECT_INSTRUCTIONS_FILE
-    if not path.is_file():
-        return None
     try:
+        # A link is no regular file: following it would read a host file into the prompt.
+        if not stat.S_ISREG(path.lstat().st_mode):
+            return None
         return path.read_text(encoding="utf-8")
+    except FileNotFoundError:
+        return None
     except (OSError, UnicodeDecodeError) as exc:
         raise AgentRuntimeError(f"cannot read the project's instructions {path}: {exc}") from exc
 
 
 def _instructions_text(system_prompt: str, checkout: Path) -> str:
-    """The instructions file of a run in `checkout`: the system prompt and the root `CLAUDE.md`.
-
-    Without a root `CLAUDE.md` file it is `system_prompt` alone; otherwise a blank line, one
-    sentence and the file's text in a `<project-instructions>` block follow the system prompt.
-    """
     project = _project_instructions(checkout)
     if project is None:
         return system_prompt
-    return (
-        f"{_ended_line(system_prompt)}\n{_PROJECT_INTRODUCTION}\n<project-instructions>\n"
-        f"{_ended_line(project)}</project-instructions>\n"
-    )
+    project_block = block("<project-instructions>", project, "</project-instructions>")
+    return f"{system_prompt.removesuffix('\n')}\n\n{_PROJECT_INTRODUCTION}\n{project_block}\n"
 
 
 def _is_plain_session(session: str) -> bool:

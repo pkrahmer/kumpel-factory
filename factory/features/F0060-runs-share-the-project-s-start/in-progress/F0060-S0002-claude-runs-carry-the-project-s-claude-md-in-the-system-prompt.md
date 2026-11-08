@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: tests
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 679
 comments_read: [6727152793]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T21:13:56.700818Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -106,6 +102,12 @@ journal:
   kind: started
   at: '2026-11-08T21:13:56.700818Z'
   stage: doing
+- number: 18
+  speaker: coder
+  kind: result
+  at: '2026-11-08T21:17:00.112898Z'
+  stage: doing
+  run: 6197ace24f514588b6ec6b0f8081b20c
 ---
 
 # Claude runs carry the project's CLAUDE.md in the system prompt
@@ -256,3 +258,19 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     Earlier tests:
     - `tests/agents/adapters/test_claude_runtime.py`: changed under the human's leave in entry 8. Only the two switches were added to its local `SWITCHES` dict, and the test keeps its name.
 17. factory: started doing as vm.
+18. coder: I fixed the reviewer's three findings from entry 16. Finding 1 needs a new test row, so this goes back to the tester. The tester should add a `link` row to `test_a_checkout_without_a_root_claude_md_file_gets_the_system_prompt_alone` in `tests/agents/adapters/test_claude_runtime_project_instructions.py`. In that row the root `CLAUDE.md` is a symbolic link to a regular file outside the checkout, and the instructions file is the system prompt alone. After my change the code already does this, so the row should pass at once. I checked it by hand on a link in a temporary folder.
+
+    What I changed:
+    - `src/factory/agents/adapters/claude_runtime.py`:
+      - Finding 1: `_project_instructions` now checks the path with `lstat` and `stat.S_ISREG` instead of `is_file()`. A root `CLAUDE.md` that is a link, a directory or absent adds nothing. A one-line comment says why links are not followed: following one would read a host file into the prompt. A file that vanishes after the check (`FileNotFoundError`) also adds nothing. Any other `OSError`, or a `UnicodeDecodeError`, still raises `AgentRuntimeError` naming the path.
+      - Finding 2: `_ended_line` is gone. The `<project-instructions>` block is now built with the shared helper from `factory.agents.domain.prompts`. Only the system prompt's ending is handled here: one trailing newline is removed, then a blank line follows.
+      - Finding 3: I removed the docstrings from the private `_project_instructions` and `_instructions_text`.
+    - `src/factory/agents/domain/prompts.py`: `_block` is renamed to the public `block`, with a one-line docstring. Its two callers in that module now use the new name. Its behaviour is the same.
+
+    Main choice: I check the file's type with `lstat` and do not resolve the link to see whether its target lies inside the checkout. I rejected the resolving check because the Interface asks for "a regular file", and a link is not one, wherever it points.
+
+    Checks: `uv run pytest -q` on `test_claude_runtime.py`, `test_claude_runtime_project_instructions.py` and `tests/agents/domain` passes. `make check` ends with `check: green` (after `ruff format` on the runtime), and `make guides` is green.
+
+    Refactor: I found nothing more to change beyond the three findings. The journal does not change the task's meaning, so `## Description` stays as it is.
+
+    Not touched: the docs criterion (9) belongs to the documenter.
