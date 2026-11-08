@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 656
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: smoke-test
+  started_at: '2026-11-08T07:51:32.237920Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -69,6 +73,11 @@ journal:
   at: '2026-11-08T07:51:27.158134Z'
   stage: docs
   run: a5aef1fb37744ba58d21c3b98d980ed9
+- number: 12
+  speaker: factory
+  kind: started
+  at: '2026-11-08T07:51:32.237920Z'
+  stage: smoke-test
 ---
 
 # The working branch's remote ref is one constant
@@ -214,3 +223,4 @@ Expect: `origin/develop`
     `check`: check: green
     `secrets`: secrets: green (0.8 s)
     `documents`: documents ok (58.6 s)
+12. factory: started smoke-test as vm.
