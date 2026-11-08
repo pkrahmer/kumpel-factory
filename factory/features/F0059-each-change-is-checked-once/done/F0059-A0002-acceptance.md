@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 0
 attempts: 0
@@ -20,8 +20,13 @@ journal:
   at: '2026-11-08T17:12:50.732455Z'
   stage: acceptance
   run: 36807a47d9dc4da090fedfe9612aa7a8
+- number: 3
+  speaker: factory
+  kind: done
+  at: '2026-11-08T17:16:46.536563Z'
+  stage: done
 stories: [F0059-S0001, F0059-S0002, F0059-S0003]
-outcome: null
+outcome: accepted
 ---
 
 # Acceptance of Each change is checked once
@@ -167,3 +172,4 @@ None. The one finding of F0059-A0001 is repaired by S0003, and the observations 
       - S0001 cost $6.02 (a missed module led to a question and three idle coder runs).
       - S0003 cost $1.52, including one docs-review rework round worth $0.55.
       - The human answered 3 questions, all in S0001, and waited 0.1 h in total.
+3. factory: done (pull request merged); cost: 1 runs, 6.1 min, 18 turns, 56523 tokens in (676034 more from cache), 11230 out, $0.81
