@@ -1,11 +1,11 @@
 ---
 stage: intake
-blocked: question
+blocked: null
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 649
-comments_read: []
+comments_read: [6715900227]
 handed_over: null
 claim: null
 journal:
@@ -26,6 +26,11 @@ journal:
   stage: intake
   run: 987fdcefbced421da9c4118f89b64d9e
   blocked: question
+- number: 4
+  speaker: human
+  kind: comment
+  at: '2026-11-08T01:58:48.021805Z'
+  stage: intake
 ---
 
 # archive-feature.sh refuses a feature whose acceptance was refused
@@ -80,3 +85,8 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
    5. Criterion 2 says the earlier refusals keep their texts and exit statuses, and it points at `test_operator_develop.py`. Please confirm that this file's existing tests for the three earlier refusals (a story in `backlog/` or `in-progress/`, no acceptance, a last acceptance outside `done/`) already pin each text and exit status. If one is missing, add a row to the new module.
 
    Also noted: S0006 is not in `feature.md`'s Stories or Scope lists. The story's own comment says the feature acceptance proposed it, so I treat it as in scope.
+4. 2026-11-08 human: 1. Yes, the leave as you wrote it.
+   2. (a): a test that approving.md step 1 names the refusal; the coder writes approving.md (operator/skill/* is its path).
+   3. Yes, add it.
+   4. Yes, both rows, refused the same way.
+   5. Yes: confirm, and add a row to the new module for any that is missing.
