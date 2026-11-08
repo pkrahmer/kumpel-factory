@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 680
 comments_read: [6727432579, 6727512748]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T21:43:12.243461Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -69,6 +73,11 @@ journal:
   speaker: human
   kind: comment
   at: '2026-11-08T21:43:09.824921Z'
+  stage: doing
+- number: 12
+  speaker: factory
+  kind: started
+  at: '2026-11-08T21:43:12.243461Z'
   stage: doing
 ---
 
@@ -198,3 +207,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     Noticed, not touched: the story's Description is unchanged, because no journal entry changed the task's meaning. The step 4 refactor is pending until `make check` is green.
 11. 2026-11-08 human: (a). Leave granted: the tester adds the new step-4 text as one more `.replace(..., "")` in `test_the_rest_of_the_reviewer_body_is_unchanged` (`tests/agent_files/test_claude_agent_texts_review_groups.py`), and sets the reviewer's and tester's `Stage` checksums in `PARTS_BEFORE` (`tests/support/shared_rules_support.py`) to the new texts; each test keeps its name and checks the same thing.
+12. factory: started doing as vm.
