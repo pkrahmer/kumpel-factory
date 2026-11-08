@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 662
 comments_read: [6721852631, 6722094144]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T13:39:41.905972Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -136,6 +140,11 @@ journal:
   at: '2026-11-08T13:39:36.828110Z'
   stage: review
   run: 23353bd7c2754c7aacff4a414a4e3e14
+- number: 24
+  speaker: factory
+  kind: started
+  at: '2026-11-08T13:39:41.905972Z'
+  stage: doing
 ---
 
 # Each stage's start facts come from the factory
@@ -435,3 +444,4 @@ Expect: `True`
     Notes:
     - The two closing criteria are now 14 (`make check`) and 15 (docs).
     - Criterion 8's "operator template" stays in the Interface and the criterion. The human said in entry 15 to read it as void, so it is not a finding.
+24. factory: started doing as vm.
