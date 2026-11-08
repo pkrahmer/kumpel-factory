@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 659
 comments_read: [6720500729, 6720585535, 6720667293]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: docs
+  started_at: '2026-11-08T11:09:50.950682Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -175,6 +179,11 @@ journal:
   at: '2026-11-08T11:09:45.845384Z'
   stage: review
   run: 633d5568b559475e9daabbf026ca492e
+- number: 31
+  speaker: factory
+  kind: started
+  at: '2026-11-08T11:09:50.950682Z'
+  stage: docs
 ---
 
 # Every role has the same tools and the same decision tool
@@ -460,3 +469,4 @@ Expect: exactly one line, `model: opus`
 
     Notes:
     - `tests/agents/adapters/test_claude_runtime.py:218-248`: the expected argument list in `test_the_other_launch_arguments_do_not_depend_on_the_decisions` repeats the one in `test_call_passes_every_flag_in_order` (lines 118-150). It is a test-quality point only. That unchanged earlier test already pins the arguments as they were before this story.
+31. factory: started docs as vm.
