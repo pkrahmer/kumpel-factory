@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 0
 attempts: 1
@@ -115,6 +115,11 @@ journal:
   at: '2026-11-08T02:14:01.890844Z'
   stage: smoke-test
   run: cdd493df125a4742aaf9d40468725e47
+- number: 20
+  speaker: factory
+  kind: done
+  at: '2026-11-08T02:15:53.368739Z'
+  stage: approval
 ---
 
 # archive-feature.sh refuses a feature whose acceptance was refused
@@ -308,3 +313,4 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
     Findings: none.
 
     Open, not a finding (the coder and the reviewer named it): the opening `---` does not have to be the file's first line, as the Interface words it.
+20. factory: done (pull request merged); cost: 8 runs, 9.4 min, 62 turns, 234816 tokens in (1322955 more from cache), 22819 out, $1.59
