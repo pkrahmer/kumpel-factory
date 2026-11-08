@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 679
 comments_read: [6727152793]
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-08T21:09:36.552719Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -73,6 +69,12 @@ journal:
   kind: started
   at: '2026-11-08T21:09:36.552719Z'
   stage: tests
+- number: 12
+  speaker: tester
+  kind: result
+  at: '2026-11-08T21:09:56.449506Z'
+  stage: tests
+  run: 7ceca8f54f2f47cfb0a0419538c6128d
 ---
 
 # Claude runs carry the project's CLAUDE.md in the system prompt
@@ -177,3 +179,12 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     Once that test is updated I expect `make check` to be green, but that is not yet checked. Entry 7 is the last run: every target except `make test` was green, and `make test` failed only on this test.
 11. factory: started tests as vm.
+12. tester: Made the test change the human approved in entry 8 (option (a)), as the coder's entry 10 names it, and nothing else.
+    - Changed `tests/agents/adapters/test_claude_runtime.py`: the module's own `SWITCHES` dict now also holds `"CLAUDE_CODE_DISABLE_CLAUDE_MDS": "1"` and `"CLAUDE_CODE_PROMPT_CACHE_TTL": "5m"`, in alphabetical order with the three existing switches. `test_call_gets_only_the_requests_environment_and_the_switches` keeps its name and still pins the values itself. It does not import the runtime's `SWITCHES`.
+    - No other test changed and no file was created. Every module imported.
+
+    Run: `uv run pytest -q tests/agents/adapters/test_claude_runtime.py tests/agents/adapters/test_claude_runtime_project_instructions.py` passed all tests, with no failures, against the coder's implementation already on the branch.
+
+    `lint`: lint: green (0.1 s)
+
+    `lint`: lint: green (0.1 s)
