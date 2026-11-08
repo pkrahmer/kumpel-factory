@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 664
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T14:10:57.265068Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -36,6 +40,11 @@ journal:
   at: '2026-11-08T14:10:52.109212Z'
   stage: tests
   run: 1b55a7e8917b43899d2250ba7d83bec7
+- number: 6
+  speaker: factory
+  kind: started
+  at: '2026-11-08T14:10:57.265068Z'
+  stage: doing
 ---
 
 # The context markers are escaped too
@@ -99,3 +108,4 @@ Expect: `1`
    I did not use the human's leave to add the two markers to `MARKERS` in tests/agents/domain/test_prompts.py or tests/pipeline/application/test_stage_context.py. The leave allows that change but does not ask for it, and the new file covers every criterion. No earlier test file was changed.
 
    `lint`: lint: green (0.2 s)
+6. factory: started doing as vm.
