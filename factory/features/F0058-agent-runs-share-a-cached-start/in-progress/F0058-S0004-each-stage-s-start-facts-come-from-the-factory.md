@@ -1,3 +1,30 @@
+---
+stage: intake
+blocked: null
+round: 0
+attempts: 0
+crashes: 0
+pull_request: null
+comments_read: []
+handed_over: null
+claim:
+  instance: vm
+  stage: intake
+  started_at: '2026-11-08T13:02:10.258739Z'
+  lease_duration: 60
+journal:
+- number: 1
+  speaker: human
+  kind: created
+  at: '2026-11-08T13:02:10.250331Z'
+  stage: intake
+- number: 2
+  speaker: factory
+  kind: started
+  at: '2026-11-08T13:02:10.258739Z'
+  stage: intake
+---
+
 # Each stage's start facts come from the factory
 
 ## Description
@@ -56,3 +83,6 @@ uv run python -c "from factory.pipeline.domain.pipeline_definition import StageD
 Expect: `True`
 
 ## Journal
+
+1. 2026-11-08 human: created.
+2. factory: started intake as vm.
