@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 649
 comments_read: [6715900227]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: intake
+  started_at: '2026-11-08T01:59:20.565439Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -49,6 +53,11 @@ journal:
   stage: intake
   run: 4a5a383a98e54aeabede6cd574789432
   reason: form_invalid
+- number: 8
+  speaker: factory
+  kind: started
+  at: '2026-11-08T01:59:20.565439Z'
+  stage: intake
 ---
 
 # archive-feature.sh refuses a feature whose acceptance was refused
@@ -122,3 +131,4 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
    - Scope: S0006 is not in `feature.md`'s Stories list, but it comes from the feature's acceptance, so I treat it as in scope.
    - Route: `tests`. The Interface changes the script and `approving.md`, which are outside the documenter's paths.
 7. factory: Stage intake stalled (attempt 1 of 2): the work item's form broke during the stage: criterion numbered 4 where 5 is expected
+8. factory: started intake as vm.
