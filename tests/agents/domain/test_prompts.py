@@ -29,6 +29,21 @@ def _lines(**changes: Any) -> list[str]:
     return compose_prompt(_facts(**changes)).split("\n")
 
 
+@pytest.mark.parametrize(
+    "decisions",
+    [["question"], ["doing", "question"], ["review", "tests", "question"]],
+)
+def test_the_message_names_each_allowed_decision(decisions: list[str]) -> None:
+    (line,) = [
+        line
+        for line in _lines(allowed_decisions=decisions)
+        if line.startswith("Allowed decisions:")
+    ]
+    named = [name.strip() for name in line.split(":", 1)[1].split(",")]
+
+    assert all(decision in named for decision in decisions)
+
+
 def test_allowed_decisions_are_the_next_stages_in_order_then_question() -> None:
     assert allowed_decisions(["review", "doing"]) == ["review", "doing", "question"]
 

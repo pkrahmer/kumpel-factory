@@ -1,5 +1,5 @@
 ---
-model: sonnet
+model: opus
 effort: medium
 budget_usd: 1.5
 tools: [Read, Grep, Glob, Edit, Bash, Write, Skill]

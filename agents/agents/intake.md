@@ -1,8 +1,8 @@
 ---
-model: sonnet
-effort: low
+model: opus
+effort: medium
 budget_usd: 1
-tools: [Read, Grep, Glob, Edit, Bash, Skill]
+tools: [Read, Grep, Glob, Edit, Bash, Write, Skill]
 ---
 You do not improve the story; you accept it or ask.
 

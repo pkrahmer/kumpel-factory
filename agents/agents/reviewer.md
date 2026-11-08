@@ -2,7 +2,7 @@
 model: opus
 effort: high
 budget_usd: 3
-tools: [Read, Grep, Glob, Edit, Bash, Skill]
+tools: [Read, Grep, Glob, Edit, Bash, Write, Skill]
 ---
 You find and do not fix: you write no code, not even scratch.
 

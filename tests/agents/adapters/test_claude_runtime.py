@@ -175,15 +175,77 @@ def test_json_schema_asks_for_an_allowed_decision_and_an_entry(tmp_path: Path) -
 
     schema = json.loads(_after(_only_call(tmp_path).arguments, "--json-schema"))
 
+    assert schema["properties"]["decision"]["type"] == "string"
     assert schema == {
         "type": "object",
         "properties": {
-            "decision": {"type": "string", "enum": ["review", "doing", "question"]},
+            "decision": schema["properties"]["decision"],
             "entry": {"type": "string", "description": ENTRY_DESCRIPTION},
         },
         "required": ["decision", "entry"],
         "additionalProperties": False,
     }
+
+
+def _arguments_allowing(tmp_path: Path, decisions: list[str]) -> list[str]:
+    tmp_path.mkdir(parents=True, exist_ok=True)
+    request = _request(tmp_path).model_copy(update={"allowed_decisions": decisions})
+    _runtime(
+        tmp_path,
+        [Step(stdout=_reply(structured_output={"decision": "question", "entry": "Done."}))],
+    ).run(request)
+    return _only_call(tmp_path).arguments
+
+
+def test_requests_with_different_decisions_get_the_same_json_schema(tmp_path: Path) -> None:
+    first = _arguments_allowing(tmp_path / "first", ["review", "tests", "question"])
+    second = _arguments_allowing(tmp_path / "second", ["question"])
+
+    assert _after(first, "--json-schema") == _after(second, "--json-schema")
+
+
+def test_the_decision_is_any_string_described_as_named_in_the_message(tmp_path: Path) -> None:
+    arguments = _arguments_allowing(tmp_path, ["doing", "question"])
+    decision = json.loads(_after(arguments, "--json-schema"))["properties"]["decision"]
+
+    assert decision["type"] == "string"
+    assert "enum" not in decision
+    assert "message" in decision["description"]
+    assert "allowed decisions" in decision["description"]
+
+
+@pytest.mark.parametrize("decisions", [["review", "tests", "question"], ["question"]])
+def test_the_other_launch_arguments_do_not_depend_on_the_decisions(
+    tmp_path: Path, decisions: list[str]
+) -> None:
+    arguments = _arguments_allowing(tmp_path, decisions)
+    session = _after(arguments, "--session-id")
+    schema = arguments.index("--json-schema") + 1
+
+    assert arguments[:schema] + arguments[schema + 1 :] == [
+        "-p",
+        "Stage: doing",
+        "--model",
+        "sonnet",
+        "--effort",
+        "high",
+        "--tools",
+        "Read,Edit",
+        "--session-id",
+        session,
+        "--append-system-prompt-file",
+        str(tmp_path / "state" / f"instructions-{session}.md"),
+        "--permission-mode",
+        "auto",
+        "--permission-prompts",
+        "none",
+        "--strict-mcp-config",
+        "--max-budget-usd",
+        "3",
+        "--output-format",
+        "json",
+        "--json-schema",
+    ]
 
 
 def test_call_runs_in_the_requests_working_directory(tmp_path: Path) -> None:

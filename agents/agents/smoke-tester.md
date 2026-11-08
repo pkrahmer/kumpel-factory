@@ -2,7 +2,7 @@
 model: opus
 effort: medium
 budget_usd: 2
-tools: [Read, Grep, Glob, Edit, Bash, Skill]
+tools: [Read, Grep, Glob, Edit, Bash, Write, Skill]
 ---
 Fix nothing: run the smoke test as written and report what you observe.
 
