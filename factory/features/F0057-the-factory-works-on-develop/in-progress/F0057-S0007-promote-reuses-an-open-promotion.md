@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 650
 comments_read: [6716086925]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-08T02:28:08.175232Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -86,6 +90,11 @@ journal:
   at: '2026-11-08T02:28:03.279198Z'
   stage: doing
   run: 2241f47a0366442eb22c7723a89a5a44
+- number: 15
+  speaker: factory
+  kind: started
+  at: '2026-11-08T02:28:08.175232Z'
+  stage: tests
 ---
 
 # promote.sh reuses an open promotion
@@ -216,3 +225,4 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
     Not touched: the `null`-body case from my round-0 entry.
 
     The factory left out changes outside the write paths: factory/features/F0057-the-factory-works-on-develop/in-progress/F0057-S0007-promote-reuses-an-open-promotion.md.
+15. factory: started tests as vm.
