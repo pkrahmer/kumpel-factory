@@ -1,3 +1,30 @@
+---
+stage: intake
+blocked: null
+round: 0
+attempts: 0
+crashes: 0
+pull_request: null
+comments_read: []
+handed_over: null
+claim:
+  instance: vm
+  stage: intake
+  started_at: '2026-11-08T14:09:47.652185Z'
+  lease_duration: 60
+journal:
+- number: 1
+  speaker: human
+  kind: created
+  at: '2026-11-08T14:09:47.644057Z'
+  stage: intake
+- number: 2
+  speaker: factory
+  kind: started
+  at: '2026-11-08T14:09:47.652185Z'
+  stage: intake
+---
+
 # The context markers are escaped too
 
 <!-- proposed by feature acceptance of 2026-11-08; refine before starting -->
@@ -34,3 +61,6 @@ uv run python -c "from factory.agents.domain.prompts import PromptFacts, StartFa
 Expect: `1`
 
 ## Journal
+
+1. 2026-11-08 human: created.
+2. factory: started intake as vm.
