@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 678
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-08T19:58:27.527037Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -47,6 +51,11 @@ journal:
   at: '2026-11-08T19:58:20.008021Z'
   stage: doing
   run: 3c549c6c944448dc9594aa41b18819af
+- number: 8
+  speaker: factory
+  kind: started
+  at: '2026-11-08T19:58:27.527037Z'
+  stage: tests
 ---
 
 # The rules every role shares stand in the system prompt
@@ -171,3 +180,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    After those changes no code needs to change. Refactor: nothing to change. The constant was generated from the file, and the agent files lost only their section.
 
    Noticed, not touched: `docs/project-guide/agents.md` and `docs/operator-guide/agent-runtime.md` still describe `## Rules` in every agent file. The documenter handles that under criterion 9.
+8. factory: started tests as vm.
