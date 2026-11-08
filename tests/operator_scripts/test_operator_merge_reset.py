@@ -249,7 +249,8 @@ def test_a_merge_the_host_refuses_stops_without_polling(machine: Machine) -> Non
     assert f"hosting: PUT {PREFIX}/pulls/5/merge: 405 Pull Request is not mergeable" in printed(
         result
     )
-    assert "/commits?sha=develop&per_page=20" not in [request.route for request in machine.requests()]
+    routes = [request.route for request in machine.requests()]
+    assert "/commits?sha=develop&per_page=20" not in routes
 
 
 @pytest.mark.parametrize(
@@ -517,9 +518,7 @@ def test_a_reset_with_nothing_to_close_or_delete_only_moves_main(machine: Machin
     assert machine.changes() == [
         Request("PATCH", f"/git/refs/heads/{SCRIPTS_BRANCH}", {"sha": COMMIT, "force": True})
     ]
-    assert [line for line in printed(result) if "main" not in line] == [
-        f"moved develop to {SHORT}"
-    ]
+    assert [line for line in printed(result) if "main" not in line] == [f"moved develop to {SHORT}"]
 
 
 @pytest.mark.parametrize(

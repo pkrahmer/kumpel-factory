@@ -186,7 +186,8 @@ def comment_routes(number: int, bodies: list[str]) -> dict[str, object]:
 
 def commits(*messages: str) -> dict[str, object]:
     """The route of the newest commits on `SCRIPTS_BRANCH`, newest first."""
-    return {f"{PREFIX}/commits?sha={SCRIPTS_BRANCH}&per_page=20": [{"commit": {"message": text}} for text in messages]}
+    route = f"{PREFIX}/commits?sha={SCRIPTS_BRANCH}&per_page=20"
+    return {route: [{"commit": {"message": text}} for text in messages]}
 
 
 ARCHIVE = "work item F0001-S0000: merged, archived"

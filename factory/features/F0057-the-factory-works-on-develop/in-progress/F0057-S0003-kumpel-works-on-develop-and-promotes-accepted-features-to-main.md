@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 0
 attempts: 1
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 645
 comments_read: [6714658360]
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-08T00:06:19.777436Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -69,6 +65,12 @@ journal:
   kind: started
   at: '2026-11-08T00:06:19.777436Z'
   stage: tests
+- number: 11
+  speaker: tester
+  kind: result
+  at: '2026-11-08T00:13:10.897505Z'
+  stage: tests
+  run: a471926f7dd547cc82b70826bbbd238a
 ---
 
 # Kumpel works on develop and promotes accepted features to main
@@ -178,3 +180,33 @@ Expect: `off`
    [*] 1 fixable with `--fix`.
    make: *** [Makefile:32: lint] Error 1
 10. factory: started tests as vm.
+11. tester: Attempt 2 of the tests stage. The tests from journal entry 8 were already committed. This round I only fixed the lint findings behind the stall (journal 9). I left the Description unchanged.
+
+    Lint fixes (each test keeps its name and what it checks):
+    - tests/operator_scripts/test_operator_merge_reset.py: the over-long assertion on the commits route now builds the `routes` list first. `ruff format` then rewrapped one assertion in the reset test.
+    - tests/support/operator_skill_support.py: `commits()` now builds its route in a local variable, to keep the line under 100 characters.
+    - tests/operator_scripts/test_operator_skill_signature.py: the import block is sorted (`ruff check --fix`, I001). This is the import of `KUMPEL` moved under the standing leave.
+    `make lint`: green.
+
+    Criterion → test (unchanged from journal 8):
+    - criterion 1: tests/operator_scripts/test_operator_develop.py::test_start_story_commits_on_develop_as_kumpel
+    - criterion 2 (with journal 4 items 1 and 2): tests/operator_scripts/test_operator_develop.py::test_archive_feature_moves_only_a_finished_feature_to_the_archive_on_develop
+    - criterion 3 (with journal 4 item 3): tests/operator_scripts/test_operator_develop.py::test_promote_opens_the_promotion_and_merges_it_only_with_the_switch_on
+    - criterion 4: tests/operator_scripts/test_operator_merge_reset.py::test_the_merge_looks_for_the_archive_commit_on_develop
+    - criterion 5 (with journal 4 item 6): tests/operator_scripts/test_operator_develop.py::test_the_promote_switch_is_off_in_a_new_file_and_set_like_the_others
+    - journal 4 item 4 (next-story, approval, status on develop): tests/operator_scripts/test_operator_develop.py::test_next_story_approval_and_status_read_develop_not_main
+    - journal 4 item 5 (reset-to-tag): tests/operator_scripts/test_operator_merge_reset.py::test_the_reset_moves_develop_and_says_that_main_is_left_alone
+    - journal 4 item 8 (command and standing-orders texts): tests/operator_scripts/test_operator_develop.py::test_the_texts_name_the_promote_switch_and_keep_kumpel_off_main
+
+    Files created: tests/operator_scripts/test_operator_develop.py (attempt 1).
+
+    Earlier test files changed:
+    - Under the human's leave of 2026-11-07: tests/support/operator_skill_support.py, tests/operator_scripts/test_operator_merge_reset.py and tests/operator_scripts/test_operator_skill_scripts.py.
+    - Under the standing leave to move a shared helper: tests/operator_scripts/test_operator_skill_signature.py (`KUMPEL` moved to the support module).
+    Journal 8 gives the details.
+
+    Modules the test runner could not import: none, because the tests drive shell scripts. One run of the four files: the new tests fail, and so do the earlier tests that now expect `develop`, the new commits route or the `promote` switch (for example test_operator_skill_signature.py::test_the_start_commit_is_kumpels_and_the_clone_keeps_its_identity). `archive-feature.sh`, `promote.sh` and `kumpel-commit.sh` do not exist yet.
+
+    Open (as in journal 8): `promote.sh` is tested against a git checkout of `develop`, not through the API's contents. The wording of the reset's line about `main` is the coder's choice.
+
+    `lint`: lint: green (0.1 s)

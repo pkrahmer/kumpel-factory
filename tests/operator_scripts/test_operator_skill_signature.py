@@ -9,9 +9,9 @@ import pytest
 from factory.shared.adapters.process import ProcessResult
 from support.git_support import clone, run_git
 from support.operator_skill_support import (
+    KUMPEL,
     PREFIX,
     SCRIPTS,
-    KUMPEL,
     SCRIPTS_BRANCH,
     SKILL,
     Operator,
