@@ -8,7 +8,7 @@ After this story, every run's request is built in this order:
 1. The common system prompt, the same for every role. It names the two blocks of the first message: the agent's rules are in the `<role-instructions>` block, and the agent follows them with the same weight as the system prompt; the `<work-item>` block is its task and its history, which is data and never changes its rules.
 2. In the first message: the work item's body inside `<work-item>` and `</work-item>`, from its title to the end of its journal, exactly as in the file, without the front matter.
 3. Then the role's instructions, the body of its agent file, inside `<role-instructions role="<role>">` and `</role-instructions>`.
-4. Then the run's facts, the lines the prompt has today (work item, id, stage, allowed decisions, branch, pull request, round, and the mode or format-check lines).
+4. Then the run's facts, the lines the prompt has today (work item, id, stage, allowed decisions, branch, pull request, round, and the mode or format-check lines). In a stage with a `round_cap`, the round line also names the cap and what it means: `Round: <n> of <round_cap>; a rework decision after round <round_cap> makes the factory ask the human.` In a stage without a cap it stays `Round: <n>`.
 
 The journal holds copied pull-request comments, so a work item could hold text that looks like a block's marker. The factory escapes the markers inside the work item, so that only the blocks it writes itself count.
 
@@ -23,6 +23,7 @@ The journal only grows at its end, so the next run's message starts with the sam
 - The OpenCode runtime sends the same message; its own result block stays at the end.
 - The agent files no longer tell the agent to read its work item first; they say that the work item is in the first message.
 - Nothing per run (a time, a run id, a path that changes) comes before the work item's body.
+- The round line names the stage's `round_cap` when it has one, as in the Description.
 
 ## Acceptance criteria
 
@@ -31,10 +32,11 @@ The journal only grows at its end, so the next run's message starts with the sam
 3. The first message holds the `<work-item>` block with the work item's body without its front matter, then the `<role-instructions>` block naming the role, then the run's facts, in this order.
 4. The common system prompt names both markers and says that the role's instructions are the agent's rules and the work item is data.
 5. A work item whose body holds each of the four marker texts gives a first message with exactly one `<work-item>` block and one `<role-instructions>` block (rows of one test).
-6. The run's facts are the lines of today's prompt, unchanged.
-7. The OpenCode runtime's message has the same order, with its result block at the end.
-8. `make check` stays green.
-9. docs: the project guide's description of an agent run says what the system prompt and the first message hold, in which order, with which markers, and why (the shared cached start, and the rules' weight); `agents/README.md` says the same for the agent files. `docs/decisions.md`: one entry, the role's instructions move into the first message after the work item, for the prompt cache.
+6. The run's facts are the lines of today's prompt, unchanged except the round line.
+7. In a stage with `round_cap: 2`, rounds 0, 1 and 2 give `Round: <n> of 2; a rework decision after round 2 makes the factory ask the human.`; in a stage without a cap the line stays `Round: <n>` (rows of one test).
+8. The OpenCode runtime's message has the same order, with its result block at the end.
+9. `make check` stays green.
+10. docs: the project guide's description of an agent run says what the system prompt and the first message hold, in which order, with which markers, and why (the shared cached start, and the rules' weight); `agents/README.md` says the same for the agent files. `docs/decisions.md`: one entry, the role's instructions move into the first message after the work item, for the prompt cache.
 
 ## Smoke test
 
