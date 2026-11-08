@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 652
 comments_read: [6716487122]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: smoke-test
+  started_at: '2026-11-08T03:21:44.756603Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -108,6 +112,11 @@ journal:
   at: '2026-11-08T03:21:39.684277Z'
   stage: docs
   run: 7df14860084e4572aa287740347c99b6
+- number: 19
+  speaker: factory
+  kind: started
+  at: '2026-11-08T03:21:44.756603Z'
+  stage: smoke-test
 ---
 
 # The code names the working branch by its role
@@ -336,3 +345,4 @@ Expect: `0`
     `check`: check: green
     `secrets`: secrets: green (1.6 s)
     `documents`: documents ok (58.2 s)
+19. factory: started smoke-test as vm.
