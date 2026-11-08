@@ -1,17 +1,13 @@
 ---
 stage: intake
-blocked: null
+blocked: question
 round: 0
 attempts: 0
 crashes: 0
-pull_request: null
+pull_request: 662
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: intake
-  started_at: '2026-11-08T13:02:10.258739Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -23,6 +19,13 @@ journal:
   kind: started
   at: '2026-11-08T13:02:10.258739Z'
   stage: intake
+- number: 3
+  speaker: intake
+  kind: question
+  at: '2026-11-08T13:02:48.412555Z'
+  stage: intake
+  run: f1cae251b2d24c42b4c30f28b31b5299
+  blocked: question
 ---
 
 # Each stage's start facts come from the factory
@@ -86,3 +89,26 @@ Expect: `True`
 
 1. 2026-11-08 human: created.
 2. factory: started intake as vm.
+3. intake: Questions. The format check passed. I read `feature.md` (decision 6 matches the story), `StageDefinition` and the lease rule in `src/factory/pipeline/domain/pipeline_definition.py`, and the version rule in `docs/decisions.md`. Three Interface lines cannot be tested or built without a further decision:
+
+   1. **The system prompt's new sentence has no criterion.** The Interface says the common system prompt tells the agent that `<context>` blocks are facts the factory gathered at the start, which it need not gather again. No criterion tests this, although the leave covers `tests/agent_files/test_claude_files.py` and `test_template_sync.py`.
+      - (a) Add a criterion before the two closing ones: "The common system prompt names the `<context>` blocks as start facts the agent need not gather again, in the shipped agent files and the operator template alike."
+      - (b) Drop the line from the Interface.
+      - I would choose (a).
+
+   2. **It is open whether the lease covers the `context` commands.** The load-time lease rule (`_lease_faults`, `pipeline_definition.py:185-200`) requires a role's `time_limit` plus the `time_limit`s of its stage's `checks` and `reports` to fit within its `lease_duration`. The `context` commands also run inside the claim, before the agent, but the Interface does not say whether they count.
+      - (a) They count. Add an Interface line and a criterion with both rows: a stage whose `context` pushes the total past `lease_duration` is refused, and one that fits is accepted.
+      - (b) They do not count. Say so in the Interface; the lease may then run out during a slow start fact.
+      - I would choose (a).
+
+   3. **"The version rule applies to the new key" has no criterion and no value.** `factory/pipeline.yml` declares `contract: "1.0"`. An added optional key is a minor change under the rule in `docs/decisions.md`. Two coders could read this two ways: raise the definition's contract to `1.1` (and the generated schema in `src/factory/contract/`, if the definition is in `CONTRACT`), or change nothing because loading checks only the major.
+      - (a) State the expected value in the Interface ("the pipeline definition's contract rises to 1.1"). Add a criterion that a definition with `contract: "1.0"` and one with `"1.1"` both load with `context`, if older definitions must keep loading.
+      - (b) Drop the line and leave the version to the reviewer's check.
+      - I would choose (a). Note that a change to `factory/pipeline.yml` itself is the human's (CLAUDE.md, *Not without asking*).
+
+   The rest needs no answer:
+   - **Criteria:** criteria 1 to 7 are each testable by one test. The order, both sides of the size limit, both failure kinds, the escaping, the stage without `context` and the place where the commands run all have criteria.
+   - **Smoke test:** it is runnable and `True` can be checked against its output.
+   - **Docs criterion:** it names what the reader must know and dictates no sentences.
+   - **Architecture:** a `StageDefinition` field in pipeline/domain, project commands run through the existing check container, the blocks built in agents/domain `prompts.py`. Nothing calls a tool outside a wrapper.
+   - **Scope:** this is S0004 of F0058, decision 6, and not in "Out of scope". The human's leave names every earlier test it may change.
