@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 662
 comments_read: [6721852631, 6722094144]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-08T13:42:12.311862Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -147,6 +151,11 @@ journal:
   at: '2026-11-08T13:42:07.437647Z'
   stage: doing
   run: cb4d028b05f34b389f3b99d042ebc4b5
+- number: 26
+  speaker: factory
+  kind: started
+  at: '2026-11-08T13:42:12.311862Z'
+  stage: tests
 ---
 
 # Each stage's start facts come from the factory
@@ -465,3 +474,4 @@ Expect: `True`
     Refactor: the diff is one docstring, so there was nothing to refactor.
 
     `check`: check: green
+26. factory: started tests as vm.
