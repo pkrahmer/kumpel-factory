@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 654
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: smoke-test
+  started_at: '2026-11-08T07:23:56.282560Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -113,6 +117,11 @@ journal:
   at: '2026-11-08T07:23:50.920930Z'
   stage: docs
   run: 3476c727ba5347db8513558a20336796
+- number: 20
+  speaker: factory
+  kind: started
+  at: '2026-11-08T07:23:56.282560Z'
+  stage: smoke-test
 ---
 
 # Kumpel's procedure after an acceptance that proposes stories
@@ -297,3 +306,4 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
     `check`: check: green
     `secrets`: secrets: green (0.5 s)
     `documents`: documents ok (57.8 s)
+20. factory: started smoke-test as vm.
