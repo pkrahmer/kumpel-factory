@@ -46,3 +46,46 @@ The run is about 10 % cheaper although it made eight runs more. Every story went
 2. **Missing directory.** With `TODO_DB` in a missing directory the server exits at start with `unable to open database file`. No criterion covers it.
 3. **Disk.** The VM's root disk went from 76 % to 80 % used with the second instance's checkout and image (12 GB free). The acceptance also saw about 0.55 GB of disk growth that the feature's changes do not explain.
 4. **My own slip.** I forgot `mkdir -p in-progress` once more at S0002's start; the second try worked. The watcher also ends at once while a question is still marked as open, so it needs a short pause after an answer.
+
+## Transcript review (Haiku flags, Opus judges)
+
+Haiku 5.5 read all 40 transcripts and flagged passages; Opus 5.5 checked the flags against excerpts and wrote [transcripts-report.md](transcripts-report.md). The data is in `transcripts-stage1.json` (the flags) and `transcripts-economics.json` (from the cost records). The review cost about 0.48 USD on the API key. A bug in the script kept the economics block out of Opus's input, so section 3 of its report is inference; the economics below are computed from the data.
+
+Its main findings:
+
+1. **A reviewer edited the story's acceptance criteria** (S0003, it added criterion 24). The gap was real, but the contract changed without intake or the human. The reviewer needs a way to propose a criterion instead.
+2. **The tester stage does not type-check tests**, so a typing error in a test reached the coder, who may not fix tests. That cost a question and four runs (about 0.50 USD).
+3. **Every role reads the whole work item and diff again**, and large outputs are paged through or read twice; worst in the acceptance run.
+4. **Small findings cost full rounds:** a duplicated test constant in S0002 (four runs, about 0.51 USD), and a known `Any` conflict the S0004 coder passed on instead of solving.
+5. **Four coder runs changed no code**; they only reran `make check` or routed the item on.
+6. **Prompts name tools that do not exist** in the target: the `documents` target (documenters) and `factory-check-story` (acceptance).
+
+## Token economics and caching
+
+| | Tokens | Share of the bill at Opus 5.5 prices |
+| :- | -: | -: |
+| Cache writes | 1.06 M | about 60 % |
+| Output | 0.14 M | about 30 % |
+| Cache reads | 4.64 M | about 10 % |
+| Uncached input | 396 | 0 |
+
+The cache hit rate is 81 % over all runs (reads against reads plus writes), from 50 % for intake to 91 % for the acceptance.
+
+The weak spot is the cache writes. Intake writes about 21 K tokens in each of its runs, and that looks like the fixed start of every run (system prompt, tools, CLAUDE.md, role prompt). If every one of the 40 runs writes that start again, that alone is about 0.85 M of the 1.06 M written tokens, or roughly 4 USD of the 8.27 USD. The runs follow each other within a minute, so a stable start would be read from the cache instead. The likely cause is something that changes per run early in the prompt: the date, the git status, the run's paths or the work item. This is a hypothesis, to be checked in one transcript's recorded request shape. If it holds, keeping that start identical across runs could save up to about 40 % of a feature's cost.
+
+Other levers:
+- a scoped brief instead of the whole work item (about 1 USD per feature, by Opus's estimate);
+- no coder runs that change nothing (about 0.3 USD);
+- a cheaper model or lower effort for intake and the smoke tester (about 0.4 USD).
+
+## Speed
+
+Of 27.8 agent minutes, 86 % is waiting for the model, 14 % is tools (almost all Bash, mainly `make check`), and the rest is negligible. The wall clock was 46 minutes. The other 18 minutes are the factory's ticks between stages and my approvals.
+
+So speed comes from fewer runs and turns, not from faster tools. Opus's estimates:
+- fewer review rounds, by fixing findings 2 and 4 (5 to 6 minutes per feature);
+- no coder runs that change nothing (about 2.5 minutes);
+- a brief up front instead of paging (2 to 3 minutes);
+- the smoke test and the documenter in parallel (about 2 minutes).
+
+A cheaper or faster model for intake, the documenter and the smoke tester would also shorten their runs.

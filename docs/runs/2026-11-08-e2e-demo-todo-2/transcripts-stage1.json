@@ -1,0 +1,1440 @@
+{
+ "2263042c5d4e46f196bfe74796bba8e6": {
+  "summary": "The acceptance reviewer read the archived stories, ran make check, wrote a feature walk-through against real uvicorn, and recommended approval with one proposed documentation story. The run was broadly clean, though it dumped very large story outputs into context, ran a long walk-through, and tried a tool that was not present.",
+  "wasted_turns": 4,
+  "flags": [
+   {
+    "turn": 4,
+    "category": "unused_output",
+    "quote": "cat F0001-S0003-*.md F0001-S0004-*.md",
+    "why": "Output over 55KB was persisted, then the same content was re-read via Read and awk, duplicating context cost.",
+    "weight": 2
+   },
+   {
+    "turn": 6,
+    "category": "repetition",
+    "quote": "for f in F0001-S0001-*.md F0001-S0002-*.md; do echo",
+    "why": "Stories S0001 to S0004 were already dumped in full at turn 3-4, so reading their bodies again re-pulled about 50KB of mostly known content.",
+    "weight": 2
+   },
+   {
+    "turn": 7,
+    "category": "repetition",
+    "quote": "Read: {\"file_path\": \".../tool-results/b3d0rxu15.txt\", \"allow_large\": true}",
+    "why": "Re-reading a persisted tool output whose preview was already truncated, instead of targeting specific lines, consumed a lot of context.",
+    "weight": 2
+   },
+   {
+    "turn": 10,
+    "category": "repetition",
+    "quote": "Read: {\"file_path\": \".../tool-results/bu41ix624.txt\", \"allow_large\": true}",
+    "why": "Third full read of a large persisted story dump, again for content already read in turns 4 and 8.",
+    "weight": 2
+   },
+   {
+    "turn": 14,
+    "category": "slow",
+    "quote": "make check 2>&1 | tail -40",
+    "why": "The full check suite was run in the foreground and then reran in various forms; the agent later relied on it, so the cost is acceptable but notable.",
+    "weight": 1
+   },
+   {
+    "turn": 22,
+    "category": "slow",
+    "quote": "Run the feature smoke test against real uvicorn",
+    "why": "A long multi-part walk-through with a 180s timeout ran against real servers, which is slow but was the required acceptance evidence.",
+    "weight": 1
+   },
+   {
+    "turn": 31,
+    "category": "tool_failure",
+    "quote": "command -v factory-check-story && factory-check-story factory/features/...",
+    "why": "The check tool was missing (exit 1) and the agent proceeded without explaining the gap or confirming the story form another way.",
+    "weight": 2
+   },
+   {
+    "turn": 29,
+    "category": "rule_bent",
+    "quote": "cat > backlog/F0001-S0005-documentation-repair-after-acceptance.md <<'EOF'",
+    "why": "The acceptance role wrote a new story into the backlog itself, which is a write outside the decision and journal the prompt names; the agent was not asked to create stories.",
+    "weight": 2
+   },
+   {
+    "turn": 33,
+    "category": "other",
+    "quote": "python3 - \"$f\" \"$body\" <<'PY'",
+    "why": "The report was spliced into the work item with an ad-hoc Python script rather than the normal path, a fragile edit to a factory file.",
+    "weight": 1
+   },
+   {
+    "turn": 24,
+    "category": "unsure",
+    "quote": "story_form=$(cat factory/story-form.md); echo \"$story_form\"",
+    "why": "The agent printed the story form after having already written the story, suggesting it validated the story after the fact.",
+    "weight": 1
+   }
+  ],
+  "run": "2263042c5d4e46f196bfe74796bba8e6",
+  "work_item": "F0001-A0001",
+  "role": "acceptance-reviewer",
+  "cost": "1.1646016",
+  "input_tokens": 12816
+ },
+ "08def74988b646e396c326b42d12dba6": {
+  "summary": "The coder built the domain model and in-memory repository, reached a green make check with 59 tests, and chose the review decision. The run was mostly clean, but it began by running tests that already failed with import errors and never explicitly explained the pre-existing failures before writing code.",
+  "wasted_turns": 1,
+  "flags": [
+   {
+    "turn": 1,
+    "category": "unsure",
+    "quote": "1 failed, 3 errors in 1.12s",
+    "why": "The initial test run showed a failing import-boundary test and three collection errors that the agent did not discuss before building the modules that resolve them.",
+    "weight": 2
+   },
+   {
+    "turn": 2,
+    "category": "tool_failure",
+    "quote": "ls: cannot access 'docs': No such file or directory",
+    "why": "The command tried to list a docs directory that does not exist, and the failure was in the same call as the file reads, so it was not handled cleanly.",
+    "weight": 1
+   },
+   {
+    "turn": 1,
+    "category": "slow",
+    "quote": "make test 2>&1 | tail -30",
+    "why": "Running the full test suite at the start was repeated later by make check, and the first run's output was mostly consumed by a truncated tail.",
+    "weight": 1
+   }
+  ],
+  "run": "08def74988b646e396c326b42d12dba6",
+  "work_item": "F0001-S0001",
+  "role": "coder",
+  "cost": "0.2453778",
+  "input_tokens": 3821
+ },
+ "33b560e35bb6474da94c2497b9fea49c": {
+  "summary": "The smoke-tester ran the two commands from the story's Smoke test section once each, both exited 0 with the expected output, and it approved the work item. The run was short and clean, though it deliberately skipped some checks it judged out of scope.",
+  "wasted_turns": 0,
+  "flags": [
+   {
+    "turn": 1,
+    "category": "slow",
+    "quote": "cat factory/features/F0001-todo-service/in-progress/F0001-S0001-domain-model-and-in-memory-repository.md",
+    "why": "The whole work item, including a 26k-character journal and prior stage output, was dumped into context in one read, much of which the smoke test did not need.",
+    "weight": 1
+   },
+   {
+    "turn": 4,
+    "category": "other",
+    "quote": "grep -n \"project-guide\" README.md; ls docs",
+    "why": "This check came after the smoke commands and is about documentation, which the smoke-test role does not cover, so it is extra scope for the stage.",
+    "weight": 1
+   },
+   {
+    "turn": 5,
+    "category": "unsure",
+    "quote": "I did not read the guide's content against that criterion. I did not run `make check` (criterion 24)",
+    "why": "The approval records that acceptance criteria 24 and 25 were only partly verified, so the reviewer should judge whether the approval is justified without those checks.",
+    "weight": 2
+   }
+  ],
+  "run": "33b560e35bb6474da94c2497b9fea49c",
+  "work_item": "F0001-S0001",
+  "role": "smoke-tester",
+  "cost": "0.1720196",
+  "input_tokens": 2366
+ },
+ "57e6854aa9294e199b8d0f7fa9e35b59": {
+  "summary": "The coder run read the work item and git state, read errors.py, made a docstring-only fix addressing a review finding, ran make check (green), and returned a review decision with a journal entry. The run was short and clean, with one read of the work-item file whose output was truncated in the transcript.",
+  "wasted_turns": 0,
+  "flags": [
+   {
+    "turn": 1,
+    "category": "unused_output",
+    "quote": "cat factory/features/F0001-todo-service/in-progress/F0001-S0001-domain-model-and-in-memory-repository.md; git status --short; git log --oneline | head",
+    "why": "The work-item file dump was large and truncated mid-journal, so the agent may not have seen the full review finding it acted on, and the relevant text was cut from the transcript.",
+    "weight": 1
+   }
+  ],
+  "run": "57e6854aa9294e199b8d0f7fa9e35b59",
+  "work_item": "F0001-S0001",
+  "role": "coder",
+  "cost": "0.11405339999999999",
+  "input_tokens": 2682
+ },
+ "62396007de734e86b3b9e8eae46660b4": {
+  "summary": "The reviewer read the work item and the full branch diff, then checked the model and error tests before returning a docs decision with a review entry. The run was short and mostly clean, though it dumped a very large diff in one call and read files piecemeal afterwards.",
+  "wasted_turns": 1,
+  "flags": [
+   {
+    "turn": 1,
+    "category": "unused_output",
+    "quote": "git diff develop...HEAD -- . ':!factory' ':!un.lock' ':!docs/openapi.json'",
+    "why": "The full diff was over 41KB and was persisted to a file, so most of it was likely never read in the context window and later turns re-read the same sources piecemeal.",
+    "weight": 2
+   },
+   {
+    "turn": 4,
+    "category": "repetition",
+    "quote": "for f in src/app/domain/*.py src/app/repository/*.py tests/repository/test_contract.py tests/domain/test_imports.py tests/domain/test_errors.py; do echo",
+    "why": "Source files were already partly covered by the turn-1 diff dump, so this re-reads the same content rather than using the earlier output.",
+    "weight": 1
+   },
+   {
+    "turn": 6,
+    "category": "slow",
+    "quote": "cat -n tests/domain/test_model.py; git diff develop...HEAD --stat -- README.md docs",
+    "why": "Reading the test file was done in a separate call after turn 4, when the test file could have been included in the earlier batch.",
+    "weight": 1
+   },
+   {
+    "turn": 8,
+    "category": "other",
+    "quote": "I did not run `make check`. Entry 11 records `check: green` after the coder's round.",
+    "why": "The reviewer relied on the coder's recorded check result instead of verifying it, which a senior reviewer may want to confirm.",
+    "weight": 1
+   }
+  ],
+  "run": "62396007de734e86b3b9e8eae46660b4",
+  "work_item": "F0001-S0001",
+  "role": "reviewer",
+  "cost": "0.1847608",
+  "input_tokens": 3715
+ },
+ "89a62aa09d3a4f5fbec5afa9c3dea1fe": {
+  "summary": "The documenter read the story, diff and code, wrote a new docs/project-guide.md, verified a snippet by running it, and passed to smoke-test. The run was short and mostly clean, though it ran a file-creating command without checking docs existence and its own journal admits skipping a smoke-test command it was given.",
+  "wasted_turns": 0,
+  "flags": [
+   {
+    "turn": 1,
+    "category": "slow",
+    "quote": "cat factory/features/F0001-todo-service/in-progress/F0001-S0001-*.md; git diff develop...HEAD --stat; ls docs; git status --short",
+    "why": "The output was truncated mid-file, so the story body and diff detail were cut and had to be partly re-read in later turns.",
+    "weight": 1
+   },
+   {
+    "turn": 2,
+    "category": "unused_output",
+    "quote": "cat README.md; cat src/app/domain/*.py src/app/repository/memory.py; ls; grep -n \"documents\" Makefile",
+    "why": "Full README and source files were dumped into context, much of which was truncated and not clearly needed for a docs-only change.",
+    "weight": 1
+   },
+   {
+    "turn": 4,
+    "category": "rule_bent",
+    "quote": "The second smoke-test command (the blank and 201-character titles) I did not run",
+    "why": "The agent skipped a verification command it was asked to cover, a gap a reviewer should check against the story's smoke-test expectations.",
+    "weight": 2
+   },
+   {
+    "turn": 5,
+    "category": "factory_fault",
+    "quote": "The Makefile has no `documents` target, so I ran none.",
+    "why": "The documenter role expects a documents make target that does not exist, so its docs verification step cannot run as specified.",
+    "weight": 2
+   }
+  ],
+  "run": "89a62aa09d3a4f5fbec5afa9c3dea1fe",
+  "work_item": "F0001-S0001",
+  "role": "documenter",
+  "cost": "0.12234300000000001",
+  "input_tokens": 2718
+ },
+ "b975841cb9264f6e83f9dd8574bada4b": {
+  "summary": "The tester read the work item and project layout, wrote domain and repository test files covering every acceptance criterion, ran make test and make lint, fixed two lint issues with sed, and declared decision doing. The run is mostly clean, though it used sed to patch lint suppressions in place and never reran the test suite after those edits.",
+  "wasted_turns": 1,
+  "flags": [
+   {
+    "turn": 7,
+    "category": "rule_bent",
+    "quote": "sed -i 's/  # noqa: DTZ001 - the naive time is the point/  # the naive time is the point/; s/ as exc_info:  # noqa: PT011/ as exc_info:/'",
+    "why": "The agent removed noqa suppressions with sed instead of fixing the underlying lint issue, and only reran lint, not the tests, afterwards.",
+    "weight": 2
+   },
+   {
+    "turn": 5,
+    "category": "other",
+    "quote": "make test 2>&1 | tail -5; make lint 2>&1 | tail -15",
+    "why": "Test output was truncated to the last 5 lines, so the collection errors' causes were not visible in detail; the agent relied on the summary alone.",
+    "weight": 1
+   },
+   {
+    "turn": 9,
+    "category": "unsure",
+    "quote": "I chose to leave out the test of a padded 201-character title, because criterion 5 says \"after stripping\"",
+    "why": "The agent made an interpretive call on a criterion and only partially covered it, which a reviewer should confirm is acceptable.",
+    "weight": 2
+   }
+  ],
+  "run": "b975841cb9264f6e83f9dd8574bada4b",
+  "work_item": "F0001-S0001",
+  "role": "tester",
+  "cost": "0.340531",
+  "input_tokens": 3292
+ },
+ "bf64cb67a9f94f869723a987f874b794": {
+  "summary": "The intake run read the story and its feature file once each, then recorded a tests decision with a journal entry through a single structured output. It made no failed calls, repeated reads or visible detours, and its reasoning for the route matched the story's Interface changes.",
+  "wasted_turns": 0,
+  "flags": [],
+  "run": "bf64cb67a9f94f869723a987f874b794",
+  "work_item": "F0001-S0001",
+  "role": "intake",
+  "cost": "0.06569069999999999",
+  "input_tokens": 2258
+ },
+ "f732388858454efabed66e005f517356": {
+  "summary": "The reviewer read the work item and a large branch diff, then ran a few follow-up commands and returned a 'doing' decision with findings. The run was mostly clean, though the first diff read was oversized and the reviewer did not run make check, relying on the journal instead.",
+  "wasted_turns": 1,
+  "flags": [
+   {
+    "turn": 2,
+    "category": "slow",
+    "quote": "git diff develop...HEAD -- . ':!factory' ':!uv.lock' ':!docs/openapi.json'",
+    "why": "A single combined command dumped about 36KB, which was persisted to a file and forced the agent to page through it in later turns.",
+    "weight": 2
+   },
+   {
+    "turn": 3,
+    "category": "unused_output",
+    "quote": "sed -n 75,400p /work/home/.claude/projects/-work-checkout/.../br04eg4v8.txt",
+    "why": "Paging through the saved output re-read large portions of the diff, adding turns and context without a targeted scope.",
+    "weight": 1
+   },
+   {
+    "turn": 5,
+    "category": "repetition",
+    "quote": "sed -n 400,900p /work/home/.claude/projects/-work-checkout/.../br04eg4v8.txt",
+    "why": "A second paging read of the same saved file, which was still truncated in the output, so the agent rebuilt context in several chunks.",
+    "weight": 1
+   },
+   {
+    "turn": 9,
+    "category": "unsure",
+    "quote": "\"decision\": \"doing\", \"entry\": \"Review of round 0.",
+    "why": "The reviewer chose 'doing' with findings while the journal already reports check green, and did not verify the checks itself, so the basis for the decision is not evident in the run.",
+    "weight": 1
+   }
+  ],
+  "run": "f732388858454efabed66e005f517356",
+  "work_item": "F0001-S0001",
+  "role": "reviewer",
+  "cost": "0.31463440000000004",
+  "input_tokens": 3451
+ },
+ "3f2d2a09a10b4aaab4b4e7436ce9df0a": {
+  "summary": "The documenter read the work item, the service code, the guide and the README, then updated the project guide with a Service section and a stale-line fix, verified the example by running it, and chose smoke-test. The run was short and clean, though it read a large file it did not need in full and did not run make check.",
+  "wasted_turns": 1,
+  "flags": [
+   {
+    "turn": 2,
+    "category": "unused_output",
+    "quote": "cat src/app/service/todo_service.py; cat docs/project-guide.md; cat docs/decisions.md; ls; grep -n \"documents\" Makefile",
+    "why": "Dumped the full service, guide and decisions files in one command, much of which was not needed for a docs-only edit, and the output was truncated anyway.",
+    "weight": 1
+   },
+   {
+    "turn": 7,
+    "category": "other",
+    "quote": "I wrote no \"Why\" or \"Rejected\" line, because the story gives no lasting-decision wording. If you want it logged there, say so.",
+    "why": "The agent asked for direction on whether decisions.md should get an entry, leaving an open question instead of resolving it from the role's instructions.",
+    "weight": 1
+   }
+  ],
+  "run": "3f2d2a09a10b4aaab4b4e7436ce9df0a",
+  "work_item": "F0001-S0002",
+  "role": "documenter",
+  "cost": "0.1116414",
+  "input_tokens": 3133
+ },
+ "42f116f1b4c94776930653b616b6c5aa": {
+  "summary": "The reviewer read the work item and branch diff in one large command, then inspected existing tests and the repository, and returned a 'doing' decision with a detailed review entry. The run was short and mostly clean, though the initial dump was very large and the reviewer ran several reads that overlapped.",
+  "wasted_turns": 1,
+  "flags": [
+   {
+    "turn": 2,
+    "category": "unused_output",
+    "quote": "cat factory/features/F0001-todo-service/in-progress/F0001-S0002-service-layer-with-filtering.md && git diff --stat develop...HEAD",
+    "why": "The single chained command dumped about 21k characters of work item and diff, with the middle truncated, forcing a re-look at the content in later turns.",
+    "weight": 2
+   },
+   {
+    "turn": 4,
+    "category": "repetition",
+    "quote": "cat src/app/repository/memory.py src/app/domain/repository.py; grep -n \"def \\|class \" src/app/domain/model.py",
+    "why": "The reviewer re-inspected repository and domain files that the diff context and earlier read had already covered, rather than reading targeted pieces.",
+    "weight": 1
+   },
+   {
+    "turn": 6,
+    "category": "other",
+    "quote": "`tests/service/test_todo_service.py:12`: `T0 = datetime(2026, 10, 4, 12, 0, tzinfo=UTC)` is a third copy of a constant",
+    "why": "The review flags duplicated test constants across stories; this is a finding about the codebase that a senior should verify since the reviewer only saw partial context.",
+    "weight": 1
+   }
+  ],
+  "run": "42f116f1b4c94776930653b616b6c5aa",
+  "work_item": "F0001-S0002",
+  "role": "reviewer",
+  "cost": "0.2172654",
+  "input_tokens": 2591
+ },
+ "56fb7c38d6e84b9580008abb42df8400": {
+  "summary": "The coder read the work item and ran one grep to check the reviewer's finding about a duplicated test constant, then chose the 'tests' decision without changing source code. The run was short and mostly clean, though its reasoning rests on a work-item file whose output was truncated.",
+  "wasted_turns": 0,
+  "flags": [
+   {
+    "turn": 1,
+    "category": "factory_fault",
+    "quote": "…[13856 chars cut]… s that silence a check.",
+    "why": "The work item output was truncated mid-journal, so the coder may have missed reviewer findings or criteria that the decision depends on.",
+    "weight": 1
+   },
+   {
+    "turn": 3,
+    "category": "other",
+    "quote": "grep -n \"T0\\b\\|NOW\\b\" -r tests | head -30",
+    "why": "The loose grep pattern pulled in many unrelated matches, and the agent had to sift through them to find the three copies that mattered.",
+    "weight": 1
+   }
+  ],
+  "run": "56fb7c38d6e84b9580008abb42df8400",
+  "work_item": "F0001-S0002",
+  "role": "coder",
+  "cost": "0.0965676",
+  "input_tokens": 2380
+ },
+ "646bbf6974ec4f2d8a89068ce87351c7": {
+  "summary": "The smoke-tester ran the two smoke commands from the story exactly as written, both exited 0 with the expected output, and it recorded an approval with no files changed. The run was short and clean, with only minor issues in the transcript: a truncated first read of the work item and a second, non-required command pass.",
+  "wasted_turns": 0,
+  "flags": [
+   {
+    "turn": 1,
+    "category": "unused_output",
+    "quote": "cat /work/checkout/factory/features/F0001-todo-service/in-progress/F0001-S0002-service-layer-with-filtering.md",
+    "why": "The whole work item was dumped, and the output was cut at about 24k characters, so the agent may have seen only part of the story and journal; the factory's read limit is worth checking.",
+    "weight": 1
+   },
+   {
+    "turn": 2,
+    "category": "other",
+    "quote": "svc.create('   '), lambda: svc.complete(uuid4())",
+    "why": "The agent ran an extra error-path check beyond the story's smoke commands; this is useful evidence, but it is not what the smoke section asked for, and the entry says the commands were run exactly as written.",
+    "weight": 1
+   }
+  ],
+  "run": "646bbf6974ec4f2d8a89068ce87351c7",
+  "work_item": "F0001-S0002",
+  "role": "smoke-tester",
+  "cost": "0.161451",
+  "input_tokens": 2207
+ },
+ "79e81171dd7a45ebb90cfebb893aa2d4": {
+  "summary": "The reviewer read the work item and diff, then checked a few helper names and repository code before deciding docs with no findings. The run was short and mostly clean, though the diff was read through a large persisted output with a second sed pass, and the reviewer's final decision text is not fully supported by the shown checks.",
+  "wasted_turns": 1,
+  "flags": [
+   {
+    "turn": 2,
+    "category": "slow",
+    "quote": "git diff develop...HEAD -- . ':!factory' ':!docs/openapi.json' ':!uv.lock'",
+    "why": "A single Bash call dumped a 34KB diff that was persisted to a file, forcing extra turns to page through it instead of a bounded read up front.",
+    "weight": 2
+   },
+   {
+    "turn": 3,
+    "category": "tool_failure",
+    "quote": "sed -n 100,400p /work/home/.claude/projects/-work-checkout/7443a682-51a6-4e4c-b54b-9ef6e708eebd/tool-results/bjplll60g.txt",
+    "why": "The output was already truncated in the preview; the reviewer read a truncated middle chunk and still missed part of the diff (cut segments of the service and test file).",
+    "weight": 2
+   },
+   {
+    "turn": 4,
+    "category": "unused_output",
+    "quote": "…[10264 chars cut]… tion_on_unknown_id_raises_not_found_with_that_id(",
+    "why": "Large diff segments were read through sed pages whose middle portions were cut, so parts of the implementation were never actually inspected before approving.",
+    "weight": 2
+   },
+   {
+    "turn": 6,
+    "category": "other",
+    "quote": "grep -rn \"NOW\\|datetime\\b\" tests/domain/test_model.py tests/repository/test_contract.py | head -30; grep -rn \"datetime.now",
+    "why": "The reviewer ran a broad combined grep and cat of repository files after the review was largely done, a sign of checking claims after the fact rather than before deciding.",
+    "weight": 1
+   },
+   {
+    "turn": 10,
+    "category": "rule_bent",
+    "quote": "I found no problems, so the decision is `docs` and the work item moves on to the documenter.",
+    "why": "The reviewer approved with cut-off diff sections unread and without an explicit record of what was verified, a thin basis for a clean review.",
+    "weight": 2
+   },
+   {
+    "turn": 11,
+    "category": "other",
+    "quote": "standing leave to move a shared test helper",
+    "why": "The journal entry grants a 'standing leave' to edit earlier test files outside the story's scope, which is a permission the reviewer appears to have invented rather than read from the prompt.",
+    "weight": 2
+   }
+  ],
+  "run": "79e81171dd7a45ebb90cfebb893aa2d4",
+  "work_item": "F0001-S0002",
+  "role": "reviewer",
+  "cost": "0.1994518",
+  "input_tokens": 4006
+ },
+ "82fb84b0718f44aa81f414c233ea1e1a": {
+  "summary": "The tester moved a copied test constant into a shared tests/fakes.py module, ran make test and make lint (both green, 81 passed), and returned a doing decision. The run was short and mostly clean, but it ran a strict type check that reported 10 errors, narrowed the output instead of explaining them, and justified the shared-helper move by citing a standing leave in CLAUDE.md.",
+  "wasted_turns": 2,
+  "flags": [
+   {
+    "turn": 8,
+    "category": "unsure",
+    "quote": "Found 10 errors in 3 files (checked 4 source files)",
+    "why": "The mypy run reported 10 errors and the agent did not establish whether they were caused by its change or by how mypy was invoked on explicit files outside the project config.",
+    "weight": 2
+   },
+   {
+    "turn": 11,
+    "category": "repetition",
+    "quote": "uv run mypy --strict tests/fakes.py tests/domain/test_model.py tests/repository/test_contract.py tests/service/test_todo_service.py 2>&1 | grep -i fakes",
+    "why": "The same mypy command was rerun with only a grep filter, hiding the other errors rather than resolving them, and the result was then treated as clean.",
+    "weight": 2
+   },
+   {
+    "turn": 13,
+    "category": "rule_bent",
+    "quote": "I made the move under the standing leave in CLAUDE.md *Tests* to move a shared test helper.",
+    "why": "The work item was a human-approved test change, and the agent relies on a claimed standing leave to create a new shared module outside what the journal entry specified, which a reviewer should verify.",
+    "weight": 2
+   },
+   {
+    "turn": 4,
+    "category": "other",
+    "quote": "uv run ruff check --fix tests >/dev/null; uv run ruff format tests",
+    "why": "Auto-fix and format ran over the whole tests tree rather than only the touched files, which widens the change beyond the approved scope even though the output shows no extra files changed.",
+    "weight": 1
+   },
+   {
+    "turn": 8,
+    "category": "factory_fault",
+    "quote": "Skipping analyzing \"app.domain.model\": module is installed, but missing library stubs or py.typed marker",
+    "why": "Errors like this suggest the factory's type-check path does not use the project's mypy configuration, so the tester is shown noise that is not about the code.",
+    "weight": 1
+   }
+  ],
+  "run": "82fb84b0718f44aa81f414c233ea1e1a",
+  "work_item": "F0001-S0002",
+  "role": "tester",
+  "cost": "0.1506564",
+  "input_tokens": 4228
+ },
+ "8a91ce8f15334797a02aa020b1ba440f": {
+  "summary": "The intake agent read the work item and feature files, inspected the source layout once, and submitted a tests decision with a journal entry. The run was short and clean, with no failed calls or visible rework.",
+  "wasted_turns": 0,
+  "flags": [],
+  "run": "8a91ce8f15334797a02aa020b1ba440f",
+  "work_item": "F0001-S0002",
+  "role": "intake",
+  "cost": "0.0670941",
+  "input_tokens": 2912
+ },
+ "99c8d7902a6c4caf8d0dfa6816091d4f": {
+  "summary": "The coder run confirmed a green state left by the tester and reviewer, ran make check once, and decided review with no code changes. It was short and clean, though it re-ran a full check that the prior stage had just completed.",
+  "wasted_turns": 1,
+  "flags": [
+   {
+    "turn": 3,
+    "category": "slow",
+    "quote": "make check 2>&1 | tail -15",
+    "why": "The full check (lint, tests, coverage) was re-run although the tester had just recorded it as green and no code changed this round.",
+    "weight": 1
+   },
+   {
+    "turn": 2,
+    "category": "unsure",
+    "quote": "Nothing to change in code; run make check.",
+    "why": "The agent decided to re-verify without a clear need from the prompt, since no code diff existed this round.",
+    "weight": 1
+   }
+  ],
+  "run": "99c8d7902a6c4caf8d0dfa6816091d4f",
+  "work_item": "F0001-S0002",
+  "role": "coder",
+  "cost": "0.0653984",
+  "input_tokens": 1993
+ },
+ "b1110c19c53442a29840fa73987ef91a": {
+  "summary": "The coder built the service layer in a few turns, ran make check, fixed one lint error, and ended with a review decision and journal entry. The run was short and mostly clean, with one lint failure fixed on the next attempt.",
+  "wasted_turns": 1,
+  "flags": [
+   {
+    "turn": 2,
+    "category": "unused_output",
+    "quote": "cat src/app/domain/*.py src/app/repository/memory.py && sed -n 1,60p tests/service/test_todo_service.py; ls docs",
+    "why": "The agent dumped the full domain, repository and test files into context, far more than the service layer needed, and the output was truncated in places.",
+    "weight": 1
+   },
+   {
+    "turn": 4,
+    "category": "tool_failure",
+    "quote": "src/app/service/todo_service.py:44:101: E501 Line too long (104 > 100)",
+    "why": "The first make check failed on a lint error the agent could have avoided by checking line length before writing the file.",
+    "weight": 1
+   },
+   {
+    "turn": 5,
+    "category": "slow",
+    "quote": "make check 2>&1 | grep -E \"green|error|Error|FAIL|passed|failed\" | tail -20",
+    "why": "make check was rerun in full, with its test suite, just to fix one docstring line; a lint-only run would have been quicker.",
+    "weight": 1
+   }
+  ],
+  "run": "b1110c19c53442a29840fa73987ef91a",
+  "work_item": "F0001-S0002",
+  "role": "coder",
+  "cost": "0.192638",
+  "input_tokens": 3073
+ },
+ "cdb7fe8c054a4141bccd31aef54ebb6d": {
+  "summary": "The tester read the work item and source, wrote a new service test file against the spec, ran make test (expected ImportError since the service does not exist yet) and fixed a lint formatting issue, then returned doing. The run is mostly clean; the main inefficiencies are a failing first cat command and a single formatting retry that could have been avoided by running lint before finishing.",
+  "wasted_turns": 1,
+  "flags": [
+   {
+    "turn": 1,
+    "category": "tool_failure",
+    "quote": "cat factory/features/F0001-todo-service/in-progress/F0001-S0002-service-layer-with-filtering.md && git ls-files | grep -v '^factory/' && cat tests/conftest.py",
+    "why": "The combined command exited 1 because tests/conftest.py does not exist, so the work item output was surrounded by an error and a retry was needed to see the rest.",
+    "weight": 1
+   },
+   {
+    "turn": 4,
+    "category": "slow",
+    "quote": "make test 2>&1 | tail -5; make lint 2>&1 | tail -15",
+    "why": "Full test suite and lint ran sequentially in one call, and lint was only discovered to fail after the test run, forcing a follow-up fix turn.",
+    "weight": 1
+   },
+   {
+    "turn": 6,
+    "category": "other",
+    "quote": "make lint 2>&1 | tail -3",
+    "why": "Lint was re-run after a hand edit to satisfy the formatter; the test suite was not rerun afterwards to confirm the file still imports and behaves as before.",
+    "weight": 1
+   }
+  ],
+  "run": "cdb7fe8c054a4141bccd31aef54ebb6d",
+  "work_item": "F0001-S0002",
+  "role": "tester",
+  "cost": "0.2348538",
+  "input_tokens": 3411
+ },
+ "0f50e5dc6b854779baf39e7ff03f4a7f": {
+  "summary": "The smoke-tester ran the story's Smoke test block once, starting uvicorn, exercising the CRUD and error paths, and approved the work with a clean result. The run was short and efficient, with one arguable deviation: it appended an extra echo line to the prescribed script.",
+  "wasted_turns": 1,
+  "flags": [
+   {
+    "turn": 1,
+    "category": "unused_output",
+    "quote": "cat /work/checkout/factory/features/F0001-todo-service/in-progress/F0001-S0003-http-api.md",
+    "why": "The whole 37.7KB work item was dumped to output, then re-read section by section in turn 2, so most of the output was not needed for the smoke test.",
+    "weight": 1
+   },
+   {
+    "turn": 3,
+    "category": "rule_bent",
+    "quote": "The only thing I added was a final `echo \"ID=$ID\"` after the script's commands",
+    "why": "The story's smoke-test block was meant to be run as written, and the agent altered it by adding a line, though it disclosed this in its journal entry.",
+    "weight": 1
+   }
+  ],
+  "run": "0f50e5dc6b854779baf39e7ff03f4a7f",
+  "work_item": "F0001-S0003",
+  "role": "smoke-tester",
+  "cost": "0.1504718",
+  "input_tokens": 3056
+ },
+ "110ff4e058c04acb956700239b146e89": {
+  "summary": "The documenter run read the story, the API diff and code, probed the running server with curl, wrote docs/api.md and edited README and project-guide, then handed to smoke-test. It was largely clean; the main issues are a very large first read and a few unrequested broad edits.",
+  "wasted_turns": 1,
+  "flags": [
+   {
+    "turn": 1,
+    "category": "unused_output",
+    "quote": "cat the work item; git diff develop...HEAD --stat; ls docs; wc -l README.md docs/*.md",
+    "why": "The first command dumped a 36.5KB persisted output, most of which was the work item body and journal that the agent then re-read in turn 2.",
+    "weight": 2
+   },
+   {
+    "turn": 2,
+    "category": "repetition",
+    "quote": "sed -n '/^## Description/,/^## Journal/p' $f; echo ----; awk '/^## Journal/{p=1} p' $f | tail -60",
+    "why": "The work item file was already read in full in turn 1, so re-reading its sections and the journal repeats the same content.",
+    "weight": 1
+   },
+   {
+    "turn": 3,
+    "category": "repetition",
+    "quote": "git status --short; git diff develop...HEAD --stat -- . ':!factory'; wc -l README.md docs/*.md",
+    "why": "The same diff stat and line counts were already returned in turn 1, so this re-runs them.",
+    "weight": 1
+   },
+   {
+    "turn": 5,
+    "category": "slow",
+    "quote": "cat README.md docs/decisions.md docs/project-guide.md; cat src/app/api/*.py; grep -n -A12 '^documents\\|^openapi' Makefile",
+    "why": "Batching several files into one call is efficient, but it pulled in about 13KB of truncated output that the agent had to work around.",
+    "weight": 1
+   },
+   {
+    "turn": 7,
+    "category": "rule_bent",
+    "quote": "uv run uvicorn app.api.main:app --port 8765 >\"$d/log\" 2>&1 & pid=$!",
+    "why": "The documenter ran a live server and curl probes, which goes beyond a docs-only role; it is a reasonable way to check examples but is not clearly within the role's remit.",
+    "weight": 1
+   },
+   {
+    "turn": 8,
+    "category": "rule_bent",
+    "quote": "python rewrite of docs/project-guide.md and README.md via inline Python string replacements",
+    "why": "Editing README and project-guide with inline Python string replacement is fragile and goes beyond the docs file the story asked for, with no check that each replace matched.",
+    "weight": 2
+   },
+   {
+    "turn": 8,
+    "category": "other",
+    "quote": "Stale text I did not touch: the README's opening paragraph says todos are \"kept in memory or in a SQLite file\"",
+    "why": "The agent noticed stale README text, left it, and flagged it in the journal; a reviewer should confirm the story or the next one covers it.",
+    "weight": 1
+   }
+  ],
+  "run": "110ff4e058c04acb956700239b146e89",
+  "work_item": "F0001-S0003",
+  "role": "documenter",
+  "cost": "0.1330163",
+  "input_tokens": 4820
+ },
+ "32dbf38faec44794ad9d9c9e548751ae": {
+  "summary": "The coder run read the work item and a test helper, then chose the 'tests' decision to send the story back to the tester, citing a human answer in the journal. The run was short and mostly clean, but it relied on journal context it never re-read in this turn and made no code changes.",
+  "wasted_turns": 0,
+  "flags": [
+   {
+    "turn": 4,
+    "category": "unsure",
+    "quote": "The human agreed to option (a), and the test is still unchanged, so this goes back to the tester.",
+    "why": "The agent asserts a human decision from journal entry 8 without showing it was read in this run, so the basis for routing back to the tester is unverified.",
+    "weight": 2
+   },
+   {
+    "turn": 1,
+    "category": "unused_output",
+    "quote": "cat factory/features/F0001-todo-service/in-progress/F0001-S0003-http-api.md; git status --short; find src tests -name '*.py' | sort",
+    "why": "The full work item was dumped with its journal truncated, so the human answer the agent relies on was not actually visible in the output.",
+    "weight": 2
+   },
+   {
+    "turn": 5,
+    "category": "other",
+    "quote": "Once the test is changed, I expect `make check` to be green with no code change.",
+    "why": "The agent predicts a green check without running it, and the prediction is not verified in this run.",
+    "weight": 1
+   }
+  ],
+  "run": "32dbf38faec44794ad9d9c9e548751ae",
+  "work_item": "F0001-S0003",
+  "role": "coder",
+  "cost": "0.061926800000000004",
+  "input_tokens": 1879
+ },
+ "49b58464f66f4bf8b045d9ff82d2c8cf": {
+  "summary": "The reviewer read the work item and a large diff, then edited the work item itself to add a criterion (26 and a new criterion 24 about null fields) and returned a 'doing' decision with a journal entry. The run is short, but it edited the story's acceptance criteria, which a reviewer should not normally do, and the output was truncated and re-read in a way that cost turns.",
+  "wasted_turns": 2,
+  "flags": [
+   {
+    "turn": 8,
+    "category": "rule_bent",
+    "quote": "added a missing criterion to the work item",
+    "why": "A reviewer edited the story's acceptance criteria in place, which changes the contract the coder was held to, rather than just reporting the gap.",
+    "weight": 3
+   },
+   {
+    "turn": 3,
+    "category": "slow",
+    "quote": "Read: {\"file_path\": \"/work/home/.claude/projects/-work-checkout/734d5b48-bb12-404d-a0e9-f139707c2074/tool-results/bd9mixzh6.txt\", \"offset\": 100}",
+    "why": "The 45KB diff was saved to a file and then read in a partial window, so the reviewer worked from truncated output and had to re-read the work item in pieces.",
+    "weight": 2
+   },
+   {
+    "turn": 2,
+    "category": "unused_output",
+    "quote": "git diff develop...HEAD -- . ':!factory' ':!docs/openapi.json' ':!uv.lock'",
+    "why": "One command dumped the full 45KB diff plus work item, far more than the reviewer could use in context, and the output was persisted rather than read selectively.",
+    "weight": 2
+   },
+   {
+    "turn": 5,
+    "category": "other",
+    "quote": "ls tests tests/*/ && cat tests/conftest.py 2>/dev/null; grep -rn",
+    "why": "The grep output was cut mid-result and tests/conftest.py does not exist; the reviewer had to search again to find the shared constants.",
+    "weight": 1
+   },
+   {
+    "turn": 11,
+    "category": "unsure",
+    "quote": "standing leave to move a shared test helper",
+    "why": "The reviewer records a 'standing leave' to move test helpers, which is an unclear authority claim that the reviewer should not be granting itself.",
+    "weight": 2
+   }
+  ],
+  "run": "49b58464f66f4bf8b045d9ff82d2c8cf",
+  "work_item": "F0001-S0003",
+  "role": "reviewer",
+  "cost": "0.4007806",
+  "input_tokens": 3871
+ },
+ "4ed0164dd28e4ed4b07a7a716fafb3b2": {
+  "summary": "The reviewer read the work item and the full branch diff in two large dumps, then issued a docs decision with a journal entry. The run is short and mostly clean, though the first two reads overlapped heavily and the diff output was too large to use directly.",
+  "wasted_turns": 1,
+  "flags": [
+   {
+    "turn": 2,
+    "category": "slow",
+    "quote": "git diff --stat develop...HEAD && git diff --name-status develop...HEAD && git diff develop...HEAD",
+    "why": "The full branch diff (57KB) was dumped into a persisted output file, and the next turn repeated the same stat and diff commands instead of reading the saved file.",
+    "weight": 2
+   },
+   {
+    "turn": 3,
+    "category": "repetition",
+    "quote": "sed -n '/^---$/,$p' factory/features/F0001-todo-service/in-progress/F0001-S0003-http-api.md",
+    "why": "The work item was already printed in full in turn 2, so this re-read repeats the same content.",
+    "weight": 1
+   },
+   {
+    "turn": 4,
+    "category": "repetition",
+    "quote": "git diff --stat develop...HEAD && git diff --name-status develop...HEAD && git diff develop...HEAD",
+    "why": "This reruns the same large diff that turn 2 already produced, and the output was again truncated, so the reviewer had to rely on a partial view.",
+    "weight": 2
+   },
+   {
+    "turn": 4,
+    "category": "unused_output",
+    "quote": "[25090 chars cut]",
+    "why": "Most of the 25KB of diff output was truncated before the reviewer could read it, so the bulk of the output was not used.",
+    "weight": 1
+   },
+   {
+    "turn": 6,
+    "category": "other",
+    "quote": "I read `git diff develop...HEAD -- . ':!factory'` without `docs/openapi.json` and `uv.lock`",
+    "why": "The review excludes docs/openapi.json and uv.lock, which the reviewer did not verify, so the schema the story requires was not checked in this round.",
+    "weight": 2
+   }
+  ],
+  "run": "4ed0164dd28e4ed4b07a7a716fafb3b2",
+  "work_item": "F0001-S0003",
+  "role": "reviewer",
+  "cost": "0.2829828",
+  "input_tokens": 2970
+ },
+ "5ac92f1947a54d268ca93d7999d1b0ab": {
+  "summary": "The tester applied the human-approved test change and the reviewer's findings for criterion 24 and related test refactoring, then ran tests, lint and types green and submitted a 'doing' decision. The run is mostly clean, with some reliance on a large ad hoc Python rewrite of test files and a few unrequested extra checks.",
+  "wasted_turns": 1,
+  "flags": [
+   {
+    "turn": 1,
+    "category": "unused_output",
+    "quote": "sed -n '/## Journal/,$p' factory/features/F0001-todo-service/in-progress/F0001-S0003-http-api.md | tail -80",
+    "why": "The journal dump was large and truncated, and much of it (earlier entries) was not needed to act on the round.",
+    "weight": 1
+   },
+   {
+    "turn": 2,
+    "category": "unused_output",
+    "quote": "cat tests/fakes.py tests/conftest.py; cat tests/api/test_todos.py; sed -n 1,40p tests/service/test_todo_service.py",
+    "why": "Several files and a grep were batched into one large output, much truncated, so the agent had to re-target edits afterwards.",
+    "weight": 1
+   },
+   {
+    "turn": 4,
+    "category": "rule_bent",
+    "quote": "python3 - <<'EOF' ... s=s.replace(...) ... open(p,'w').write(s)",
+    "why": "Test files were rewritten via inline string-replace scripts rather than targeted edits, which is fragile and hard for a reviewer to audit, and the replacements were not verified before the write.",
+    "weight": 2
+   },
+   {
+    "turn": 6,
+    "category": "slow",
+    "quote": "make test 2>&1 | tail -5; make lint 2>&1 | tail -5; make types 2>&1 | tail -3",
+    "why": "Test, lint and types were run in sequence rather than together, and types was not required by this stage, adding unneeded time.",
+    "weight": 1
+   },
+   {
+    "turn": 7,
+    "category": "rule_bent",
+    "quote": "I also ran `make types`, though this stage doesn't require it: green.",
+    "why": "The agent ran an extra check outside the tester stage's required scope, though it was harmless and reported openly.",
+    "weight": 1
+   },
+   {
+    "turn": 7,
+    "category": "other",
+    "quote": "I created `tests/conftest.py`.",
+    "why": "A new shared fixture file was created during a test-change round, expanding the scope beyond editing existing tests, which a reviewer should confirm was approved.",
+    "weight": 2
+   }
+  ],
+  "run": "5ac92f1947a54d268ca93d7999d1b0ab",
+  "work_item": "F0001-S0003",
+  "role": "tester",
+  "cost": "0.18505500000000003",
+  "input_tokens": 3444
+ },
+ "947e7f3796984e2ba6d099e400e2d154": {
+  "summary": "The coder run re-verified a prior round's fixes after reading the work item (a large 30KB output), ran make check, and returned a review decision with a journal entry. It was largely clean, though it read a very large file in full and ran make check with a 10-minute timeout that could have been sequenced with the earlier reads.",
+  "wasted_turns": 1,
+  "flags": [
+   {
+    "turn": 1,
+    "category": "unused_output",
+    "quote": "cat factory/features/F0001-todo-service/in-progress/F0001-S0003-http-api.md && git status --short && git log --oneline -5",
+    "why": "Dumped a 30KB work item plus journal into context, and the agent then re-read most of it again in turn 2 with a sed command.",
+    "weight": 2
+   },
+   {
+    "turn": 2,
+    "category": "repetition",
+    "quote": "sed -n '/^---$/,/^---$/!p' factory/features/F0001-todo-service/in-progress/F0001-S0003-http-api.md | tail -n +2",
+    "why": "The same work item file was already printed in full in turn 1, so this re-read duplicated it.",
+    "weight": 2
+   },
+   {
+    "turn": 3,
+    "category": "wrong_guess",
+    "quote": "Round 1 findings: finding 2 was done in entry 18; tests updated. Just verify make check.",
+    "why": "The agent asserted that all findings were addressed from the truncated journal without having read the entries themselves in this turn.",
+    "weight": 1
+   },
+   {
+    "turn": 4,
+    "category": "slow",
+    "quote": "make check 2>&1 | tail -25",
+    "why": "Ran the full check suite (about 3s tests plus lint and coverage) with a 600s timeout, a fair cost but it is the only verification and was not run in parallel with the file reads.",
+    "weight": 1
+   },
+   {
+    "turn": 6,
+    "category": "other",
+    "quote": "Starlette warns that using `httpx` with its test client is deprecated in favour of `httpx2` (12 warnings per test run).",
+    "why": "The coder noticed a deprecation warning and passed it on without any action taken, so the review may carry a stale or unactioned note.",
+    "weight": 1
+   }
+  ],
+  "run": "947e7f3796984e2ba6d099e400e2d154",
+  "work_item": "F0001-S0003",
+  "role": "coder",
+  "cost": "0.1025366",
+  "input_tokens": 2897
+ },
+ "9711084f6dc24d5ca8fe446bf3333478": {
+  "summary": "The tester applied the human-approved one-line typing change to the _request helper in test_todos.py, then ran make test, lint and types, all green, and returned a doing decision with a journal entry. The run was short and clean, with one minor note that it ran make types outside its stage scope.",
+  "wasted_turns": 0,
+  "flags": [
+   {
+    "turn": 1,
+    "category": "slow",
+    "quote": "sed -n '/## Journal/,$p' $f | tail -60",
+    "why": "The journal tail was large and partly truncated; the agent read the needed context in one pass, so this is only a note on output volume.",
+    "weight": 1
+   },
+   {
+    "turn": 6,
+    "category": "rule_bent",
+    "quote": "I also ran `make types` once, though this stage doesn't require it",
+    "why": "The agent ran a check outside the tester stage's required commands, adding time and a check the stage did not ask for.",
+    "weight": 1
+   }
+  ],
+  "run": "9711084f6dc24d5ca8fe446bf3333478",
+  "work_item": "F0001-S0003",
+  "role": "tester",
+  "cost": "0.081764",
+  "input_tokens": 2532
+ },
+ "9a046a60492e45c9845a922be45e4c2b": {
+  "summary": "The coder run fixed one reviewer finding in the PATCH route by removing a redundant service.get call, regenerated the OpenAPI file, ran make check (green), and handed back to the tester for the remaining findings. The run was short and clean, though it rewrote source via an inline Python heredoc and left some unclear context about the findings it did not address.",
+  "wasted_turns": 0,
+  "flags": [
+   {
+    "turn": 5,
+    "category": "other",
+    "quote": "python3 - <<'EOF' p='src/app/api/routes.py' s=open(p).read() old=s[s.index('    # The title goes first'):...",
+    "why": "The source edit was done with an ad-hoc string-index splice in a heredoc rather than a normal file edit, which is fragile and hard to audit, although the result was checked by make check.",
+    "weight": 1
+   },
+   {
+    "turn": 5,
+    "category": "slow",
+    "quote": "make openapi >/dev/null && git status --short && make check 2>&1 | tail -15",
+    "why": "make check ran the full suite with a 600s timeout; the output was truncated to the tail, so failures earlier in the output would be hidden.",
+    "weight": 1
+   },
+   {
+    "turn": 1,
+    "category": "unused_output",
+    "quote": "cat factory/features/F0001-todo-service/in-progress/F0001-S0003-http-api.md && git status --short && git log --oneline -5",
+    "why": "The work item was printed in a truncated form (about 24k characters cut), so the agent may not have seen the full reviewer findings it was asked to address.",
+    "weight": 2
+   }
+  ],
+  "run": "9a046a60492e45c9845a922be45e4c2b",
+  "work_item": "F0001-S0003",
+  "role": "coder",
+  "cost": "0.1645944",
+  "input_tokens": 2942
+ },
+ "b1c68c72013f4dfd893908fd94f9bd75": {
+  "summary": "The coder built the HTTP API layer and ran the check targets, which passed except for one mypy error in a test file (starlette typing with httpx). It stopped with a 'question' decision asking whether to change the test file, which it said it may not edit, and left the failing check unresolved; the investigation of starlette's typing was lengthy and partly exploratory.",
+  "wasted_turns": 2,
+  "flags": [
+   {
+    "turn": 4,
+    "category": "tool_failure",
+    "quote": "make types Error 1 tests/api/test_todos.py:41: error: Returning Any from function declared to return \"Response\"",
+    "why": "The make check chain ran with a failing types target that the coder then had to investigate, and the output was truncated so the first failure was not visible in full.",
+    "weight": 2
+   },
+   {
+    "turn": 6,
+    "category": "slow",
+    "quote": "f=$(uv run python -c \"import starlette.testclient as t; print(t.__file__)\") && grep -n -A20 \"def request\" $f",
+    "why": "The agent dug through starlette/fastapi library internals to diagnose a typing error in a test, which consumed several turns instead of a direct fix or early escalation.",
+    "weight": 2
+   },
+   {
+    "turn": 8,
+    "category": "wrong_guess",
+    "quote": "uv run mypy --strict $d/probe.py; grep -n \"httpx\\|import\"",
+    "why": "A probe file and multiple library source greps were used to guess the cause, and the diagnosis rests on inferred library behaviour rather than a confirmed fix.",
+    "weight": 1
+   },
+   {
+    "turn": 11,
+    "category": "slow",
+    "quote": "for t in layers sast secrets licenses test; do make $t 2>&1 | tail -4; done",
+    "why": "Sequential make targets, including the test suite, were run one after another in a single long command, re-running checks that were already part of the earlier make check run.",
+    "weight": 1
+   },
+   {
+    "turn": 13,
+    "category": "unsure",
+    "quote": "I stopped there. ... I'd choose (a): it is one line in a test written for this story",
+    "why": "The agent was unsure whether it could modify the test file or the mypy config and asked for leave, ending the run with the check still red.",
+    "weight": 2
+   }
+  ],
+  "run": "b1c68c72013f4dfd893908fd94f9bd75",
+  "work_item": "F0001-S0003",
+  "role": "coder",
+  "cost": "0.31564420000000004",
+  "input_tokens": 4672
+ },
+ "ced2c61c09de4c4899be33d1385ff75b": {
+  "summary": "The tester read the work item and existing code, wrote API tests and moved shared helpers into tests/fakes.py and tests/source_imports.py under a claimed 'standing leave', then ran make test and lint, which failed as expected before implementation and was then fixed by reformatting. The run was short and mostly clean, though the helper refactor went beyond a pure test-writing step and was done on an unverified assumption of leave.",
+  "wasted_turns": 2,
+  "flags": [
+   {
+    "turn": 7,
+    "category": "rule_bent",
+    "quote": "Moving the shared helpers (standing leave): `ticking_clock` to `tests/fakes.py`, the import parser to `tests/source_imports.py`.",
+    "why": "The agent cites a 'standing leave' to restructure existing test files that the tester role may not have been explicitly authorized to modify, and this is not verified in the transcript.",
+    "weight": 2
+   },
+   {
+    "turn": 1,
+    "category": "tool_failure",
+    "quote": "cat tests/conftest.py: No such file or directory",
+    "why": "The first command chained several reads with && so a missing file aborted the batch, and the agent's later commands had to re-read the context it lost.",
+    "weight": 1
+   },
+   {
+    "turn": 2,
+    "category": "unused_output",
+    "quote": "cat src/app/domain/*.py src/app/service/todo_service.py src/app/repository/memory.py tests/fakes.py tests/domain/test_imports.py",
+    "why": "A large dump of source files was read in full, much of which was not needed for writing the API tests.",
+    "weight": 1
+   },
+   {
+    "turn": 10,
+    "category": "slow",
+    "quote": "make test 2>&1 | tail -8; make lint 2>&1 | tail -15",
+    "why": "Test suite and lint ran in one command, and the lint failure forced a separate ruff format and re-lint round trip.",
+    "weight": 1
+   },
+   {
+    "turn": 10,
+    "category": "other",
+    "quote": "1 failed, 81 passed, 12 warnings, 2 errors in 1.99s",
+    "why": "The tester wrote a file that has a lint error (line too long, unformatted), indicating the write was not checked with the formatter first.",
+    "weight": 1
+   }
+  ],
+  "run": "ced2c61c09de4c4899be33d1385ff75b",
+  "work_item": "F0001-S0003",
+  "role": "tester",
+  "cost": "0.3443524",
+  "input_tokens": 5153
+ },
+ "dea06992446b4ee5a08dca178874853a": {
+  "summary": "The coder ran make check once, found it green, read the source files for a refactor pass, and decided review without changing code. The run was short and mostly clean, though it read large outputs in full and the decision entry was long.",
+  "wasted_turns": 1,
+  "flags": [
+   {
+    "turn": 1,
+    "category": "unused_output",
+    "quote": "cat docs/decisions.md 2>/dev/null | head -50",
+    "why": "The full work item and a 50-line decisions file were pulled into context up front, and much of it was not needed for a no-change review pass.",
+    "weight": 1
+   },
+   {
+    "turn": 3,
+    "category": "slow",
+    "quote": "make check 2>&1 | tail -25",
+    "why": "A full make check run was needed to confirm green, but the output was truncated with tail, so details of the earlier state were not visible to the agent.",
+    "weight": 1
+   },
+   {
+    "turn": 5,
+    "category": "unused_output",
+    "quote": "cat src/app/api/*.py && git status --short",
+    "why": "The whole API package was dumped for a refactor read, and the output was truncated mid-file, so the agent may not have seen all of it.",
+    "weight": 2
+   },
+   {
+    "turn": 7,
+    "category": "unsure",
+    "quote": "I made no code change this run, and `make check` is green",
+    "why": "The decision entry asserts the change is unchanged since entry 7 and that the description was left as is, which the transcript shows only partly; a reviewer should verify this claim.",
+    "weight": 1
+   }
+  ],
+  "run": "dea06992446b4ee5a08dca178874853a",
+  "work_item": "F0001-S0003",
+  "role": "coder",
+  "cost": "0.09778479999999999",
+  "input_tokens": 2689
+ },
+ "ea64d0d791d44433b6b23e163074c7a7": {
+  "summary": "The intake run read the work item and feature file once each, then recorded a 'tests' decision with a journal entry in four turns, with no failed calls or retries. The run looks clean, though the story read output was truncated in the transcript, so a reviewer may want to confirm the agent saw the full criteria.",
+  "wasted_turns": 0,
+  "flags": [
+   {
+    "turn": 1,
+    "category": "factory_fault",
+    "quote": "Read: {\"file_path\": \"/work/checkout/factory/features/F0001-todo-service/in-progress/F0001-S0003-http-api.md\"}",
+    "why": "The story file's tool result was cut mid-body (about 7976 chars elided), so it is unclear whether the agent had the full acceptance criteria when it made its decision.",
+    "weight": 1
+   }
+  ],
+  "run": "ea64d0d791d44433b6b23e163074c7a7",
+  "work_item": "F0001-S0003",
+  "role": "intake",
+  "cost": "0.0675046",
+  "input_tokens": 2287
+ },
+ "0a5496b51148490caef8a0dd581bacd1": {
+  "summary": "The reviewer read the work item and the full branch diff, then recorded a docs decision with a short entry noting one non-blocking test-style suggestion. The run was short and mostly clean, but it pulled a very large diff in one call and re-read parts of the work item.",
+  "wasted_turns": 2,
+  "flags": [
+   {
+    "turn": 2,
+    "category": "slow",
+    "quote": "cat ... && git diff --stat develop...HEAD -- . ':!factory' && git diff develop...HEAD",
+    "why": "One command dumped a 33KB diff and work item at once, which was persisted to a file and then read back in pieces instead of being scoped to the files under review.",
+    "weight": 2
+   },
+   {
+    "turn": 3,
+    "category": "repetition",
+    "quote": "Read: {\"file_path\": \".../tool-results/bw09k27zr.txt\", \"offset\": 95}",
+    "why": "The agent re-read the persisted output file in slices, including the work item section it had already seen in the preview, instead of targeting what it needed.",
+    "weight": 1
+   },
+   {
+    "turn": 5,
+    "category": "repetition",
+    "quote": "Read: {\"file_path\": \".../tool-results/bw09k27zr.txt\", \"offset\": 80, \"limit\": 16}",
+    "why": "A third read of the same persisted file to recover the work item description overlaps with the earlier partial reads.",
+    "weight": 1
+   },
+   {
+    "turn": 8,
+    "category": "unsure",
+    "quote": "changed under the standing leave to move a shared test helper",
+    "why": "The entry cites a standing leave for editing tests/fakes.py and records a non-blocking suggestion, yet the decision is docs with the heading \"no findings\", which reads as mixed and needs checking against the review rules."
+   }
+  ],
+  "run": "0a5496b51148490caef8a0dd581bacd1",
+  "work_item": "F0001-S0004",
+  "role": "reviewer",
+  "cost": "0.1858978",
+  "input_tokens": 3448
+ },
+ "271ea47369654727a3f73516b1468529": {
+  "summary": "The reviewer read the work item and branch diff, then a few supporting files, and returned a 'doing' decision with findings in one structured output. The run was short and mostly clean; the main cost was a single oversized first read whose output was truncated and then partly re-read.",
+  "wasted_turns": 1,
+  "flags": [
+   {
+    "turn": 2,
+    "category": "slow",
+    "quote": "cat <work item> && git diff --stat develop...HEAD && git diff develop...HEAD -- . ':!factory'",
+    "why": "One command dumped the whole work item and full branch diff, so the output was cut at about 28k characters and the agent had to fetch more context in the next turn.",
+    "weight": 2
+   },
+   {
+    "turn": 4,
+    "category": "repetition",
+    "quote": "cat src/app/domain/model.py src/app/repository/memory.py && cat tests/api/test_imports.py && grep -rn",
+    "why": "Model and memory repository were re-read after the truncated first output; these were context the agent could have been given up front or fetched in a narrower read.",
+    "weight": 1
+   },
+   {
+    "turn": 6,
+    "category": "rule_bent",
+    "quote": "The `_todo` helper moved under the standing leave in `CLAUDE.md`: every test keeps its name and checks the same thing",
+    "why": "The agent relies on a standing leave in CLAUDE.md to justify moving test helpers; the reviewer should confirm that leave exists and covers this change.",
+    "weight": 1
+   }
+  ],
+  "run": "271ea47369654727a3f73516b1468529",
+  "work_item": "F0001-S0004",
+  "role": "reviewer",
+  "cost": "0.2797576",
+  "input_tokens": 2581
+ },
+ "62fee284d1824f93a895250662c46d46": {
+  "summary": "The tester wrote SQLite repository and persistence-switch tests, ran lint and tests, and ended with a 'doing' decision whose failures are the expected missing-module imports. The run was mostly clean, though it edited shared test helpers and the story's tests beyond what the summary cleanly explains, and it lacked a full view of the file contents it had cut from its own reads.",
+  "wasted_turns": 1,
+  "flags": [
+   {
+    "turn": 5,
+    "category": "rule_bent",
+    "quote": "Now move `_todo` to `tests/fakes.py` (standing leave) and edit the contract file.",
+    "why": "The agent cites a 'standing leave' to restructure shared test helpers and the contract file, which is a scope judgement the reviewer should confirm was actually granted.",
+    "weight": 2
+   },
+   {
+    "turn": 8,
+    "category": "other",
+    "quote": "cat > tests/repository/test_sqlite.py <<'EOF' ... make lint 2>&1 | tail -20",
+    "why": "A large new test file was written in one heredoc with no prior read of the target SQLAlchemy API or repository contract, so its correctness depends on guesses about the not-yet-existing module.",
+    "weight": 2
+   },
+   {
+    "turn": 10,
+    "category": "tool_failure",
+    "quote": "ERROR tests/api/test_main.py - ImportError while importing test module",
+    "why": "Collection errors are expected for the missing module, but the agent proceeded to ship a 'doing' decision without verifying the new test_main.py expectations against the real code.",
+    "weight": 1
+   },
+   {
+    "turn": 10,
+    "category": "slow",
+    "quote": "make lint 2>&1 | tail -3; make test 2>&1 | tail -5",
+    "why": "The full test suite was run after lint in a chained command, and the suite was rerun only as a partial check, adding time without narrowing the failing import first.",
+    "weight": 1
+   },
+   {
+    "turn": 11,
+    "category": "unused_output",
+    "quote": "grep -n \"/todos\\|list\\[\" src/app/api/routes.py | head; git diff tests/repository/test_contract.py | head -50",
+    "why": "The grep of routes.py returned output that was not used in any later decision, and the diff was a repeat of changes already made in turn 6.",
+    "weight": 1
+   }
+  ],
+  "run": "62fee284d1824f93a895250662c46d46",
+  "work_item": "F0001-S0004",
+  "role": "tester",
+  "cost": "0.3463686",
+  "input_tokens": 5237
+ },
+ "75e8eebe8c12487fa6f385bacb954c9a": {
+  "summary": "The coder fixed one review finding (an `Any` type in `_todo_from`) in src/app/repository/sqlite.py, taking several type-check iterations to get `make check` green with 150 tests passing, then returned a review decision. The run was mostly clean, with a few avoidable retries and a slightly sloppy first edit that introduced type errors.",
+  "wasted_turns": 3,
+  "flags": [
+   {
+    "turn": 4,
+    "category": "tool_failure",
+    "quote": "src/app/repository/sqlite.py:84: error: Argument 1 to \"_todo_from\" has incompatible type \"Row[Any, Any, Any, Any]\"",
+    "why": "The first fix attempt ran a blind string-replace script and then a full make check, which failed on mypy type errors that the agent had not anticipated.",
+    "weight": 2
+   },
+   {
+    "turn": 6,
+    "category": "wrong_guess",
+    "quote": "uv run python -c \"import sqlalchemy;print(sqlalchemy.__version__)\"",
+    "why": "The agent checked the SQLAlchemy version to diagnose the typing failure rather than reading the stubs or the error context, a small detour.",
+    "weight": 1
+   },
+   {
+    "turn": 8,
+    "category": "repetition",
+    "quote": "`Table.c` gives columns typed as `Any`, so I'll declare the columns as typed names and select them by name.",
+    "why": "The agent reworked the whole table definition and selection path in a second scripted edit, when a narrower change to the row type might have sufficed.",
+    "weight": 2
+   },
+   {
+    "turn": 12,
+    "category": "other",
+    "quote": "Refactor: move `_select_todos` up next to the table so the schema definitions sit together.",
+    "why": "A purely cosmetic refactor after the checks were green cost another full test run, with no review finding requiring it.",
+    "weight": 1
+   },
+   {
+    "turn": 13,
+    "category": "unused_output",
+    "quote": "Noticed, not touched: as noted in entry 7, the engine that `from_path` creates is never disposed.",
+    "why": "The agent flagged a resource issue it deliberately left alone, which a reviewer should consider given the story scope.",
+    "weight": 1
+   }
+  ],
+  "run": "75e8eebe8c12487fa6f385bacb954c9a",
+  "work_item": "F0001-S0004",
+  "role": "coder",
+  "cost": "0.18743459999999998",
+  "input_tokens": 4684
+ },
+ "85b4ba88b43e496ba87bb0a54484da0e": {
+  "summary": "The intake run read the work item and feature file, then recorded a 'tests' decision with an interface summary in four turns. The run was short and direct, but both reads came back truncated, and the decision cites criteria and decision numbers the agent may not have seen in full.",
+  "wasted_turns": 0,
+  "flags": [
+   {
+    "turn": 1,
+    "category": "factory_fault",
+    "quote": "[5696 chars cut]",
+    "why": "The work item read was truncated mid-description and the agent did not re-read the missing section before deciding, so it may have worked from partial acceptance criteria.",
+    "weight": 2
+   },
+   {
+    "turn": 2,
+    "category": "factory_fault",
+    "quote": "[3576 chars cut]",
+    "why": "The feature.md read was also truncated, so the cited decisions and the scope check rest on text the agent may not have fully seen.",
+    "weight": 2
+   },
+   {
+    "turn": 4,
+    "category": "unused_output",
+    "quote": "Criterion 13 holds the import rule.",
+    "why": "The decision cites criterion 13 and other criteria from text that was truncated in the reads, so the citation may not be backed by the visible content.",
+    "weight": 1
+   }
+  ],
+  "run": "85b4ba88b43e496ba87bb0a54484da0e",
+  "work_item": "F0001-S0004",
+  "role": "intake",
+  "cost": "0.0620459",
+  "input_tokens": 2303
+ },
+ "9e6e2bb614fa460da80f5e06af819310": {
+  "summary": "The smoke-tester ran the story's smoke-test block once as written, it passed, and it cleaned up its temp directory and left the tree clean, then returned an approval decision. The run was short and clean, with one minor observation about the approval being reached without running the factory's check.",
+  "wasted_turns": 0,
+  "flags": [
+   {
+    "turn": 3,
+    "category": "unsure",
+    "quote": "Every file I changed is a document, so I did not run `make check`; the factory's check decides.",
+    "why": "The smoke-tester judged that skipping make check was acceptable because the factory's check would decide, which is a judgment about scope that a reviewer may want to confirm against the role's instructions.",
+    "weight": 1
+   },
+   {
+    "turn": 7,
+    "category": "other",
+    "quote": "The smoke test does not exercise criteria 1, 4, 6, 7 and 9–14. They rest on the tests and on the factory's `make check`, which I did not run in this stage.",
+    "why": "Approval is given while several acceptance criteria are explicitly not covered by the smoke test and the check was not run by this role, so the approval relies on other stages.",
+    "weight": 2
+   }
+  ],
+  "run": "9e6e2bb614fa460da80f5e06af819310",
+  "work_item": "F0001-S0004",
+  "role": "smoke-tester",
+  "cost": "0.18232359999999997",
+  "input_tokens": 2960
+ },
+ "ab7c153477854dd6bda357e5c08a6dd8": {
+  "summary": "The documenter updated README and docs/api.md for the SQLite repository and the TODO_DB switch, ran a quick manual smoke check, and handed back a smoke-test decision in six turns at low cost. The run is mostly clean, with a few judgement calls about skipping make check and reading large files it may not have needed.",
+  "wasted_turns": 0,
+  "flags": [
+   {
+    "turn": 7,
+    "category": "rule_bent",
+    "quote": "Every file I changed is a document, so I did not run `make check`; the factory's check decides.",
+    "why": "The agent chose to skip the project check on its own reasoning rather than running it or asking whether the docs stage requires it.",
+    "weight": 2
+   },
+   {
+    "turn": 2,
+    "category": "unused_output",
+    "quote": "cat README.md docs/api.md docs/project-guide.md; grep -n -i -B1 -A6 \"sqlite\\|persist\\|TODO_DB\" docs/decisions.md | head -80; cat src/app/api/main.py",
+    "why": "The run dumped whole files, including the full source of main.py and sqlite.py, when only the docs and a few lines were needed to write the docs.",
+    "weight": 1
+   },
+   {
+    "turn": 6,
+    "category": "other",
+    "quote": "TODO_DB=\"$d/t.db\" uv run python -c \"from app.api.main import app ... print(c.post('/todos',json={'title':'x'}).status_code)\"",
+    "why": "The agent ran ad-hoc app checks from a docs role, and the output was noisy with a deprecation warning, which is not evidence the docs are correct.",
+    "weight": 1
+   },
+   {
+    "turn": 1,
+    "category": "slow",
+    "quote": "git diff develop...HEAD --stat -- . ':!factory'; ls docs; git status --short",
+    "why": "Several independent context reads (status, diff stat, doc listing) ran in one long command, and the story file was cut off in the output so the agent had to re-read context in turn 2.",
+    "weight": 1
+   }
+  ],
+  "run": "ab7c153477854dd6bda357e5c08a6dd8",
+  "work_item": "F0001-S0004",
+  "role": "documenter",
+  "cost": "0.13037990000000002",
+  "input_tokens": 3473
+ },
+ "fcd11e52ea26490e96144a753d1a83e1": {
+  "summary": "The coder implemented a SQLite repository and the TODO_DB switch, ran make check (green, 150 tests), refactored a bare-dict helper to honor CLAUDE.md, and returned a review decision. The run was short and mostly clean; the main concerns are a CLAUDE.md-related refactor done after green and some unverified read of the existing files in one large batch.",
+  "wasted_turns": 1,
+  "flags": [
+   {
+    "turn": 11,
+    "category": "rule_bent",
+    "quote": "`_values` passes a bare dict across a function boundary, which `CLAUDE.md` forbids, so I'll inline the column values instead.",
+    "why": "The refactor was made after tests were green and the change was applied via an inline Python string-replace script rather than an edit, so the rewrite was not re-reviewed before the final check.",
+    "weight": 2
+   },
+   {
+    "turn": 13,
+    "category": "other",
+    "quote": "The reviewer may want to judge this against the `Any` rule.",
+    "why": "The coder left an unresolved compliance question about the use of `Any` in the code for the reviewer to decide, which signals uncertainty about project rules.",
+    "weight": 2
+   },
+   {
+    "turn": 12,
+    "category": "wrong_guess",
+    "quote": "s=s.replace('''def _values(todo: Todo) -> dict[str, str | bool]:",
+    "why": "The text-replacement script silently does nothing if the strings do not match exactly, and its success was only checked indirectly through make check output.",
+    "weight": 1
+   },
+   {
+    "turn": 13,
+    "category": "other",
+    "quote": "The engine made by `from_path` is never disposed.",
+    "why": "A known resource-lifetime gap was accepted without a story-level decision, leaving it for the reviewer to notice.",
+    "weight": 1
+   }
+  ],
+  "run": "fcd11e52ea26490e96144a753d1a83e1",
+  "work_item": "F0001-S0004",
+  "role": "coder",
+  "cost": "0.28840299999999996",
+  "input_tokens": 4886
+ }
+}

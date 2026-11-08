@@ -1,0 +1,139 @@
+{
+ "by_role": {
+  "intake": {
+   "runs": 4,
+   "cost": 0.26,
+   "input": 18,
+   "output": 4145,
+   "cache_read": 83243,
+   "cache_creation": 85010,
+   "duration_s": 48.909388,
+   "model_s": 38.772999999999996,
+   "tool_s": 0.855,
+   "turns": 17,
+   "cache_hit_rate": 0.495,
+   "cache_write_share": 0.505,
+   "other_s": 9.3
+  },
+  "tester": {
+   "runs": 7,
+   "cost": 1.68,
+   "input": 86,
+   "output": 36803,
+   "cache_read": 862861,
+   "cache_creation": 154921,
+   "duration_s": 379.243699,
+   "model_s": 340.37699999999995,
+   "tool_s": 39.5,
+   "turns": 51,
+   "cache_hit_rate": 0.848,
+   "cache_write_share": 0.152,
+   "other_s": -0.6
+  },
+  "coder": {
+   "runs": 12,
+   "cost": 1.93,
+   "input": 114,
+   "output": 26426,
+   "cache_read": 1160243,
+   "cache_creation": 234267,
+   "duration_s": 417.38525799999996,
+   "model_s": 298.68899999999996,
+   "tool_s": 115.52,
+   "turns": 71,
+   "cache_hit_rate": 0.832,
+   "cache_write_share": 0.168,
+   "other_s": 3.2
+  },
+  "reviewer": {
+   "runs": 8,
+   "cost": 2.07,
+   "input": 72,
+   "output": 33403,
+   "cache_read": 755866,
+   "cache_creation": 249202,
+   "duration_s": 375.556149,
+   "model_s": 357.928,
+   "tool_s": 8.665000000000001,
+   "turns": 45,
+   "cache_hit_rate": 0.752,
+   "cache_write_share": 0.248,
+   "other_s": 9.0
+  },
+  "documenter": {
+   "runs": 4,
+   "cost": 0.5,
+   "input": 40,
+   "output": 12815,
+   "cache_read": 404581,
+   "cache_creation": 131477,
+   "duration_s": 128.41812499999997,
+   "model_s": 115.864,
+   "tool_s": 24.224000000000004,
+   "turns": 25,
+   "cache_hit_rate": 0.755,
+   "cache_write_share": 0.245,
+   "other_s": -11.7
+  },
+  "smoke-tester": {
+   "runs": 4,
+   "cost": 0.67,
+   "input": 30,
+   "output": 5963,
+   "cache_read": 225955,
+   "cache_creation": 100339,
+   "duration_s": 79.903393,
+   "model_s": 66.674,
+   "tool_s": 9.692,
+   "turns": 19,
+   "cache_hit_rate": 0.692,
+   "cache_write_share": 0.307,
+   "other_s": 3.5
+  },
+  "acceptance-reviewer": {
+   "runs": 1,
+   "cost": 1.16,
+   "input": 36,
+   "output": 19778,
+   "cache_read": 1150863,
+   "cache_creation": 107745,
+   "duration_s": 236.08066,
+   "model_s": 216.722,
+   "tool_s": 38.352000000000004,
+   "turns": 21,
+   "cache_hit_rate": 0.914,
+   "cache_write_share": 0.086,
+   "other_s": -19.0
+  }
+ },
+ "tools_calls_failed_seconds": {
+  "Read": [
+   14,
+   0,
+   0.5
+  ],
+  "StructuredOutput": [
+   40,
+   0,
+   0.1
+  ],
+  "Bash": [
+   151,
+   3,
+   236.1
+  ],
+  "Edit": [
+   2,
+   0,
+   0.0
+  ],
+  "Write": [
+   2,
+   0,
+   0.0
+  ]
+ },
+ "models": {
+  "?": 40
+ }
+}
