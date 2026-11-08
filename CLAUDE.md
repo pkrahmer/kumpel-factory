@@ -1,6 +1,6 @@
 # kumpel-factory
 
-The second implementation of the factory (github.com/pkrahmer/factory), planned and built by the factory itself: v1.1, v1 reimplemented by v1, and since the handover built by v1.1 itself. The pipeline's rules reach every agent in its instructions (the shipped agent files under `agents/agents/`), so this file holds only what is true of this project. `docs/project-guide/README.md` is the guide for agents: read it, then the files it names for the domains your story touches, before you change anything.
+The second implementation of the factory (github.com/pkrahmer/factory), planned and built by the factory itself: v1.1, v1 reimplemented by v1, and since the handover built by v1.1 itself. The pipeline's rules reach every agent in its instructions (the shared system prompt `agents/system-prompt.md` and the shipped agent files under `agents/agents/`), so this file holds only what is true of this project. `docs/project-guide/README.md` is the guide for agents: read it, then the files it names for the domains your story touches, before you change anything.
 
 ## Language
 - Everything in this repository is English: code, comments, docs, work items, commit messages.
