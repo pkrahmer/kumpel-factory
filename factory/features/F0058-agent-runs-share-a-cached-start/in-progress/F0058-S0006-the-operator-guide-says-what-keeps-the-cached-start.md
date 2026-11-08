@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 665
 comments_read: [6722914653]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: docs-only
+  started_at: '2026-11-08T14:48:31.214324Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -81,6 +85,11 @@ journal:
   speaker: human
   kind: comment
   at: '2026-11-08T14:48:28.827965Z'
+  stage: docs-only
+- number: 14
+  speaker: factory
+  kind: started
+  at: '2026-11-08T14:48:31.214324Z'
   stage: docs-only
 ---
 
@@ -160,3 +169,4 @@ Expect: at least one line in the section *A project's own agents*.
 
     Comment anything to retry: the attempts go back to 0 and the stage runs again. Close the pull request to discard the story instead: it goes back to the backlog as you wrote it, and its branch and bill are deleted.
 13. 2026-11-08 human: The human: the API key ran out; it is emptied, so the runs fall back to the subscription login. Retry.
+14. factory: started docs-only as vm.
