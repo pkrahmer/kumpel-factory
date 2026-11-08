@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 664
 comments_read: [6722586434]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T14:24:26.758444Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -97,6 +101,11 @@ journal:
   at: '2026-11-08T14:24:19.487014Z'
   stage: review
   run: 2ab3c60d76694b1ab42300f8a169da50
+- number: 17
+  speaker: factory
+  kind: started
+  at: '2026-11-08T14:24:26.758444Z'
+  stage: doing
 ---
 
 # The context markers are escaped too
@@ -225,3 +234,4 @@ Expect: `1`
     - The Description and the docs criterion match what was built. Entry 7 and the human's answer in entry 8 record the main choice (`<context` escaped as a prefix) and the rejected matcher.
 
     Earlier tests: none changed. The diff only adds `tests/agents/domain/test_prompts_context_markers.py`, and the leave to edit `MARKERS` in the two earlier test files was not used.
+17. factory: started doing as vm.
