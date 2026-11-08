@@ -2,16 +2,12 @@
 stage: docs-only
 blocked: null
 round: 1
-attempts: 1
+attempts: 2
 crashes: 0
 pull_request: 665
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: docs-only
-  started_at: '2026-11-08T14:46:32.951494Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -68,6 +64,13 @@ journal:
   kind: started
   at: '2026-11-08T14:46:32.951494Z'
   stage: docs-only
+- number: 11
+  speaker: factory
+  kind: stall
+  at: '2026-11-08T14:46:40.392373Z'
+  stage: docs-only
+  run: 319d1ac044eb42479a54462464c21d1c
+  reason: died
 ---
 
 # The operator guide says what keeps the cached start
@@ -141,3 +144,4 @@ Expect: at least one line in the section *A project's own agents*.
 8. factory: started docs-only as vm.
 9. factory: Stage docs-only stalled (attempt 1 of 2): the agent run died without a result
 10. factory: started docs-only as vm.
+11. factory: Stage docs-only stalled (attempt 2 of 2): the agent run died without a result
