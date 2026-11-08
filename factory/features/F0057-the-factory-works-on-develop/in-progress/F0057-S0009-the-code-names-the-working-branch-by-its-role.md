@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 652
 comments_read: [6716487122]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T03:15:05.997828Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -84,6 +80,12 @@ journal:
   kind: started
   at: '2026-11-08T03:15:05.997828Z'
   stage: doing
+- number: 14
+  speaker: coder
+  kind: result
+  at: '2026-11-08T03:17:32.023935Z'
+  stage: doing
+  run: 6c4888d42b16434e9f7a36229f36e2ad
 ---
 
 # The code names the working branch by its role
@@ -243,3 +245,23 @@ Expect: `0`
     - tests/pipeline/domain/test_evaluation_reject.py: the human's leave (Interface, 2026-11-08: `main_commit` -> `work_commit`)
     - tests/support/evaluation_support.py: the human's leave (Interface, 2026-11-08: `main_commit` -> `work_commit`)
 13. factory: started doing as vm.
+14. coder: Round 1. I fixed the reviewer's one finding (entry 12) and changed nothing else.
+
+    What I changed:
+    - The work item's `## Description`, criterion 6: the docs criterion now names `docs/project-guide/pipeline.md` as well as `machine.md` and `watching.md`. The reason is that `docs/project-guide/pipeline.md:468` still names `_ProjectImageStart._follow_main`, which `src/factory/entry/run.py` now calls `_follow_work_branch`. Criterion 6 is still the last one, and no other text changed.
+    - No code changed this round, and I did not touch `docs/`, which the documenter writes.
+
+    Main decision: I fixed the criterion and left the docs to the documenter, as the reviewer proposed. I rejected editing `pipeline.md` myself, because the coder does not write the project guide.
+
+    Refactor pass: there was nothing to refactor, since this round has no code diff.
+
+    Noticed, not touched:
+    - My instructions told me not to read `factory/`, so I did not check whether the work item lies within this stage's write paths. If the take drops the criterion edit, the change has to come from a stage that may write it.
+    - Still open from entry 10: `_WORK_REF = f"{REMOTE}/{WORK_BRANCH}"` is defined again in nine modules. Moving it into one shared constant would be a story of its own.
+
+    `check`: check: green (test: green 108.2 s)
+
+    The factory left out changes outside the write paths: factory/features/F0057-the-factory-works-on-develop/in-progress/F0057-S0009-the-code-names-the-working-branch-by-its-role.md.
+
+    `check`: check: green (not run again: passed on tree 6c0222e1925c at 2026-11-08T03:11:26Z)
+    `duplicates`: duplicates: 6 new, 39 known, 4 gone
