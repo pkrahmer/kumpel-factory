@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 652
 comments_read: [6716487122]
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-08T03:04:41.566523Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -51,6 +47,12 @@ journal:
   kind: started
   at: '2026-11-08T03:04:41.566523Z'
   stage: tests
+- number: 8
+  speaker: tester
+  kind: result
+  at: '2026-11-08T03:06:26.825751Z'
+  stage: tests
+  run: 16bff0447f2a4984905ba9e5bc25b456
 ---
 
 # The code names the working branch by its role
@@ -122,3 +124,33 @@ Expect: `0`
    - Architecture: renames only, no layer changes. `main_failed` and `main_probed` stay because they are stored in a stamp. `REMOTE` is used the way the other modules use it.
    - Scope: within F0057 (the working branch's name in code). It leaves out the stop `main_branch_failing`, as decision 6 says. The earlier tests it changes are named and covered by the human's leave of 2026-11-08.
 7. factory: started tests as vm.
+8. tester: Wrote the tests for every criterion and changed the earlier tests the human's leave (2026-11-08) names, only as far as the rename needs.
+
+   Criterion → test:
+   - criterion 1: tests/guards/test_work_branch_search.py::test_no_identifier_in_the_source_names_the_working_branch_main (passes on the repository) and tests/guards/test_work_branch_search.py::test_the_search_finds_each_name_that_says_main_for_the_working_branch (rows: public-function, field, private-helper fail; kept-stop, kept-stamp-failed, kept-stamp-probed, entry-point pass)
+   - criterion 2: tests/entry/test_wiring_work_branch_names.py::test_the_working_branch_is_named_by_its_role (rows: new-reader, old-reader-gone, work-commit, main-commit-refused)
+   - criterion 3: the earlier suite, with the leave edits below
+   - criterion 4: the same two guard tests (rows remote-spelled-out fails, remote-from-constant passes; the repository test covers "passes on the repository")
+   - criteria 5, 6: not tests (make check; docs).
+
+   How the new guard reads the source: it scans the `.py` files under `src/factory` with `tokenize`, so it looks only at NAME tokens. Strings and comments are not scanned. A name is flagged when `main` (any case) is one of its underscore-separated parts. Dunders (`__main__`) and the four kept names are skipped. Separately, the guard flags the text `origin/{WORK_BRANCH}`. Since it reads only identifiers, the string `"test_reject_..._leaves_main_clean"` in `src/factory/pipeline/domain/fault_paths.py` is not flagged. That string names a test function, and the human chose not to rename those.
+
+   Note for the coder: under the Interface's rule ("no identifier under src/factory/ contains main as a word part"), the guard also flags names that the Interface's list does not mention:
+   - `on_main` in `src/factory/pipeline/application/pipeline_loading.py` and `src/factory/work/domain/acceptance.py`
+   - `_follow_main` in `src/factory/entry/run.py`
+
+   These must be renamed too for the guard to pass on the repository.
+
+   Files created: tests/entry/test_wiring_work_branch_names.py.
+   Files changed, under the human's leave:
+   - tests/guards/test_work_branch_search.py (the new search and its two tests)
+   - tests/support/evaluation_support.py, tests/pipeline/domain/test_evaluation_due.py, tests/pipeline/domain/test_evaluation_reject.py: `main_commit=` became `work_commit=`
+   - tests/pipeline/application/test_repository_waiter.py: `NO_MAIN` became `NO_WORK_BRANCH`; ruff format re-wrapped one line
+   - tests/conftest.py: the `remote` docstring
+   - tests/pipeline/application/handlers/test_merged.py: the module docstring, split onto two lines to fit the length limit
+
+   Left unchanged: the `main_commit` fixtures in tests/machine/application/test_container_environment.py and tests/pipeline/application/test_container_sync_origin.py, and a local variable in tests/shared/application/test_acceptance_reviewer_role.py. They do not touch the renamed API, and the guard reads only `src/factory`, so the rename does not require changing them. No earlier test was renamed.
+
+   Test run: the test files I wrote or changed (except conftest.py, which every run loads) ran red for the right reason. In test_evaluation_reject.py, `EvaluationInput` refuses the new `work_commit` key, which does not exist yet. The new guard and import tests fail because the old names are still there. No module failed to import: `stage_file_on_work_branch` is imported inside its test row, so the module still collects. make lint: green.
+
+   `lint`: lint: green (0.1 s)

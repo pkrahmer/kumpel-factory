@@ -79,12 +79,12 @@ def _status(status: ClaimStatus) -> Callable[[WorkItemState], ClaimStatus]:
 
 def _due(*snapshots: WorkItemSnapshot) -> EvaluationInput:
     return EvaluationInput(
-        definition=DEFINITION, snapshots=list(snapshots), main_commit=MAIN, due=["F0002"]
+        definition=DEFINITION, snapshots=list(snapshots), work_commit=MAIN, due=["F0002"]
     )
 
 
 def test_due_is_empty_by_default_and_holds_feature_ids() -> None:
-    plain = EvaluationInput(definition=DEFINITION, snapshots=[], main_commit=MAIN)
+    plain = EvaluationInput(definition=DEFINITION, snapshots=[], work_commit=MAIN)
 
     assert plain.due == []
     assert _due().due == ["F0002"]
@@ -101,7 +101,7 @@ def test_evaluation_input_refuses_a_malformed_due_and_an_unknown_key(
     model: type[BaseModel] = EvaluationInput
 
     with pytest.raises(ValidationError):
-        model(definition=DEFINITION, snapshots=[], main_commit=MAIN, **extra)
+        model(definition=DEFINITION, snapshots=[], work_commit=MAIN, **extra)
 
 
 @pytest.mark.parametrize(
