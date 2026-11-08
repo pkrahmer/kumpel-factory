@@ -325,13 +325,13 @@ The agent's instructions.
 
 The example keeps the tools, the model and the effort of the shipped intake, tester, coder, documenter and smoke tester, so it shares their cached start (see *A project's own agents*).
 
-The body, without the whitespace around it, is the instructions. A line of hyphens inside it belongs to it. The four keys are the only ones the agent runtime applies, because Claude Code ignores an agent file in print mode and the runner builds its flags and prompt from them itself. Any other key would read as if it did something and do nothing, so the file is refused when the pipeline definition is loaded. See "The stop `agent_definition_invalid`" in [stops.md](stops.md).
+The body, without the whitespace around it, is the instructions. A line of hyphens inside it belongs to it. The body holds only the role's own instructions: the role, the stage and the lessons. The rules every role shares (the opening paragraphs and R1 to R15) stand once, in the `## Rules` section of the system prompt file `system-prompt.md` of the agent home (see *The shipped agents and settings*), which every run of every role gets. The four keys are the only ones the agent runtime applies, because Claude Code ignores an agent file in print mode and the runner builds its flags and prompt from them itself. Any other key would read as if it did something and do nothing, so the file is refused when the pipeline definition is loaded. See "The stop `agent_definition_invalid`" in [stops.md](stops.md).
 
 ### A project's own agents
 
 For each role the factory reads `<project>/factory/agents/<name>.md` from `origin/develop` first, at every tick, the same ref as the pipeline definition. When the project has none, it uses the installed agent.
 
-A project's agent replaces the installed one whole and never extends it. Nothing is merged, so a key or a line of instructions you leave out is not taken from the shipped file. To change a shipped agent, copy it from `agents/agents/` in the image's source to `<project>/factory/agents/<name>.md` and change the copy.
+A project's agent replaces the installed one whole and never extends it. Nothing is merged, so a key or a line of instructions you leave out is not taken from the shipped file. To change a shipped agent, copy it from `agents/agents/` in the image's source to `<project>/factory/agents/<name>.md` and change the copy. A project agent copied from an earlier shipped file still carries a `## Rules` section. That only repeats the rules the system prompt already gives every run, so the copy may drop the section.
 
 The file follows the same rules and has the same faults as any agent file. A fault of a project file is named with its place, for example `factory/agents/coder.md at origin/develop: key not applied by the agent runtime: colour`. The load of every tick and the preflight's probe check it. A faulty project file is never replaced by the installed one: the [stop](../project-guide/glossary.md) `agent_definition_invalid` stands until a commit on `develop` fixes it.
 
@@ -356,7 +356,7 @@ Only Claude Code's runs are given the `Skill` tool. An opencode run leaves it ou
 
 ### The shipped agents and settings
 
-The checkout ships them in its `agents/` folder: `agents/agents/<role>.md`, `agents/settings.json` and `agents/system-prompt.md`, the common system prompt every role's run gets. The stage image copies the folder to `/etc/factory/agents`. The files are in Claude Code's format and the opencode runtime translates them per run, so the folder carries no runtime's name. The setting `FACTORY_CLAUDE_HOME` names this folder for both runtimes.
+The checkout ships them in its `agents/` folder: `agents/agents/<role>.md`, `agents/settings.json` and `agents/system-prompt.md`, the common system prompt every role's run gets. The system prompt holds a short orientation and then the `## Rules` every role shares; each agent file holds only its own role's instructions, which reach the run in the `<role-instructions>` block of its first message. The stage image copies the folder to `/etc/factory/agents`. The files are in Claude Code's format and the opencode runtime translates them per run, so the folder carries no runtime's name. The setting `FACTORY_CLAUDE_HOME` names this folder for both runtimes.
 
 The folder holds seven agents (`intake`, `tester`, `coder`, `reviewer`, `documenter`, `smoke-tester`, `acceptance-reviewer`) `settings.json` and `system-prompt.md`. A folder without `system-prompt.md`, such as one installed before the file was shipped, makes every run fall back to the built-in common system prompt, the same text; a file there that cannot be read ends the run with an `AgentRuntimeError` naming it. Each agent's `tools` ends with `Skill`, and the settings allow it in `permissions.allow`, right after `Grep`.
 

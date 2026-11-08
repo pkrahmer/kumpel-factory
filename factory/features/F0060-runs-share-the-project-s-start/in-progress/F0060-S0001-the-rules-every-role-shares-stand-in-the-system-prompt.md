@@ -2,16 +2,12 @@
 stage: docs
 blocked: null
 round: 1
-attempts: 0
+attempts: 1
 crashes: 0
 pull_request: 678
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: docs
-  started_at: '2026-11-08T20:07:32.674317Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -133,6 +129,19 @@ journal:
   kind: started
   at: '2026-11-08T20:07:32.674317Z'
   stage: docs
+- number: 23
+  speaker: documenter
+  kind: result
+  at: '2026-11-08T20:22:08.077690Z'
+  stage: docs
+  run: 7e245a97bda343f0afe6f22a1e899d9d
+- number: 24
+  speaker: factory
+  kind: stall
+  at: '2026-11-08T20:22:08.443422Z'
+  stage: docs
+  run: 7e245a97bda343f0afe6f22a1e899d9d
+  reason: check_red
 ---
 
 # The rules every role shares stand in the system prompt
@@ -420,3 +429,38 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     - `tests/agent_files/test_shipped_agents_r14.py`: the human's leave, "any other test whose only failure is this move" (entries 7 and 9).
     - `tests/support/shipped_agents.py`: the standing leave to move a shared test helper (it gains `headings`, `WITHOUT_ROLE` and the new `shared_rules()`; no earlier test it held changed).
 22. factory: started docs as vm.
+23. documenter: Round 1 docs. I wrote the docs that criterion 9 asks for and fixed the text the cross-read found stale. I changed only documents, so I did not run `make check`, as the lesson says.
+
+    Files changed:
+    - `docs/operator-guide/agent-runtime.md`:
+      - *The agent files*: an agent file's body now holds only its role's own instructions (role, stage, lessons). The rules every role shares (the opening paragraphs and R1 to R15) stand once, in the `## Rules` section of the agent home's `system-prompt.md`.
+      - *A project's own agents*: a project agent copied from an earlier shipped file still carries `## Rules`. That only repeats the rules, so the copy may drop the section.
+      - *The shipped agents and settings*: the system prompt is an orientation followed by the shared `## Rules`. Each agent file reaches the run in the `<role-instructions>` block.
+    - `docs/project-guide/agents.md`:
+      - *The system prompt and the first message*: the system prompt now holds the orientation and then the shared `## Rules`. The `<role-instructions>` block holds the role's instructions, which add to the rules and carry the same weight. `SYSTEM_PROMPT` equals the shipped file byte for byte, and a change to one is made to the other in the same story.
+      - *The shipped agents*: the list of body sections loses `## Rules`. A new paragraph says no body holds `## Rules`. The bullets on the rules' opening paragraphs, R14 and R15 moved under it and now say the rules stand in the system prompt. A bullet names `tests/agent_files/test_shared_rules_system_prompt.py` and what it checks.
+      - The sentence "Among the lessons that go beyond those two" now reads "the two every body has", since the rules block now stands between it and the list it refers to.
+      - The settings bullet on `git commit` now says the shared `## Rules` in the system prompt say "You do not commit either".
+    - `docs/decisions.md`, the introduction only: "the agents' `## Rules`" now adds that they stand in `agents/system-prompt.md`. I added no new decision entry and no "Why" or "Rejected" line.
+
+    Cross-read and found current:
+    - The rest of `docs/operator-guide/agent-runtime.md`. *The cached start* already says every run begins with the common system prompt, and the fallback paragraph still holds.
+    - `docs/project-guide/agents.md`: the runtime sections (instructions file, opencode `prompt`) and the test list of the system-prompt section.
+    - `docs/project-guide/style.md`: its `## Rules for all documents` is a different heading.
+    - `README.md`.
+
+    `make documents` is red, and not because of this story. Every run ends with `docs/project-guide/agents.md:224: the example did not end in 60 s` and `docs/project-guide/watching.md:152: the example did not end in 60 s`, followed by `Report (not checked yet)`.
+    - I ran it three times. One of those runs was with my three edits stashed (develop's docs text): same two lines.
+    - Both examples are unchanged by this story. Both finish in under a second when run by hand, including under `env -i` with an empty HOME. So the time-out is in this machine's run of the document check, not in the documents.
+    - I did not look further. The factory runs `make documents` after this stage, and that run decides.
+
+    Stale text noticed, not mine: none.
+
+    Findings: none.
+
+    `guides`: guides: green (9.6 s)
+    `secrets`: secrets: green (2.1 s)
+24. factory: Stage docs stalled (attempt 1 of 2): a check is red after the stage: `documents`
+    Bytecode compiled 4164 files in 85ms
+    sync: green (0.1 s)
+    Bytecode compiled 4164 files in 60ms
