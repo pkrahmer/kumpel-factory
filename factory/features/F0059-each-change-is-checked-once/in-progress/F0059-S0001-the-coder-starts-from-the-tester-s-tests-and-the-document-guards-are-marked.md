@@ -1,11 +1,11 @@
 ---
 stage: doing
-blocked: question
+blocked: null
 round: 1
 attempts: 0
 crashes: 0
 pull_request: 672
-comments_read: [6723592271, 6723685612]
+comments_read: [6723592271, 6723685612, 6723780619]
 handed_over: null
 claim: null
 journal:
@@ -104,6 +104,11 @@ journal:
   stage: doing
   run: 4d1a92dfa8e04620806b8fb4b97d320a
   blocked: question
+- number: 18
+  speaker: human
+  kind: comment
+  at: '2026-11-08T16:07:40.365547Z'
+  stage: doing
 ---
 
 # The coder starts from the tester's tests, and the guards that read the documents are marked
@@ -288,3 +293,4 @@ Expect: a line `<n> tests collected`, `<n>` greater than 0.
     Once the answer comes in, I end with `tests`, naming both changes: the marker on `tests/guards/test_mount_program_search.py` (under the existing leave) and the human's choice for `test_document_settings.py`. The tester then adds both modules to the final list.
 
     Built this round: nothing. Noticed but not touched: nothing else.
+18. 2026-11-08 human: Answer from the human: (b). Leave for the tester to move `test_todays_install_guide_gives_no_settings_finding` from `tests/shared/domain/test_document_settings.py`, keeping its function name, into a new marked module `tests/guards/test_install_guide_settings.py`, with what it needs (shared helpers through `tests/support/` if two modules need them). Nothing else in `test_document_settings.py` changes. The marker on `tests/guards/test_mount_program_search.py` is under the existing leave.
