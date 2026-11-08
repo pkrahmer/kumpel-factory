@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 672
 comments_read: [6723592271]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-08T15:52:20.464760Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -42,6 +46,11 @@ journal:
   at: '2026-11-08T15:52:15.383377Z'
   stage: intake
   run: e5818b9b2d1641d2aba40f1ecb061f45
+- number: 7
+  speaker: factory
+  kind: started
+  at: '2026-11-08T15:52:20.464760Z'
+  stage: tests
 ---
 
 # The coder starts from the tester's tests, and the guards that read the documents are marked
@@ -104,3 +113,4 @@ Expect: a line `<n> tests collected`, `<n>` greater than 0.
    - Architecture: the marker is the project's and lives in `tests/` and conftest (feature decision 3). The factory code and `factory/` are untouched. The coder's agent file stays project-neutral and names no new make target or pytest option.
    - Scope: this matches the S0001 scope lines in `feature.md`. The Makefile, `factory/pipeline.yml` and `CLAUDE.md` changes stay among the human's changes. Nothing touches the out-of-scope items.
    - Route: `tests`, because `agents/` and `tests/` are outside the documenter's write paths.
+7. factory: started tests as vm.
