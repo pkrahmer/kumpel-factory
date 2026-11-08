@@ -1,5 +1,5 @@
 ---
-stage: docs-only
+stage: docs-review
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 655
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: docs-only
-  started_at: '2026-11-08T07:32:56.839125Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -56,6 +52,12 @@ journal:
   kind: started
   at: '2026-11-08T07:32:56.839125Z'
   stage: docs-only
+- number: 9
+  speaker: documenter
+  kind: result
+  at: '2026-11-08T07:37:10.645710Z'
+  stage: docs-only
+  run: 0927e52ada5c462a8cf0a34e672c8ba7
 ---
 
 # The project guide names Kumpel's archive and promotion
@@ -144,3 +146,13 @@ Expect: `documents ok (<seconds> s)`
    3. `docs/project-guide/operator.md:139`, the sentence "With the switch `promote` (read through `settings.sh`) on, it merges ... (`open` for a reused one) and merges nothing.": about 45 words and two parentheses, against rule 2 (about 25 words, at most one parenthesis per sentence). Fix: split it into one sentence for the switch on (merge commit, never squash or rebase, prints `promoted #<n>`) and one for the switch off (prints the message, merges nothing). Say where the switch is read in one of them, without a second parenthesis.
    4. `docs/project-guide/operator.md:158`, the `archive_feature_support.py` bullet: three parentheses in one sentence ("(`ACCEPTANCE`, `DONE_FRONT_MATTER`)", "(the files of one feature by path)", "(the remote's file list on a branch)"), against rule 2's limit of one per sentence. Fix: write it as the other helper bullets do, naming each name with what it is and no parentheses, for example "`finished_feature`, the files of one finished feature by path, and `tree`, the files a branch of the remote holds". Split the sentence if needed.
 8. factory: started docs-only as vm.
+9. documenter: Round 1: fixed the reviewer's four findings in one file, `docs/project-guide/operator.md`, and changed nothing else.
+   1. The `kumpel-commit.sh` bullet no longer names a feature id. It points to the decision entry by its heading, *The factory works on `develop`; `main` holds the accepted features*.
+   2. The `archive-feature.sh` bullet is split into three bullets. The first covers what it does and commits. The second covers the refusal: the exit code and message, the four reasons, and why `outcome: accepted` is checked, in short sentences. The third covers the other exit codes.
+   3. The `promote.sh` bullet is split into three bullets. The first covers the refusal and the pull request it opens or reuses. The second covers the switch on and off, with one sentence for each. The third covers the usage exit. The `settings.sh` note and the `open` message for a reused promotion no longer use parentheses.
+   4. The `archive_feature_support.py` bullet has no parentheses. It names `ACCEPTANCE` and `DONE_FRONT_MATTER`, then `finished_feature` and `tree`, each with what it holds.
+   `make documents` ended with `documents ok (59.1 s)`. I did not run `make check`, because only a document changed. Nothing stale noticed. No "Why" or "Rejected" lines written.
+
+   `check`: check: green
+   `secrets`: secrets: green (0.3 s)
+   `documents`: documents ok (58.1 s)
