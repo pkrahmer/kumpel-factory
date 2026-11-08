@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 0
 attempts: 1
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 645
 comments_read: [6714658360, 6714963482]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T00:23:28.190642Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -119,6 +115,12 @@ journal:
   kind: started
   at: '2026-11-08T00:23:28.190642Z'
   stage: doing
+- number: 20
+  speaker: coder
+  kind: result
+  at: '2026-11-08T00:27:47.260633Z'
+  stage: doing
+  run: 06ed220b70894369b2afe6fd33e532a6
 ---
 
 # Kumpel works on develop and promotes accepted features to main
@@ -312,3 +314,22 @@ Expect: `off`
 
     `lint`: lint: green (0.2 s)
 19. factory: started doing as vm.
+20. coder: Round 0, after the tester's approved test change (journal 18). I changed no code this run.
+
+    The working tree was clean on arrival: my code from journals 13 and 16 and the tester's two changes from journal 18 are all committed. `make check` now passes with every check green (`test: green (107.8 s)`, `check: green`, coverage 99.22 %). The guard `tests/guards/test_work_branch_search.py` and the operator README test, the two red tests behind the earlier question, both pass.
+
+    What the story built (paths, all committed):
+    - `operator/skill/kumpel/scripts/`: the new `kumpel-commit.sh`, `archive-feature.sh` and `promote.sh`. `start-story.sh`, `next-story.sh`, `approval.sh`, `status.sh`, `merge.sh` and `reset-to-tag.sh` moved to `develop`. `settings.sh` has the switch `promote`, and `get` reads a known switch that the file lacks as `off`.
+    - Texts: `operator/claude/commands/kumpel.md`, `operator/opencode/command/kumpel.md`, `operator/skill/kumpel/SKILL.md` and `references/standing-orders.md`, `approving.md`, `answering.md`, `shaping.md`.
+    - `operator/README.md`: only the three file-table rows, which the human allowed in journal 14. The documenter finishes the rest of the docs criterion.
+
+    Main choice: `promote.sh` reads the archived feature and the story titles from the checkout's `develop`. I rejected reading them through the contents API (journal 13).
+
+    Refactor: no new diff this run, so there was nothing to change. Journal 16 already notes the four-switch list that appears twice in `settings.sh`, and I left it.
+
+    Noticed, not touched:
+    - On a settings file from before this change, `settings.sh set promote on` still fails with `unknown switch: promote`. The human's answer covered only `get`.
+    - The Description does not yet carry the criteria the human added in journals 4 and 14. The work item is outside my write paths.
+
+    `check`: check: green
+    `duplicates`: duplicates: 6 new, 39 known, 4 gone
