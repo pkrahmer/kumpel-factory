@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 672
 comments_read: [6723592271, 6723685612, 6723780619]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T16:08:53.530769Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -131,6 +135,11 @@ journal:
   at: '2026-11-08T16:08:48.339519Z'
   stage: tests
   run: edb11e3a642e43f89412a4aa7b4d502f
+- number: 23
+  speaker: factory
+  kind: started
+  at: '2026-11-08T16:08:53.530769Z'
+  stage: doing
 ---
 
 # The coder starts from the tester's tests, and the guards that read the documents are marked
@@ -365,3 +374,4 @@ Expect: a line `<n> tests collected`, `<n>` greater than 0.
     Run: `uv run pytest -q` on the moved test's new module, `test_mount_program_search.py`, `test_document_settings.py`, `test_documents_marker.py`, `test_test_folder_readmes.py` and `test_tests_layout.py`: all passed, and every module imported. `make lint`: lint: green (0.2 s).
 
     `lint`: lint: green (0.1 s)
+23. factory: started doing as vm.
