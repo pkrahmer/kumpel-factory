@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 1
 attempts: 0
@@ -124,6 +124,11 @@ journal:
   at: '2026-11-08T07:24:21.150340Z'
   stage: smoke-test
   run: 4d50f49ac3674ee1b2307bfed97563ff
+- number: 22
+  speaker: factory
+  kind: done
+  at: '2026-11-08T07:26:12.560161Z'
+  stage: approval
 ---
 
 # Kumpel's procedure after an acceptance that proposes stories
@@ -330,3 +335,4 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
     - The diff touches no script and no earlier test, as the Interface requires.
 
     Findings: none.
+22. factory: done (pull request merged); cost: 10 runs, 9.0 min, 63 turns, 262512 tokens in (1101550 more from cache), 16775 out, $1.68
