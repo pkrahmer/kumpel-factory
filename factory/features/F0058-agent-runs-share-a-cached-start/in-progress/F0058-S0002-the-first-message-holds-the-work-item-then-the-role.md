@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 660
 comments_read: [6720878077, 6720941885, 6720981420, 6721183670, 6721345876]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T12:14:05.964119Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -196,6 +192,12 @@ journal:
   kind: started
   at: '2026-11-08T12:14:05.964119Z'
   stage: doing
+- number: 34
+  speaker: coder
+  kind: result
+  at: '2026-11-08T12:18:29.896125Z'
+  stage: doing
+  run: 0f57e1f2e32040f98d970a8da07e43cb
 ---
 
 # The first message holds the work item, then the role
@@ -646,3 +648,32 @@ Expect: the docstring names the order: the work item's body, the role's instruct
     **Noticed, not touched:** the common text exists twice, in `SYSTEM_PROMPT` and in `agents/system-prompt.md`. The new criterion 12 test now catches any drift between the two.
 32. 2026-11-08 human: (b): this answer adds to criterion 14 (docs): the operator guide's "The agent files" (`docs/operator-guide/agent-runtime.md`) names `system-prompt.md` among what the agent home ships, and says that a missing one makes the run fall back to the built-in common system prompt.
 33. factory: started doing as vm.
+34. coder: Round 1. In entry 32 the human chose (b): their answer adds the operator-guide line to criterion 14 (`docs:`), and the documenter takes it from the journal. I changed no code and wrote no files in this run. The working tree was clean when I started.
+
+    Criterion 14 now also asks for this, from journal entry 32: the operator guide's "The agent files" (`docs/operator-guide/agent-runtime.md`) names `system-prompt.md` among what the agent home ships, and says that if the file is missing, the run falls back to the built-in common system prompt. I did not rewrite `## Description`, because the work item is outside my write paths. This entry and entry 32 carry the addition.
+
+    All four of the reviewer's findings from entry 25 are now handled:
+    - Findings 1, 3 and 4 are covered by the tester's round-1 changes (entry 29).
+    - Finding 2 is covered by the human's answer above.
+
+    `make check`: check: green (test: green, 102.5 s, coverage 99.22 %).
+
+    What I built is unchanged from entry 23 and already committed:
+    - `src/factory/agents/domain/prompts.py`
+    - `src/factory/pipeline/application/task.py`
+    - `src/factory/agents/adapters/agent_launch.py`
+    - `src/factory/agents/adapters/claude_runtime.py`
+    - `src/factory/agents/adapters/opencode_runtime.py`
+    - `src/factory/agents/application/provider_limits.py`
+    - `src/factory/entry/wiring.py`
+    - `agents/system-prompt.md`
+    - `agents/agents/*.md`
+
+    Main choice: the common system prompt reaches both runtimes through a `system_prompt_file` keyword, with a built-in fallback. I rejected a field on `AgentDefinition`, because every agent would carry the same text and every test that builds one would have to supply it.
+
+    Refactor: there was no code change in this round, so there was nothing to refactor.
+
+    Noticed, not touched: the common text exists twice, in `SYSTEM_PROMPT` and in `agents/system-prompt.md`. The criterion 12 test checks that the two stay equal.
+
+    `check`: check: green
+    `duplicates`: duplicates: 7 new, 39 known, 4 gone
