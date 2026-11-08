@@ -1,5 +1,5 @@
 ---
-stage: docs-review
+stage: docs-approval
 blocked: null
 round: 1
 attempts: 1
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 651
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: docs-review
-  started_at: '2026-11-08T02:56:54.429862Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -85,6 +81,12 @@ journal:
   kind: started
   at: '2026-11-08T02:56:54.429862Z'
   stage: docs-review
+- number: 14
+  speaker: reviewer
+  kind: result
+  at: '2026-11-08T02:57:33.583910Z'
+  stage: docs-review
+  run: 689668e60df248e2a2d4b15e3878ff5c
 ---
 
 # The operator's documents on the archive, the promotion and the default branch
@@ -220,3 +222,21 @@ Expect: `documents ok (<seconds> s)`
     `secrets`: secrets: green (0.6 s)
     `documents`: documents ok (58.6 s)
 13. factory: started docs-review as vm.
+14. reviewer: Round 1 docs-review. I read the work item and `git diff develop...HEAD -- README.md docs operator/README.md`, which changes three files: `docs/operator-guide/install.md`, `docs/operator-guide/work-items.md` and `docs/operator-playbook.md`. I checked the text against `operator/skill/kumpel/scripts/archive-feature.sh`, `operator/skill/kumpel/scripts/promote.sh`, the headings in install.md and health.md, and `docs/project-guide/style.md`.
+
+    The round-0 findings are fixed:
+    1. `docs/operator-playbook.md:31` now points to *The promotion* in install.md. That heading exists at `install.md:59`.
+    2. `docs/operator-guide/install.md:11` now names *The wait for a repository that is not ready* in [health.md](health.md), as style rule 8 asks. The heading is at `health.md:175`, and the row with `the repository has no develop branch yet` is at `health.md:187`.
+    3. `docs/operator-playbook.md:203` now names every refusal that `archive-feature.sh:27-45` makes: a story left in `backlog/` or `in-progress/`, no acceptance, the last acceptance not in `done/`, and the last acceptance not `outcome: accepted`. The refusals are now split into short sentences.
+
+    Facts I checked against the code:
+    - `archive-feature.sh` runs as Kumpel. It moves the feature folder to `factory/archive/` with the commit `<id>: archived` on `develop`, then pushes.
+    - `promote.sh <feature id>` opens a pull request from `develop` to `main`, or adds to the open one. The switch `promote` decides whether Kumpel merges it.
+    - Both scripts run `git checkout -q develop`, and the factory checks out `develop` too, so the claim that they check out `develop` themselves is true.
+    - A promotion's head is `develop`, so the auto-delete setting would delete `develop` when it merges. The work-items.md sentence is true.
+
+    All four criteria are met. Criteria 5 and 6 are green in the factory's checks after entry 12 (`documents ok`, `check: green`). The docs criterion is met, and no decisions.md entry was due.
+
+    Considered and not raised: the first sentence of the playbook's archive paragraph is still about 40 words. A semicolon splits it into two clauses of about 10 and 30 words, which is within the "about 25" of style rule 2. The playbook is the human's document, and much of it was written before this style.
+
+    no findings
