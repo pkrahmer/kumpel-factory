@@ -1,17 +1,13 @@
 ---
 stage: intake
-blocked: null
+blocked: question
 round: 0
 attempts: 0
 crashes: 0
-pull_request: null
+pull_request: 649
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: intake
-  started_at: '2026-11-08T01:56:37.063998Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -23,6 +19,13 @@ journal:
   kind: started
   at: '2026-11-08T01:56:37.063998Z'
   stage: intake
+- number: 3
+  speaker: intake
+  kind: question
+  at: '2026-11-08T01:56:58.825388Z'
+  stage: intake
+  run: 987fdcefbced421da9c4118f89b64d9e
+  blocked: question
 ---
 
 # archive-feature.sh refuses a feature whose acceptance was refused
@@ -64,3 +67,16 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
 
 1. 2026-11-08 human: created.
 2. factory: started intake as vm.
+3. intake: Questions before this story can start (the format check passed):
+
+   1. The human's leave for `tests/operator_scripts/test_operator_develop.py` is not given yet. The Interface says "to be given when refining", and a story that changes another story's test needs the human's word. Please give it in your answer: may the tester change `finished_feature` so that its acceptance report has the front matter of a booked acceptance (`stage: done`, `outcome: accepted`), with every changed test keeping its name and what it checks? I would choose yes.
+
+   2. The Interface says `operator/skill/kumpel/references/approving.md`, *After a feature's acceptance*, step 1, names the new refusal. No criterion tests or checks this. The path is not one the documenter may write, so the Interface changes a file outside the docs route and no criterion covers it. Please do one of these. (a) Add a criterion, for example a test that `approving.md` step 1 contains the refusal text. (b) Name `approving.md` in the docs criterion. I would choose (a), plus a note on which stage writes the file.
+
+   3. The Interface says that on a refusal "nothing is moved, committed or pushed, and the checkout stays on `develop` with no change". Criterion 1 only tests that the remote's `develop` is unchanged. Please add to the refusal rows that the local checkout is still on `develop` with a clean tree, or drop the clause from the Interface. I would choose adding it.
+
+   4. The Interface reads the front matter as "the block between its first two `---` lines". Criterion 1 does not say what happens when the file has an opening `---` but no closing one, or when `outcome: accepted` appears only in the body, after the front matter. Please add a row for each, refused the same way, or say they do not matter. I would choose adding both rows.
+
+   5. Criterion 2 says the earlier refusals keep their texts and exit statuses, and it points at `test_operator_develop.py`. Please confirm that this file's existing tests for the three earlier refusals (a story in `backlog/` or `in-progress/`, no acceptance, a last acceptance outside `done/`) already pin each text and exit status. If one is missing, add a row to the new module.
+
+   Also noted: S0006 is not in `feature.md`'s Stories or Scope lists. The story's own comment says the feature acceptance proposed it, so I treat it as in scope.
