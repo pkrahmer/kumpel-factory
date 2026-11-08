@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 645
 comments_read: [6714658360, 6714963482]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: review
+  started_at: '2026-11-08T00:48:27.949200Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -209,6 +213,11 @@ journal:
   at: '2026-11-08T00:48:22.762438Z'
   stage: doing
   run: e25a7d9e3e3a40c08935b864b8cf1d56
+- number: 37
+  speaker: factory
+  kind: started
+  at: '2026-11-08T00:48:27.949200Z'
+  stage: review
 ---
 
 # Kumpel works on develop and promotes accepted features to main
@@ -581,3 +590,4 @@ Expect: `off`
 
     `check`: check: green
     `duplicates`: duplicates: 6 new, 39 known, 4 gone
+37. factory: started review as vm.
