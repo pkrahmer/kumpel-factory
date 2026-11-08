@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 650
 comments_read: [6716086925]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: docs
+  started_at: '2026-11-08T02:33:56.443076Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -119,6 +123,11 @@ journal:
   at: '2026-11-08T02:33:51.428132Z'
   stage: review
   run: 0c3051b35ba74b21a478607280baa6c5
+- number: 21
+  speaker: factory
+  kind: started
+  at: '2026-11-08T02:33:56.443076Z'
+  stage: docs
 ---
 
 # promote.sh reuses an open promotion
@@ -306,3 +315,4 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
       - The standing leave to move a shared test helper: `PULL_NUMBER`, `OLD_SWITCHES`, `write_switches` and `requests_that_change` moved to `tests/support/operator_skill_support.py`. The imports they made unused (`json`, `Request`, `recorded_requests`) went with them. Every test keeps its name and what it checks.
       - The human's leave in journal entry 4: `test_promote_opens_the_promotion_and_merges_it_only_with_the_switch_on` now answers `OPEN_PROMOTION` with `[]`.
     - `tests/support/operator_skill_support.py`: no leave needed. The change only adds `OPEN_PROMOTION` and the moved helpers and constants.
+21. factory: started docs as vm.
