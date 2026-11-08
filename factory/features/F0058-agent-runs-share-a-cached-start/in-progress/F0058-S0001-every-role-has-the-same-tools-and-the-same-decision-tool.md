@@ -1,17 +1,13 @@
 ---
-stage: review
+stage: doing
 blocked: null
-round: 0
+round: 1
 attempts: 0
 crashes: 0
 pull_request: 659
 comments_read: [6720500729, 6720585535]
 handed_over: null
-claim:
-  instance: vm
-  stage: review
-  started_at: '2026-11-08T10:58:49.307162Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -112,6 +108,12 @@ journal:
   kind: started
   at: '2026-11-08T10:58:49.307162Z'
   stage: review
+- number: 19
+  speaker: reviewer
+  kind: result
+  at: '2026-11-08T11:00:27.645324Z'
+  stage: review
+  run: 6491af38877846cdb5e08a92324b6933
 ---
 
 # Every role has the same tools and the same decision tool
@@ -272,3 +274,25 @@ Expect: exactly one line, `model: opus`
     `check`: check: green
     `duplicates`: duplicates: 6 new, 39 known, 4 gone
 18. factory: started review as vm.
+19. reviewer: Findings:
+
+    1. `tests/support/shipped_agents.py` (rows intake, reviewer, documenter and smoke-tester, and the removed `_TOOLS_WITHOUT_WRITE`): another story wrote this support module, and the tester changed its values without leave. The change does not move a shared helper (the standing leave), the story does not name the file, and no human answer in the journal allows it. Criterion 4's leave covers only how a test builds the schema. Fix: the coder ends with `question` and asks the human for leave to change this file's four rows to the Interface's values. With that leave the change can stay as it is.
+    2. `tests/agents/adapters/test_claude_runtime_shared_schema.py:14-54`: `REPLY`, `_arguments` and `_schema` copy existing helpers in `tests/agents/adapters/test_claude_runtime.py`. `REPLY` copies `_reply` (lines 33-51), `_arguments` copies `_request`, `_runtime` and `_only_call` (lines 61-107), and `_schema` copies `_after` (lines 110-111). Fix: the tester moves those helpers to a module in `tests/support/` under the standing leave and both files use it. Or the tester writes the three tests into `test_claude_runtime.py` with its own helpers, which adds tests only and needs no leave.
+    3. `tests/agents/domain/test_prompt_names_decisions.py:25`: `decision in message` is a substring check over the whole prompt. In the row `["doing", "question"]`, `doing` is always found in `Stage: doing`, so for that decision the test passes whatever the `Allowed decisions:` line says. Criterion 7 is not really tested for it. Fix: take the prompt's `Allowed decisions:` line, split its list after the colon, and assert that each requested decision is in that list.
+    4. `tests/agents/domain/test_prompt_names_decisions.py:13-21`: the `PromptFacts` it builds copies `VALID` and `_facts` from `tests/agents/domain/test_prompts.py:13-25`. Fix: write the test into `test_prompts.py` with `_facts(allowed_decisions=decisions)`, or move `VALID` and `_facts` to a module in `tests/support/` under the standing leave.
+
+    Checked and found sound:
+    - Criteria 1, 2, 3, 5, 6 and 8 each have a test that checks what the criterion says.
+    - Criterion 4 is still tested by `test_claude_runtime.py::test_reply_without_a_usable_decision_is_no_result[decision not allowed]`, and `claude_runtime.py:226` still refuses such a decision.
+    - The source change in `claude_runtime.py` (one module constant, `_DECISION_SCHEMA`, with a comment that gives the reason) changes no other launch argument.
+    - Architecture: holds.
+    - Security: holds; the diff adds no silencing marker.
+    - The Description matches what was built.
+    - The journal gives the main decision (one constant, not a function that ignores the request) and the rejected alternative.
+    - The docs criterion still describes what the reader must know.
+    - Coder entry 17 reports `make check` green.
+    - I did not read the `duplicates: 6 new` report: no report file is in the checkout, and the `src` change is one constant that replaces a function.
+
+    Earlier tests:
+    - `tests/agents/adapters/test_claude_runtime.py` (`test_json_schema_asks_for_an_allowed_decision_and_an_entry`): the human's leave in criterion 4 ("an earlier test may change only in how it builds the schema"). Only the expected `decision` property changed.
+    - `tests/support/shipped_agents.py`: none; see finding 1.
