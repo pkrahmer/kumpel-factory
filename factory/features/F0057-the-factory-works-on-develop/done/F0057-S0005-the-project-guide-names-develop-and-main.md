@@ -1,5 +1,5 @@
 ---
-stage: docs-approval
+stage: done
 blocked: null
 round: 1
 attempts: 0
@@ -69,6 +69,11 @@ journal:
   at: '2026-11-08T01:40:28.965984Z'
   stage: docs-review
   run: 9cedb7c3b3b24204ae7c4209378a0575
+- number: 12
+  speaker: factory
+  kind: done
+  at: '2026-11-08T01:42:20.166895Z'
+  stage: docs-approval
 ---
 
 # The project guide names develop and main
@@ -204,3 +209,4 @@ Expect: `documents ok (<seconds> s)`
     The round-1 edits are single-word replacements and change none of round 0's style findings.
 
     no findings
+12. factory: done (pull request merged); cost: 5 runs, 5.8 min, 39 turns, 156345 tokens in (896720 more from cache), 13751 out, $0.89
