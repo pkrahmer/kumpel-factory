@@ -1,17 +1,13 @@
 ---
 stage: docs
-blocked: null
+blocked: question
 round: 1
 attempts: 1
 crashes: 0
 pull_request: 678
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: docs
-  started_at: '2026-11-08T20:22:16.174925Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -151,6 +147,13 @@ journal:
   kind: started
   at: '2026-11-08T20:22:16.174925Z'
   stage: docs
+- number: 26
+  speaker: documenter
+  kind: question
+  at: '2026-11-08T20:30:19.397062Z'
+  stage: docs
+  run: 9c9a706daf4047c6ab53e352b4e3b2b7
+  blocked: question
 ---
 
 # The rules every role shares stand in the system prompt
@@ -474,3 +477,26 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     sync: green (0.1 s)
     Bytecode compiled 4164 files in 60ms
 25. factory: started docs as vm.
+26. documenter: Round 1 docs, second attempt after the `documents` stall (entry 24). I changed no files in this run. The docs from entry 23 already meet criterion 9:
+    - `docs/operator-guide/agent-runtime.md:328,334,359`: the shared rules stand in the agent home's `system-prompt.md`, an agent file holds only its role's instructions, and a copied project agent may drop `## Rules`.
+    - `docs/project-guide/agents.md:30,284,289,356`: where the shared rules stand, and that `SYSTEM_PROMPT` equals the shipped file byte for byte.
+    - `docs/decisions.md`: introduction only.
+
+    I cross-read these again and found them current.
+
+    Question: `make documents` is red, and the cause is this machine's network, not the documents. How should the stage go on?
+
+    What I found:
+    - `make documents` ran again in this run and failed with `docs/operator-guide/machine.md:187`, `docs/project-guide/README.md:401` and `docs/project-guide/watching.md:152: the example did not end in 60 s`. Entry 23's runs timed out on different examples (`agents.md:224`, `watching.md:152`). This story changed none of these examples.
+    - The cause is the check's setup on this machine. `ProcessExampleRunner` (`src/factory/shared/adapters/document_examples.py`) runs each document's examples in a new `git export` of HEAD (`CheckoutFixture`), under `env -i` with an empty HOME. So the first `uv run` of each document builds a new `.venv` from an empty uv cache and downloads every dependency.
+    - I reproduced this by hand: the `watching.md:152` example in a fresh `git archive HEAD` copy with an empty HOME took 3 min 10 s wall time (user CPU 6.5 s, so almost all of it was download wait), against the 60 s `EXAMPLE_TIME_LIMIT`. In the warm checkout the same command takes 0.2 s.
+    - Entry 23 saw the same failure with the story's docs edits stashed, so `develop`'s documents fail in the same way.
+
+    Options:
+    (a) Retry the docs stage later, when the network or uv's package source is fast enough for a cold `uv sync` within 60 s. Nothing in the branch changes.
+    (b) You run `make documents` on a machine with a fast package source, or confirm the docs by reading them, and let the story move on to the smoke test.
+    (c) A separate story makes the document check's examples reuse a warm uv cache or `.venv`, or raises the limit for the first command. That changes code, so it is outside this story and outside my write paths.
+
+    I would choose (b) for this story and (c) as a backlog story. With (b) the story moves on, and (c) stops the docs stage of every later story from failing in the same way. I ended with `question` rather than `smoke-test` because another forward decision would only be held red again by the same check (this is attempt 2 of 2).
+
+    Stale text noticed, not mine: none.
