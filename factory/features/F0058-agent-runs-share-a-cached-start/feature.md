@@ -12,13 +12,13 @@ F0057 is archived and promoted (2026-11-08). No pull request is open.
 
 ## Scope
 
-- Every role has the same tools, and the decision tool is the same in every stage (S0001).
+- Every role has the same tools, and the decision tool is the same in every stage; intake and the documenter run on Opus at medium effort, like the tester, the coder and the smoke tester (S0001).
 - The system prompt is the same for every role, and the first message holds the work item's body, then the role's instructions, then the run's facts (S0002).
 - The bill shows the cache's tokens and hit rate per work item and per role (S0003).
 
 ## Out of scope
 
-- The models: intake and the documenter stay on Sonnet, the other roles on Opus. The cache is per model, so there are two shared starts, one for each model (decision 3).
+- The effort of the reviewer and the acceptance reviewer: they stay at high, so they share the tools and the system prompt but not the work item (decision 3).
 - A one-hour cache: the shared start makes it unnecessary.
 - A shortened work item or a brief: the journal stays whole, since it keeps the agents from repeating what failed (the human, 2026-11-08).
 - The reviewer's edits to a story's acceptance criteria (the eval's transcript review, finding 1), and the eval's other findings: they go to later features.
@@ -49,6 +49,6 @@ F0057 is archived and promoted (2026-11-08). No pull request is open.
 
 1. All roles get the union of today's tools: `Read, Grep, Glob, Edit, Bash, Write, Skill`. Intake, the reviewer and the smoke tester gain `Write`. It adds no reach, since the factory's write paths still limit every role, and these three already write their work item with `Edit` and can write with `Bash`.
 2. The decision tool's schema no longer lists the stage's decisions; the decision is a string. The runtime still refuses a decision outside the stage's allowed ones, as it does today, and the message still names them.
-3. The models stay as they are. Two shared starts are cheaper than moving intake and the documenter to Opus.
+3. The cache is per model, and a change of effort between requests invalidates the cached messages (the API documentation). So intake (today Sonnet, low effort) and the documenter (today Sonnet, medium) move to Opus at medium effort. Then intake, the tester, the coder, the documenter and the smoke tester share one chain, about 30 of a feature's 40 runs. By the 2026-11-08 run's numbers, the move is about cost-neutral: about 0.10 USD per story saved on writing the shared start, about 0.08–0.09 USD more for their own work at Opus prices. The reviewer and the acceptance reviewer stay at high effort, because review quality matters more there; they share the tools and the system prompt only. The measurement run shows whether the effort split holds as documented.
 4. The role's instructions move from the system prompt into the first message, after the work item. The common system prompt tells the agent that these instructions are its rules.
 5. The work item enters the message without its front matter, which changes between runs (stage, round, claim). Its title, sections and journal enter as they are in the file.
