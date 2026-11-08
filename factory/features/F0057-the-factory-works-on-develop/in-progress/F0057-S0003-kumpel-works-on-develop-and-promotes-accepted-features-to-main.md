@@ -1,5 +1,5 @@
 ---
-stage: smoke-test
+stage: approval
 blocked: null
 round: 2
 attempts: 1
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 645
 comments_read: [6714658360, 6714963482]
 handed_over: null
-claim:
-  instance: vm
-  stage: smoke-test
-  started_at: '2026-11-08T00:56:39.086514Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -240,6 +236,12 @@ journal:
   kind: started
   at: '2026-11-08T00:56:39.086514Z'
   stage: smoke-test
+- number: 42
+  speaker: smoke-tester
+  kind: result
+  at: '2026-11-08T00:57:03.014410Z'
+  stage: smoke-test
+  run: 1577f4109c9b4754bf5bfb29e134132a
 ---
 
 # Kumpel works on develop and promotes accepted features to main
@@ -676,3 +678,20 @@ Expect: `off`
     `secrets`: secrets: green (0.8 s)
     `documents`: documents ok (58.2 s)
 41. factory: started smoke-test as vm.
+42. smoke-tester: Smoke test, round 2. From the repository root I ran the one command under `## Smoke test` exactly as written, in bash.
+
+    Command 1:
+    ```bash
+    d=$(mktemp -d); trap 'rm -rf "$d"' EXIT; export KUMPEL_SETTINGS="$d/s.json"; sh operator/skill/kumpel/scripts/settings.sh init owner/name "$d" >/dev/null; sh operator/skill/kumpel/scripts/settings.sh get promote
+    ```
+    Output (exit status 0):
+    ```
+    off
+    ```
+    Expect: `off`. Met.
+
+    I then read the acceptance criteria again. The output agrees with criterion 5: a new settings file has `promote` off. It contradicts none of the other criteria. The command does not touch the remaining criteria (the scripts on `develop`, archive, promote, merge, reset, the commands' texts and the docs), so it cannot contradict them.
+
+    The command's own `trap` removed its temporary directory. I left nothing in `/tmp` and changed no file.
+
+    Findings: none.
