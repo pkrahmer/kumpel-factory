@@ -23,6 +23,7 @@ The journal only grows at its end, so the next run's message starts with the sam
 - The OpenCode runtime sends the same message; its own result block stays at the end.
 - The agent files no longer tell the agent to read its work item first; they say that the work item is in the first message.
 - Nothing per run (a time, a run id, a path that changes) comes before the work item's body.
+- The human's leave for earlier tests: a test that pins where the role's instructions go, the prompt's text or the system-prompt file may change to the new message and the common system prompt, keeping its name and checking otherwise the same thing. These are `tests/agents/domain/test_prompts.py`, `tests/agents/adapters/` (`test_agent_file_keys.py`, `test_agent_files.py`, `test_claude_runtime.py`, `test_claude_runtime_resume_session.py`, `test_opencode_result_block.py`, `test_opencode_runtime.py`, `test_shipped_agents_effect.py`), `tests/agents/application/` (`test_agent_run_probe_project_agent.py`, `test_project_agents.py`), `tests/entry/` (`test_tick_project_agent.py`, `test_tick_shipped_agent_file.py`, `test_wiring_boundaries.py`), `tests/machine/adapters/test_claude_runtime_container.py`, `tests/pipeline/application/` (`test_task.py`, `test_task_acceptance.py`) and the support modules `tests/support/opencode_stand_in.py` and `tests/support/shipped_agents.py`. The tester's entry names each one it changed.
 - The round line names the stage's `round_cap` when it has one, as in the Description.
 
 ## Acceptance criteria
