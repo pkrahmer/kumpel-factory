@@ -1,17 +1,13 @@
 ---
 stage: tests
-blocked: null
+blocked: question
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 646
 comments_read: [6715370076]
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-08T01:08:10.450023Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -62,6 +58,13 @@ journal:
   kind: started
   at: '2026-11-08T01:08:10.450023Z'
   stage: tests
+- number: 10
+  speaker: tester
+  kind: question
+  at: '2026-11-08T01:08:40.216532Z'
+  stage: tests
+  run: 62794c19435f4faf8aa5e3216a099317
+  blocked: question
 ---
 
 # The operator's documents name develop and main
@@ -157,3 +160,17 @@ Expect: `documents ok (<seconds> s)`
    - `docs/project-guide/` was not in the Interface. I did not check it for `main`.
    - `docs/operator-guide/README.md` is not word-checked differently; nothing in it names the working branch.
 9. factory: started tests as vm.
+10. tester: Question. I wrote no tests and changed no files. I stopped at step 1 because the work needs a code change and a test change that the description rules out.
+
+    **The conflict.** The description says "It changes no code and no test". Criterion 7 needs `make documents` to end with `documents ok`, and criterion 4 needs the operator guide to name the switch `promote`. Those cannot all hold today. `GLOSSARY_FORBIDDEN` in `src/factory/shared/domain/documents.py:70-89` lists `promote` and `promoted` as v1 words, so `docs/operator-guide/install.md` fails the check (documenter, journal entry 8). No criterion covers changing that list, so I have nothing to test. An earlier story's test also pins the list as it is: `tests/pipeline/domain/test_documents.py::test_the_v1_words_are_the_eighteen_in_their_order`. Changing that test is a change to a test I did not write, which needs your leave (CLAUDE.md, *Not without asking*).
+
+    **Options:**
+    - (a) Widen the story. Add a criterion before the last two: "`promote` and `promoted` are no longer v1 words: the document check accepts them in a checked document." Give leave to edit the pinned test so it holds the sixteen remaining words in their order. I would then add a parametrized test: a guide line holding `promote` or `promoted` gives no finding, and `ticket` still gives one, as the control row.
+    - (b) Same as (a), but remove only `promote` and keep `promoted` forbidden. The documenter argues for removing both, because "promoted to main" is now a real term (the PR title `promote.sh` writes).
+    - (c) Keep the story docs-only. The documenter rewrites the guide without the word, for example "the promotion switch". That conflicts with criterion 4 as written, so you would need to reword criterion 4.
+
+    **My choice: (a).** A promotion is now a real thing in the factory (`operator/skill/kumpel/scripts/promote.sh`). Keeping either word forbidden would make the documents talk around it.
+
+    Not touched: `tests/agent_files/test_claude_agent_texts.py:144` also forbids `promote`, but in the agent files, not the operator documents. I would leave it as it is unless you say otherwise.
+
+    Criterion → test mapping: none yet. Files created: none. Modules the test run could not import: none, because I did not run the tests.
