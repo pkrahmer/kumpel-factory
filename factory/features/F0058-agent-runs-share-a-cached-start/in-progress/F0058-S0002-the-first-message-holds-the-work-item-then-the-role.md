@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 660
 comments_read: [6720878077, 6720941885, 6720981420, 6721183670]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-08T12:08:42.769492Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -159,6 +163,11 @@ journal:
   at: '2026-11-08T12:08:37.842067Z'
   stage: doing
   run: cb74552ede094942b3060d5dc1fa0264
+- number: 28
+  speaker: factory
+  kind: started
+  at: '2026-11-08T12:08:42.769492Z'
+  stage: tests
 ---
 
 # The first message holds the work item, then the role
@@ -546,3 +555,4 @@ Expect: the docstring names the order: the work item's body, the role's instruct
     Noticed, not touched: the common text still exists twice, in `SYSTEM_PROMPT` and in `agents/system-prompt.md`. The equality row in item 1 is what keeps the two copies from drifting.
 
     The factory left out changes outside the write paths: factory/features/F0058-agent-runs-share-a-cached-start/in-progress/F0058-S0002-the-first-message-holds-the-work-item-then-the-role.md.
+28. factory: started tests as vm.
