@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 672
 comments_read: [6723592271, 6723685612]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: review
+  started_at: '2026-11-08T16:04:09.348911Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -81,6 +85,11 @@ journal:
   at: '2026-11-08T16:04:03.767998Z'
   stage: doing
   run: a68e788cf1694871b14929d893796348
+- number: 14
+  speaker: factory
+  kind: started
+  at: '2026-11-08T16:04:09.348911Z'
+  stage: review
 ---
 
 # The coder starts from the tester's tests, and the guards that read the documents are marked
@@ -220,3 +229,4 @@ Expect: a line `<n> tests collected`, `<n>` greater than 0.
 
     `check`: check: green
     `duplicates`: duplicates: 7 new, 39 known, 4 gone
+14. factory: started review as vm.
