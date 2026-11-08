@@ -1,5 +1,5 @@
 ---
-stage: review
+stage: docs
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 673
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: review
-  started_at: '2026-11-08T16:34:37.622892Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -56,6 +52,12 @@ journal:
   kind: started
   at: '2026-11-08T16:34:37.622892Z'
   stage: review
+- number: 9
+  speaker: reviewer
+  kind: result
+  at: '2026-11-08T16:35:12.978628Z'
+  stage: review
+  run: 354ad2ad09624a04aaf06e1d6b692efe
 ---
 
 # The smoke tester routes a red check
@@ -152,3 +154,21 @@ Expect: a count of 1 or more.
    `check`: check: green
    `duplicates`: duplicates: 7 new, 39 known, 4 gone
 8. factory: started review as vm.
+9. reviewer: no findings
+
+   What I checked:
+   - Group 1, acceptance criteria:
+     - Criterion 1 is one parametrized test over the rule's sentences, `tests/agent_files/test_claude_agent_texts_check_red.py::test_the_smoke_tester_routes_a_red_check_without_running_the_smoke_test_again`. Its rows cover every fact the Interface lists: the stall is named, the smoke test is not run again, the failing lines are read, `doing` goes with test, type, lint, layer, security, licence and "cannot place", `docs` goes with documenter, README, guide, document check and secrets, the entry names each failure and its file, and the only command is `make check`.
+     - Criterion 1's two routes are each other's failing side, and both are tested.
+     - Criterion 2 is `test_the_red_check_rule_sits_in_the_smoke_testers_stage_and_in_no_shared_rule`. It runs over every shipped agent and checks that `check_red` is in no `## Rules` section and appears only in the smoke tester's Stage section.
+     - Criterion 3: the journal records the factory's `make check` after the coder as green.
+     - Criterion 4 is the documenter's.
+   - Group 2, architecture: only a shipped agent file and a new test module under `tests/agent_files/` changed. The test uses the existing helpers in `tests/support/shipped_agents.py` (`stage_section`, `agent_body`, `SHIPPED_NAMES`) and `factory.shared.domain.sections.section_text`. No `src/` change.
+   - Group 3, security: no markers, secrets or commands added.
+   - Group 4, quality:
+     - `agents/agents/smoke-tester.md:58-61`: the rule is one paragraph after steps 5 and 6 in the smoke tester's Stage section, and its wording matches the Interface.
+     - Steps 5 and 6 are unchanged, so "end with `docs`" and "end with `approval`" still appear once each, as the docs-slip test requires.
+     - The new module's private `_sentences` splits at line ends and full stops. That is not the same rule as the `_sentences` copies in `test_context_system_prompt.py` and `test_first_message_agent_files.py`, so it is not a second copy of them.
+   - Group 5, work item hygiene: the coder's entry names the main choice (a paragraph after the numbered steps) and the alternative it rejected (a step 7). The Description matches what was built. The docs criterion still says what the reader must know.
+
+   Earlier tests: none. Every test change in `git diff --name-status develop...HEAD` is an addition (`A`).
