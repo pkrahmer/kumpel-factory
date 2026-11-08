@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 660
 comments_read: [6720878077, 6720941885, 6720981420, 6721183670]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T12:00:02.958832Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -135,6 +131,12 @@ journal:
   kind: started
   at: '2026-11-08T12:00:02.958832Z'
   stage: doing
+- number: 23
+  speaker: coder
+  kind: result
+  at: '2026-11-08T12:04:31.218367Z'
+  stage: doing
+  run: 8b0ae9e9eb0b48a7a26282eac726bb3c
 ---
 
 # The first message holds the work item, then the role
@@ -443,3 +445,33 @@ Expect: the docstring names the order: the work item's body, the role's instruct
 
     `lint`: lint: green (0.2 s)
 22. factory: started doing as vm.
+23. coder: I wrote no new code in this run. The tester made the two test changes the human allowed in entry 17 (entry 21), and the code from the earlier doing run, already committed, now passes every test. `make check`: check: green (test: green, 102.6 s, coverage 99.20 %).
+
+    What I built (earlier doing run, committed):
+    - `src/factory/agents/domain/prompts.py`:
+      - `PromptFacts` gains `body`, `role`, `role_instructions` and `round_cap`.
+      - `compose_prompt` returns the `<work-item>` block, then the `<role-instructions role="…">` block, then the facts, one blank line apart.
+      - In the body, the four marker texts have their `<` escaped to `&lt;`.
+      - The round line names the cap when the stage has one.
+      - `SYSTEM_PROMPT` is the built-in common text.
+    - `src/factory/pipeline/application/task.py`: `TaskComposer.compose` fills the new fields. The body comes from the work item already read for the stage; the role and its instructions come from the agent; the round cap comes from the stage.
+    - `src/factory/agents/adapters/agent_launch.py`: `system_prompt_text` reads the common file. When there is no file, it falls back to `SYSTEM_PROMPT`.
+    - `src/factory/agents/adapters/claude_runtime.py`: writes the common text to the same per-run `instructions-<session>.md` path as before (entry 12).
+    - `src/factory/agents/adapters/opencode_runtime.py`: the configuration's agent prompt is the common text. A fresh call's message is the prompt, a blank line, then the result block. A `--session` call sends the prompt alone (entry 12).
+    - `src/factory/agents/application/provider_limits.py`: a resumed request's prompt is the whole message, a blank line, then `CONTINUE_PROMPT`.
+    - `src/factory/entry/wiring.py`: both runtimes get `<agent_home>/system-prompt.md`.
+    - `agents/system-prompt.md`: new.
+    - `agents/agents/*.md`: each says the work item is in the first message, and none reads it first.
+
+    Main choice: the common text reaches the runtimes through a `system_prompt_file` keyword, with a built-in fallback. I rejected a new field on `AgentDefinition`: it would carry the same text on every agent and touch every test that builds one.
+
+    Refactor: I read the diff against develop again and found nothing to change.
+
+    Description: unchanged. The journal changed only which tests may change.
+
+    Noticed, not touched:
+    - The common text exists twice: in `SYSTEM_PROMPT` and in `agents/system-prompt.md`. The fallback keeps agent homes installed before this story running.
+    - The operator guide should tell operators to install `system-prompt.md` into their agent home. That is for the documenter.
+
+    `check`: check: green
+    `duplicates`: duplicates: 7 new, 39 known, 4 gone
