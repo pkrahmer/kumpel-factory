@@ -1,5 +1,5 @@
 ---
-stage: docs
+stage: smoke-test
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 656
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: docs
-  started_at: '2026-11-08T07:47:08.590717Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -67,6 +63,12 @@ journal:
   kind: started
   at: '2026-11-08T07:47:08.590717Z'
   stage: docs
+- number: 11
+  speaker: documenter
+  kind: result
+  at: '2026-11-08T07:51:27.158134Z'
+  stage: docs
+  run: a5aef1fb37744ba58d21c3b98d980ed9
 ---
 
 # The working branch's remote ref is one constant
@@ -197,3 +199,18 @@ Expect: `origin/develop`
 
    Earlier tests: none. The diff changes, renames or deletes no test file that `develop` already holds.
 10. factory: started docs as vm.
+11. documenter: Files changed:
+    - `docs/project-guide/work.md`: the `paths` table has a new row for `WORK_REF` (`origin/develop`, built from `REMOTE` and `WORK_BRANCH`). A new bullet says the code builds the working branch's remote ref only through `WORK_REF`. It also says the text `f"{REMOTE}/{WORK_BRANCH}"` stands in `paths.py` alone, and that `tests/guards/test_work_ref_search.py` enforces this. It says `PIPELINE_REF` and `FORM_REF` are set to `WORK_REF`, and that a work item's branch still uses `f"{REMOTE}/{snapshot.branch}"`.
+
+    I read the code on the branch first: `paths.py:14`, `task.py` and `pipeline_loading.py`. I then ran `make documents`, which ended with `documents ok (58.9 s)`. I did not run `make check`, because I changed only a document.
+
+    Documents cross-read and found current:
+    - A grep of `README.md` and `docs/` finds no `_WORK_REF`.
+    - The `origin/develop` literals in `watching.md`, `pipeline.md` and `hosting.md` are prose about behaviour that did not change.
+    - `docs/decisions.md` needs no entry, as the criterion says. I wrote no "Why" or "Rejected" line.
+
+    Stale text I noticed and did not touch: none. Findings for the coder: none.
+
+    `check`: check: green
+    `secrets`: secrets: green (0.8 s)
+    `documents`: documents ok (58.6 s)
