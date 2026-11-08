@@ -1,5 +1,5 @@
 ---
-stage: smoke-test
+stage: approval
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 652
 comments_read: [6716487122]
 handed_over: null
-claim:
-  instance: vm
-  stage: smoke-test
-  started_at: '2026-11-08T03:21:44.756603Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -117,6 +113,12 @@ journal:
   kind: started
   at: '2026-11-08T03:21:44.756603Z'
   stage: smoke-test
+- number: 20
+  speaker: smoke-tester
+  kind: result
+  at: '2026-11-08T03:22:04.754523Z'
+  stage: smoke-test
+  run: f5e7bca9182a4f5b894a8023caa1aa70
 ---
 
 # The code names the working branch by its role
@@ -346,3 +348,22 @@ Expect: `0`
     `secrets`: secrets: green (1.6 s)
     `documents`: documents ok (58.2 s)
 19. factory: started smoke-test as vm.
+20. smoke-tester: Smoke test round 1. I ran the one command under `## Smoke test` from the repository root, exactly as written.
+
+    Command 1:
+    ```bash
+    grep -rnwE "stage_file_on_main|_main_report_paths|_main_reports|_main_commit|main_commit" src/factory --include=*.py | wc -l
+    ```
+    Output:
+    ```
+    0
+    ```
+    Expect: `0`. Met.
+
+    Then I read the acceptance criteria again and ran a few read-only checks to see whether anything contradicts them. Nothing does:
+    - Criterion 2: `from factory.entry.wiring import stage_file_on_work_branch` succeeds, and the module no longer has `stage_file_on_main` (`hasattr` gives False). `EvaluationInput.model_fields` contains `work_commit` and does not contain `main_commit`.
+    - Criterion 4: `grep -rn "origin/{WORK_BRANCH}" src/factory | wc -l` gives `0`.
+    - Criterion 6: none of `docs/project-guide/*.md` still names `_follow_main`, `stage_file_on_main` or `main_commit` (0 matches).
+    - Criteria 1, 3 and 5 are covered by `make check`, which the factory ran green after the docs stage (entry 18). I did not run it again: this stage changed nothing.
+
+    Findings: none.
