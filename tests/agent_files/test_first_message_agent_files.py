@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from support.shipped_agents import AGENT_HOME, SYSTEM_PROMPT_FILE
+from support.shipped_agents import AGENT_HOME, SYSTEM_PROMPT_FILE, shared_rules
 
 SHIPPED = sorted((AGENT_HOME / "agents").glob("*.md"))
 READ_FIRST = [
@@ -35,4 +35,4 @@ def test_no_agent_file_reads_its_work_item_first_and_each_finds_it_in_the_first_
     text = path.read_text(encoding="utf-8")
 
     assert [pattern.pattern for pattern in READ_FIRST if pattern.search(text)] == []
-    assert any("work item" in s and "first message" in s for s in _sentences(text))
+    assert any("work item" in s and "first message" in s for s in _sentences(shared_rules()))

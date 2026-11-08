@@ -8,12 +8,13 @@ from factory.shared.domain.sections import section_text
 from support.shipped_agents import (
     SHIPPED_AGENTS,
     SHIPPED_NAMES,
+    WITHOUT_ROLE,
     ShippedAgent,
     agent_body,
+    headings,
+    shared_rules,
     template_definition,
 )
-
-_WITHOUT_ROLE = {"intake", "smoke-tester"}
 
 _FIRST_LESSON = (
     "- Run `make check` and every other make target in the foreground and read its output. "
@@ -147,10 +148,6 @@ _BANNED_WORDS = re.compile(
 )
 
 
-def _headings(body: str) -> list[str]:
-    return re.findall(r"^## .*$", body, re.MULTILINE)
-
-
 def _decisions(role: str) -> list[str]:
     definition = template_definition()
     stages = [stage for stage in definition.stages.values() if stage.role == role]
@@ -167,11 +164,11 @@ def test_body_still_opens_with_the_boundary_and_the_entry_sentence(agent: Shippe
 
 @pytest.mark.parametrize("name", SHIPPED_NAMES)
 def test_body_has_rules_role_stage_and_lessons_sections_in_order(name: str) -> None:
-    expected = ["## Rules", "## Stage", "## Lessons"]
-    if name not in _WITHOUT_ROLE:
-        expected.insert(1, "## Role")
+    expected = ["## Stage", "## Lessons"]
+    if name not in WITHOUT_ROLE:
+        expected.insert(0, "## Role")
 
-    assert _headings(agent_body(name)) == expected
+    assert headings(agent_body(name)) == expected
 
 
 @pytest.mark.parametrize("name", SHIPPED_NAMES)
@@ -190,9 +187,13 @@ def test_body_uses_no_word_the_rename_table_replaces(name: str) -> None:
 
 @pytest.mark.parametrize("name", SHIPPED_NAMES)
 def test_body_names_every_decision_of_its_stage_in_inline_code(name: str) -> None:
-    body = agent_body(name)
+    texts = (agent_body(name), shared_rules())
 
-    missing = [decision for decision in _decisions(name) if f"`{decision}`" not in body]
+    missing = [
+        decision
+        for decision in _decisions(name)
+        if not any(f"`{decision}`" in text for text in texts)
+    ]
 
     assert missing == []
 
@@ -205,11 +206,8 @@ def test_body_names_every_decision_of_its_stage_in_inline_code(name: str) -> Non
         "one of the `Allowed decisions` your prompt lists",
     ],
 )
-@pytest.mark.parametrize("name", SHIPPED_NAMES)
-def test_rules_section_carries_the_pipeline_rules_with_the_decision_contract(
-    name: str, anchor: str
-) -> None:
-    assert anchor in (section_text(agent_body(name), "Rules") or "")
+def test_rules_section_carries_the_pipeline_rules_with_the_decision_contract(anchor: str) -> None:
+    assert anchor in shared_rules()
 
 
 @pytest.mark.parametrize(
@@ -219,9 +217,8 @@ def test_rules_section_carries_the_pipeline_rules_with_the_decision_contract(
         "You never push, check out, switch, merge, pull or call `gh`.",
     ],
 )
-@pytest.mark.parametrize("name", SHIPPED_NAMES)
-def test_rules_section_leaves_commit_push_and_move_to_the_factory(name: str, anchor: str) -> None:
-    assert anchor in (section_text(agent_body(name), "Rules") or "")
+def test_rules_section_leaves_commit_push_and_move_to_the_factory(anchor: str) -> None:
+    assert anchor in shared_rules()
 
 
 @pytest.mark.parametrize("name", SHIPPED_NAMES)
@@ -282,5 +279,5 @@ def test_lessons_section_is_last_and_holds_exactly_the_role_bullets(name: str) -
     body = agent_body(name)
     lines = [line for line in (section_text(body, "Lessons") or "").splitlines() if line.strip()]
 
-    assert _headings(body)[-1:] == ["## Lessons"]
+    assert headings(body)[-1:] == ["## Lessons"]
     assert lines == LESSONS[name]
