@@ -2,13 +2,13 @@
 """The interface through which the factory reaches a project's build, and its recorder."""
 
 from abc import ABC, abstractmethod
-from datetime import timedelta
+from datetime import datetime, timedelta
 from typing import override
 
 from factory.hosting.application.git import Git
 from factory.hosting.domain.git import CommitId
 from factory.machine.domain.command_records import CommandRecord
-from factory.pipeline.domain.checks import CheckResult
+from factory.pipeline.domain.checks import CheckResult, CommandOutput
 from factory.shared.application.files import RecordLog
 from factory.shared.domain.errors import GitError
 from factory.watching.application.machine import Clock, FactoryLog
@@ -22,6 +22,14 @@ class ProjectCommands(ABC):
         """Run `command` until it ends or reaches `time_limit`.
 
         A red or timed-out command is a result; `ProjectCommandError` means it could not start.
+        """
+
+    @abstractmethod
+    def start_fact(self, command: str, *, time_limit: timedelta) -> CommandOutput:
+        """Run `command` on the stage's synced base as a start fact, keeping its whole output.
+
+        Nothing runs before it, so the output is the command's own. A red or timed-out
+        command is a result; `ProjectCommandError` means it could not start.
         """
 
 
@@ -52,6 +60,20 @@ class RecordingProjectCommands(ProjectCommands):
         commit = self._head()
         started_at = self._clock.now()
         result = self._inner.run(command, time_limit=time_limit)
+        self._record(command, commit, started_at, result)
+        return result
+
+    @override
+    def start_fact(self, command: str, *, time_limit: timedelta) -> CommandOutput:
+        commit = self._head()
+        started_at = self._clock.now()
+        result = self._inner.start_fact(command, time_limit=time_limit)
+        self._record(command, commit, started_at, result)
+        return result
+
+    def _record(
+        self, command: str, commit: CommitId | None, started_at: datetime, result: CheckResult
+    ) -> None:
         record = CommandRecord(
             command=command,
             commit=commit,
@@ -66,7 +88,6 @@ class RecordingProjectCommands(ProjectCommands):
         except OSError as error:
             # The record is telemetry: losing it must never lose the command's result.
             self._log.line(f"cannot write the record of {command}: {error}")
-        return result
 
     def _head(self) -> CommitId | None:
         try:

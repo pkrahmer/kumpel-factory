@@ -17,7 +17,7 @@ from factory.agents.domain.prompts import (
 )
 from factory.pipeline.application.boundaries import Boundaries
 from factory.pipeline.application.take import agent_working_directory
-from factory.pipeline.domain.checks import CheckResult, command_ending, whole_output
+from factory.pipeline.domain.checks import CheckResult, command_ending
 from factory.pipeline.domain.pipeline_definition import PipelineDefinition, RoleDefinition
 from factory.shared.domain.errors import ProjectCommandError, WorkItemFormatError
 from factory.shared.domain.identifiers import Name, WorkItemId, feature_of, is_acceptance
@@ -128,11 +128,11 @@ class TaskComposer:
     def _start_fact(self, command: str) -> StartFact:
         limit = timedelta(minutes=self._definition.project_commands[command].time_limit)
         try:
-            result = self._boundaries.project_commands.run(command, time_limit=limit)
+            result = self._boundaries.project_commands.start_fact(command, time_limit=limit)
         except ProjectCommandError as error:
             return StartFact(command=command, failure=str(error))
         if result.passed:
-            return StartFact(command=command, output=whole_output(result))
+            return StartFact(command=command, output=result.output)
         return StartFact(command=command, failure=_failure(result, limit))
 
     def _prompt(self, context: TaskContext, facts: PromptFacts) -> str:

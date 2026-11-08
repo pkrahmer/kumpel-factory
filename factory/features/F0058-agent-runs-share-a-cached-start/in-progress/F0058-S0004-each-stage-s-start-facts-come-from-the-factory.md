@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 662
 comments_read: [6721852631, 6722094144]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T13:33:05.190817Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -123,6 +119,12 @@ journal:
   kind: started
   at: '2026-11-08T13:33:05.190817Z'
   stage: doing
+- number: 21
+  speaker: coder
+  kind: result
+  at: '2026-11-08T13:37:58.631902Z'
+  stage: doing
+  run: e9b7ce6a06374bc788306432cb55a43e
 ---
 
 # Each stage's start facts come from the factory
@@ -370,3 +372,28 @@ Expect: `True`
 
     `lint`: lint: green (0.2 s)
 20. factory: started doing as vm.
+21. coder: Implemented the human's answers from entry 15, using the test changes the tester made in entry 19. All tests pass and `make check` is green (`check: green`, coverage 99.17 %).
+
+    What I built:
+    - `src/factory/machine/application/project_commands.py`: `ProjectCommands` has a second abstract method, `start_fact(command, *, time_limit) -> CommandOutput`. It runs the command on the stage's synced base with nothing before it and keeps the whole output. `RecordingProjectCommands.start_fact` delegates to the inner implementation and records the run as `run` does. Both now share the new private `_record`.
+    - `src/factory/machine/adapters/make_commands.py`:
+      - `ContainerMakeCommands.start_fact` runs `_START_FACT_SCRIPT` (`"$1" --no-print-directory "$2"`, without `sync`) in the same check container on the rolled-back base with the taken files. `run` and `start_fact` share `_run_script`, which takes the script to run.
+      - `MakeProjectCommands.start_fact` runs `make --no-print-directory <command>`, and `run` delegates to it, since nothing runs before the command on the host.
+      - `_read_result` is now typed to return `CommandOutput`. The `_check_result` wrapper is gone.
+    - `src/factory/pipeline/domain/checks.py`: removed `whole_output` and the `isinstance` downcast. `CommandOutput` stays as the return type of `start_fact`.
+    - `src/factory/pipeline/application/task.py`: `_start_fact` calls `project_commands.start_fact` and puts `result.output` into the fact.
+    - `src/factory/shared/domain/contract.py`: `RECORDS_CONTRACT` is now "4.5". All five schemas under `src/factory/contract/` were regenerated with `uv run python -m factory.entry.contract`.
+
+    Main choice: `start_fact` runs without `sync`. `ContainerEnvironment.prepare` syncs the dataset and moves the base forward just before the start facts run, and every check container resets to that base. So a second sync would only put uv's lines into the block. I rejected a `sync: bool` flag on `run`: it would have left the whole output undeclared on the interface, which was the reviewer's finding 3.
+
+    Findings of entry 12: 1 is fixed (4.5 and the regenerated schemas). 2 and 3 are fixed by `start_fact`; the tester's printing-sync row covers 2. 4 is covered by the tester's test from entry 19, and the code for it was already in place.
+
+    Refactor: I read my diff once and found nothing more to change.
+
+    Noticed, not touched:
+    - Coverage shows `RecordingProjectCommands.start_fact` (`project_commands.py:68-72`) as not run by any test. The wiring tests use the plain implementations for start facts. A test of it is the tester's if the reviewer wants one.
+    - The docstring of the `ContainerMakeCommands` class still describes `run` only (`make sync && make <command>`). Each method's own docstring is accurate.
+    - `make duplicates` was not run this round.
+
+    `check`: check: green
+    `duplicates`: duplicates: 7 new, 39 known, 4 gone
