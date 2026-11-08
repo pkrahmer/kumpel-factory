@@ -1,3 +1,30 @@
+---
+stage: intake
+blocked: null
+round: 0
+attempts: 0
+crashes: 0
+pull_request: null
+comments_read: []
+handed_over: null
+claim:
+  instance: vm
+  stage: intake
+  started_at: '2026-11-08T15:47:36.726619Z'
+  lease_duration: 60
+journal:
+- number: 1
+  speaker: human
+  kind: created
+  at: '2026-11-08T15:47:36.718969Z'
+  stage: intake
+- number: 2
+  speaker: factory
+  kind: started
+  at: '2026-11-08T15:47:36.726619Z'
+  stage: intake
+---
+
 # The coder starts from the tester's tests, and the guards that read the documents are marked
 
 ## Description
@@ -33,3 +60,6 @@ uv run pytest --strict-markers -m documents --collect-only -q 2>&1 | tail -1
 Expect: a line `<n> tests collected`, `<n>` greater than 0.
 
 ## Journal
+
+1. 2026-11-08 human: created.
+2. factory: started intake as vm.
