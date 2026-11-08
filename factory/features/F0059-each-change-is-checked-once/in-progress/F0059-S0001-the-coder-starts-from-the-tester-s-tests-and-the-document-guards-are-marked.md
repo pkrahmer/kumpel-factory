@@ -1,5 +1,5 @@
 ---
-stage: docs
+stage: smoke-test
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 672
 comments_read: [6723592271, 6723685612, 6723780619]
 handed_over: null
-claim:
-  instance: vm
-  stage: docs
-  started_at: '2026-11-08T16:15:16.312396Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -162,6 +158,12 @@ journal:
   kind: started
   at: '2026-11-08T16:15:16.312396Z'
   stage: docs
+- number: 28
+  speaker: documenter
+  kind: result
+  at: '2026-11-08T16:24:54.688412Z'
+  stage: docs
+  run: a4ce7516a048413b96b4eb14dd835604
 ---
 
 # The coder starts from the tester's tests, and the guards that read the documents are marked
@@ -463,3 +465,32 @@ Expect: a line `<n> tests collected`, `<n>` greater than 0.
     - `tests/operator_scripts/test_operator_site_check.py`: the human's answer, entry 9 (marker line).
     - `tests/shared/domain/test_document_settings.py`: the human's answer, entry 18 (the one test moved out, and its now-unused imports removed).
 27. factory: started docs as vm.
+28. documenter: Wrote the docs criterion (criterion 6). I found nothing in the code for the coder.
+
+    Files changed:
+    - `docs/project-guide/README.md`:
+      - Under *Shared test helpers*, a new subsection *The marker `documents`*. It says which tests carry the marker: whole modules that read a file under `roles.documenter.write_paths` on the real checkout, modules that read both documents and code included. It also says which tests do not: those that read only documents they wrote under `tmp_path`.
+      - The subsection says how to select each side with `-m` and that `tests/guards/test_documents_marker.py` checks both sides. It gives the reason: once the human's `guides` command runs the marked tests, the factory can reuse the passed `make check` after a documents-only change (`not_read`). Until then `make test` still runs every test.
+      - It says a single test that reads a real document moves into its own marked module under `tests/guards/`, as `test_install_guide_settings.py` did. It lists the 13 marked modules, which I checked against a grep of the tree.
+      - The `tests/conftest.py` entry now says that its `pytest_configure` registers the marker.
+    - `tests/README.md`: one linked sentence saying that the modules that read the real documents carry the marker `documents`, pointing to the project guide's subsection. My first wording broke the folder-README form: `tests/guards/test_folder_readmes.py` reported a "long link line", then "no part of the form". The final line is one sentence of 20 words with a link, and the guard passes.
+
+    Checks:
+    - `make documents`: documents ok (59.0 s).
+    - `uv run pytest -m documents`: 176 passed.
+    - `make check`: check: green. I ran it because `tests/README.md` is outside `README.md` and `docs/`.
+    - I added no runnable example.
+
+    Cross-read and found current:
+    - `docs/project-guide/agents.md`: the coder's lessons and its row in the model table. It does not describe the coder's first step.
+    - `docs/project-guide/style.md`: *Runnable examples* and *Folder READMEs*.
+    - `docs/operator-guide/stops.md`: the tests stage's `make test` report line, which is still true.
+    - The rest of `docs/project-guide/README.md`: the guards list.
+
+    Stale text I noticed but left alone, because it changes only with the human's work:
+    - `docs/operator-guide/pipeline.md:131` says that `README.md` and `docs/` stay in `make check`'s key because `make test` reads the real documents. That is still true on this branch. It needs rewriting once the human moves the marked tests into the `guides` command and changes `not_read` in `factory/pipeline.yml`.
+    - As the coder noted, `CLAUDE.md` still names the single-test-file command only in the tester's words.
+
+    `check`: check: green
+    `secrets`: secrets: green (0.8 s)
+    `documents`: documents ok (61.0 s)

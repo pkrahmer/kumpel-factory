@@ -2,6 +2,8 @@
 
 The pytest suite of the factory: the folders mirror the package as `tests/<area>/<layer>/`, beside a few special folders. [CLAUDE.md](../CLAUDE.md), *Tests*, says how the tests are laid out and written.
 
+Modules that read the real documents carry the marker `documents`; [the project guide](../docs/project-guide/README.md), *The marker `documents`*, says which and why.
+
 - `agent_files/` the tests of the agent files under `agents/` and of the template under `operator/template/`.
 - `agents/` the tests of the agents area, one folder per layer.
 - `entry/` the tests of the commands and the wiring in `factory.entry`.

@@ -99,7 +99,7 @@ Support modules hold what test modules share, so that none imports another. They
 
 The two conftests are below. After them come the modules of `tests/support/` (imported as `support.<name>`) that no earlier list holds; the page names every module of `tests/support/` and every fixture of `tests/conftest.py`.
 
-- `tests/conftest.py`: the fixtures of the whole suite, by group.
+- `tests/conftest.py`: the fixtures of the whole suite, by group. Its `pytest_configure` also registers the marker `documents` (see *The marker `documents`* below).
   - Every test (autouse):
     - `without_agent_login` removes the agent's login variables from the environment, so no child process sees them.
     - `reopened_tmp_path`: after a test that uses `tmp_path`, it gives its owner back every folder and file under it.
@@ -223,6 +223,30 @@ The two conftests are below. After them come the modules of `tests/support/` (im
 - [`tests/support/write_path_support.py`](../../tests/support/write_path_support.py): `stage_start` and `push_definition`, for the write-path service tests.
 
 See also: *Kill points* and *Fault-injection paths*, which use `tests/support/proof_support.py`, and [`CLAUDE.md`](../../CLAUDE.md), *Tests*, for the rules a test follows.
+
+### The marker `documents`
+
+A test module that reads a file under the documenter's write paths (`roles.documenter.write_paths` in `factory/pipeline.yml`) on the real checkout, not a copy it wrote under `tmp_path`, carries `pytestmark = pytest.mark.documents` as a whole module. A module that reads both documents and code carries it too. `uv run pytest -m documents` selects those tests and `uv run pytest -m "not documents"` the rest; together the two selections are the whole suite. [`tests/guards/test_documents_marker.py`](../../tests/guards/test_documents_marker.py) checks both.
+
+The marker exists so that the check after the docs stage can be reused. Once the human's `guides` project command runs the marked tests on their own, `make check` no longer reads the documenter's files, and the factory can reuse its passed `make check` after a documents-only change (`not_read` in `factory/pipeline.yml`). Until then `make test` still runs every test, the marked ones included.
+
+A new test that reads a document on the real checkout carries the marker. A test that reads only documents it wrote under `tmp_path` does not, such as `tests/guards/test_guide_index_problems.py` and the document check's tests. When only one test of a module reads a real document, it moves into a marked module of its own under `tests/guards/`, as `tests/guards/test_install_guide_settings.py` did.
+
+The marked modules:
+
+- `tests/guards/test_agent_folder_names.py`
+- `tests/guards/test_area_guides.py`
+- `tests/guards/test_folder_readmes.py`
+- `tests/guards/test_install_guide_settings.py`
+- `tests/guards/test_license_headers.py`
+- `tests/guards/test_mount_program_search.py`
+- `tests/guards/test_operator_guide_files.py`
+- `tests/guards/test_operator_guide_pointers_search.py`
+- `tests/guards/test_project_guide_files.py`
+- `tests/guards/test_root_operator_folders_removed.py`
+- `tests/guards/test_test_folder_readmes.py`
+- `tests/guards/test_work_branch_search.py`
+- `tests/operator_scripts/test_operator_site_check.py`
 
 ## Errors
 
