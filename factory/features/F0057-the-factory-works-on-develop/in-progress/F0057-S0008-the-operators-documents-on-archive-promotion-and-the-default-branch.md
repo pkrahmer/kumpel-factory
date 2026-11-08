@@ -1,5 +1,5 @@
 ---
-stage: docs-only
+stage: docs-review
 blocked: null
 round: 0
 attempts: 1
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 651
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: docs-only
-  started_at: '2026-11-08T02:47:07.492345Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -52,6 +48,12 @@ journal:
   kind: started
   at: '2026-11-08T02:47:07.492345Z'
   stage: docs-only
+- number: 8
+  speaker: documenter
+  kind: result
+  at: '2026-11-08T02:51:26.584856Z'
+  stage: docs-only
+  run: e91c87c1abb444088753a187d26bb3d5
 ---
 
 # The operator's documents on the archive, the promotion and the default branch
@@ -130,3 +132,19 @@ Expect: `documents ok (<seconds> s)`
    FAILED tests/guards/test_project_guide_files.py::test_no_file_names_a_removed_guide_file - AssertionError: assert ['docs/operat...ork-items.md'] == []
    make: *** [Makefile:89: test] Error 1
 7. factory: started docs-only as vm.
+8. documenter: Round 0, second run. The first run stalled on one red guard: `tests/guards/test_project_guide_files.py::test_no_file_names_a_removed_guide_file`. It found the text `work-items.md` at `docs/operator-playbook.md:31`, because the guard treats that bare name as a removed project-guide file.
+
+   Changed file in this run:
+   - `docs/operator-playbook.md` line 31: the link text is now "the operator guide" and the target is still `operator-guide/work-items.md`. This clears the guard. The first run's other edits stay as they were: the playbook names `archive-feature.sh` and the promotion (`promote.sh`, the switch `promote`); `work-items.md` says the setting deletes `develop` when a promotion merges; `install.md` names the default branch `main` and the `repository_unavailable` stop.
+
+   Checks: I ran the guard alone, and it passes (3 tests). `make documents` ended with `documents ok (58.8 s)`. I did not run `make check`, because every changed file is a document.
+
+   Cross-read and found current: the same documents as the first run (the playbook's *After the merge* and *Rebuilds* steps, the rest of *The branches* in `work-items.md`, and the preflight text in `health.md`).
+
+   Stale text I left alone, because it is not part of this story: the playbook's older numbered change list and its step 26 still describe the archive wording of the time. They are history, not rules.
+
+   I added no `docs/decisions.md` entry, because the docs criterion says none.
+
+   `check`: check: green
+   `secrets`: secrets: green (0.6 s)
+   `documents`: documents ok (59.1 s)
