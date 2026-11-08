@@ -324,3 +324,4 @@ Times are UTC. The plan: `night-plan.md`.
 - 19:44 UTC: F0060-S0001 (the rules every role shares stand in the system prompt) started on the human's order.
 - 19:46 UTC: the human made pkrahmer/kumpel-demo-todo-4 for the measurement run after F0060 (instance demo4, set up like demo3, compared with demo3's run).
 - 19:47 UTC: the human asked for a comparison of all kumpel-demo-todo-n runs after the demo-todo-4 run: kumpel-demo-todo (2026-10-31), -2 (baseline), -3 (F0058, F0059), -4 (F0060). Correction: demo3 ran with the one-hour cache; the five-minute trial began after its run (18:51 UTC); the comparison prices all runs at one price list.
+- 19:56 UTC: F0060-S0003 (a review whose findings need only tests goes to the tester) added on the human's order, with the goal, scope, the human's pipeline change and decision 5 in feature.md.
