@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: tests
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 678
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-08T20:03:14.932893Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -89,6 +85,12 @@ journal:
   kind: started
   at: '2026-11-08T20:03:14.932893Z'
   stage: doing
+- number: 15
+  speaker: coder
+  kind: result
+  at: '2026-11-08T20:03:33.758330Z'
+  stage: doing
+  run: fea8230c66e1478186a5f93d03736523
 ---
 
 # The rules every role shares stand in the system prompt
@@ -291,3 +293,17 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     - `tests/agent_files/test_shipped_agents_r14.py`: the human's leave, "any other test whose only failure is this move" (journal entries 7 and 9).
     - `tests/support/shipped_agents.py`: none needed; it only adds the helper `shared_rules()`.
 14. factory: started doing as vm.
+15. coder: Round 1. All three of the reviewer's findings in entry 13 are copied test helpers. Fixing them means changing tests, which the coder may not do. `CLAUDE.md` gives a standing leave to move a shared test helper, so I am handing these to the tester and changing no code. Each copy is still at the line the reviewer named.
+
+    Changes for the tester (every test keeps its name and checks the same thing):
+    1. In `tests/agent_files/test_shared_rules_system_prompt.py`, remove `_rules()` (line 71) and call `shared_rules()` from `tests/support/shipped_agents.py:170` in its place.
+    2. Move `_headings` (`tests/agent_files/test_claude_agent_texts.py:151`) and `_WITHOUT_ROLE` (`test_claude_agent_texts.py:17`) into `tests/support/shipped_agents.py`. Then use them from there in `test_claude_agent_texts.py` and in `test_shared_rules_system_prompt.py`, and delete the copies at lines 36 and 83 of `test_shared_rules_system_prompt.py`. This is the standing leave; the tester's entry names `test_claude_agent_texts.py` as an earlier test file it changed.
+    3. In `test_shared_rules_system_prompt.py`, remove `_CLAUDE_REPLY` (line 47) and import `REPLY` from `tests/support/claude_stand_in.py:16` instead. Replace `Step(stdout=REPLY_EVENTS)` (line 203) with `REPLY` from `tests/support/opencode_stand_in.py:364`, the way `tests/support/container_extra_support.py:17,22` does. Both modules export the name `REPLY`, so one of them needs an import alias.
+
+    Rejected: changing these tests myself, because the coder never edits tests (R9).
+
+    Code: no change. The build from entries 7 and 11 (`agents/system-prompt.md`, `src/factory/agents/domain/prompts.py`, the seven `agents/agents/*.md`) stays as it is. The reviewer found nothing in groups 2 to 5. I did not run the tests or `make check` this round, because I changed no files.
+
+    What the journal changed: nothing in the task's meaning, so `## Description` stays.
+
+    Noticed, not touched: the docs for criterion 9 are still the documenter's.
