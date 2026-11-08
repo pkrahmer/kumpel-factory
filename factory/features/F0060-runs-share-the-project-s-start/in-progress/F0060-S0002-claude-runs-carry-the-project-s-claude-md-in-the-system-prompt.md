@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 679
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-08T21:02:46.672604Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -34,6 +30,12 @@ journal:
   kind: started
   at: '2026-11-08T21:02:46.672604Z'
   stage: tests
+- number: 5
+  speaker: tester
+  kind: result
+  at: '2026-11-08T21:04:11.671637Z'
+  stage: tests
+  run: 970e4c59ea934628bc5665d12e8352e9
 ---
 
 # Claude runs carry the project's CLAUDE.md in the system prompt
@@ -89,3 +91,18 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    - Scope: this is S0002 of `feature.md` (the root `CLAUDE.md` in the system prompt, the switch-off, the five-minute cache). It matches decisions 3 and 4, and it stays clear of "Out of scope": OpenCode handling, nested files and the story text are untouched.
    Route: `tests`, because the Interface changes `src/`.
 4. factory: started tests as vm.
+5. tester: Wrote the tests for every criterion in one new file, `tests/agents/adapters/test_claude_runtime_project_instructions.py`. I changed no earlier test and wrote no new support module.
+   - criterion 1: `::test_a_root_claude_md_follows_the_system_prompt_in_its_block`
+   - criterion 2: `::test_a_checkout_without_a_root_claude_md_file_gets_the_system_prompt_alone` (rows `absent`, `directory`)
+   - criterion 3: `::test_a_root_claude_md_that_is_not_utf8_text_is_an_error_naming_its_path`
+   - criterion 4: `::test_every_claude_call_switches_off_claude_md_and_writes_five_minute_cache` (rows `host`, `container`; the container row reads the environment of the fake container call)
+   - criterion 5: `::test_a_resumed_call_gets_the_same_instructions_file` (budget stop, then resume; same `--append-system-prompt-file` path and the same text, which holds the block)
+   - criterion 6: `::test_a_claude_md_changed_on_the_branch_reaches_the_next_run` (a real git checkout from the `checkout` fixture; `CLAUDE.md` is committed on a work-item branch, then changed and committed again between two runs of one runtime)
+   - criterion 7: `::test_an_opencode_agent_prompt_holds_no_project_instructions_block`
+   - criteria 8 and 9: not test criteria (the check and the docs).
+
+   How the layout is compared: the instructions file must equal, line by line, the system prompt's lines, `""`, the introducing sentence, `<project-instructions>`, the file's lines and `</project-instructions>`. The test also checks that the file starts with `SYSTEM_PROMPT` exactly. The project text in the tests has no closing newline. Both choices the Interface leaves open (whether the file ends with a newline, and whether a newline is added after a text that already ends with one) therefore pass, and the test does not decide them.
+
+   Run (`uv run pytest -q` on the new file): 5 failed for the right reason, and the rest passed. The failures are 1, 3, 4 (both rows), 5 and 6: the block is missing, no error is raised for a file that is not UTF-8, and the switches are missing. Criterion 2's rows and criterion 7 pass already, because they pin behaviour that exists today. Every module imported; none was missing. `make lint` is green after `ruff format` on the new file. I skipped the type check, as the stage says.
+
+   `lint`: lint: green (0.1 s)
