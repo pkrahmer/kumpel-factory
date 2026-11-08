@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 654
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-08T07:08:05.884095Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -36,6 +40,11 @@ journal:
   at: '2026-11-08T07:08:00.554677Z'
   stage: tests
   run: acaa28d195ef47b0b77c79899ef096e3
+- number: 6
+  speaker: factory
+  kind: started
+  at: '2026-11-08T07:08:05.884095Z'
+  stage: doing
 ---
 
 # Kumpel's procedure after an acceptance that proposes stories
@@ -102,3 +111,4 @@ Expect: a line ending in `passed in <seconds>s` with no `failed`.
    Rejected: moving the section-reading lines of `test_operator_archive_outcome.py::test_approving_names_the_refusal_of_a_feature_whose_acceptance_was_not_accepted` into `tests/support/`. Its four inline lines find only the first line of a step, and this story says to change no earlier test. The new module holds its own small reader that also takes a step's continuation lines. No earlier test file was changed.
 
    `lint`: lint: green (0.2 s)
+6. factory: started doing as vm.
