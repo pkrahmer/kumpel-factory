@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 2
 attempts: 0
@@ -202,6 +202,11 @@ journal:
   at: '2026-11-08T13:55:15.046299Z'
   stage: smoke-test
   run: 45b43b5dc84544ca8c641d2a48dc182a
+- number: 36
+  speaker: factory
+  kind: done
+  at: '2026-11-08T13:57:06.851530Z'
+  stage: approval
 ---
 
 # Each stage's start facts come from the factory
@@ -614,3 +619,4 @@ Expect: `True`
     Criteria: I read the acceptance criteria again. The smoke test shows that the stage key `context` exists on `StageDefinition`, and nothing in its output contradicts any criterion. The other criteria are tested by the tests named in entries 8, 19 and 27. `make check` was green after the coder (entry 29). After the docs stage, `make check`, `make secrets` and `make documents` were green (entry 33).
 
     No findings.
+36. factory: done (pull request merged); cost: 16 runs, 36.1 min, 170 turns, 719490 tokens in (6899410 more from cache), 106746 out, $7.11
