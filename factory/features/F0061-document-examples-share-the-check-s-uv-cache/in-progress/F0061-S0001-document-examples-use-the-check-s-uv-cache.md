@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 684
 comments_read: [6729441197]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-09T00:36:00.302295Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -42,6 +46,11 @@ journal:
   at: '2026-11-09T00:35:52.422231Z'
   stage: intake
   run: 8e99f99d4fb24662bf9dbea11cf357bd
+- number: 7
+  speaker: factory
+  kind: started
+  at: '2026-11-09T00:36:00.302295Z'
+  stage: tests
 ---
 
 # Document examples use the check's uv cache
@@ -113,3 +122,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    - Docs criterion: it names what the reader must know (that the examples share the check's uv cache, how that cache is found, and why) and dictates no sentences.
    - Architecture: the pure lookup and the runner sit in the shared adapters, which already hold `ProcessExampleRunner`. The `os.environ` read sits in `entry`, where wiring belongs. No new dependency, no change to `factory/` or to another story's tests.
    - Scope: the story is within F0061's one scope line. The 60 s limit stays and no cache is shared between instances, as the Out of scope section requires.
+7. factory: started tests as vm.
