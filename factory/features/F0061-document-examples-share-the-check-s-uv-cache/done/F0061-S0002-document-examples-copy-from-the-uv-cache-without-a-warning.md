@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 0
 attempts: 0
@@ -80,6 +80,11 @@ journal:
   at: '2026-11-09T01:15:48.395803Z'
   stage: smoke-test
   run: 7b07864154d04eb1b0743f32272baaac
+- number: 14
+  speaker: factory
+  kind: done
+  at: '2026-11-09T01:16:37.712147Z'
+  stage: approval
 ---
 
 # Document examples copy from the uv cache without a warning
@@ -222,3 +227,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     Findings: none.
 
     `check`: check: green
+14. factory: done (pull request merged); cost: 6 runs, 4.9 min, 30 turns, 100743 tokens in (621906 more from cache), 10121 out, $0.83
