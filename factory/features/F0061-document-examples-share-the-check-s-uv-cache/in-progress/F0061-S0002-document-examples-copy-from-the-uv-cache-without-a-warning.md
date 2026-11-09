@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 686
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-09T01:07:25.437575Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -34,6 +30,12 @@ journal:
   kind: started
   at: '2026-11-09T01:07:25.437575Z'
   stage: tests
+- number: 5
+  speaker: tester
+  kind: result
+  at: '2026-11-09T01:07:57.282394Z'
+  stage: tests
+  run: 537d4be0fd274c80a117eb520ce58961
 ---
 
 # Document examples copy from the uv cache without a warning
@@ -96,3 +98,12 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    - Scope: within F0061's goal, the examples using the check's uv cache. This story fixes a side effect of S0001's cache sharing and touches nothing in "Out of scope": the limit stays 60 s and no cache is shared between instances.
    - Route: `tests`, because the Interface changes `src/` and `tests/`.
 4. factory: started tests as vm.
+5. tester: Wrote the tests for both behaviour criteria. I added them to F0061-S0001's module, `tests/shared/adapters/test_document_examples_uv_cache.py`, and changed none of its existing tests.
+   - criterion 1: `tests/shared/adapters/test_document_examples_uv_cache.py::test_a_command_copies_from_the_uv_cache_only_when_the_runner_has_one`. Rows `with-cache` → `[copy]` and `without-cache` → `[]`. The fixture is a local `_NoVariableFixture` that returns `{}`, because the criterion says "a fixture that gives no variable" and the support `EmptyFixture` always gives `EXAMPLE_FIXTURE`. The caller's own `UV_LINK_MODE` is set to `clone` through monkeypatch, so the `[]` row also shows the caller's value does not reach the command. This matches the existing test of `UV_CACHE_DIR`.
+   - criterion 2: `tests/shared/adapters/test_document_examples_uv_cache.py::test_a_fixtures_link_mode_reaches_the_command_only_without_a_uv_cache`. Rows `with-cache` → `[copy]` and `without-cache` → `[hardlink]`. The fixture is `LiftingFixture("UV_LINK_MODE", "hardlink")` from `tests/support/document_examples_support.py`.
+   - criterion 3 (`make check`) and criterion 4 (docs) are for the coder and the documenter.
+   Files: I created none. I added the two tests and the one private fixture class to the module above.
+   Run: `uv run pytest -q` on that module. As expected, both `with-cache` rows fail on the findings assertion, because the command prints `[]` where `[copy]` is expected. The `without-cache` rows and the existing tests pass. That is the right reason: `_fixed_environment` does not add `UV_LINK_MODE` yet. Every module imported fine. `make lint` is green, after I made the local fixture check its folder, as the support fixtures do, to clear ARG002.
+   Not done: I ran this module alone, not the whole `make test` that step 2 names, as `CLAUDE.md` says for the tester's run. I skipped the type check, as the stage says.
+
+   `lint`: lint: green (0.2 s)
