@@ -1,3 +1,30 @@
+---
+stage: intake
+blocked: null
+round: 0
+attempts: 0
+crashes: 0
+pull_request: null
+comments_read: []
+handed_over: null
+claim:
+  instance: vm
+  stage: intake
+  started_at: '2026-11-09T01:06:55.848742Z'
+  lease_duration: 60
+journal:
+- number: 1
+  speaker: human
+  kind: created
+  at: '2026-11-09T01:06:55.841407Z'
+  stage: intake
+- number: 2
+  speaker: factory
+  kind: started
+  at: '2026-11-09T01:06:55.848742Z'
+  stage: intake
+---
+
 # Document examples copy from the uv cache without a warning
 
 <!-- proposed by feature acceptance of 2026-11-09; refine before starting -->
@@ -46,3 +73,6 @@ uv run pytest tests/shared/adapters/test_document_examples_uv_cache.py
 Expect: a summary line with only `passed`, no `failed` or `error`.
 
 ## Journal
+
+1. 2026-11-09 human: created.
+2. factory: started intake as vm.
