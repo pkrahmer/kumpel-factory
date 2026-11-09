@@ -347,3 +347,4 @@ Times are UTC. The plan: `night-plan.md`.
 - 00:32 UTC: The board stayed empty after F0060-S0005 (the reviewer's role names its route to the tester); no second acceptance started. F0060 (runs share the project's start) is done by its feature text, so I archived it by hand; S0004 and S0006 go along in its backlog.
 - 00:34 UTC: Promoted F0060 by #683 (merge 0247ee91d). Moved vm to 60a8077a7 and removed the three cache trial lines from vm's factory.local.env; factory@vm active, no stops. Started F0061-S0001 (document examples use the check's uv cache).
 - 00:35 UTC: F0061-S0001 intake asked whether to add a criterion for the check's wiring of uv_cache (#684); answered (a), its recommendation.
+- 00:35 UTC: Cache check on vm after the move: F0061-S0001 intake's first request read 16,095 tokens from the cache (6,683 before F0060); its writes were all five-minute (8,242 tokens, none of one hour). The human's change for vm is done; demo3 stays as is.
