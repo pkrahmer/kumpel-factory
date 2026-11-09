@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 684
 comments_read: [6729441197]
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-09T00:36:00.302295Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -51,6 +47,12 @@ journal:
   kind: started
   at: '2026-11-09T00:36:00.302295Z'
   stage: tests
+- number: 8
+  speaker: tester
+  kind: result
+  at: '2026-11-09T00:38:50.709013Z'
+  stage: tests
+  run: d5bd67b8e77f4f58848ec2d28a9ff47a
 ---
 
 # Document examples use the check's uv cache
@@ -123,3 +125,31 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    - Architecture: the pure lookup and the runner sit in the shared adapters, which already hold `ProcessExampleRunner`. The `os.environ` read sits in `entry`, where wiring belongs. No new dependency, no change to `factory/` or to another story's tests.
    - Scope: the story is within F0061's one scope line. The 60 s limit stays and no cache is shared between instances, as the Out of scope section requires.
 7. factory: started tests as vm.
+8. tester: Tests written for every criterion. They are red on purpose and are the coder's specification.
+
+   - criterion 1: tests/shared/adapters/test_document_examples_uv_cache.py::test_the_uv_cache_is_found_in_the_order_of_its_variables. It is parametrized with these rows:
+     - `UV_CACHE_DIR` wins over `XDG_CACHE_HOME` and `HOME`
+     - `XDG_CACHE_HOME` + `HOME` gives `XDG/uv`
+     - `HOME` only gives `HOME/.cache/uv`
+     - none set gives `None`
+     - an empty value counts as not set, one row for each of the three variables, plus a row where all three are empty
+   - criterion 2: tests/shared/adapters/test_document_examples_uv_cache.py::test_a_command_sees_the_runners_uv_cache_or_none. Rows `with-cache` and `without-cache`. The command is `echo "[$UV_CACHE_DIR]"` and expects `[path]` or `[]`; the brackets make the empty line visible. The caller's own `UV_CACHE_DIR` is monkeypatched so that its value cannot leak through.
+   - criterion 3: tests/shared/adapters/test_document_examples_uv_cache.py::test_a_fixtures_uv_cache_does_not_replace_the_runners. A fixture gives `UV_CACHE_DIR=/from/the/fixture`, and the command still sees the runner's path.
+   - criterion 4: tests/shared/adapters/test_document_examples_uv_cache.py::test_with_a_uv_cache_home_stays_the_documents_own_folder. The cache is `<tmp>/callers-home/.cache/uv`. The test checks three things: `$HOME` is not `callers-home`, it exists, and it is empty.
+   - criterion 5: tests/entry/test_check_documents_uv_cache.py::test_the_check_gives_its_examples_its_own_uv_cache. It uses the `minimal` fixture (built with `minimal_documents_support`) and monkeypatches `UV_CACHE_DIR`. It appends a `console` block to `docs/project-guide/shared.md` that prints `$UV_CACHE_DIR` and expects the path, and lists that file in `docs/checked-documents.txt` so that a finding would block. The check must print only the time line and exit 0.
+   - criteria 6–7 (`make check` green, docs): not test criteria.
+
+   Files created:
+   - tests/shared/adapters/test_document_examples_uv_cache.py
+   - tests/entry/test_check_documents_uv_cache.py
+
+   No earlier test files were changed. The new module defines two small fixtures of its own (`CacheFixture`, `PlainFixture`) instead of importing `LiftingFixture` from another test module, because test modules must not import each other.
+
+   Run of `make test`:
+   - It is red as expected. `tests/shared/adapters/test_document_examples_uv_cache.py` could not be imported: `ImportError: cannot import name 'uv_cache_directory' from 'factory.shared.adapters.document_examples'`.
+   - The entry test fails on `assert re.fullmatch(TIME_LINE, lines[0])`. The check does not yet pass the cache to its examples, so the example prints an empty line and gives a finding.
+   - The two `tests/guards/test_documents_marker.py` errors in the same run follow from that collection error. They should clear once the module imports.
+
+   `make lint` is green.
+
+   `lint`: lint: green (0.1 s)
