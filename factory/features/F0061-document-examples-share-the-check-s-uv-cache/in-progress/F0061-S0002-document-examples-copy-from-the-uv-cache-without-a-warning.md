@@ -1,5 +1,5 @@
 ---
-stage: review
+stage: docs
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 686
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: review
-  started_at: '2026-11-09T01:10:37.654123Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -56,6 +52,12 @@ journal:
   kind: started
   at: '2026-11-09T01:10:37.654123Z'
   stage: review
+- number: 9
+  speaker: reviewer
+  kind: result
+  at: '2026-11-09T01:11:02.061726Z'
+  stage: review
+  run: a28a769ae27f43eeb3153e1959f10f08
 ---
 
 # Document examples copy from the uv cache without a warning
@@ -138,3 +140,15 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
    `duplicates`: duplicates: 7 new, 39 known, 4 gone
 8. factory: started review as vm.
+9. reviewer: no findings
+
+   - Criterion 1: `tests/shared/adapters/test_document_examples_uv_cache.py::test_a_command_copies_from_the_uv_cache_only_when_the_runner_has_one` covers both sides of the uv_cache rule as rows of one parametrized test. With a cache the command prints `[copy]`; without one it prints `[]`. The caller's own `UV_LINK_MODE=clone` is set through monkeypatch, so the `[]` row also shows that the caller's value does not leak through `env -i`.
+     - The test uses a local `_NoVariableFixture`, which returns `{}`. It is not a copy of an existing helper: the support `EmptyFixture` always gives a variable, and no fixture in `tests/support/` returns nothing. So the local class is the right reading of "a fixture that gives no variable".
+   - Criterion 2: `test_a_fixtures_link_mode_reaches_the_command_only_without_a_uv_cache` uses the support `LiftingFixture("UV_LINK_MODE", "hardlink")`. Its rows are `with-cache` → `[copy]` and `without-cache` → `[hardlink]`. Together they cover the Interface's rule on both sides: with a cache a fixture cannot change the value, and without one the fixture's value reaches the command.
+   - Code: `src/factory/shared/adapters/document_examples.py:44-47` sets `UV_LINK_MODE=copy` only inside the existing `if uv_cache is not None` branch. Line 98 keeps the fixed environment after the fixture's, so the order the Interface asks for holds. No signature changed. Nothing else in the fixed environment changed, and `EXAMPLE_TIME_LIMIT` is still 60 s. The comment gives the reason (different filesystems, so uv's warning would reach the output), not a restatement of the code.
+   - Architecture and security: the change stays in the `shared` adapters layer. It adds no tool call, import, dependency or suppression marker. The journal says the coder's `make check guides` was green.
+   - Hygiene: the coder's entry 7 names the main choice (set the variable only with a cache) and the rejected one (always set it). The Description matches what was built. The docs criterion still names what the documenter must write and where (`docs/project-guide/shared.md` *The examples*, `docs/project-guide/style.md` *Runnable examples*).
+   - Duplicates: the `7 new` in entry 7 cannot come from this diff, which adds only three lines and one small test fixture class to `src/` and the tests.
+
+   Earlier tests:
+   - `tests/shared/adapters/test_document_examples_uv_cache.py`: none needed. The diff only adds two tests and one private fixture class, and every test the file already held is unchanged.
