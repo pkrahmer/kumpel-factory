@@ -233,7 +233,9 @@ After the settings lines the command runs the `console` blocks of every document
 - `first_difference` is the match, with `...` and `<placeholder>`.
 - `Fixture.prepare(folder)` fills an empty folder and returns the extra environment. `ExampleRunner.run_document(document, examples, fixtures)` returns the document's findings.
 - `ProcessExampleRunner` of `document_examples.py` runs each command through `run_process` as `env -i <variables> sh -c <command>`.
-- The fixed variables come last, so a fixture cannot replace `PATH`, `HOME`, `TZ` or `LANG`.
+- The fixed variables come last, so a fixture cannot replace `PATH`, `HOME`, `TZ`, `LANG` or `UV_CACHE_DIR`.
+- The examples share the uv cache of the process that runs the check. `HOME` is the document's own empty folder, so without a shared cache a fresh copy's first `uv run` would download every package and could run past the examples' limit. Each document still gets its own folder and home; only the package cache is shared.
+- `check_documents.py` builds the runner with `uv_cache=uv_cache_directory(os.environ)`. `uv_cache_directory(environment)` looks the cache up as uv does: `UV_CACHE_DIR`, else `XDG_CACHE_HOME` + `/uv`, else `HOME` + `/.cache/uv`. An empty value counts as not set. When none of the three is set it returns `None`, and the commands get no `UV_CACHE_DIR`.
 - Its default limit is 60 seconds, and a test passes a shorter one.
 - The folder and the home are temporary and removed when `run_document` returns, also after a timeout.
 - `CheckoutFixture` of [checkout_fixture.py](../../src/factory/hosting/adapters/checkout_fixture.py) is the fixture `checkout`. It exports the tracked files of the checked commit through `GitCli.export`. It raises `FixtureError` outside a git repository. The runner then gives one finding, `fixture <name> could not be prepared`, at the block's line and runs none of the document's commands on that fixture.

@@ -1,5 +1,5 @@
 ---
-stage: docs
+stage: smoke-test
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 684
 comments_read: [6729441197]
 handed_over: null
-claim:
-  instance: vm
-  stage: docs
-  started_at: '2026-11-09T00:50:40.383633Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -117,6 +113,12 @@ journal:
   kind: started
   at: '2026-11-09T00:50:40.383633Z'
   stage: docs
+- number: 20
+  speaker: documenter
+  kind: result
+  at: '2026-11-09T00:54:16.245585Z'
+  stage: docs
+  run: fce311af2c654382aac7229675ed4ffb
 ---
 
 # Document examples use the check's uv cache
@@ -317,3 +319,21 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     Earlier tests:
     - `tests/shared/adapters/test_document_examples.py`: changed under the standing leave to move a shared test helper (CLAUDE.md *Tests*). The change only moves `FIXTURE_VARIABLE`, `LIFTED_VALUE`, `EmptyFixture`, `LiftingFixture` and `_block`/`_document` (now `block`/`document`) to `tests/support/document_examples_support.py`. Every test keeps its name and checks the same thing.
 19. factory: started docs as vm.
+20. documenter: Docs for the uv cache passthrough. I changed only documents, so I did not run `make check`. `make documents` ended `documents ok (50.4 s)` and `make guides` was green.
+
+    Files changed:
+    - `docs/project-guide/shared.md` (*The examples*): the fixed-variables bullet now names `UV_CACHE_DIR` among the variables a fixture cannot replace. A new bullet says the examples share the uv cache of the process that runs the check, and why: the home is empty, so a fresh copy's first `uv run` would download every package and could pass the 60 s limit. It also says each document still has its own folder and home. Another bullet says how `check_documents.py` wires `uv_cache_directory(os.environ)`, the lookup order (`UV_CACHE_DIR`, then `XDG_CACHE_HOME/uv`, then `HOME/.cache/uv`), that an empty value counts as not set, and that `None` means no `UV_CACHE_DIR`. This is criterion 7.
+    - `docs/project-guide/style.md` (*Runnable examples*): the list of the fixed environment said "and nothing else" without `UV_CACHE_DIR`, so it was stale. It now names `UV_CACHE_DIR` when the check's process has a uv cache.
+    - `docs/project-guide/README.md`: added the new support module `tests/support/document_examples_support.py` (from the tester's round 1 move) to the list of support modules.
+
+    I checked the smoke test's lookup against the code by running `uv run python -c "...uv_cache_directory..."`, which printed `/c /h/.cache/uv None`.
+
+    Cross-read and found current: the rest of `docs/project-guide/shared.md` (the document check, its report, its tests and *Reference*), `docs/decisions.md` (the `.cache/uv` kept in the agent home is a different mechanism and is still true), the operator guide (no mention of the example environment) and `README.md`.
+
+    Stale text not mine to fix: none seen.
+
+    No findings.
+
+    `guides`: guides: green (9.6 s)
+    `secrets`: secrets: green (0.7 s)
+    `documents`: documents ok (51.0 s)
