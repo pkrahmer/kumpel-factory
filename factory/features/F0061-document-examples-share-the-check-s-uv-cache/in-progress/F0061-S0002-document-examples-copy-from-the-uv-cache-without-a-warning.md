@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 686
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-09T01:08:02.525396Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -45,6 +41,12 @@ journal:
   kind: started
   at: '2026-11-09T01:08:02.525396Z'
   stage: doing
+- number: 7
+  speaker: coder
+  kind: result
+  at: '2026-11-09T01:10:32.319872Z'
+  stage: doing
+  run: 15d18a26744042afb5404d4b941dd55d
 ---
 
 # Document examples copy from the uv cache without a warning
@@ -117,3 +119,12 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
    `lint`: lint: green (0.2 s)
 6. factory: started doing as vm.
+7. coder: Built: `src/factory/shared/adapters/document_examples.py`, `_fixed_environment`. When `uv_cache` is given, the fixed environment now holds `UV_LINK_MODE=copy` next to `UV_CACHE_DIR`. A comment explains why: the cache and the example's folder may lie on different filesystems, and the failed hardlink would put uv's warning into the example's output. Agent runs already copy for the same reason.
+   - I changed no signature. `_DocumentRun.environment` already puts the fixed environment after the fixture's, so a fixture cannot override either variable. Without a uv cache there is no `UV_LINK_MODE`, so a fixture's own value still reaches the command.
+   - Main choice: I set the variable inside the existing `if uv_cache is not None` branch. The rejected alternative was setting `UV_LINK_MODE` always. The description says the examples get no `UV_LINK_MODE` without a uv cache, and criterion 2's `[hardlink]` row needs that.
+   - Run: before the change, `uv run pytest -q tests/shared/adapters/test_document_examples_uv_cache.py` failed in the two `with-cache` rows, as the tester's entry says. After the change, all 16 tests in it pass.
+   - `make check guides` ended with `check: green` and `guides: green`.
+   - Refactor: I read the diff and found nothing to change.
+   - Noticed, not touched: the docs criterion (`docs/project-guide/shared.md` *The examples*, `docs/project-guide/style.md` *Runnable examples*) is the documenter's. The journal did not change the description.
+
+   `duplicates`: duplicates: 7 new, 39 known, 4 gone

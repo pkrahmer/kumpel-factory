@@ -40,8 +40,11 @@ def _fixed_environment(home: Path, uv_cache: Path | None) -> dict[str, str]:
     }
     # The examples share the check's cache, so that a fresh home does not make a document's
     # first `uv run` download every package within the examples' limit.
+    # The cache and the example's folder may lie on different filesystems: uv's hardlink would
+    # fail and its warning reach the example's output, so it copies, as agent runs do.
     if uv_cache is not None:
         fixed["UV_CACHE_DIR"] = str(uv_cache)
+        fixed["UV_LINK_MODE"] = "copy"
     return fixed
 
 
