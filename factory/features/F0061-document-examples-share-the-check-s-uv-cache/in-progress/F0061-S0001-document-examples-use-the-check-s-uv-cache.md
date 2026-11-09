@@ -1,5 +1,5 @@
 ---
-stage: intake
+stage: tests
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 684
 comments_read: [6729441197]
 handed_over: null
-claim:
-  instance: vm
-  stage: intake
-  started_at: '2026-11-09T00:35:32.377252Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -40,6 +36,12 @@ journal:
   kind: started
   at: '2026-11-09T00:35:32.377252Z'
   stage: intake
+- number: 6
+  speaker: intake
+  kind: result
+  at: '2026-11-09T00:35:52.422231Z'
+  stage: intake
+  run: 8e99f99d4fb24662bf9dbea11cf357bd
 ---
 
 # Document examples use the check's uv cache
@@ -63,7 +65,7 @@ def uv_cache_directory(environment: Mapping[str, str]) -> Path | None: ...
   - With `uv_cache` given, every command's environment holds `UV_CACHE_DIR` with that path, after the fixture's environment, so a fixture cannot change it; with `None`, no command's environment holds `UV_CACHE_DIR`.
   - `HOME` stays the document's own home folder.
 - `src/factory/entry/check_documents.py` (`entry`): builds the runner with `uv_cache=uv_cache_directory(os.environ)`.
-- Tests: `tests/shared/adapters/test_document_examples_uv_cache.py`.
+- Tests: `tests/shared/adapters/test_document_examples_uv_cache.py` and `tests/entry/test_check_documents_uv_cache.py`.
 
 ## Acceptance criteria
 
@@ -71,8 +73,9 @@ def uv_cache_directory(environment: Mapping[str, str]) -> Path | None: ...
 2. A runner built with `uv_cache` runs a command that prints `$UV_CACHE_DIR`, and the output is that path; a runner built without it prints an empty line: rows of one parametrized test.
 3. A fixture whose environment holds `UV_CACHE_DIR` does not change the value the command sees when the runner has `uv_cache`.
 4. With `uv_cache` given, the command's `$HOME` is still the document's own home folder, not the cache's parent.
-5. `make check` stays green.
-6. docs: the project guide (`docs/project-guide/shared.md`, the document examples) says that the examples share the uv cache of the process that runs the check, how that cache is found, and why (a fresh copy's first `uv run` would otherwise download every package and could pass the examples' limit).
+5. The document check, run with `UV_CACHE_DIR` set in its own environment (monkeypatched) on a written document (`tests/support/minimal_documents_support.py`) whose example prints `$UV_CACHE_DIR` and expects that path, reports no finding.
+6. `make check` stays green.
+7. docs: the project guide (`docs/project-guide/shared.md`, the document examples) says that the examples share the uv cache of the process that runs the check, how that cache is found, and why (a fresh copy's first `uv run` would otherwise download every package and could pass the examples' limit).
 
 ## Smoke test
 
@@ -98,3 +101,15 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
       I would choose (a).
 4. 2026-11-09 human: (a). Add the criterion for the document check's own wiring, with its test under tests/entry/ as you describe, and name that file in the Interface's Tests line.
 5. factory: started intake as vm.
+6. intake: accepted
+   - Human's answer carried in (journal entry 4, option (a)): I added criterion 5, which runs the document check with `UV_CACHE_DIR` monkeypatched, on a document written through `tests/support/minimal_documents_support.py` whose example prints `$UV_CACHE_DIR`, and expects no finding. It sits before the two closing criteria, which are now 6 and 7. The Interface's Tests line now also names `tests/entry/test_check_documents_uv_cache.py`.
+   - Interface: it names concrete modules and signatures. These are `ProcessExampleRunner.__init__(time_limit, uv_cache: Path | None = None)` and `uv_cache_directory(Mapping[str, str]) -> Path | None` in `src/factory/shared/adapters/document_examples.py`, plus the wiring in `src/factory/entry/check_documents.py` (it now calls `ProcessExampleRunner()` at line 203).
+   - Criteria: each one can be tested by one test function.
+     - Criterion 1 covers the precedence order, each fallback, `None`, and an empty value counting as not set for each of the three variables.
+     - Criterion 2 covers both sides of `uv_cache`.
+     - Criterion 3 checks that a fixture cannot override it, and criterion 4 that `HOME` is still the document's own home.
+     - Criterion 5 covers the entry wiring.
+   - Smoke test: both commands can run. pyproject's `addopts` already sets `-q`, so the pytest command passes no `-q` and still prints its summary line. Each `Expect:` can be checked: an exact printed line, and a summary with only `passed`.
+   - Docs criterion: it names what the reader must know (that the examples share the check's uv cache, how that cache is found, and why) and dictates no sentences.
+   - Architecture: the pure lookup and the runner sit in the shared adapters, which already hold `ProcessExampleRunner`. The `os.environ` read sits in `entry`, where wiring belongs. No new dependency, no change to `factory/` or to another story's tests.
+   - Scope: the story is within F0061's one scope line. The 60 s limit stays and no cache is shared between instances, as the Out of scope section requires.
