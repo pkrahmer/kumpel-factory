@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 684
 comments_read: [6729441197]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-09T00:47:27.911021Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -95,6 +91,12 @@ journal:
   kind: started
   at: '2026-11-09T00:47:27.911021Z'
   stage: doing
+- number: 16
+  speaker: coder
+  kind: result
+  at: '2026-11-09T00:50:07.605174Z'
+  stage: doing
+  run: 40ac0a92fdc341408ac521e92c75e151
 ---
 
 # Document examples use the check's uv cache
@@ -258,3 +260,20 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     `lint`: lint: green (0.1 s)
 15. factory: started doing as vm.
+16. coder: Round 1: no code change was needed. The reviewer's one finding (copied test helpers) was a change to the tests, and the tester answered it in entry 14 by moving the helpers to `tests/support/document_examples_support.py`. The product code from entry 10 stays as it was:
+    - `src/factory/shared/adapters/document_examples.py`: `uv_cache_directory`, and `ProcessExampleRunner(uv_cache=...)` feeding `_fixed_environment`.
+    - `src/factory/entry/check_documents.py`: the wiring with `os.environ`.
+
+    Checks:
+    - The three test files the tester's latest entry names pass: `tests/shared/adapters/test_document_examples.py`, `tests/shared/adapters/test_document_examples_uv_cache.py` and `tests/entry/test_check_documents_uv_cache.py`.
+    - `make check guides` is green: check: green (test 110.7 s, coverage 99.21 %), and guides: green.
+
+    Main choice and rejected alternative: unchanged from entry 10. The cache goes into the one fixed environment, which is merged after the fixture's environment. I rejected adding it separately inside `run_document`.
+
+    Refactor pass: the source diff is the same as in round 0 and nothing needed changing.
+
+    Description: the journal changed no meaning of the task, so it stays as written.
+
+    Noticed but not touched: as before, `_fixed_environment` reads `PATH` from `os.environ` inside the adapter. The docs criterion (`docs/project-guide/shared.md`) is the documenter's.
+
+    `duplicates`: duplicates: 7 new, 39 known, 4 gone
