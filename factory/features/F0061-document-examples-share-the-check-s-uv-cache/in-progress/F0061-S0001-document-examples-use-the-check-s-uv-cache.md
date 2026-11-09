@@ -1,17 +1,13 @@
 ---
 stage: intake
-blocked: null
+blocked: question
 round: 0
 attempts: 0
 crashes: 0
-pull_request: null
+pull_request: 684
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: intake
-  started_at: '2026-11-09T00:34:17.952891Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -23,6 +19,13 @@ journal:
   kind: started
   at: '2026-11-09T00:34:17.952891Z'
   stage: intake
+- number: 3
+  speaker: intake
+  kind: question
+  at: '2026-11-09T00:34:42.821295Z'
+  stage: intake
+  run: 82101504913b4ccc87e9a80c5a31cb42
+  blocked: question
 ---
 
 # Document examples use the check's uv cache
@@ -73,3 +76,9 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
 1. 2026-11-09 human: created.
 2. factory: started intake as vm.
+3. intake: Intake: one question before the story can go to tests. The other checks passed: the form check passed; the Interface names concrete modules and signatures; criteria 1–4 cover each branch of `uv_cache_directory` (including empty values and the order of precedence), both sides of `uv_cache`, the fixture that cannot override it, and `HOME`; the smoke test commands can run (pyproject's `addopts` already sets `-q`, so the summary line is printed) and their expectations can be checked; the docs criterion says what the reader must know without dictating sentences; the change belongs in the shared adapters plus the entry wiring; and the story fits F0061's scope, with the 60 s limit untouched.
+
+   1. The Interface says `src/factory/entry/check_documents.py` builds the runner with `uv_cache=uv_cache_directory(os.environ)` (it now calls `ProcessExampleRunner()`, line 203). No criterion tests this line, and it is what makes the feature work at all: a coder who leaves it out passes criteria 1–4 and the smoke test, yet the examples would still get no `UV_CACHE_DIR`. The options I see:
+      (a) Add a criterion before the two closing ones, for example: "The document check, run with `UV_CACHE_DIR` set in its own environment (monkeypatched) on a written document whose example prints `$UV_CACHE_DIR` and expects that path, reports no finding." Its test would go under `tests/entry/` beside the existing check_documents tests, using `tests/support/minimal_documents_support.py`, and the Interface's Tests line would name that file too.
+      (b) Leave the wiring untested and let the reviewer check it.
+      I would choose (a).
