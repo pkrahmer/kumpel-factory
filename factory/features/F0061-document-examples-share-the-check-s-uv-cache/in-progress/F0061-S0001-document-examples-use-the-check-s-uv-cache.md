@@ -1,17 +1,13 @@
 ---
-stage: review
+stage: tests
 blocked: null
-round: 0
+round: 1
 attempts: 0
 crashes: 0
 pull_request: 684
 comments_read: [6729441197]
 handed_over: null
-claim:
-  instance: vm
-  stage: review
-  started_at: '2026-11-09T00:41:37.605525Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -73,6 +69,12 @@ journal:
   kind: started
   at: '2026-11-09T00:41:37.605525Z'
   stage: review
+- number: 12
+  speaker: reviewer
+  kind: result
+  at: '2026-11-09T00:42:14.649458Z'
+  stage: review
+  run: cbb04a0404e146f69f5b014b39029267
 ---
 
 # Document examples use the check's uv cache
@@ -192,3 +194,31 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     `duplicates`: duplicates: 7 new, 39 known, 4 gone
 11. factory: started review as vm.
+12. reviewer: Review, round 0. I read the diff against the criteria and the Interface. I checked groups 1 to 5 and item 6.
+
+    Group 1, acceptance criteria:
+    - Criterion 1 has one parametrized test. It has rows for the order of precedence, each fallback, `None`, an empty value for each of the three variables, and all three empty.
+    - Criterion 2 has `with-cache` and `without-cache` rows. The brackets make the empty value visible, and the caller's own `UV_CACHE_DIR` is monkeypatched so it cannot leak through.
+    - Criterion 3 runs a fixture that gives `UV_CACHE_DIR`, and the runner's value still wins.
+    - Criterion 4 checks that `$HOME` is not the caller's home, that it exists and that it is empty. The cache's folder is not empty, so this rules it out as `HOME`.
+    - Criterion 5 is in `tests/entry/`. It is a real end-to-end test of the `os.environ` wiring, and it would block if the wiring were missing. The tester's entry says it was red before the coder.
+    - The journal says `make check guides` was green after the coder.
+    - Group 1 has no gaps.
+
+    Group 2, architecture: `uv_cache_directory` is pure and sits where the Interface puts it. The `os.environ` read is in `entry`. The cache goes into `_fixed_environment`, which is still merged last, so no fixture can lift it. No wrapper or layer rule is broken.
+
+    Group 3, security: there are no markers. Commands get the cache only through `env -i` arguments, and no shell string is built from it beyond what was there before.
+
+    Group 4, quality: the names, docstrings and why-comment in `src/` are fine.
+
+    Group 5, work item hygiene: the Description matches what was built, and the docs criterion is still accurate.
+
+    Findings:
+    1. `tests/shared/adapters/test_document_examples_uv_cache.py:18-37` copies helpers that `tests/shared/adapters/test_document_examples.py` already holds:
+       - `PlainFixture` copies `EmptyFixture` (line 28), except for its one variable.
+       - `CacheFixture` is `LiftingFixture("UV_CACHE_DIR")` (line 238) with a different value.
+       - `_document` copies `_block`/`_document` (lines 45-50).
+       
+       The fix: under the standing leave in CLAUDE.md *Tests*, move `EmptyFixture`, `LiftingFixture`, `_block` and `_document` (with `LIFTED_VALUE` and `FIXTURE_VARIABLE`) into a support module in `tests/support/`, for example `document_examples_support.py`. Then make both modules use them, with every earlier test keeping its name and what it checks, and name `tests/shared/adapters/test_document_examples.py` in the entry as changed. The test files are the only thing to change, so this goes to the tester.
+
+    Earlier tests: none. The diff changes no test file that `develop` already holds; both test files are new (status `A`).
