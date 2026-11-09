@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 684
 comments_read: [6729441197]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: smoke-test
+  started_at: '2026-11-09T00:54:21.416577Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -119,6 +123,11 @@ journal:
   at: '2026-11-09T00:54:16.245585Z'
   stage: docs
   run: fce311af2c654382aac7229675ed4ffb
+- number: 21
+  speaker: factory
+  kind: started
+  at: '2026-11-09T00:54:21.416577Z'
+  stage: smoke-test
 ---
 
 # Document examples use the check's uv cache
@@ -337,3 +346,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     `guides`: guides: green (9.6 s)
     `secrets`: secrets: green (0.7 s)
     `documents`: documents ok (51.0 s)
+21. factory: started smoke-test as vm.
