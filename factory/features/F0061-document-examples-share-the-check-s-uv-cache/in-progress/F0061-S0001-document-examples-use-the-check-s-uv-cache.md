@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 684
 comments_read: [6729441197]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: intake
+  started_at: '2026-11-09T00:35:32.377252Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -30,6 +34,11 @@ journal:
   speaker: human
   kind: comment
   at: '2026-11-09T00:35:27.750198Z'
+  stage: intake
+- number: 5
+  speaker: factory
+  kind: started
+  at: '2026-11-09T00:35:32.377252Z'
   stage: intake
 ---
 
@@ -88,3 +97,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
       (b) Leave the wiring untested and let the reviewer check it.
       I would choose (a).
 4. 2026-11-09 human: (a). Add the criterion for the document check's own wiring, with its test under tests/entry/ as you describe, and name that file in the Interface's Tests line.
+5. factory: started intake as vm.
