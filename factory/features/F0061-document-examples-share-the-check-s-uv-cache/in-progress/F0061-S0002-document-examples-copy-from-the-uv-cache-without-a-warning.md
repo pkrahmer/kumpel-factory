@@ -1,5 +1,5 @@
 ---
-stage: smoke-test
+stage: approval
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 686
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: smoke-test
-  started_at: '2026-11-09T01:13:30.552820Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -78,6 +74,12 @@ journal:
   kind: started
   at: '2026-11-09T01:13:30.552820Z'
   stage: smoke-test
+- number: 13
+  speaker: smoke-tester
+  kind: result
+  at: '2026-11-09T01:15:48.395803Z'
+  stage: smoke-test
+  run: 7b07864154d04eb1b0743f32272baaac
 ---
 
 # Document examples copy from the uv cache without a warning
@@ -195,3 +197,28 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     `secrets`: secrets: green (0.4 s)
     `documents`: documents ok (51.0 s)
 12. factory: started smoke-test as vm.
+13. smoke-tester: Ran both smoke-test commands from the repository root, exactly as written. Both met their `Expect:` lines, so there are no findings.
+
+    Command 1 (the inline Python that runs one example with and without a uv cache):
+    ```
+    /c []
+    None ['g.md:4: the example printed []']
+    ```
+    Exit 0. This met the expectation: two lines, `/c []` and then `None ['g.md:4: the example printed []']`. With a uv cache the command printed `[copy]`, as the example expects, so the runner reported nothing. Without one it printed `[]`, which the runner reported as a mismatch on line 4.
+
+    Command 2 (`uv run pytest tests/shared/adapters/test_document_examples_uv_cache.py`):
+    ```
+    Bytecode compiled 4164 files in 57ms
+    ................                                                         [100%]
+    16 passed in 0.03s
+    ```
+    Exit 0. This met the expectation: the summary line says only `passed`, with no `failed` or `error`.
+
+    Criteria, checked against what the commands showed:
+    - 1 and 2: command 1 shows the `[copy]` / `[]` sides of criterion 1. The parametrized tests for criteria 1 and 2 are among the 16 that passed.
+    - 3 (`make check`): the factory runs it after this stage. I did not run it.
+    - 4 (docs): grep finds the text in both places the criterion names. `docs/project-guide/shared.md:236` and `:238` say the examples get `UV_LINK_MODE=copy` with the uv cache, and why. `docs/project-guide/style.md:32` names the variable in the fixed environment's list, with the reason. Nothing in either contradicts what the smoke test showed.
+
+    Findings: none.
+
+    `check`: check: green
