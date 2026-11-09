@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 0
 attempts: 0
@@ -20,8 +20,13 @@ journal:
   at: '2026-11-09T01:25:16.036726Z'
   stage: acceptance
   run: 22cc8b17ae204c4c8271008542a3b6fe
+- number: 3
+  speaker: factory
+  kind: done
+  at: '2026-11-09T01:26:04.864128Z'
+  stage: done
 stories: [F0061-S0001, F0061-S0002]
-outcome: null
+outcome: accepted
 ---
 
 # Acceptance of Document examples share the check's uv cache
@@ -206,3 +211,4 @@ Human interventions: **1 question answered** (question 1), **0.0 h waited**. It 
    8. Cost: 16 runs, $2.89 (S0001 $2.06, S0002 $0.83).
       - S0001 stands out because of its intake question and a review round for copied test helpers.
       - 1 question answered (S0001's intake, about the untested `entry` wiring), 0.0 h waited.
+3. factory: done (pull request merged); cost: 1 runs, 8.4 min, 26 turns, 53473 tokens in (1187325 more from cache), 17243 out, $0.85
