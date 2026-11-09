@@ -1,5 +1,5 @@
 ---
-stage: review
+stage: docs
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 684
 comments_read: [6729441197]
 handed_over: null
-claim:
-  instance: vm
-  stage: review
-  started_at: '2026-11-09T00:50:12.880226Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -106,6 +102,12 @@ journal:
   kind: started
   at: '2026-11-09T00:50:12.880226Z'
   stage: review
+- number: 18
+  speaker: reviewer
+  kind: result
+  at: '2026-11-09T00:50:35.585163Z'
+  stage: review
+  run: 97c708c68cea4225a88d44918d87096a
 ---
 
 # Document examples use the check's uv cache
@@ -287,3 +289,21 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     `duplicates`: duplicates: 7 new, 39 known, 4 gone
 17. factory: started review as vm.
+18. reviewer: Review, round 1. I read `git diff develop...HEAD -- . ':!factory'` against the criteria and the Interface, and checked groups 1 to 5 and item 6.
+
+    no findings
+
+    - Round 0's one finding (copied helpers) is answered. The new `tests/support/document_examples_support.py` holds `EmptyFixture`, `LiftingFixture`, `block` and `document`. Both adapter test modules use these and no longer define their own copies. The new constructor arguments have defaults that keep the earlier behaviour (`EmptyFixture()` still gives `EXAMPLE_FIXTURE=set`, and `LiftingFixture(name)` still gives `from-the-fixture`).
+    - Group 1: each of criteria 1–5 has a test that checks what the criterion says.
+      - Criterion 1 is one parametrized test. It covers the order, each fallback, `None`, an empty value for each of the three variables, and all three empty.
+      - Criterion 2 has rows for with and without a cache, and the caller's own `UV_CACHE_DIR` is monkeypatched so a leak would fail.
+      - Criteria 3 and 4 check that a fixture cannot override the cache and that `HOME` is still the document's own empty folder.
+      - Criterion 5 runs `main` end to end with a document that is listed for checking, so it would block if the wiring were missing.
+      - Entry 16 records that `make check guides` was green after the coder.
+    - Group 2: `uv_cache_directory` is a pure lookup in the shared adapters. `os.environ` is read in `entry`, at `src/factory/entry/check_documents.py:205`. The cache goes into the one fixed environment, which is still merged after the fixture's environment. No layer or wrapper rule is broken.
+    - Group 3: there are no markers and no new shell strings; the value reaches the command only through `env -i` arguments.
+    - Group 4: the names, the docstrings and the why-comment in `_fixed_environment` are fine. No second copy of an existing helper turns up: `src/factory` had no other lookup of `UV_CACHE_DIR` or `XDG_CACHE_HOME`.
+    - Group 5: the Description matches what was built. Entries 10 and 16 give the main choice and the alternatives that were rejected. The docs criterion (criterion 7) still says what the reader needs.
+
+    Earlier tests:
+    - `tests/shared/adapters/test_document_examples.py`: changed under the standing leave to move a shared test helper (CLAUDE.md *Tests*). The change only moves `FIXTURE_VARIABLE`, `LIFTED_VALUE`, `EmptyFixture`, `LiftingFixture` and `_block`/`_document` (now `block`/`document`) to `tests/support/document_examples_support.py`. Every test keeps its name and checks the same thing.
