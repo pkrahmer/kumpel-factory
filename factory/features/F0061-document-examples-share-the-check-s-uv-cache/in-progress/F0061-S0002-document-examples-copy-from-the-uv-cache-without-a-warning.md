@@ -1,5 +1,5 @@
 ---
-stage: docs
+stage: smoke-test
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 686
 comments_read: []
 handed_over: null
-claim:
-  instance: vm
-  stage: docs
-  started_at: '2026-11-09T01:11:07.431495Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -67,6 +63,12 @@ journal:
   kind: started
   at: '2026-11-09T01:11:07.431495Z'
   stage: docs
+- number: 11
+  speaker: documenter
+  kind: result
+  at: '2026-11-09T01:13:25.731941Z'
+  stage: docs
+  run: 0f13d17c2e984d66bb28547110b1c9d2
 ---
 
 # Document examples copy from the uv cache without a warning
@@ -162,3 +164,24 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    Earlier tests:
    - `tests/shared/adapters/test_document_examples_uv_cache.py`: none needed. The diff only adds two tests and one private fixture class, and every test the file already held is unchanged.
 10. factory: started docs as vm.
+11. documenter: Wrote the docs criterion into the two places it names. I changed only documents, so I did not run `make check`, as the role's lessons say. `make documents` ended with `documents ok (50.8 s)`.
+
+    Changed:
+    - `docs/project-guide/shared.md` (*The examples*): added `UV_LINK_MODE` to the fixed variables that a fixture cannot replace. Added a bullet after the uv-cache bullet. It says that with the uv cache the commands also get `UV_LINK_MODE=copy`, and why: the cache and the example's temporary folder may lie on different filesystems, so the hardlink would fail and uv's `warning: Failed to hardlink files` would reach the example's output, which also holds stderr. It also says that agent runs copy for the same reason, and that without a uv cache there is no `UV_LINK_MODE`, so a fixture's own value reaches the command.
+    - `docs/project-guide/style.md` (*Runnable examples*): the fixed environment's list now names `UV_LINK_MODE=copy` beside `UV_CACHE_DIR`, when the check's process has a uv cache, with the same reason in short.
+
+    I checked both against `src/factory/shared/adapters/document_examples.py` (`_fixed_environment`, which sets the variable only inside the `uv_cache is not None` branch). I wrote no runnable example.
+
+    Cross-read and found current:
+    - `docs/operator-guide/machine.md:134`: the image's `UV_LINK_MODE` for the runtimes, unchanged.
+    - `docs/decisions.md:1047`: `UV_LINK_MODE=copy` for project commands, unchanged.
+    - The rest of `shared.md` *The examples*: `uv_cache_directory`, the 60 s limit, the folder and home.
+    - `README.md`: says nothing about the fixed environment.
+
+    I added no `docs/decisions.md` entry, because the docs criterion asks for none.
+
+    Stale but not mine: nothing found.
+
+    `guides`: guides: green (9.7 s)
+    `secrets`: secrets: green (0.4 s)
+    `documents`: documents ok (51.0 s)
