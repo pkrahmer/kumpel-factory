@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 686
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: docs
+  started_at: '2026-11-09T01:11:07.431495Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -58,6 +62,11 @@ journal:
   at: '2026-11-09T01:11:02.061726Z'
   stage: review
   run: a28a769ae27f43eeb3153e1959f10f08
+- number: 10
+  speaker: factory
+  kind: started
+  at: '2026-11-09T01:11:07.431495Z'
+  stage: docs
 ---
 
 # Document examples copy from the uv cache without a warning
@@ -152,3 +161,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
    Earlier tests:
    - `tests/shared/adapters/test_document_examples_uv_cache.py`: none needed. The diff only adds two tests and one private fixture class, and every test the file already held is unchanged.
+10. factory: started docs as vm.
