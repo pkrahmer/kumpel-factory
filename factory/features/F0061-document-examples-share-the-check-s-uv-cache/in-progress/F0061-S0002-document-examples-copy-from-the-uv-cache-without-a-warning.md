@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 686
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-09T01:08:02.525396Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -36,6 +40,11 @@ journal:
   at: '2026-11-09T01:07:57.282394Z'
   stage: tests
   run: 537d4be0fd274c80a117eb520ce58961
+- number: 6
+  speaker: factory
+  kind: started
+  at: '2026-11-09T01:08:02.525396Z'
+  stage: doing
 ---
 
 # Document examples copy from the uv cache without a warning
@@ -107,3 +116,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    Not done: I ran this module alone, not the whole `make test` that step 2 names, as `CLAUDE.md` says for the tester's run. I skipped the type check, as the stage says.
 
    `lint`: lint: green (0.2 s)
+6. factory: started doing as vm.
