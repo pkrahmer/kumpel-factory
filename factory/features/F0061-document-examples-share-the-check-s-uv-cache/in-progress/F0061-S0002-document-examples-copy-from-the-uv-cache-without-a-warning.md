@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 686
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-09T01:07:25.437575Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -25,6 +29,11 @@ journal:
   at: '2026-11-09T01:07:20.237499Z'
   stage: intake
   run: 99f1214bf2804a25a36e2f8727fbfbd3
+- number: 4
+  speaker: factory
+  kind: started
+  at: '2026-11-09T01:07:25.437575Z'
+  stage: tests
 ---
 
 # Document examples copy from the uv cache without a warning
@@ -86,3 +95,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    - Architecture: the change stays in the `shared` adapters layer, where the process-based runner already builds the fixed environment. No new interface, dependency, tool call or layer import.
    - Scope: within F0061's goal, the examples using the check's uv cache. This story fixes a side effect of S0001's cache sharing and touches nothing in "Out of scope": the limit stays 60 s and no cache is shared between instances.
    - Route: `tests`, because the Interface changes `src/` and `tests/`.
+4. factory: started tests as vm.
