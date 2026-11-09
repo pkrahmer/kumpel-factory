@@ -1,5 +1,5 @@
 ---
-stage: smoke-test
+stage: approval
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 684
 comments_read: [6729441197]
 handed_over: null
-claim:
-  instance: vm
-  stage: smoke-test
-  started_at: '2026-11-09T00:54:21.416577Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -128,6 +124,12 @@ journal:
   kind: started
   at: '2026-11-09T00:54:21.416577Z'
   stage: smoke-test
+- number: 22
+  speaker: smoke-tester
+  kind: result
+  at: '2026-11-09T00:56:28.945725Z'
+  stage: smoke-test
+  run: 4fbd6856b29f495aa79c83d1bb129f51
 ---
 
 # Document examples use the check's uv cache
@@ -347,3 +349,25 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     `secrets`: secrets: green (0.7 s)
     `documents`: documents ok (51.0 s)
 21. factory: started smoke-test as vm.
+22. smoke-tester: Smoke test, round 1. I ran both commands from the repository root, exactly as written and in order. Both met their `Expect:` lines.
+
+    1. `uv run python -c "from factory.shared.adapters.document_examples import uv_cache_directory as u; print(u({'UV_CACHE_DIR': '/c', 'HOME': '/h'}), u({'HOME': '/h'}), u({}))"`
+       ```
+       Bytecode compiled 4164 files in 86ms
+       /c /h/.cache/uv None
+       ```
+       Met: the printed line is `/c /h/.cache/uv None`. The line before it is uv's own bytecode note.
+
+    2. `uv run pytest tests/shared/adapters/test_document_examples_uv_cache.py`
+       ```
+       Bytecode compiled 4164 files in 54ms
+       ............                                                             [100%]
+       12 passed in 0.03s
+       ```
+       Met: the summary line says only `passed`, with no `failed` or `error`.
+
+    Criteria: neither command contradicts any acceptance criterion. Command 1 shows the lookup order and the `None` case (criterion 1). Command 2 passes the tests for criteria 1–4. Criterion 5 is in `tests/entry/test_check_documents_uv_cache.py`, which these commands do not run. Entries 16 and 20 record it green under `make check guides`. The factory's `make check` comes after this stage and covers criterion 6.
+
+    No findings.
+
+    `check`: check: green
