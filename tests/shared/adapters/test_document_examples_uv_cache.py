@@ -8,33 +8,11 @@ import pytest
 from factory.shared.adapters.document_examples import ProcessExampleRunner, uv_cache_directory
 from factory.shared.application.document_examples import Fixture
 from factory.shared.domain.documents import examples
-from support.document_texts import FENCE
+from support.document_examples_support import EmptyFixture, LiftingFixture, block, document
 from support.time_limits import ROOMY_LIMIT
 
 DOCUMENT = "docs/project-guide/shared.md"
 FIXTURE_CACHE = "/from/the/fixture"
-
-
-class CacheFixture(Fixture):
-    """A fixture that gives `UV_CACHE_DIR` a value of its own."""
-
-    def prepare(self, folder: Path) -> dict[str, str]:
-        """Check the folder is there and give the one variable."""
-        assert folder.is_dir()
-        return {"UV_CACHE_DIR": FIXTURE_CACHE}
-
-
-class PlainFixture(Fixture):
-    """A fixture that leaves the folder empty and gives no variable."""
-
-    def prepare(self, folder: Path) -> dict[str, str]:
-        """Check the folder is there."""
-        assert folder.is_dir()
-        return {}
-
-
-def _document(*lines: str) -> str:
-    return "\n".join(["# A guide", "", f"{FENCE}console", *lines, FENCE, ""])
 
 
 def _findings(runner: ProcessExampleRunner, text: str, fixture: Fixture) -> list[str]:
@@ -83,16 +61,16 @@ def test_a_command_sees_the_runners_uv_cache_or_none(
     # The caller's own value must not reach the command.
     monkeypatch.setenv("UV_CACHE_DIR", "/the/callers/cache")
     runner = ProcessExampleRunner(time_limit=ROOMY_LIMIT, uv_cache=uv_cache)
-    text = _document('$ echo "[$UV_CACHE_DIR]"', printed)
+    text = document(block('$ echo "[$UV_CACHE_DIR]"', printed))
 
-    assert _findings(runner, text, PlainFixture()) == []
+    assert _findings(runner, text, EmptyFixture()) == []
 
 
 def test_a_fixtures_uv_cache_does_not_replace_the_runners() -> None:
     runner = ProcessExampleRunner(time_limit=ROOMY_LIMIT, uv_cache=Path("/shared/uv-cache"))
-    text = _document('$ echo "$UV_CACHE_DIR"', "/shared/uv-cache")
+    text = document(block('$ echo "$UV_CACHE_DIR"', "/shared/uv-cache"))
 
-    assert _findings(runner, text, CacheFixture()) == []
+    assert _findings(runner, text, LiftingFixture("UV_CACHE_DIR", FIXTURE_CACHE)) == []
 
 
 def test_with_a_uv_cache_home_stays_the_documents_own_folder(tmp_path: Path) -> None:
@@ -100,13 +78,15 @@ def test_with_a_uv_cache_home_stays_the_documents_own_folder(tmp_path: Path) -> 
     cache = callers_home / ".cache" / "uv"
     cache.mkdir(parents=True)
     runner = ProcessExampleRunner(time_limit=ROOMY_LIMIT, uv_cache=cache)
-    text = _document(
-        f'$ test "$HOME" = "{callers_home}" && echo shared || echo own',
-        "own",
-        '$ test -d "$HOME" && echo there',
-        "there",
-        '$ ls -A "$HOME" | wc -l',
-        "0",
+    text = document(
+        block(
+            f'$ test "$HOME" = "{callers_home}" && echo shared || echo own',
+            "own",
+            '$ test -d "$HOME" && echo there',
+            "there",
+            '$ ls -A "$HOME" | wc -l',
+            "0",
+        )
     )
 
-    assert _findings(runner, text, PlainFixture()) == []
+    assert _findings(runner, text, EmptyFixture()) == []

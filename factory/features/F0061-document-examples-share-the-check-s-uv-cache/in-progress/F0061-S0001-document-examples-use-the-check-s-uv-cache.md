@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 684
 comments_read: [6729441197]
 handed_over: null
-claim:
-  instance: vm
-  stage: tests
-  started_at: '2026-11-09T00:42:19.599955Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -84,6 +80,12 @@ journal:
   kind: started
   at: '2026-11-09T00:42:19.599955Z'
   stage: tests
+- number: 14
+  speaker: tester
+  kind: result
+  at: '2026-11-09T00:47:22.925428Z'
+  stage: tests
+  run: 5bec26d3d96f433c93020848ff8937c7
 ---
 
 # Document examples use the check's uv cache
@@ -232,3 +234,17 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     Earlier tests: none. The diff changes no test file that `develop` already holds; both test files are new (status `A`).
 13. factory: started tests as vm.
+14. tester: Round 1: I answered the reviewer's one finding by moving test helpers only. No product code changed and no criterion test changed what it checks.
+
+    Finding 1 (copied helpers in `tests/shared/adapters/test_document_examples_uv_cache.py`) is answered with a move under the standing leave in CLAUDE.md *Tests* (moving a shared test helper):
+    - New `tests/support/document_examples_support.py` holds `FIXTURE_VARIABLE`, `LIFTED_VALUE`, `EmptyFixture`, `LiftingFixture`, `block` and `document`. These are the former `_block`/`_document`, made public because a support module shares them. `EmptyFixture(variable=FIXTURE_VARIABLE)` and `LiftingFixture(name, value=LIFTED_VALUE)` take optional arguments, and their defaults keep the earlier behaviour exactly.
+    - Earlier test file changed: `tests/shared/adapters/test_document_examples.py`. It now imports these helpers instead of defining them. Every test keeps its name and checks the same thing; only the helper names `_block`/`_document` became `block`/`document`.
+    - `tests/shared/adapters/test_document_examples_uv_cache.py`: I dropped `PlainFixture`, `CacheFixture` and `_document`.
+      - The tests for criteria 2 and 4 use `EmptyFixture()`.
+      - The test for criterion 3 uses `LiftingFixture("UV_CACHE_DIR", FIXTURE_CACHE)`.
+      - Every document is built with `document(block(...))`.
+      - The test names and the criterion mapping from entry 8 are unchanged.
+
+    Run, with the command CLAUDE.md gives for single test files: `uv run pytest -q tests/shared/adapters/test_document_examples.py tests/shared/adapters/test_document_examples_uv_cache.py tests/entry/test_check_documents_uv_cache.py` passed, and so did a run of those two adapter files with `tests/guards`. `make lint` and `make types` are green. Every module imported.
+
+    `lint`: lint: green (0.1 s)
