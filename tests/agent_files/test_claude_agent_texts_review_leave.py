@@ -6,7 +6,8 @@ from factory.shared.domain.sections import section_text
 from support.shipped_agents import agent_body
 
 _RECOMMENDATION = (
-    "Your recommendation is your decision: `docs` passes, `doing` sends the work item back. "
+    "Your recommendation is your decision: `docs` passes, `doing` sends the work item back, "
+    "and `tests` sends it to the tester when step 4 of the Stage allows it. "
     'Never both, and never "pass with remarks": a remark worth writing is a finding, except for '
     "the notes from round 1 on below."
 )
@@ -18,7 +19,8 @@ _NOTES = (
     "do not send the work item back. This holds for the copied helper and the separate test "
     "functions your lessons count as findings, when they are in a test file the diff adds. A "
     "point on an acceptance criterion, the architecture, security or anything under `src/` is "
-    "still a finding and sends it back with `doing`. One exception holds from round 0: a side of "
+    "still a finding and sends it back, with `doing` or, by step 4 of the Stage, with `tests`. "
+    "One exception holds from round 0: a side of "
     "a stated limit that has no test is a note, not a finding, when you have read the code and it "
     "handles that side as the Interface says; the note names the side, the code's location and "
     "the missing row. A side the code does not handle, or handles otherwise, is a finding."

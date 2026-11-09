@@ -4,14 +4,15 @@ from collections.abc import Callable
 
 import pytest
 
-from support.shipped_agents import SHIPPED_NAMES, agent_body, stage_section, template_definition
+from support.shipped_agents import shared_rules, stage_section, template_definition
 
 REWORK_RULE = (
-    "R12. Rework rounds (review → doing, docs → doing, smoke-test → doing, smoke-test → docs, "
-    "and the human's close at the approval) share the work item's `round`, capped by the "
-    "stage's `round_cap` in the pipeline definition. Your prompt names the round; on a rework "
-    "round the latest entries name the findings. When the cap is passed, the factory asks the "
-    "human instead of looping."
+    "R12. Rework rounds (review → doing, review → tests, docs → doing, "
+    "smoke-test → doing, smoke-test → docs, and the human's close at the approval) "
+    "share the work item's `round`, capped by the stage's `round_cap` in the "
+    "pipeline definition. Your prompt names the round; on a rework round the latest "
+    "entries name the findings. When the cap is passed, the factory asks the human "
+    "instead of looping."
 )
 
 OLD_REWORK_RULE = REWORK_RULE.replace("smoke-test → docs, ", "")
@@ -53,7 +54,7 @@ def test_the_template_lets_the_smoke_test_hand_a_slip_to_docs_and_keeps_every_ot
         "intake": ["tests"],
         "tests": ["doing"],
         "doing": ["review", "tests"],
-        "review": ["docs", "doing"],
+        "review": ["docs", "doing", "tests"],
         "docs": ["smoke-test", "doing"],
         "acceptance": ["approval"],
         "approval": ["done", "doing"],
@@ -61,12 +62,11 @@ def test_the_template_lets_the_smoke_test_hand_a_slip_to_docs_and_keeps_every_ot
     }
 
 
-@pytest.mark.parametrize("name", SHIPPED_NAMES)
-def test_every_shipped_agent_names_the_smoke_test_to_docs_rework(name: str) -> None:
-    body = agent_body(name)
+def test_every_shipped_agent_names_the_smoke_test_to_docs_rework() -> None:
+    rules = shared_rules()
 
-    assert body.count(REWORK_RULE) == 1
-    assert OLD_REWORK_RULE not in body
+    assert rules.count(REWORK_RULE) == 1
+    assert OLD_REWORK_RULE not in rules
 
 
 @pytest.mark.parametrize(

@@ -5,8 +5,7 @@ from collections.abc import Callable
 
 import pytest
 
-from factory.shared.domain.sections import section_text
-from support.shipped_agents import SHIPPED_NAMES, agent_body, stage_section
+from support.shipped_agents import SHIPPED_NAMES, agent_body, shared_rules, stage_section
 
 _MARK = "check_red"
 
@@ -75,9 +74,7 @@ def test_the_red_check_rule_sits_in_the_smoke_testers_stage_and_in_no_shared_rul
     name: str,
 ) -> None:
     body = agent_body(name)
-    rules = section_text(body, "Rules") or ""
-
-    assert _MARK not in rules
+    assert _MARK not in shared_rules()
     if name == "smoke-tester":
         assert _MARK in stage_section(name)
         assert body.count(_MARK) == stage_section(name).count(_MARK)

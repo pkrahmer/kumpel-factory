@@ -1,9 +1,6 @@
 """The rule on a project's own skills and agents in the shipped agents' rules."""
 
-import pytest
-
-from factory.shared.domain.sections import section_text
-from support.shipped_agents import SHIPPED_NAMES, agent_body
+from support.shipped_agents import shared_rules
 
 SKILLS_RULE = (
     "R15. A project may bring its own skills under `.claude/skills/` and its own agents under "
@@ -15,9 +12,8 @@ SKILLS_RULE = (
 )
 
 
-@pytest.mark.parametrize("name", SHIPPED_NAMES)
-def test_the_rules_hold_the_skills_rule_once_right_after_r14(name: str) -> None:
-    lines = (section_text(agent_body(name), "Rules") or "").splitlines()
+def test_the_rules_hold_the_skills_rule_once_right_after_r14() -> None:
+    lines = shared_rules().splitlines()
 
     assert lines.count(SKILLS_RULE) == 1
     [r14] = [index for index, line in enumerate(lines) if line.startswith("R14. ")]

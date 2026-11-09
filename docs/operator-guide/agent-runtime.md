@@ -36,6 +36,19 @@ The factory builds the environment from an allow list of six names (see "The hos
 
 `LANG`, `LC_ALL`, `TERM` and `TZ` reach the agent when the factory process has them. The names in `FACTORY_CONTAINER_ENV` and the variables that `FACTORY_CA_BUNDLE` sets reach it too (see *Behind a proxy*). The login shell adds one name, `CLAUDE_CODE_OAUTH_TOKEN` or `ANTHROPIC_API_KEY`.
 
+### The project's `CLAUDE.md` under Claude Code
+
+Under Claude Code, the run's system prompt carries the project's root `CLAUDE.md`. Claude Code does not load the file itself: every call runs with `CLAUDE_CODE_DISABLE_CLAUDE_MDS=1`. The factory reads the file from the run's checkout, the work item's branch, when the run starts. It writes the file's text after the common system prompt, in a `<project-instructions>` block that one sentence introduces. A `CLAUDE.md` changed on the branch reaches the next run in its changed text. A resumed call gets the same system prompt as the call it resumes.
+
+- **Only the root file is read.** `CLAUDE.md` files below the root, `CLAUDE.local.md` and the `CLAUDE.md` in the `.claude` folder are not read.
+- **Keep it a regular file.** A root `CLAUDE.md` that is a symbolic link, or not a regular file at all (a directory), is not read, so such a project runs without its instructions, and no fault names it. The file is read on the host, and following a link could put a host file into the prompt. Keep the root `CLAUDE.md` a regular file, not, for example, a link to `AGENTS.md`.
+- **A file that is not UTF-8 text** ends the run with an `AgentRuntimeError` that names its path.
+- **Every cache write is a five-minute one.** Every call runs with `CLAUDE_CODE_PROMPT_CACHE_TTL=5m`; an instance needs no setting of its own for it.
+
+Why: Claude Code put the file into the run's first message, where no later run reads it back from the prompt cache, so every run wrote it to the cache anew (about 7,300 tokens in this repository). In the system prompt, later runs read it from the cache. The one-hour cache costs more than it saves: almost every gap between two runs is under five minutes, and its writes are dearer. See *Claude runs carry the project's `CLAUDE.md` in the system prompt* in the [decision log](../decisions.md).
+
+An opencode run is unchanged: opencode reads the project's instructions itself.
+
 ## The login
 
 The call logs in with the first of these that holds something:
@@ -325,13 +338,13 @@ The agent's instructions.
 
 The example keeps the tools, the model and the effort of the shipped intake, tester, coder, documenter and smoke tester, so it shares their cached start (see *A project's own agents*).
 
-The body, without the whitespace around it, is the instructions. A line of hyphens inside it belongs to it. The four keys are the only ones the agent runtime applies, because Claude Code ignores an agent file in print mode and the runner builds its flags and prompt from them itself. Any other key would read as if it did something and do nothing, so the file is refused when the pipeline definition is loaded. See "The stop `agent_definition_invalid`" in [stops.md](stops.md).
+The body, without the whitespace around it, is the instructions. A line of hyphens inside it belongs to it. The body holds only the role's own instructions: the role, the stage and the lessons. The rules every role shares (the opening paragraphs and R1 to R15) stand once, in the `## Rules` section of the system prompt file `system-prompt.md` of the agent home (see *The shipped agents and settings*), which every run of every role gets. The four keys are the only ones the agent runtime applies, because Claude Code ignores an agent file in print mode and the runner builds its flags and prompt from them itself. Any other key would read as if it did something and do nothing, so the file is refused when the pipeline definition is loaded. See "The stop `agent_definition_invalid`" in [stops.md](stops.md).
 
 ### A project's own agents
 
 For each role the factory reads `<project>/factory/agents/<name>.md` from `origin/develop` first, at every tick, the same ref as the pipeline definition. When the project has none, it uses the installed agent.
 
-A project's agent replaces the installed one whole and never extends it. Nothing is merged, so a key or a line of instructions you leave out is not taken from the shipped file. To change a shipped agent, copy it from `agents/agents/` in the image's source to `<project>/factory/agents/<name>.md` and change the copy.
+A project's agent replaces the installed one whole and never extends it. Nothing is merged, so a key or a line of instructions you leave out is not taken from the shipped file. To change a shipped agent, copy it from `agents/agents/` in the image's source to `<project>/factory/agents/<name>.md` and change the copy. A project agent copied from an earlier shipped file still carries a `## Rules` section. That only repeats the rules the system prompt already gives every run, so the copy may drop the section.
 
 The file follows the same rules and has the same faults as any agent file. A fault of a project file is named with its place, for example `factory/agents/coder.md at origin/develop: key not applied by the agent runtime: colour`. The load of every tick and the preflight's probe check it. A faulty project file is never replaced by the installed one: the [stop](../project-guide/glossary.md) `agent_definition_invalid` stands until a commit on `develop` fixes it.
 
@@ -356,7 +369,7 @@ Only Claude Code's runs are given the `Skill` tool. An opencode run leaves it ou
 
 ### The shipped agents and settings
 
-The checkout ships them in its `agents/` folder: `agents/agents/<role>.md`, `agents/settings.json` and `agents/system-prompt.md`, the common system prompt every role's run gets. The stage image copies the folder to `/etc/factory/agents`. The files are in Claude Code's format and the opencode runtime translates them per run, so the folder carries no runtime's name. The setting `FACTORY_CLAUDE_HOME` names this folder for both runtimes.
+The checkout ships them in its `agents/` folder: `agents/agents/<role>.md`, `agents/settings.json` and `agents/system-prompt.md`, the common system prompt every role's run gets. The system prompt holds a short orientation and then the `## Rules` every role shares; each agent file holds only its own role's instructions, which reach the run in the `<role-instructions>` block of its first message. The stage image copies the folder to `/etc/factory/agents`. The files are in Claude Code's format and the opencode runtime translates them per run, so the folder carries no runtime's name. The setting `FACTORY_CLAUDE_HOME` names this folder for both runtimes.
 
 The folder holds seven agents (`intake`, `tester`, `coder`, `reviewer`, `documenter`, `smoke-tester`, `acceptance-reviewer`) `settings.json` and `system-prompt.md`. A folder without `system-prompt.md`, such as one installed before the file was shipped, makes every run fall back to the built-in common system prompt, the same text; a file there that cannot be read ends the run with an `AgentRuntimeError` naming it. Each agent's `tools` ends with `Skill`, and the settings allow it in `permissions.allow`, right after `Grep`.
 
@@ -376,6 +389,14 @@ The smoke tester has two ways out when it finds something:
 - With any other finding, or a mix, it ends with `doing`.
 
 Both count as [rounds](../project-guide/glossary.md).
+
+The reviewer has three ways out:
+
+- With no findings, it ends with `docs` and the story goes to the documenter.
+- When every finding needs only a change to the story's own tests, and the `next` of `review` lists `tests`, it ends with `tests`. The tester writes or changes exactly the tests the findings name, and the coder runs once after it.
+- With any other finding, or when `review` does not list `tests`, it ends with `doing`.
+
+Both `tests` and `doing` count as rounds.
 
 ## Reference
 

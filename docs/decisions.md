@@ -1,6 +1,6 @@
 # Decisions
 
-The log of lasting decisions: what was decided, why, and what was rejected. Newest last. The first entries are the seed's choices (2026-10-12); the stories' decisions follow. Older entries cite the planning records by code: the requirement numbers R1 to R34 (`CLAUDE.md` names R3, R5 to R13 and R17; an R14 or R15 beside an agent's rule is that rule's number in the agents' `## Rules`), the codes WE, L and Q, the kept things and v1's features F0001 to F0017. Those records are kept at the tag `planning-history-2026-10-19`.
+The log of lasting decisions: what was decided, why, and what was rejected. Newest last. The first entries are the seed's choices (2026-10-12); the stories' decisions follow. Older entries cite the planning records by code: the requirement numbers R1 to R34 (`CLAUDE.md` names R3, R5 to R13 and R17; an R14 or R15 beside an agent's rule is that rule's number in the agents' `## Rules`, which stand in the shipped system prompt `agents/system-prompt.md`), the codes WE, L and Q, the kept things and v1's features F0001 to F0017. Those records are kept at the tag `planning-history-2026-10-19`.
 
 ## The package is `factory`, in four layers
 
@@ -1695,3 +1695,20 @@ Date: 2026-11-08 (F0058).
 - Decision: a stage may name project commands under `context`. The factory runs them in the check container on the stage's base before the agent, and puts each output into the first message as a `<context>` block, after the role's instructions and before the run's facts. An output is cut after 60,000 characters; a command that fails or runs out of time gives `failed: <reason>`, and the run goes ahead. The commands count toward the lease. The pipeline definition's contract rises to 1.1, and the records contract to 4.5.
 - Why: almost every agent run began with one or two shell calls that gathered the same facts (the diff, a file list, the log). A run makes only 2 to 8 tool calls, so these were a quarter to a third of all turns. Run by the factory, they cost the agent no turn. They are project commands, so the project decides what they show.
 - Start facts run through their own operation, `ProjectCommands.start_fact`, without `make sync` before them and with their whole output declared on the interface: run as checks, every block began with the sync's lines, and the whole output reached the caller only through an undeclared downcast (the human, F0058-S0004).
+
+## Claude runs carry the project's `CLAUDE.md` in the system prompt
+
+Date: 2026-11-08 (F0060-S0002).
+
+- Decision: the Claude runtime writes the project's root `CLAUDE.md`, as the run's checkout holds it when the run starts, into the run's instructions file after the system prompt, in a `<project-instructions>` block introduced by one sentence. Every `claude` call runs with `CLAUDE_CODE_DISABLE_CLAUDE_MDS=1`, so Claude Code no longer loads the file itself, and with `CLAUDE_CODE_PROMPT_CACHE_TTL=5m`, so every cache write is a five-minute one: the factory's own setting, no longer an instance's trial. A root `CLAUDE.md` that is absent or not a regular file (a directory, or a symbolic link, which is not followed) adds nothing; a file that is not UTF-8 text is an `AgentRuntimeError` naming its path. The opencode runtime is unchanged: it reads the project's instructions itself.
+- Why: Claude Code put the file at the start of the run's first message, with no cache point after it, so every run wrote it to the prompt cache anew and no later run read it back. Measured on 2026-11-08 (`docs/runs/2026-11-05-f0052/log.md`, 19:18 UTC): with kumpel-factory's `CLAUDE.md` (7,284 tokens), three runs as before each read 6,633 tokens and wrote 14,078 to 15,602; with the switch set and the file in the system prompt, the second and third runs read 13,917 and wrote 6,722 and 8,246, so their first request cost 46 % less, about $0.035 a run at the API price list, whatever the role or work item, within the cache's time. The five-minute cache: 35 of 35 and 118 of 119 gaps between runs were under five minutes (19:25 UTC); the one-hour cache would save 18 to 23 % but its dearer writes cost 32 to 34 % more, a net loss.
+- Why a link is not followed: the file is read on the host, not in the container, and a committed link could put any host file the factory can read into the prompt (the reviewer's finding, the human's answer of 2026-11-08). A project keeps its root `CLAUDE.md` a regular file.
+- Rejected: adding the block in the shared `system_prompt_text`, because opencode must not get it; resolving a link to see whether it points inside the checkout, because a link is not a regular file, wherever it points.
+
+## The reviewer may send findings on the story's own tests to the tester
+
+Date: 2026-11-08 (F0060-S0003, F0060-S0005).
+
+- Decision: when `tests` is in the `next` of `review` and every finding needs only a change to the tests of the work item's own story, the reviewer ends with `tests` instead of `doing`. The tester answers the findings and the coder runs once after it. When any finding needs a change outside those tests, all findings go to `doing`. A move from `review` to `tests` counts as a round, as a return to `doing` does. Step 4 of the reviewer's `## Stage` holds the rule, and the two sentences of its `## Role` that name its decisions name this route too.
+- Why: in F0050 to F0059, 58 of the 65 coder runs that came right after review findings only passed the work item on to the tester.
+- Rejected: splitting one review's findings across two stages, the test findings to the tester and the others to the coder (F0060, decision 5).

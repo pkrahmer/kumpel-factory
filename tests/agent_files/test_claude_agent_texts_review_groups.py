@@ -5,6 +5,7 @@ import zlib
 
 import pytest
 
+from support.shared_rules_support import RULES_BEFORE
 from support.shipped_agents import SHIPPED_NAMES, agent_body
 
 _ALL_GROUPS = (
@@ -45,7 +46,12 @@ def test_no_other_agent_asks_for_all_five_groups(name: str) -> None:
 
 
 def test_the_rest_of_the_reviewer_body_is_unchanged() -> None:
-    body = _DOCUMENTS_ITEM.sub("", _DOCS_REVIEW_SUBSECTION.sub("", agent_body("reviewer")))
+    # A later story moved the shared rules into the system prompt: the earlier body held them, as
+    # they stood before that move, in a `## Rules` section right before `## Role`.
+    with_rules = agent_body("reviewer").replace(
+        "\n## Role\n", "\n## Rules\n\n" + "\n\n".join(RULES_BEFORE) + "\n\n## Role\n", 1
+    )
+    body = _DOCUMENTS_ITEM.sub("", _DOCS_REVIEW_SUBSECTION.sub("", with_rules))
     assert body.count(_ALL_GROUPS) == 1
 
     untested_side_is_a_note = (
@@ -84,13 +90,36 @@ def test_the_rest_of_the_reviewer_body_is_unchanged() -> None:
         "1. Read the work item and `git diff develop...HEAD -- README.md docs "
         "operator/README.md` in your first command. Nothing else is under review."
     )
+    # A later story let the reviewer send findings that need only tests to the tester.
+    findings_to_the_tester = (
+        "4. When `tests` is among the allowed decisions and every finding needs only a change to "
+        "the tests of the work item's own story, end with `tests` instead of `doing`: the tester "
+        "answers them, and the coder runs once after it. When any finding needs a change outside "
+        "those tests, all findings go to `doing`. When `tests` is not among the allowed "
+        "decisions, findings go to `doing` as before. The entry with the findings is the same "
+        "either way.\n"
+    )
+    # A later story named the route to the tester in the Role's two sentences on sending back.
+    route_to_the_tester = (
+        "`doing` sends the work item back, and `tests` sends it to the tester when step 4 of the "
+        "Stage allows it. Never both"
+    )
+    route_to_the_tester_in_notes = (
+        "sends it back, with `doing` or, by step 4 of the Stage, with `tests`."
+    )
+    # The same story added `review → tests` to R12's list of rework rounds.
+    review_to_tests_rework = "review → doing, review → tests, "
     # The earlier body named the working branch `main`, before it became `develop`.
     earlier = (
         review_reads_the_diff.sub(lambda _: review_reads_both, body, count=1)
+        .replace(route_to_the_tester, "`doing` sends the work item back. Never both")
+        .replace(route_to_the_tester_in_notes, "sends it back with `doing`.")
         .replace(_ALL_GROUPS, _STOP_AT_THE_FIRST)
         .replace(untested_side_is_a_note, untested_side_is_a_finding)
         .replace(work_item_in_the_first_message, "")
         .replace(docs_review_reads_the_diff, docs_review_reads_both)
+        .replace(findings_to_the_tester, "")
+        .replace(review_to_tests_rework, "review → doing, ")
         .replace("develop", "main")
     )
 

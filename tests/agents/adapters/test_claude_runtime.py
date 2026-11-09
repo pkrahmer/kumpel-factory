@@ -24,7 +24,9 @@ from support.claude_stand_in import StandInCall, Step, read_calls, write_stand_i
 LIMIT = timedelta(seconds=30)
 SWITCHES = {
     "CLAUDE_CODE_DISABLE_AUTO_MEMORY": "1",
+    "CLAUDE_CODE_DISABLE_CLAUDE_MDS": "1",
     "CLAUDE_CODE_DISABLE_GIT_INSTRUCTIONS": "1",
+    "CLAUDE_CODE_PROMPT_CACHE_TTL": "5m",
     "PYTHONDONTWRITEBYTECODE": "1",
 }
 RUN_FILES = ("instructions-*.md",)
