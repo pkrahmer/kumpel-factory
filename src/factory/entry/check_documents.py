@@ -3,6 +3,7 @@
 
 import argparse
 import importlib
+import os
 import time
 from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path
@@ -10,7 +11,7 @@ from pathlib import Path
 from factory.hosting.adapters.checkout_fixture import CheckoutFixture
 from factory.hosting.adapters.git_cli import GitCli
 from factory.hosting.adapters.instance_fixture import InstanceFixture
-from factory.shared.adapters.document_examples import ProcessExampleRunner
+from factory.shared.adapters.document_examples import ProcessExampleRunner, uv_cache_directory
 from factory.shared.application.document_examples import ExampleRunner, Fixture
 from factory.shared.domain import settings
 from factory.shared.domain.documents import (
@@ -200,7 +201,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     listed = _checked_documents(root)
     git = GitCli(root)
     fixtures = {DEFAULT_FIXTURE: CheckoutFixture(git), INSTANCE_FIXTURE: InstanceFixture(git)}
-    example_findings, not_run = _example_results(root, documents, ProcessExampleRunner(), fixtures)
+    example_findings, not_run = _example_results(
+        root, documents, ProcessExampleRunner(uv_cache=uv_cache_directory(os.environ)), fixtures
+    )
     gated_findings = [
         *_name_findings(root, documents),
         *_heading_findings(root, documents),

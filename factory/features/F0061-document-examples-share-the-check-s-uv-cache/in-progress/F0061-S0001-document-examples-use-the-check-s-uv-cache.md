@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 684
 comments_read: [6729441197]
 handed_over: null
-claim:
-  instance: vm
-  stage: doing
-  started_at: '2026-11-09T00:38:55.648389Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -62,6 +58,12 @@ journal:
   kind: started
   at: '2026-11-09T00:38:55.648389Z'
   stage: doing
+- number: 10
+  speaker: coder
+  kind: result
+  at: '2026-11-09T00:41:32.673056Z'
+  stage: doing
+  run: 091c8c96147d4696b55fa86f06a8889e
 ---
 
 # Document examples use the check's uv cache
@@ -163,3 +165,20 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
    `lint`: lint: green (0.1 s)
 9. factory: started doing as vm.
+10. coder: Built the uv cache passthrough for document examples. The tester's two files pass, and `make check guides` is green (check: green, test 103.9 s; guides: green).
+
+    - `src/factory/shared/adapters/document_examples.py`:
+      - New public `uv_cache_directory(environment)`. It returns `UV_CACHE_DIR`, else `XDG_CACHE_HOME/uv`, else `HOME/.cache/uv`, else `None`. An empty value counts as not set.
+      - `ProcessExampleRunner.__init__` takes `uv_cache: Path | None = None` and hands it to `_DocumentRun`.
+      - `_fixed_environment(home, uv_cache)` adds `UV_CACHE_DIR` only when a cache is given. It is still merged after the fixture's environment, so no fixture can change it. `HOME` stays the document's own home folder. A comment there gives the reason: a fresh home's first `uv run` would download every package within the examples' limit.
+    - `src/factory/entry/check_documents.py`: imports `os` and builds `ProcessExampleRunner(uv_cache=uv_cache_directory(os.environ))`.
+
+    Main choice: the cache goes into the fixed environment, which stays the one place every command's environment comes from. That also gives the "fixture cannot override" rule for free. I rejected two alternatives:
+    - adding the variable inside `run_document`, or letting it through `env -i`, which would split the fixed environment across two places;
+    - reading `os.environ` inside the adapter, which the Interface places in `entry`.
+
+    Refactor pass: I read the diff and nothing needed changing.
+
+    The journal changed only the criteria (criterion 5 added at intake), not the meaning of the task, so the Description stays as written. Noticed but not touched: `_fixed_environment` still reads `PATH` from `os.environ` directly in the adapter, as before. The docs criterion (`docs/project-guide/shared.md`) is the documenter's.
+
+    `duplicates`: duplicates: 7 new, 39 known, 4 gone
