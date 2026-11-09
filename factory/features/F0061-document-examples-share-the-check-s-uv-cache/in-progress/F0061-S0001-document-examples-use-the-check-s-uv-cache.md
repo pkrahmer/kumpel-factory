@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 684
 comments_read: [6729441197]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: review
+  started_at: '2026-11-09T00:41:37.605525Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -64,6 +68,11 @@ journal:
   at: '2026-11-09T00:41:32.673056Z'
   stage: doing
   run: 091c8c96147d4696b55fa86f06a8889e
+- number: 11
+  speaker: factory
+  kind: started
+  at: '2026-11-09T00:41:37.605525Z'
+  stage: review
 ---
 
 # Document examples use the check's uv cache
@@ -182,3 +191,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     The journal changed only the criteria (criterion 5 added at intake), not the meaning of the task, so the Description stays as written. Noticed but not touched: `_fixed_environment` still reads `PATH` from `os.environ` directly in the adapter, as before. The docs criterion (`docs/project-guide/shared.md`) is the documenter's.
 
     `duplicates`: duplicates: 7 new, 39 known, 4 gone
+11. factory: started review as vm.
