@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 684
 comments_read: [6729441197]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-09T00:38:55.648389Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -53,6 +57,11 @@ journal:
   at: '2026-11-09T00:38:50.709013Z'
   stage: tests
   run: d5bd67b8e77f4f58848ec2d28a9ff47a
+- number: 9
+  speaker: factory
+  kind: started
+  at: '2026-11-09T00:38:55.648389Z'
+  stage: doing
 ---
 
 # Document examples use the check's uv cache
@@ -153,3 +162,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    `make lint` is green.
 
    `lint`: lint: green (0.1 s)
+9. factory: started doing as vm.
