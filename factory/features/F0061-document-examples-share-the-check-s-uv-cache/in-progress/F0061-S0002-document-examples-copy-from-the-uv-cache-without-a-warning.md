@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 686
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: smoke-test
+  started_at: '2026-11-09T01:13:30.552820Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -69,6 +73,11 @@ journal:
   at: '2026-11-09T01:13:25.731941Z'
   stage: docs
   run: 0f13d17c2e984d66bb28547110b1c9d2
+- number: 12
+  speaker: factory
+  kind: started
+  at: '2026-11-09T01:13:30.552820Z'
+  stage: smoke-test
 ---
 
 # Document examples copy from the uv cache without a warning
@@ -185,3 +194,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     `guides`: guides: green (9.7 s)
     `secrets`: secrets: green (0.4 s)
     `documents`: documents ok (51.0 s)
+12. factory: started smoke-test as vm.
