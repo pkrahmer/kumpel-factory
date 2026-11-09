@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 684
 comments_read: [6729441197]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: docs
+  started_at: '2026-11-09T00:50:40.383633Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -108,6 +112,11 @@ journal:
   at: '2026-11-09T00:50:35.585163Z'
   stage: review
   run: 97c708c68cea4225a88d44918d87096a
+- number: 19
+  speaker: factory
+  kind: started
+  at: '2026-11-09T00:50:40.383633Z'
+  stage: docs
 ---
 
 # Document examples use the check's uv cache
@@ -307,3 +316,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     Earlier tests:
     - `tests/shared/adapters/test_document_examples.py`: changed under the standing leave to move a shared test helper (CLAUDE.md *Tests*). The change only moves `FIXTURE_VARIABLE`, `LIFTED_VALUE`, `EmptyFixture`, `LiftingFixture` and `_block`/`_document` (now `block`/`document`) to `tests/support/document_examples_support.py`. Every test keeps its name and checks the same thing.
+19. factory: started docs as vm.
