@@ -1,11 +1,11 @@
 ---
 stage: intake
-blocked: question
+blocked: null
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 684
-comments_read: []
+comments_read: [6729441197]
 handed_over: null
 claim: null
 journal:
@@ -26,6 +26,11 @@ journal:
   stage: intake
   run: 82101504913b4ccc87e9a80c5a31cb42
   blocked: question
+- number: 4
+  speaker: human
+  kind: comment
+  at: '2026-11-09T00:35:27.750198Z'
+  stage: intake
 ---
 
 # Document examples use the check's uv cache
@@ -82,3 +87,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
       (a) Add a criterion before the two closing ones, for example: "The document check, run with `UV_CACHE_DIR` set in its own environment (monkeypatched) on a written document whose example prints `$UV_CACHE_DIR` and expects that path, reports no finding." Its test would go under `tests/entry/` beside the existing check_documents tests, using `tests/support/minimal_documents_support.py`, and the Interface's Tests line would name that file too.
       (b) Leave the wiring untested and let the reviewer check it.
       I would choose (a).
+4. 2026-11-09 human: (a). Add the criterion for the document check's own wiring, with its test under tests/entry/ as you describe, and name that file in the Interface's Tests line.
