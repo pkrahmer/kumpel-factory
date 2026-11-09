@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 684
 comments_read: [6729441197]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: tests
+  started_at: '2026-11-09T00:42:19.599955Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -75,6 +79,11 @@ journal:
   at: '2026-11-09T00:42:14.649458Z'
   stage: review
   run: cbb04a0404e146f69f5b014b39029267
+- number: 13
+  speaker: factory
+  kind: started
+  at: '2026-11-09T00:42:19.599955Z'
+  stage: tests
 ---
 
 # Document examples use the check's uv cache
@@ -222,3 +231,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
        The fix: under the standing leave in CLAUDE.md *Tests*, move `EmptyFixture`, `LiftingFixture`, `_block` and `_document` (with `LIFTED_VALUE` and `FIXTURE_VARIABLE`) into a support module in `tests/support/`, for example `document_examples_support.py`. Then make both modules use them, with every earlier test keeping its name and what it checks, and name `tests/shared/adapters/test_document_examples.py` in the entry as changed. The test files are the only thing to change, so this goes to the tester.
 
     Earlier tests: none. The diff changes no test file that `develop` already holds; both test files are new (status `A`).
+13. factory: started tests as vm.
