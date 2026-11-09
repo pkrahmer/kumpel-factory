@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 686
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: review
+  started_at: '2026-11-09T01:10:37.654123Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -47,6 +51,11 @@ journal:
   at: '2026-11-09T01:10:32.319872Z'
   stage: doing
   run: 15d18a26744042afb5404d4b941dd55d
+- number: 8
+  speaker: factory
+  kind: started
+  at: '2026-11-09T01:10:37.654123Z'
+  stage: review
 ---
 
 # Document examples copy from the uv cache without a warning
@@ -128,3 +137,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    - Noticed, not touched: the docs criterion (`docs/project-guide/shared.md` *The examples*, `docs/project-guide/style.md` *Runnable examples*) is the documenter's. The journal did not change the description.
 
    `duplicates`: duplicates: 7 new, 39 known, 4 gone
+8. factory: started review as vm.
