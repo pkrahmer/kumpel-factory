@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 0
 attempts: 0
@@ -20,8 +20,13 @@ journal:
   at: '2026-11-09T01:05:28.242374Z'
   stage: acceptance
   run: 707adca439024d7d961545134e7fd58a
+- number: 3
+  speaker: factory
+  kind: done
+  at: '2026-11-09T01:06:17.044108Z'
+  stage: done
 stories: [F0061-S0001]
-outcome: null
+outcome: accepted
 ---
 
 # Acceptance of Document examples share the check's uv cache
@@ -179,3 +184,4 @@ Human interventions: **1 question answered** (question 1, at S0001's intake), **
       - Free disk fell 0.6 GB (9.0 to 8.4 GB) on all three paths, with used space unchanged. The feature does not explain it.
    8. Cost: 10 runs, 16.8 min, $2.06 for the one story. Two of those runs came from the intake question and the review round for the copied test helpers.
       - 1 question answered (at S0001's intake: no criterion tested the wiring), 0.0 h waited.
+3. factory: done (pull request merged); cost: 1 runs, 6.9 min, 24 turns, 59037 tokens in (1047491 more from cache), 18332 out, $0.87
