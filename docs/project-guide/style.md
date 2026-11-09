@@ -29,7 +29,7 @@ a
 b
 ```
 
-The commands of one document run in order in one new folder, so a file that the first block writes is there for the next one. Each command runs under `sh -c` with a fixed environment (`PATH`, `HOME` as an empty temporary folder, `TZ=UTC`, `LANG=C.UTF-8`) and nothing else. The folder is removed when the document is done. A command that runs past 60 seconds stops the document.
+The commands of one document run in order in one new folder, so a file that the first block writes is there for the next one. Each command runs under `sh -c` with a fixed environment (`PATH`, `HOME` as an empty temporary folder, `TZ=UTC`, `LANG=C.UTF-8`, and, when the process that runs the check has a uv cache, `UV_CACHE_DIR` as that cache and `UV_LINK_MODE=copy`, so that uv copies from a cache on another filesystem without printing its hardlink warning into the output) and nothing else. The folder is removed when the document is done. A command that runs past 60 seconds stops the document.
 
 A wrong example fails `make documents` only in a file listed in `docs/checked-documents.txt`; in any other file it is printed under `Report (not checked yet):`. The test suite runs none of the documents' examples: the tests of the check write their own documents (see [shared.md](shared.md), *How the check is tested*), so only `make documents` runs the real ones. A block that is not run (see *Examples that are not run*) never fails either of them. Every example must be right wherever it stands, listed or not.
 

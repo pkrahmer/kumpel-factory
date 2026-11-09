@@ -13,25 +13,21 @@ from factory.shared.adapters.document_examples import ProcessExampleRunner
 from factory.shared.application.document_examples import Fixture
 from factory.shared.domain.documents import examples
 from factory.shared.domain.errors import FixtureError
-from support.document_texts import FENCE
+from support.document_examples_support import (
+    FIXTURE_VARIABLE,
+    LIFTED_VALUE,
+    EmptyFixture,
+    LiftingFixture,
+    block,
+    document,
+)
 from support.time_limits import ROOMY_BOUND_SECONDS, ROOMY_LIMIT
 
 DOCUMENT = "docs/project-guide/shared.md"
-FIXTURE_VARIABLE = "EXAMPLE_FIXTURE"
-LIFTED_VALUE = "from-the-fixture"
 # The command of the time-limit test must be killed, not start, so it may keep a short limit.
 SHORT_LIMIT_SECONDS = 1
 # What the stand-in waits is far longer than the bound, so a missed kill fails.
 SLEEP_SECONDS = 30
-
-
-class EmptyFixture(Fixture):
-    """A fixture that leaves the folder it is given empty and gives one variable."""
-
-    def prepare(self, folder: Path) -> dict[str, str]:
-        """Check the folder is there and give the one variable."""
-        assert folder.is_dir()
-        return {FIXTURE_VARIABLE: "set"}
 
 
 class FailingFixture(Fixture):
@@ -40,14 +36,6 @@ class FailingFixture(Fixture):
     def prepare(self, folder: Path) -> dict[str, str]:
         """Refuse, as a fixture whose source is missing does."""
         raise FixtureError(f"nothing to copy into {folder}")
-
-
-def _block(*lines: str, info: str = "console") -> list[str]:
-    return [f"{FENCE}{info}", *lines, FENCE, ""]
-
-
-def _document(*blocks: list[str]) -> str:
-    return "\n".join(["# A guide", "", *(line for block in blocks for line in block)])
 
 
 @pytest.fixture
@@ -63,11 +51,11 @@ def runner() -> ProcessExampleRunner:
 def test_the_blocks_of_one_document_share_a_folder_and_the_next_document_starts_fresh(
     runner: ProcessExampleRunner, fixtures: Mapping[str, Fixture]
 ) -> None:
-    first = _document(
-        _block("$ printf 'kept\\n' > note.txt"),
-        _block("$ cat note.txt", "kept"),
+    first = document(
+        block("$ printf 'kept\\n' > note.txt"),
+        block("$ cat note.txt", "kept"),
     )
-    second = _document(_block("$ test -e note.txt && echo there || echo gone", "gone"))
+    second = document(block("$ test -e note.txt && echo there || echo gone", "gone"))
 
     first_findings = runner.run_document(DOCUMENT, examples(first).runnable, fixtures)
     second_findings = runner.run_document("README.md", examples(second).runnable, fixtures)
@@ -97,7 +85,7 @@ def test_a_command_whose_output_differs_gives_one_finding_and_one_that_matches_n
     expected: list[str],
     findings: list[str],
 ) -> None:
-    text = _document(_block("$ echo hi", *expected))
+    text = document(block("$ echo hi", *expected))
 
     assert runner.run_document(DOCUMENT, examples(text).runnable, fixtures) == findings
 
@@ -105,7 +93,7 @@ def test_a_command_whose_output_differs_gives_one_finding_and_one_that_matches_n
 def test_the_output_compared_holds_stderr_too(
     runner: ProcessExampleRunner, fixtures: Mapping[str, Fixture]
 ) -> None:
-    text = _document(_block("$ echo out; echo err >&2", "out", "err"))
+    text = document(block("$ echo out; echo err >&2", "out", "err"))
 
     assert runner.run_document(DOCUMENT, examples(text).runnable, fixtures) == []
 
@@ -114,9 +102,9 @@ def test_a_command_past_its_limit_gives_one_finding_and_the_later_blocks_do_not_
     fixtures: Mapping[str, Fixture],
 ) -> None:
     runner = ProcessExampleRunner(time_limit=timedelta(seconds=SHORT_LIMIT_SECONDS))
-    text = _document(
-        _block(f"$ sleep {SLEEP_SECONDS}"),
-        _block("$ echo later", "not what it prints"),
+    text = document(
+        block(f"$ sleep {SLEEP_SECONDS}"),
+        block("$ echo later", "not what it prints"),
     )
     started = time.monotonic()
 
@@ -129,7 +117,7 @@ def test_a_command_past_its_limit_gives_one_finding_and_the_later_blocks_do_not_
 def test_a_block_naming_an_unknown_fixture_gives_a_finding(
     runner: ProcessExampleRunner, fixtures: Mapping[str, Fixture]
 ) -> None:
-    text = _document(_block("$ echo hi", "hi", info="console fixture=nowhere"))
+    text = document(block("$ echo hi", "hi", info="console fixture=nowhere"))
 
     findings = runner.run_document(DOCUMENT, examples(text).runnable, fixtures)
 
@@ -146,8 +134,8 @@ def test_the_commands_never_run_in_the_current_directory(
     here.mkdir()
     (here / "marker").write_text("here\n", encoding="utf-8")
     monkeypatch.chdir(here)
-    text = _document(
-        _block(
+    text = document(
+        block(
             "$ test -e marker && echo inside || echo outside",
             "outside",
             "$ printf 'x\\n' > written.txt",
@@ -167,8 +155,8 @@ def test_env_in_a_block_shows_the_fixed_variables_and_the_fixtures_and_not_the_c
 ) -> None:
     monkeypatch.setenv("FROM_THE_TEST", "leaked")
     home = os.environ.get("HOME", "")
-    text = _document(
-        _block(
+    text = document(
+        block(
             f'$ env | grep "^{FIXTURE_VARIABLE}="',
             f"{FIXTURE_VARIABLE}=set",
             '$ env | grep "^TZ="',
@@ -191,9 +179,9 @@ def test_a_fixture_that_cannot_be_prepared_gives_one_finding_and_runs_no_command
     tmp_path: Path, runner: ProcessExampleRunner
 ) -> None:
     marker = tmp_path / "ran"
-    text = _document(
-        _block(f"$ touch {marker}"),
-        _block(f"$ touch {marker}", "not what it prints"),
+    text = document(
+        block(f"$ touch {marker}"),
+        block(f"$ touch {marker}", "not what it prints"),
     )
 
     findings = runner.run_document(
@@ -218,7 +206,7 @@ def test_the_folder_and_the_home_are_gone_once_the_document_has_run(
     last_command: str,
 ) -> None:
     record = tmp_path / "where"
-    text = _document(_block(f'$ pwd > {record} && echo "$HOME" >> {record}', f"$ {last_command}"))
+    text = document(block(f'$ pwd > {record} && echo "$HOME" >> {record}', f"$ {last_command}"))
 
     runner.run_document(DOCUMENT, examples(text).runnable, fixtures)
 
@@ -235,25 +223,12 @@ def test_a_runner_built_with_its_defaults_gives_each_command_60_seconds() -> Non
     assert default == timedelta(seconds=60)
 
 
-class LiftingFixture(Fixture):
-    """A fixture that gives one of the fixed variables a value of its own."""
-
-    def __init__(self, name: str) -> None:
-        """Give `name` the value `from-the-fixture`."""
-        self._name = name
-
-    def prepare(self, folder: Path) -> dict[str, str]:
-        """Check the folder is there and give the one variable."""
-        assert folder.is_dir()
-        return {self._name: LIFTED_VALUE}
-
-
 @pytest.mark.parametrize("name", ["PATH", "HOME", "TZ", "LANG"])
 def test_a_fixtures_variable_does_not_replace_a_fixed_one(
     runner: ProcessExampleRunner, name: str
 ) -> None:
-    text = _document(
-        _block(
+    text = document(
+        block(
             f'$ env | grep -c "^{name}="',
             "1",
             f'$ env | grep -c -x "{name}={LIFTED_VALUE}"',

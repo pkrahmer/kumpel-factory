@@ -20,13 +20,32 @@ _HOME_FOLDER = "home"
 _NOTHING_MORE = "nothing more"
 
 
-def _fixed_environment(home: Path) -> dict[str, str]:
-    return {
+def uv_cache_directory(environment: Mapping[str, str]) -> Path | None:
+    """The uv cache uv would use under `environment`, or None when it names none."""
+    if environment.get("UV_CACHE_DIR"):
+        return Path(environment["UV_CACHE_DIR"])
+    if environment.get("XDG_CACHE_HOME"):
+        return Path(environment["XDG_CACHE_HOME"]) / "uv"
+    if environment.get("HOME"):
+        return Path(environment["HOME"]) / ".cache" / "uv"
+    return None
+
+
+def _fixed_environment(home: Path, uv_cache: Path | None) -> dict[str, str]:
+    fixed = {
         "PATH": os.environ.get("PATH", _FALLBACK_PATH),
         "HOME": str(home),
         "TZ": "UTC",
         "LANG": "C.UTF-8",
     }
+    # The examples share the check's cache, so that a fresh home does not make a document's
+    # first `uv run` download every package within the examples' limit.
+    # The cache and the example's folder may lie on different filesystems: uv's hardlink would
+    # fail and its warning reach the example's output, so it copies, as agent runs do.
+    if uv_cache is not None:
+        fixed["UV_CACHE_DIR"] = str(uv_cache)
+        fixed["UV_LINK_MODE"] = "copy"
+    return fixed
 
 
 def _env_arguments(environment: Mapping[str, str]) -> list[str]:
@@ -36,8 +55,15 @@ def _env_arguments(environment: Mapping[str, str]) -> list[str]:
 class _DocumentRun:
     """The folder, the home, the prepared fixtures and the findings of one document's examples."""
 
-    def __init__(self, document: str, scratch: Path, fixtures: Mapping[str, Fixture]) -> None:
+    def __init__(
+        self,
+        document: str,
+        scratch: Path,
+        fixtures: Mapping[str, Fixture],
+        uv_cache: Path | None,
+    ) -> None:
         self._document = document
+        self._uv_cache = uv_cache
         self._fixtures = fixtures
         self._folder = scratch / _WORK_FOLDER
         self._home = scratch / _HOME_FOLDER
@@ -69,7 +95,7 @@ class _DocumentRun:
                 self.add_finding(example.line, f"fixture {fixture} could not be prepared")
                 return None
         # The fixed environment comes last, so that no fixture can lift it.
-        return {**self._prepared[fixture], **_fixed_environment(self._home)}
+        return {**self._prepared[fixture], **_fixed_environment(self._home, self._uv_cache)}
 
     def request(
         self, command: Command, environment: Mapping[str, str], limit: timedelta
@@ -90,16 +116,19 @@ def _difference(command: Command, output: str) -> str | None:
 class ProcessExampleRunner(ExampleRunner):
     """Runs each command through `sh -c` under `env -i`, its output compared with the expected."""
 
-    def __init__(self, time_limit: timedelta = EXAMPLE_TIME_LIMIT) -> None:
-        """Give each command at most `time_limit`."""
+    def __init__(
+        self, time_limit: timedelta = EXAMPLE_TIME_LIMIT, uv_cache: Path | None = None
+    ) -> None:
+        """Give each command at most `time_limit`, and `uv_cache` as its uv cache when given."""
         self._time_limit = time_limit
+        self._uv_cache = uv_cache
 
     def run_document(
         self, document: str, examples: list[Example], fixtures: Mapping[str, Fixture]
     ) -> list[str]:
         """Run the blocks in order in one new folder; a command past its limit ends the document."""
         with tempfile.TemporaryDirectory() as scratch:
-            run = _DocumentRun(document, Path(scratch), fixtures)
+            run = _DocumentRun(document, Path(scratch), fixtures, self._uv_cache)
             for example in examples:
                 environment = run.environment(example)
                 if environment is None:
