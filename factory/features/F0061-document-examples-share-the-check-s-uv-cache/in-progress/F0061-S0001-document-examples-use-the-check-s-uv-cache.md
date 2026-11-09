@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 684
 comments_read: [6729441197]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: review
+  started_at: '2026-11-09T00:50:12.880226Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -97,6 +101,11 @@ journal:
   at: '2026-11-09T00:50:07.605174Z'
   stage: doing
   run: 40ac0a92fdc341408ac521e92c75e151
+- number: 17
+  speaker: factory
+  kind: started
+  at: '2026-11-09T00:50:12.880226Z'
+  stage: review
 ---
 
 # Document examples use the check's uv cache
@@ -277,3 +286,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     Noticed but not touched: as before, `_fixed_environment` reads `PATH` from `os.environ` inside the adapter. The docs criterion (`docs/project-guide/shared.md`) is the documenter's.
 
     `duplicates`: duplicates: 7 new, 39 known, 4 gone
+17. factory: started review as vm.
