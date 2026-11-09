@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 684
 comments_read: [6729441197]
 handed_over: null
-claim: null
+claim:
+  instance: vm
+  stage: doing
+  started_at: '2026-11-09T00:47:27.911021Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -86,6 +90,11 @@ journal:
   at: '2026-11-09T00:47:22.925428Z'
   stage: tests
   run: 5bec26d3d96f433c93020848ff8937c7
+- number: 15
+  speaker: factory
+  kind: started
+  at: '2026-11-09T00:47:27.911021Z'
+  stage: doing
 ---
 
 # Document examples use the check's uv cache
@@ -248,3 +257,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     Run, with the command CLAUDE.md gives for single test files: `uv run pytest -q tests/shared/adapters/test_document_examples.py tests/shared/adapters/test_document_examples_uv_cache.py tests/entry/test_check_documents_uv_cache.py` passed, and so did a run of those two adapter files with `tests/guards`. `make lint` and `make types` are green. Every module imported.
 
     `lint`: lint: green (0.1 s)
+15. factory: started doing as vm.
