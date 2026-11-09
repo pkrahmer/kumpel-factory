@@ -90,3 +90,46 @@ def test_with_a_uv_cache_home_stays_the_documents_own_folder(tmp_path: Path) -> 
     )
 
     assert _findings(runner, text, EmptyFixture()) == []
+
+
+class _NoVariableFixture(Fixture):
+    """A fixture that gives the command no variable of its own."""
+
+    def prepare(self, folder: Path) -> dict[str, str]:
+        """Check the folder is there and give nothing."""
+        assert folder.is_dir()
+        return {}
+
+
+@pytest.mark.parametrize(
+    ("uv_cache", "printed"),
+    [
+        pytest.param(Path("/shared/uv-cache"), "[copy]", id="with-cache"),
+        pytest.param(None, "[]", id="without-cache"),
+    ],
+)
+def test_a_command_copies_from_the_uv_cache_only_when_the_runner_has_one(
+    monkeypatch: pytest.MonkeyPatch, uv_cache: Path | None, printed: str
+) -> None:
+    # The caller's own value must not reach the command.
+    monkeypatch.setenv("UV_LINK_MODE", "clone")
+    runner = ProcessExampleRunner(time_limit=ROOMY_LIMIT, uv_cache=uv_cache)
+    text = document(block('$ echo "[$UV_LINK_MODE]"', printed))
+
+    assert _findings(runner, text, _NoVariableFixture()) == []
+
+
+@pytest.mark.parametrize(
+    ("uv_cache", "printed"),
+    [
+        pytest.param(Path("/shared/uv-cache"), "[copy]", id="with-cache"),
+        pytest.param(None, "[hardlink]", id="without-cache"),
+    ],
+)
+def test_a_fixtures_link_mode_reaches_the_command_only_without_a_uv_cache(
+    uv_cache: Path | None, printed: str
+) -> None:
+    runner = ProcessExampleRunner(time_limit=ROOMY_LIMIT, uv_cache=uv_cache)
+    text = document(block('$ echo "[$UV_LINK_MODE]"', printed))
+
+    assert _findings(runner, text, LiftingFixture("UV_LINK_MODE", "hardlink")) == []
