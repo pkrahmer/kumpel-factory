@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc">
+<!-- drawn from the cost sidecars: 208 stories; stories per whole dollar ($0 51, $1 49, $2 37, $3 25, $4 11, $5 14, $6 7, $7 2, $8+ 12); median $2.13; dearest $17.02; F0045-S0002 $5.57 -->
+<title id="title">What a story costs</title>
+<desc id="desc">A histogram of the 208 stories of the whole record by their cost at list price, in bins of one whole dollar. The bars are tallest at the left, with 51 stories under one dollar and 49 between one and two, and they fall to the right, with a last bar of 12 stories at eight dollars or more. A vertical line marks the median story at $2.13, and a small label marks the story of chapter 2, the page-cache fix, at $5.57, in the bar from five to six dollars. Most stories cost under three dollars, and the long tail to the right is where the rework is.</desc>
+<style>
+text { font-family: Inter, "Segoe UI", Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif; }
+.code { font-family: "JetBrains Mono", ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, "Liberation Mono", "DejaVu Sans Mono", monospace; font-size: 1em; }
+.tag { font-size: 28px; font-weight: 600; letter-spacing: 0.08em; }
+.nt { font-size: 42px; font-weight: 600; }
+.nb { font-size: 36px; font-weight: 400; }
+.nf { font-size: 36px; font-weight: 400; }
+.lb { font-size: 36px; font-weight: 400; }
+.lane-h { font-size: 42px; font-weight: 600; }
+.lane-n { font-size: 36px; font-weight: 400; }
+.col-h { font-size: 42px; font-weight: 600; }
+.col-n { font-size: 36px; font-weight: 400; }
+.grp-c { font-size: 28px; font-weight: 600; letter-spacing: 0.08em; }
+.tx { font-size: 36px; font-weight: 400; }
+.tx-bold { font-size: 36px; font-weight: 600; }
+.tx-mono { font-size: 36px; font-weight: 400; font-family: "JetBrains Mono", ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, "Liberation Mono", "DejaVu Sans Mono", monospace; }
+.tx-note { font-size: 36px; font-weight: 400; font-style: italic; }
+.lg { font-size: 32px; font-weight: 400; }
+.sh, .fold { stroke-width: 3; stroke-linejoin: round; }
+.n-end .sh, .n-dashed .sh { stroke-dasharray: 14 8; }
+.e { fill: none; stroke-linejoin: round; stroke-linecap: butt; }
+.halo { stroke: none; }
+.rule, .lane-a, .lane-b { stroke-width: 2; }
+.rule, .col-u { fill: none; } .col-r { stroke-dasharray: 4 10; stroke-width: 3; }
+.col-u { stroke-width: 3; }
+.grp { stroke-width: 3; } .grp-d { stroke-dasharray: 14 10; }
+.e-plain { stroke-width: 3; }
+.e-dashed { stroke-width: 3; stroke-dasharray: 10 10; }
+.bg { fill: #ffffff; }
+.nt, .lane-h, .col-h, .tx-bold { fill: #1b1f24; }
+.lane-n, .col-n, .grp-c, .tx-note, .nf { fill: #565d69; }
+.nb, .tx, .tx-mono, .lg { fill: #30353d; }
+.halo { fill: #ffffff; } .halo.on-lane { fill: #f3f5f8; }
+.lane-a { fill: #f3f5f8; stroke: #d5dae0; }
+.lane-b { fill: #ffffff; stroke: #d5dae0; }
+.rule { stroke: #d5dae0; }
+.grp { fill: #ffffff; stroke: #a9b0ba; } .col-u { stroke: #a9b0ba; }
+.n-data .sh { fill: #eef1f6; stroke: #5d6f8c; }
+.n-data .fold { fill: #d1d7e1; stroke: #5d6f8c; }
+.n-data .tag, .k-data { fill: #465570; }
+.g-data { stroke: #5d6f8c; }
+.e-plain { stroke: #8f96a1; } .ah-plain { fill: #8f96a1; }
+.lb-plain { fill: #565d69; }
+.e-dashed { stroke: #6b7280; } .ah-dashed { fill: #6b7280; }
+.lb-dashed { fill: #565d69; }
+.axis { fill: none; stroke-width: 3; stroke-linecap: butt; }
+.axis { stroke: #565d69; }
+
+</style>
+<defs><marker id="ah-plain" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="20" markerHeight="20" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="ah-plain" d="M0.5 1 L10 5 L0.5 9 L2.6 5 Z"/></marker><marker id="ah-dashed" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="20" markerHeight="20" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="ah-dashed" d="M0.5 1 L10 5 L0.5 9 L2.6 5 Z"/></marker></defs>
+<rect class="bg" width="1600" height="1000"/>
+<g class="n-data"><rect class="sh" x="118.22" y="200" width="112" height="560" rx="4"/></g><g class="n-data"><rect class="sh" x="274.67" y="221.96" width="112" height="538.04" rx="4"/></g><g class="n-data"><rect class="sh" x="431.11" y="353.73" width="112" height="406.27" rx="4"/></g><g class="n-data"><rect class="sh" x="587.56" y="485.49" width="112" height="274.51" rx="4"/></g><g class="n-data"><rect class="sh" x="744" y="639.22" width="112" height="120.78" rx="4"/></g><g class="n-data"><rect class="sh" x="900.44" y="606.27" width="112" height="153.73" rx="4"/></g><g class="n-data"><rect class="sh" x="1056.89" y="683.14" width="112" height="76.86" rx="4"/></g><g class="n-data"><rect class="sh" x="1213.33" y="738.04" width="112" height="21.96" rx="4"/></g><g class="n-data"><rect class="sh" x="1369.78" y="628.24" width="112" height="131.76" rx="4"/></g><path class="axis" d="M96 760 L1504 760"/><text class="tx" x="174.22" y="816" text-anchor="middle">$0</text><text class="tx-bold" x="174.22" y="186" text-anchor="middle">51</text><text class="tx" x="330.67" y="816" text-anchor="middle">$1</text><text class="tx-bold" x="330.67" y="207.96" text-anchor="middle">49</text><text class="tx" x="487.11" y="816" text-anchor="middle">$2</text><text class="tx-bold" x="487.11" y="339.73" text-anchor="middle">37</text><text class="tx" x="643.56" y="816" text-anchor="middle">$3</text><text class="tx-bold" x="643.56" y="471.49" text-anchor="middle">25</text><text class="tx" x="800" y="816" text-anchor="middle">$4</text><text class="tx-bold" x="800" y="625.22" text-anchor="middle">11</text><text class="tx" x="956.44" y="816" text-anchor="middle">$5</text><text class="tx-bold" x="956.44" y="592.27" text-anchor="middle">14</text><text class="tx" x="1112.89" y="816" text-anchor="middle">$6</text><text class="tx-bold" x="1112.89" y="669.14" text-anchor="middle">7</text><text class="tx" x="1269.33" y="816" text-anchor="middle">$7</text><text class="tx-bold" x="1269.33" y="724.04" text-anchor="middle">2</text><text class="tx" x="1425.78" y="816" text-anchor="middle">$8+</text><text class="tx-bold" x="1425.78" y="614.24" text-anchor="middle">12</text><text class="tx-note" x="96" y="124" text-anchor="start">Stories</text><text class="tx-note" x="800" y="888" text-anchor="middle">Cost per story, whole dollars</text>
+<path class="e e-dashed" d="M 445 760 L 445 208"/>
+<path class="e e-plain" d="M 956 417.27 L 956 549.27" marker-end="url(#ah-plain)"/>
+<text class="tx-bold" x="465" y="244" text-anchor="start">median $2.13</text>
+<text class="tx-note" x="956" y="397.27" text-anchor="middle">page-cache fix, $5.57</text>
+</svg>

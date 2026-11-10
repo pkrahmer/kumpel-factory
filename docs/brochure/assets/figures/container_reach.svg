@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc">
+<title id="title">What the agent's container reaches</title>
+<desc id="desc">The agent runs inside a throwaway container and reaches three things from there: the dataset, which it may read and write, its login and instructions files, which it may only read, and the network, for the model's API and the package index. Out of its reach, on the machine, lie the hosting token, the factory's clone of the repository, and the factory's own settings. Only the factory, running on the machine as an ordinary user, holds those and commits and pushes. The take is the one way anything of the agent's reaches the factory's clone, and figure 8-2 shows it.</desc>
+<style>
+text { font-family: Inter, "Segoe UI", Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif; }
+.code { font-family: "JetBrains Mono", ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, "Liberation Mono", "DejaVu Sans Mono", monospace; font-size: 1em; }
+.tag { font-size: 28px; font-weight: 600; letter-spacing: 0.08em; }
+.nt { font-size: 42px; font-weight: 600; }
+.nb { font-size: 36px; font-weight: 400; }
+.nf { font-size: 36px; font-weight: 400; }
+.lb { font-size: 36px; font-weight: 400; }
+.lane-h { font-size: 42px; font-weight: 600; }
+.lane-n { font-size: 36px; font-weight: 400; }
+.col-h { font-size: 42px; font-weight: 600; }
+.col-n { font-size: 36px; font-weight: 400; }
+.grp-c { font-size: 28px; font-weight: 600; letter-spacing: 0.08em; }
+.tx { font-size: 36px; font-weight: 400; }
+.tx-bold { font-size: 36px; font-weight: 600; }
+.tx-mono { font-size: 36px; font-weight: 400; font-family: "JetBrains Mono", ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, "Liberation Mono", "DejaVu Sans Mono", monospace; }
+.tx-note { font-size: 36px; font-weight: 400; font-style: italic; }
+.lg { font-size: 32px; font-weight: 400; }
+.sh, .fold { stroke-width: 3; stroke-linejoin: round; }
+.n-end .sh, .n-dashed .sh { stroke-dasharray: 14 8; }
+.e { fill: none; stroke-linejoin: round; stroke-linecap: butt; }
+.halo { stroke: none; }
+.rule, .lane-a, .lane-b { stroke-width: 2; }
+.rule, .col-u { fill: none; } .col-r { stroke-dasharray: 4 10; stroke-width: 3; }
+.col-u { stroke-width: 3; }
+.grp { stroke-width: 3; } .grp-d { stroke-dasharray: 14 10; }
+.e-flow { stroke-width: 4; }
+.e-plain { stroke-width: 3; }
+.bg { fill: #ffffff; }
+.nt, .lane-h, .col-h, .tx-bold { fill: #1b1f24; }
+.lane-n, .col-n, .grp-c, .tx-note, .nf { fill: #565d69; }
+.nb, .tx, .tx-mono, .lg { fill: #30353d; }
+.halo { fill: #ffffff; } .halo.on-lane { fill: #f3f5f8; }
+.lane-a { fill: #f3f5f8; stroke: #d5dae0; }
+.lane-b { fill: #ffffff; stroke: #d5dae0; }
+.rule { stroke: #d5dae0; }
+.grp { fill: #ffffff; stroke: #a9b0ba; } .col-u { stroke: #a9b0ba; }
+.n-agent .sh { fill: #eaf2fc; stroke: #2f6db5; }
+.n-agent .fold { fill: #c5d7ee; stroke: #2f6db5; }
+.n-agent .tag, .k-agent { fill: #245a99; }
+.g-agent { stroke: #2f6db5; }
+.n-code .sh { fill: #e8f5ef; stroke: #2a8a6e; }
+.n-code .fold { fill: #c2e0d5; stroke: #2a8a6e; }
+.n-code .tag, .k-code { fill: #1b6651; }
+.g-code { stroke: #2a8a6e; }
+.n-data .sh { fill: #eef1f6; stroke: #5d6f8c; }
+.n-data .fold { fill: #d1d7e1; stroke: #5d6f8c; }
+.n-data .tag, .k-data { fill: #465570; }
+.g-data { stroke: #5d6f8c; }
+.n-store .sh { fill: #f4f1ea; stroke: #8a7a5c; }
+.n-store .fold { fill: #dfd9ce; stroke: #8a7a5c; }
+.n-store .tag, .k-store { fill: #635640; }
+.g-store { stroke: #8a7a5c; }
+.n-quiet .sh { fill: #f4f5f7; stroke: #a3a8b2; }
+.n-quiet .fold { fill: #e4e6e9; stroke: #a3a8b2; }
+.n-quiet .tag, .k-quiet { fill: #5f6670; }
+.g-quiet { stroke: #a3a8b2; }
+.e-flow { stroke: #4b515c; } .ah-flow { fill: #4b515c; }
+.lb-flow { fill: #2b3038; }
+.e-plain { stroke: #8f96a1; } .ah-plain { fill: #8f96a1; }
+.lb-plain { fill: #565d69; }
+
+</style>
+<defs><marker id="ah-flow" viewBox="0 0 10 10" refX="6.67" refY="5" markerWidth="24" markerHeight="24" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="ah-flow" d="M0.5 1 L10 5 L0.5 9 L2.6 5 Z"/></marker><marker id="ah-plain" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="20" markerHeight="20" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="ah-plain" d="M0.5 1 L10 5 L0.5 9 L2.6 5 Z"/></marker></defs>
+<rect class="bg" width="1600" height="1000"/>
+<rect class="grp g-agent grp-d" x="48" y="48" width="768" height="800" rx="20"/><text class="grp-c k-agent" x="72" y="92" text-anchor="start">AGENT'S CONTAINER</text>
+<rect class="grp" x="944" y="48" width="608" height="800" rx="20"/><text class="grp-c" x="968" y="92" text-anchor="start">THE MACHINE</text>
+<path class="e e-plain" d="M 256 416 L 256 360" marker-start="url(#ah-plain)" marker-end="url(#ah-plain)"/>
+<path class="e e-plain" d="M 256 544 L 256 608" marker-end="url(#ah-plain)"/>
+<path class="e e-plain" d="M 400 484 L 536 484" marker-end="url(#ah-plain)"/>
+<path class="e e-flow" d="M 400 236 L 968 236" marker-end="url(#ah-flow)"/>
+<path class="e e-plain" d="M 1280 236 L 1224 236" marker-end="url(#ah-plain)"/>
+<path class="e e-plain" d="M 1280 484 L 1224 484" marker-end="url(#ah-plain)"/>
+<path class="e e-plain" d="M 1280 708 L 1224 708" marker-end="url(#ah-plain)"/>
+<g class="n-store"><path class="sh" d="M 112 140 A 144 20 0 0 1 400 140 V 332 A 144 20 0 0 1 112 332 Z"/><ellipse class="fold" cx="256" cy="140" rx="144" ry="20"/><text class="nt" x="256" y="244.28" text-anchor="middle">Dataset</text><text class="nb" x="256" y="298.24" text-anchor="middle">reads, writes</text></g>
+<g class="n-agent"><rect class="sh" x="112" y="424" width="288" height="120" rx="16"/><text class="tag" x="256" y="467.52" text-anchor="middle">AGENT</text><text class="nt" x="256" y="516.28" text-anchor="middle">Runs freely</text></g>
+<g class="n-data"><path class="sh" d="M 106 616 H 376 L 416 656 V 806 Q 416 816 406 816 H 106 Q 96 816 96 806 V 626 Q 96 616 106 616 Z"/><path class="fold" d="M 376 616 V 650 Q 376 656 382 656 H 416 Z"/><text class="nt" x="256" y="678.28" text-anchor="middle">Login,</text><text class="nt" x="256" y="730.28" text-anchor="middle">instructions</text><text class="nb" x="256" y="784.24" text-anchor="middle">read only</text></g>
+<g class="n-data"><rect class="sh" x="544" y="392" width="240" height="184" rx="16"/><text class="nt" x="664" y="450.28" text-anchor="middle">Network</text><text class="nb" x="664" y="504.24" text-anchor="middle">model API,</text><text class="nb" x="664" y="548.24" text-anchor="middle">packages</text></g>
+<g class="n-quiet"><rect class="sh" x="976" y="168" width="240" height="136" rx="16"/><text class="nt" x="1096" y="224.28" text-anchor="middle">Factory's</text><text class="nt" x="1096" y="276.28" text-anchor="middle">clone</text></g>
+<g class="n-quiet"><rect class="sh" x="976" y="416" width="240" height="136" rx="16"/><text class="nt" x="1096" y="472.28" text-anchor="middle">Hosting</text><text class="nt" x="1096" y="524.28" text-anchor="middle">token</text></g>
+<g class="n-quiet"><rect class="sh" x="976" y="640" width="240" height="136" rx="16"/><text class="nt" x="1096" y="696.28" text-anchor="middle">Its</text><text class="nt" x="1096" y="748.28" text-anchor="middle">settings</text></g>
+<g class="n-code"><rect class="sh" x="1280" y="168" width="240" height="608" rx="16"/><text class="tag" x="1400" y="407.52" text-anchor="middle">KUMPEL</text><text class="nt" x="1400" y="456.28" text-anchor="middle">Factory</text><text class="nb" x="1400" y="510.24" text-anchor="middle">ordinary</text><text class="nb" x="1400" y="554.24" text-anchor="middle">user</text></g>
+<rect class="halo" x="266" y="368" width="122.57" height="44" rx="6"/><text class="lb lb-plain" x="274" y="400.24" text-anchor="start">writes</text>
+<rect class="halo" x="266" y="560" width="114.67" height="44" rx="6"/><text class="lb lb-plain" x="274" y="592.24" text-anchor="start">reads</text>
+<rect class="halo" x="424.23" y="430" width="95.54" height="44" rx="6"/><text class="lb lb-plain" x="472" y="462.24" text-anchor="middle">calls</text>
+<rect class="halo" x="834.53" y="138" width="90.94" height="88" rx="6"/><text class="lb lb-flow" x="880" y="170.24" text-anchor="middle">take</text><text class="lb lb-flow" x="880" y="214.24" text-anchor="middle">only</text>
+<g class="n-agent"><rect class="sh" x="48" y="918" width="64" height="30" rx="6"/></g><text class="lg" x="128" y="944" text-anchor="start">a model</text>
+<g class="n-code"><rect class="sh" x="299.8" y="918" width="64" height="30" rx="6"/></g><text class="lg" x="379.8" y="944" text-anchor="start">Kumpel's code</text>
+<g class="n-data"><rect class="sh" x="660.2" y="918" width="64" height="30" rx="6"/></g><text class="lg" x="740.2" y="944" text-anchor="start">data</text>
+<g class="n-store"><rect class="sh" x="856.2" y="918" width="64" height="30" rx="6"/></g><text class="lg" x="936.2" y="944" text-anchor="start">stored state</text>
+<g class="n-quiet"><rect class="sh" x="1169.89" y="918" width="64" height="30" rx="6"/></g><text class="lg" x="1249.89" y="944" text-anchor="start">out of reach</text>
+</svg>

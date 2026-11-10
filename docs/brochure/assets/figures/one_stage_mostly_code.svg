@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc">
+<title id="title">One stage, mostly code</title>
+<desc id="desc">One stage of the line, laid out as its seven steps in the order they run. Six of the steps are the factory's code: the claim, the reset of the dataset to its base, the take, the decision against the stage's allowed moves, the checks, and the commit and push. One step, the agent's run in its container, is a model at work, and it ends with one word that the code reads. The checks run only when that word moves the story forward, and a move back or a question goes straight to the commit. The figure shows that a model acts in one step of seven, and that code decides what that step may change and where the work goes next.</desc>
+<style>
+text { font-family: Inter, "Segoe UI", Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif; }
+.code { font-family: "JetBrains Mono", ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, "Liberation Mono", "DejaVu Sans Mono", monospace; font-size: 1em; }
+.tag { font-size: 28px; font-weight: 600; letter-spacing: 0.08em; }
+.nt { font-size: 42px; font-weight: 600; }
+.nb { font-size: 36px; font-weight: 400; }
+.nf { font-size: 36px; font-weight: 400; }
+.lb { font-size: 36px; font-weight: 400; }
+.lane-h { font-size: 42px; font-weight: 600; }
+.lane-n { font-size: 36px; font-weight: 400; }
+.col-h { font-size: 42px; font-weight: 600; }
+.col-n { font-size: 36px; font-weight: 400; }
+.grp-c { font-size: 28px; font-weight: 600; letter-spacing: 0.08em; }
+.tx { font-size: 36px; font-weight: 400; }
+.tx-bold { font-size: 36px; font-weight: 600; }
+.tx-mono { font-size: 36px; font-weight: 400; font-family: "JetBrains Mono", ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, "Liberation Mono", "DejaVu Sans Mono", monospace; }
+.tx-note { font-size: 36px; font-weight: 400; font-style: italic; }
+.lg { font-size: 32px; font-weight: 400; }
+.sh, .fold { stroke-width: 3; stroke-linejoin: round; }
+.n-end .sh, .n-dashed .sh { stroke-dasharray: 14 8; }
+.e { fill: none; stroke-linejoin: round; stroke-linecap: butt; }
+.halo { stroke: none; }
+.rule, .lane-a, .lane-b { stroke-width: 2; }
+.rule, .col-u { fill: none; } .col-r { stroke-dasharray: 4 10; stroke-width: 3; }
+.col-u { stroke-width: 3; }
+.grp { stroke-width: 3; } .grp-d { stroke-dasharray: 14 10; }
+.e-flow { stroke-width: 4; }
+.e-dashed { stroke-width: 3; stroke-dasharray: 10 10; }
+.bg { fill: #ffffff; }
+.nt, .lane-h, .col-h, .tx-bold { fill: #1b1f24; }
+.lane-n, .col-n, .grp-c, .tx-note, .nf { fill: #565d69; }
+.nb, .tx, .tx-mono, .lg { fill: #30353d; }
+.halo { fill: #ffffff; } .halo.on-lane { fill: #f3f5f8; }
+.lane-a { fill: #f3f5f8; stroke: #d5dae0; }
+.lane-b { fill: #ffffff; stroke: #d5dae0; }
+.rule { stroke: #d5dae0; }
+.grp { fill: #ffffff; stroke: #a9b0ba; } .col-u { stroke: #a9b0ba; }
+.n-agent .sh { fill: #eaf2fc; stroke: #2f6db5; }
+.n-agent .fold { fill: #c5d7ee; stroke: #2f6db5; }
+.n-agent .tag, .k-agent { fill: #245a99; }
+.g-agent { stroke: #2f6db5; }
+.n-code .sh { fill: #e8f5ef; stroke: #2a8a6e; }
+.n-code .fold { fill: #c2e0d5; stroke: #2a8a6e; }
+.n-code .tag, .k-code { fill: #1b6651; }
+.g-code { stroke: #2a8a6e; }
+.e-flow { stroke: #4b515c; } .ah-flow { fill: #4b515c; }
+.lb-flow { fill: #2b3038; }
+.e-dashed { stroke: #6b7280; } .ah-dashed { fill: #6b7280; }
+.lb-dashed { fill: #565d69; }
+
+</style>
+<defs><marker id="ah-flow" viewBox="0 0 10 10" refX="6.67" refY="5" markerWidth="24" markerHeight="24" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="ah-flow" d="M0.5 1 L10 5 L0.5 9 L2.6 5 Z"/></marker><marker id="ah-dashed" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="20" markerHeight="20" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="ah-dashed" d="M0.5 1 L10 5 L0.5 9 L2.6 5 Z"/></marker></defs>
+<rect class="bg" width="1600" height="1000"/>
+<path class="e e-flow" d="M 352 268 L 440 268" marker-end="url(#ah-flow)"/>
+<path class="e e-flow" d="M 752 268 L 840 268" marker-end="url(#ah-flow)"/>
+<path class="e e-flow" d="M 1152 268 L 1240 268" marker-end="url(#ah-flow)"/>
+<path class="e e-flow" d="M 1400 384 L 1400 444 Q 1400 464 1380 464 L 220 464 Q 200 464 200 484 L 200 544" marker-end="url(#ah-flow)"/>
+<path class="e e-flow" d="M 352 668 L 440 668" marker-end="url(#ah-flow)"/>
+<path class="e e-flow" d="M 752 668 L 840 668" marker-end="url(#ah-flow)"/>
+<path class="e e-dashed" d="M 200 784 L 200 836 Q 200 856 220 856 L 980 856 Q 1000 856 1000 836 L 1000 792" marker-end="url(#ah-dashed)"/>
+<g class="n-code"><rect class="sh" x="48" y="152" width="304" height="232" rx="16"/><text class="nt" x="200" y="256.28" text-anchor="middle">Claim</text><text class="nb" x="200" y="310.24" text-anchor="middle">push the claim</text></g>
+<g class="n-code"><rect class="sh" x="448" y="152" width="304" height="232" rx="16"/><text class="nt" x="600" y="256.28" text-anchor="middle">Reset</text><text class="nb" x="600" y="310.24" text-anchor="middle">to the base</text></g>
+<g class="n-agent"><rect class="sh" x="848" y="152" width="304" height="232" rx="16"/><text class="tag" x="1000" y="203.52" text-anchor="middle">MODEL</text><text class="nt" x="1000" y="252.28" text-anchor="middle">Agent run</text><text class="nb" x="1000" y="306.24" text-anchor="middle">ends in one</text><text class="nb" x="1000" y="350.24" text-anchor="middle">word</text></g>
+<g class="n-code"><rect class="sh" x="1248" y="152" width="304" height="232" rx="16"/><text class="nt" x="1400" y="234.28" text-anchor="middle">Take</text><text class="nb" x="1400" y="288.24" text-anchor="middle">role's files</text><text class="nb" x="1400" y="332.24" text-anchor="middle">only</text></g>
+<g class="n-code"><rect class="sh" x="48" y="552" width="304" height="232" rx="16"/><text class="nt" x="200" y="656.28" text-anchor="middle">Decide</text><text class="nb" x="200" y="710.24" text-anchor="middle">allowed moves</text></g>
+<g class="n-code"><rect class="sh" x="448" y="552" width="304" height="232" rx="16"/><text class="nt" x="600" y="634.28" text-anchor="middle">Checks</text><text class="nb" x="600" y="688.24" text-anchor="middle">forward</text><text class="nb" x="600" y="732.24" text-anchor="middle">moves only</text></g>
+<g class="n-code"><rect class="sh" x="848" y="552" width="304" height="232" rx="16"/><text class="nt" x="1000" y="608.28" text-anchor="middle">Commit,</text><text class="nt" x="1000" y="660.28" text-anchor="middle">push</text><text class="nb" x="1000" y="714.24" text-anchor="middle">result and</text><text class="nb" x="1000" y="758.24" text-anchor="middle">records</text></g>
+<rect class="halo" x="445.42" y="802" width="309.15" height="44" rx="6"/><text class="lb lb-dashed" x="600" y="834.24" text-anchor="middle">back or question</text>
+<g class="n-agent"><rect class="sh" x="48" y="918" width="64" height="30" rx="6"/></g><text class="lg" x="128" y="944" text-anchor="start">a model</text>
+<g class="n-code"><rect class="sh" x="299.8" y="918" width="64" height="30" rx="6"/></g><text class="lg" x="379.8" y="944" text-anchor="start">Kumpel's code</text>
+<path class="e e-flow" d="M 660.2 933 L 716.2 933" marker-end="url(#ah-flow)"/><text class="lg" x="740.2" y="944" text-anchor="start">moves on</text>
+<path class="e e-dashed" d="M 940.51 933 L 996.51 933" marker-end="url(#ah-dashed)"/><text class="lg" x="1020.51" y="944" text-anchor="start">skips the checks</text>
+</svg>

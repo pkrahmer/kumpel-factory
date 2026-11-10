@@ -55,6 +55,9 @@ def unlicensed(root: Path, paths: list[str]) -> list[str]:
     """The paths among `paths`, relative to `root`, in the scope and without the header."""
     missing = []
     for path in paths:
+        # Only these two folders hold files in scope; the rest may be binary (the brochure's PDFs).
+        if not path.startswith((PACKAGE, OPERATOR)):
+            continue
         text = (root / path).read_text(encoding="utf-8")
         if in_scope(path, _script_line(text)) and not carries_header(text):
             missing.append(path)
