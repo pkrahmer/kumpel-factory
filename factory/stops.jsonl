@@ -23,3 +23,5 @@
 {"event":"cleared","scope":"repository","reason":"fetch_failed","at":"2026-11-04T01:22:28.297421Z","instance":"vm"}
 {"event":"raised","scope":"repository","reason":"main_branch_failing","at":"2026-11-04T02:19:11.841638Z","instance":"vm"}
 {"event":"cleared","scope":"repository","reason":"main_branch_failing","at":"2026-11-04T02:19:16.976698Z","instance":"vm"}
+{"event":"raised","scope":"machine","reason":"disk_low","at":"2026-11-10T07:46:12.536626Z","instance":"vm"}
+{"event":"cleared","scope":"machine","reason":"disk_low","at":"2026-11-10T22:29:56.338747Z","instance":"vm"}
