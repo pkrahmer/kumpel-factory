@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc">
+<!-- drawn from 281 cost sidecars, 2127 lines, $750.93 in all; cost by stage: tests $174.49 (23.2 %), review $165.50 (22.0 %), doing $148.35 (19.8 %), acceptance $147.70 (19.7 %), smoke test $44.05 (5.9 %), docs $41.53 (5.5 %), intake $29.32 (3.9 %); the top 4 hold 84.7 % -->
+<title id="title">Where the money goes</title>
+<desc id="desc">Seven horizontal bars show the list price of every agent run summed by stage, over the whole record of $750.93. From the top, the tests stage cost $174, the review $166, the coder's stage $148, and the acceptance $148, and below them the short bars of the smoke test at $44, the documents at $42, and the intake at $29. The four tall bars hold more than four fifths of the money. Checking, in the review and the acceptance, costs about as much as writing, in the tests and the code.</desc>
+<style>
+text { font-family: Inter, "Segoe UI", Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif; }
+.code { font-family: "JetBrains Mono", ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, "Liberation Mono", "DejaVu Sans Mono", monospace; font-size: 1em; }
+.tag { font-size: 28px; font-weight: 600; letter-spacing: 0.08em; }
+.nt { font-size: 42px; font-weight: 600; }
+.nb { font-size: 36px; font-weight: 400; }
+.nf { font-size: 36px; font-weight: 400; }
+.lb { font-size: 36px; font-weight: 400; }
+.lane-h { font-size: 42px; font-weight: 600; }
+.lane-n { font-size: 36px; font-weight: 400; }
+.col-h { font-size: 42px; font-weight: 600; }
+.col-n { font-size: 36px; font-weight: 400; }
+.grp-c { font-size: 28px; font-weight: 600; letter-spacing: 0.08em; }
+.tx { font-size: 36px; font-weight: 400; }
+.tx-bold { font-size: 36px; font-weight: 600; }
+.tx-mono { font-size: 36px; font-weight: 400; font-family: "JetBrains Mono", ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, "Liberation Mono", "DejaVu Sans Mono", monospace; }
+.tx-note { font-size: 36px; font-weight: 400; font-style: italic; }
+.lg { font-size: 32px; font-weight: 400; }
+.sh, .fold { stroke-width: 3; stroke-linejoin: round; }
+.n-end .sh, .n-dashed .sh { stroke-dasharray: 14 8; }
+.e { fill: none; stroke-linejoin: round; stroke-linecap: butt; }
+.halo { stroke: none; }
+.rule, .lane-a, .lane-b { stroke-width: 2; }
+.rule, .col-u { fill: none; } .col-r { stroke-dasharray: 4 10; stroke-width: 3; }
+.col-u { stroke-width: 3; }
+.grp { stroke-width: 3; } .grp-d { stroke-dasharray: 14 10; }
+.e-plain { stroke-width: 3; }
+.bg { fill: #ffffff; }
+.nt, .lane-h, .col-h, .tx-bold { fill: #1b1f24; }
+.lane-n, .col-n, .grp-c, .tx-note, .nf { fill: #565d69; }
+.nb, .tx, .tx-mono, .lg { fill: #30353d; }
+.halo { fill: #ffffff; } .halo.on-lane { fill: #f3f5f8; }
+.lane-a { fill: #f3f5f8; stroke: #d5dae0; }
+.lane-b { fill: #ffffff; stroke: #d5dae0; }
+.rule { stroke: #d5dae0; }
+.grp { fill: #ffffff; stroke: #a9b0ba; } .col-u { stroke: #a9b0ba; }
+.n-agent .sh { fill: #eaf2fc; stroke: #2f6db5; }
+.n-agent .fold { fill: #c5d7ee; stroke: #2f6db5; }
+.n-agent .tag, .k-agent { fill: #245a99; }
+.g-agent { stroke: #2f6db5; }
+.e-plain { stroke: #8f96a1; } .ah-plain { fill: #8f96a1; }
+.lb-plain { fill: #565d69; }
+.axis { fill: none; stroke-width: 3; stroke-linecap: butt; }
+.axis { stroke: #565d69; }
+
+</style>
+<defs><marker id="ah-plain" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="20" markerHeight="20" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="ah-plain" d="M0.5 1 L10 5 L0.5 9 L2.6 5 Z"/></marker></defs>
+<rect class="bg" width="1600" height="1000"/>
+<g class="n-agent"><rect class="sh" x="320" y="113" width="800" height="62" rx="4"/></g><g class="n-agent"><rect class="sh" x="320" y="209" width="758.79" height="62" rx="4"/></g><g class="n-agent"><rect class="sh" x="320" y="305" width="680.13" height="62" rx="4"/></g><g class="n-agent"><rect class="sh" x="320" y="401" width="677.17" height="62" rx="4"/></g><g class="n-agent"><rect class="sh" x="320" y="497" width="201.96" height="62" rx="4"/></g><g class="n-agent"><rect class="sh" x="320" y="593" width="190.39" height="62" rx="4"/></g><g class="n-agent"><rect class="sh" x="320" y="689" width="134.42" height="62" rx="4"/></g><path class="axis" d="M320 96 L320 768"/><path class="axis" d="M320 768 L1120 768"/><path class="axis" d="M320 768 L320 782"/><path class="axis" d="M549.24 768 L549.24 782"/><path class="axis" d="M778.48 768 L778.48 782"/><path class="axis" d="M1007.72 768 L1007.72 782"/><text class="tx" x="300" y="156.24" text-anchor="end">tests</text><text class="tx-bold" x="1134" y="156.24" text-anchor="start">$174</text><text class="tx" x="300" y="252.24" text-anchor="end">review</text><text class="tx-bold" x="1092.79" y="252.24" text-anchor="start">$166</text><text class="tx" x="300" y="348.24" text-anchor="end">doing</text><text class="tx-bold" x="1014.13" y="348.24" text-anchor="start">$148</text><text class="tx" x="300" y="444.24" text-anchor="end">acceptance</text><text class="tx-bold" x="1011.17" y="444.24" text-anchor="start">$148</text><text class="tx" x="300" y="540.24" text-anchor="end">smoke test</text><text class="tx-bold" x="535.96" y="540.24" text-anchor="start">$44</text><text class="tx" x="300" y="636.24" text-anchor="end">docs</text><text class="tx-bold" x="524.39" y="636.24" text-anchor="start">$42</text><text class="tx" x="300" y="732.24" text-anchor="end">intake</text><text class="tx-bold" x="468.42" y="732.24" text-anchor="start">$29</text><text class="tx" x="320" y="818" text-anchor="middle">$0</text><text class="tx" x="549.24" y="818" text-anchor="middle">$50</text><text class="tx" x="778.48" y="818" text-anchor="middle">$100</text><text class="tx" x="1007.72" y="818" text-anchor="middle">$150</text><text class="tx-note" x="720" y="880" text-anchor="middle">Cost at list price, dollars</text>
+<path class="e e-plain" d="M 1249 144 L 1261 144 Q 1273 144 1273 156 L 1273 420 Q 1273 432 1261 432 L 1249 432"/>
+<text class="tx-note" x="1297" y="266" text-anchor="start">more than</text><text class="tx-note" x="1297" y="314" text-anchor="start">four fifths</text>
+</svg>

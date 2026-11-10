@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc">
+<title id="title">The take's filter</title>
+<desc id="desc">The files a coder's run changed pass two tests on their way to the factory's clone. The first test keeps only files in the dataset's copy of the project, so the agent's home, git's own folder, and ignored files such as the virtual environment are dropped without a word. The second test asks whether the coder may write the file, so a test file, a file in a nested .claude folder, and the coder's edit to its own work item are left out and named in the journal. Only the coder's source file reaches the factory's clone.</desc>
+<style>
+text { font-family: Inter, "Segoe UI", Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif; }
+.code { font-family: "JetBrains Mono", ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, "Liberation Mono", "DejaVu Sans Mono", monospace; font-size: 1em; }
+.tag { font-size: 28px; font-weight: 600; letter-spacing: 0.08em; }
+.nt { font-size: 42px; font-weight: 600; }
+.nb { font-size: 36px; font-weight: 400; }
+.nf { font-size: 36px; font-weight: 400; }
+.lb { font-size: 36px; font-weight: 400; }
+.lane-h { font-size: 42px; font-weight: 600; }
+.lane-n { font-size: 36px; font-weight: 400; }
+.col-h { font-size: 42px; font-weight: 600; }
+.col-n { font-size: 36px; font-weight: 400; }
+.grp-c { font-size: 28px; font-weight: 600; letter-spacing: 0.08em; }
+.tx { font-size: 36px; font-weight: 400; }
+.tx-bold { font-size: 36px; font-weight: 600; }
+.tx-mono { font-size: 36px; font-weight: 400; font-family: "JetBrains Mono", ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, "Liberation Mono", "DejaVu Sans Mono", monospace; }
+.tx-note { font-size: 36px; font-weight: 400; font-style: italic; }
+.lg { font-size: 32px; font-weight: 400; }
+.sh, .fold { stroke-width: 3; stroke-linejoin: round; }
+.n-end .sh, .n-dashed .sh { stroke-dasharray: 14 8; }
+.e { fill: none; stroke-linejoin: round; stroke-linecap: butt; }
+.halo { stroke: none; }
+.rule, .lane-a, .lane-b { stroke-width: 2; }
+.rule, .col-u { fill: none; } .col-r { stroke-dasharray: 4 10; stroke-width: 3; }
+.col-u { stroke-width: 3; }
+.grp { stroke-width: 3; } .grp-d { stroke-dasharray: 14 10; }
+.e-flow { stroke-width: 4; }
+.e-dashed { stroke-width: 3; stroke-dasharray: 10 10; }
+.bg { fill: #ffffff; }
+.nt, .lane-h, .col-h, .tx-bold { fill: #1b1f24; }
+.lane-n, .col-n, .grp-c, .tx-note, .nf { fill: #565d69; }
+.nb, .tx, .tx-mono, .lg { fill: #30353d; }
+.halo { fill: #ffffff; } .halo.on-lane { fill: #f3f5f8; }
+.lane-a { fill: #f3f5f8; stroke: #d5dae0; }
+.lane-b { fill: #ffffff; stroke: #d5dae0; }
+.rule { stroke: #d5dae0; }
+.grp { fill: #ffffff; stroke: #a9b0ba; } .col-u { stroke: #a9b0ba; }
+.n-code .sh { fill: #e8f5ef; stroke: #2a8a6e; }
+.n-code .fold { fill: #c2e0d5; stroke: #2a8a6e; }
+.n-code .tag, .k-code { fill: #1b6651; }
+.g-code { stroke: #2a8a6e; }
+.n-data .sh { fill: #eef1f6; stroke: #5d6f8c; }
+.n-data .fold { fill: #d1d7e1; stroke: #5d6f8c; }
+.n-data .tag, .k-data { fill: #465570; }
+.g-data { stroke: #5d6f8c; }
+.n-store .sh { fill: #f4f1ea; stroke: #8a7a5c; }
+.n-store .fold { fill: #dfd9ce; stroke: #8a7a5c; }
+.n-store .tag, .k-store { fill: #635640; }
+.g-store { stroke: #8a7a5c; }
+.n-quiet .sh { fill: #f4f5f7; stroke: #a3a8b2; }
+.n-quiet .fold { fill: #e4e6e9; stroke: #a3a8b2; }
+.n-quiet .tag, .k-quiet { fill: #5f6670; }
+.g-quiet { stroke: #a3a8b2; }
+.e-flow { stroke: #4b515c; } .ah-flow { fill: #4b515c; }
+.lb-flow { fill: #2b3038; }
+.e-dashed { stroke: #6b7280; } .ah-dashed { fill: #6b7280; }
+.lb-dashed { fill: #565d69; }
+
+</style>
+<defs><marker id="ah-flow" viewBox="0 0 10 10" refX="6.67" refY="5" markerWidth="24" markerHeight="24" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="ah-flow" d="M0.5 1 L10 5 L0.5 9 L2.6 5 Z"/></marker><marker id="ah-dashed" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="20" markerHeight="20" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="ah-dashed" d="M0.5 1 L10 5 L0.5 9 L2.6 5 Z"/></marker></defs>
+<rect class="bg" width="1600" height="1000"/>
+<path class="e e-flow" d="M 360 268 L 424 268" marker-end="url(#ah-flow)"/>
+<path class="e e-flow" d="M 752 268 L 824 268" marker-end="url(#ah-flow)"/>
+<path class="e e-dashed" d="M 592 440 L 592 584" marker-end="url(#ah-dashed)"/>
+<path class="e e-dashed" d="M 992 440 L 992 584" marker-end="url(#ah-dashed)"/>
+<path class="e e-flow" d="M 1152 268 L 1248 268" marker-end="url(#ah-flow)"/>
+<g class="n-data"><path class="sh" d="M 58 128 H 320 L 360 168 V 398 Q 360 408 350 408 H 58 Q 48 408 48 398 V 138 Q 48 128 58 128 Z"/><path class="fold" d="M 320 128 V 162 Q 320 168 326 168 H 360 Z"/><text class="tag" x="204" y="199.52" text-anchor="middle">AFTER THE RUN</text><text class="nt" x="204" y="248.28" text-anchor="middle">Changed</text><text class="nt" x="204" y="300.28" text-anchor="middle">files</text><text class="nb" x="204" y="354.24" text-anchor="middle">from the base</text></g>
+<g class="n-code"><polygon class="sh" points="592,96 752,268 592,440 432,268"/><text class="tag" x="592" y="225.52" text-anchor="middle">TEST 1</text><text class="nt" x="592" y="274.28" text-anchor="middle">In the</text><text class="nt" x="592" y="326.28" text-anchor="middle">copy?</text></g>
+<g class="n-code"><polygon class="sh" points="992,96 1152,268 992,440 832,268"/><text class="tag" x="992" y="199.52" text-anchor="middle">TEST 2</text><text class="nt" x="992" y="248.28" text-anchor="middle">Coder</text><text class="nt" x="992" y="300.28" text-anchor="middle">may</text><text class="nt" x="992" y="352.28" text-anchor="middle">write?</text></g>
+<g class="n-store"><path class="sh" d="M 1256 148 A 148 20 0 0 1 1552 148 V 388 A 148 20 0 0 1 1256 388 Z"/><ellipse class="fold" cx="1404" cy="148" rx="148" ry="20"/><text class="tag" x="1404" y="245.52" text-anchor="middle">FACTORY'S</text><text class="nt" x="1404" y="294.28" text-anchor="middle">Clone</text><text class="nb" x="1404" y="348.24" text-anchor="middle"><tspan class="code">src/new.py</tspan></text></g>
+<g class="n-quiet"><rect class="sh" x="416" y="592" width="352" height="184" rx="16"/><text class="nt" x="592" y="650.28" text-anchor="middle">Dropped</text><text class="nb" x="592" y="704.24" text-anchor="middle"><tspan class="code">home/</tspan></text><text class="nb" x="592" y="748.24" text-anchor="middle"><tspan class="code">.git</tspan>, <tspan class="code">.venv/</tspan></text></g>
+<g class="n-quiet"><rect class="sh" x="784" y="592" width="416" height="272" rx="16"/><text class="nt" x="992" y="650.28" text-anchor="middle">Left out</text><text class="nb" x="992" y="704.24" text-anchor="middle"><tspan class="code">tests/...</tspan></text><text class="nb" x="992" y="748.24" text-anchor="middle"><tspan class="code">src/.claude/...</tspan></text><text class="nb" x="992" y="792.24" text-anchor="middle">the work item</text><text class="nb" x="992" y="836.24" text-anchor="middle">named in journal</text></g>
+<rect class="halo" x="752.98" y="214" width="78.03" height="44" rx="6"/><text class="lb lb-flow" x="792" y="246.24" text-anchor="middle">yes</text>
+<rect class="halo" x="602" y="496" width="60.16" height="44" rx="6"/><text class="lb lb-dashed" x="610" y="528.24" text-anchor="start">no</text>
+<rect class="halo" x="1002" y="496" width="60.16" height="44" rx="6"/><text class="lb lb-dashed" x="1010" y="528.24" text-anchor="start">no</text>
+<rect class="halo" x="1152.52" y="214" width="102.95" height="44" rx="6"/><text class="lb lb-flow" x="1204" y="246.24" text-anchor="middle">copy</text>
+<g class="n-code"><rect class="sh" x="48" y="918" width="64" height="30" rx="6"/></g><text class="lg" x="128" y="944" text-anchor="start">Kumpel's code</text>
+<g class="n-data"><rect class="sh" x="408.4" y="918" width="64" height="30" rx="6"/></g><text class="lg" x="488.4" y="944" text-anchor="start">data</text>
+<g class="n-store"><rect class="sh" x="604.4" y="918" width="64" height="30" rx="6"/></g><text class="lg" x="684.4" y="944" text-anchor="start">stored state</text>
+<g class="n-quiet"><rect class="sh" x="918.09" y="918" width="64" height="30" rx="6"/></g><text class="lg" x="998.09" y="944" text-anchor="start">left out</text>
+</svg>

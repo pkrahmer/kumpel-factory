@@ -4,6 +4,10 @@ kumpel-factory builds software from [stories](docs/project-guide/glossary.md). Y
 
 It runs on a Linux VM or as a Cloud Run job, with Claude Code or opencode as the agents. It builds this repository too.
 
+**New to Kumpel? Read the brochure first: [Kumpel: the software factory in brief](docs/brochure/README.md)** ([PDF](docs/brochure/assets/kumpel-brochure.pdf)). It explains what the factory does, who decides, what it costs and what it keeps safe, for readers who are not engineers too.
+
+[![The Kumpel poster: the whole factory in thirteen panels. Click to read the brochure.](docs/brochure/assets/kumpel-poster-preview.png)](docs/brochure/README.md)
+
 ## License
 
 kumpel-factory is licensed under the Apache License 2.0; see [LICENSE](LICENSE) and [NOTICE](NOTICE). Each file of code and each script of the operator names its license in its first line, `SPDX-License-Identifier: Apache-2.0`, so that a copied file says so too.

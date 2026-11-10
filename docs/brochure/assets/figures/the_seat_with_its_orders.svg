@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc">
+<title id="title">The seat with its orders</title>
+<desc id="desc">The human writes three orders for the seat: the feature's decisions, the standing orders, and the switches. A session in the seat reads all three before every act, and it acts in two places only: it answers and merges on the pull requests, when its switches allow, and commits to the main branch to start the next story or fix a small finding. The session writes a line for every act into a log on the project's main branch, which runs back to the human. Closing and discarding stay with the human alone, drawn as the one edge from the human straight to the factory.</desc>
+<style>
+text { font-family: Inter, "Segoe UI", Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif; }
+.code { font-family: "JetBrains Mono", ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, "Liberation Mono", "DejaVu Sans Mono", monospace; font-size: 1em; }
+.tag { font-size: 28px; font-weight: 600; letter-spacing: 0.08em; }
+.nt { font-size: 42px; font-weight: 600; }
+.nb { font-size: 36px; font-weight: 400; }
+.nf { font-size: 36px; font-weight: 400; }
+.lb { font-size: 36px; font-weight: 400; }
+.lane-h { font-size: 42px; font-weight: 600; }
+.lane-n { font-size: 36px; font-weight: 400; }
+.col-h { font-size: 42px; font-weight: 600; }
+.col-n { font-size: 36px; font-weight: 400; }
+.grp-c { font-size: 28px; font-weight: 600; letter-spacing: 0.08em; }
+.tx { font-size: 36px; font-weight: 400; }
+.tx-bold { font-size: 36px; font-weight: 600; }
+.tx-mono { font-size: 36px; font-weight: 400; font-family: "JetBrains Mono", ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, "Liberation Mono", "DejaVu Sans Mono", monospace; }
+.tx-note { font-size: 36px; font-weight: 400; font-style: italic; }
+.lg { font-size: 32px; font-weight: 400; }
+.sh, .fold { stroke-width: 3; stroke-linejoin: round; }
+.n-end .sh, .n-dashed .sh { stroke-dasharray: 14 8; }
+.e { fill: none; stroke-linejoin: round; stroke-linecap: butt; }
+.halo { stroke: none; }
+.rule, .lane-a, .lane-b { stroke-width: 2; }
+.rule, .col-u { fill: none; } .col-r { stroke-dasharray: 4 10; stroke-width: 3; }
+.col-u { stroke-width: 3; }
+.grp { stroke-width: 3; } .grp-d { stroke-dasharray: 14 10; }
+.e-flow { stroke-width: 4; }
+.e-plain { stroke-width: 3; }
+.e-dashed { stroke-width: 3; stroke-dasharray: 10 10; }
+.bg { fill: #ffffff; }
+.nt, .lane-h, .col-h, .tx-bold { fill: #1b1f24; }
+.lane-n, .col-n, .grp-c, .tx-note, .nf { fill: #565d69; }
+.nb, .tx, .tx-mono, .lg { fill: #30353d; }
+.halo { fill: #ffffff; } .halo.on-lane { fill: #f3f5f8; }
+.lane-a { fill: #f3f5f8; stroke: #d5dae0; }
+.lane-b { fill: #ffffff; stroke: #d5dae0; }
+.rule { stroke: #d5dae0; }
+.grp { fill: #ffffff; stroke: #a9b0ba; } .col-u { stroke: #a9b0ba; }
+.n-human .sh { fill: #fff4df; stroke: #c27400; }
+.n-human .fold { fill: #f3dab2; stroke: #c27400; }
+.n-human .tag, .k-human { fill: #8a5300; }
+.g-human { stroke: #c27400; }
+.n-agent .sh { fill: #eaf2fc; stroke: #2f6db5; }
+.n-agent .fold { fill: #c5d7ee; stroke: #2f6db5; }
+.n-agent .tag, .k-agent { fill: #245a99; }
+.g-agent { stroke: #2f6db5; }
+.n-store .sh { fill: #f4f1ea; stroke: #8a7a5c; }
+.n-store .fold { fill: #dfd9ce; stroke: #8a7a5c; }
+.n-store .tag, .k-store { fill: #635640; }
+.g-store { stroke: #8a7a5c; }
+.e-flow { stroke: #4b515c; } .ah-flow { fill: #4b515c; }
+.lb-flow { fill: #2b3038; }
+.e-plain { stroke: #8f96a1; } .ah-plain { fill: #8f96a1; }
+.lb-plain { fill: #565d69; }
+.e-dashed { stroke: #6b7280; } .ah-dashed { fill: #6b7280; }
+.lb-dashed { fill: #565d69; }
+
+</style>
+<defs><marker id="ah-flow" viewBox="0 0 10 10" refX="6.67" refY="5" markerWidth="24" markerHeight="24" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="ah-flow" d="M0.5 1 L10 5 L0.5 9 L2.6 5 Z"/></marker><marker id="ah-plain" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="20" markerHeight="20" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="ah-plain" d="M0.5 1 L10 5 L0.5 9 L2.6 5 Z"/></marker><marker id="ah-dashed" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="20" markerHeight="20" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="ah-dashed" d="M0.5 1 L10 5 L0.5 9 L2.6 5 Z"/></marker></defs>
+<rect class="bg" width="1600" height="1000"/>
+<path class="e e-flow" d="M 240 264 L 368 264" marker-end="url(#ah-flow)"/>
+<path class="e e-flow" d="M 240 496 L 368 496" marker-end="url(#ah-flow)"/>
+<path class="e e-flow" d="M 240 728 L 368 728" marker-end="url(#ah-flow)"/>
+<path class="e e-plain" d="M 728 264 L 744 264 Q 760 264 760 280 L 760 364 Q 760 384 780 384 L 864 384" marker-end="url(#ah-plain)"/>
+<path class="e e-plain" d="M 728 496 L 864 496" marker-end="url(#ah-plain)"/>
+<path class="e e-plain" d="M 728 728 L 744 728 Q 760 728 760 712 L 760 628 Q 760 608 780 608 L 864 608" marker-end="url(#ah-plain)"/>
+<path class="e e-flow" d="M 1112 496 L 1288 496" marker-end="url(#ah-flow)"/>
+<path class="e e-flow" d="M 992 632 L 992 688" marker-end="url(#ah-flow)"/>
+<path class="e e-dashed" d="M 992 888 L 992 916 Q 992 936 972 936 L 164 936 Q 144 936 144 916 L 144 824" marker-end="url(#ah-dashed)"/>
+<path class="e e-flow" d="M 144 176 L 144 124 Q 144 104 164 104 L 1404 104 Q 1424 104 1424 124 L 1424 328" marker-end="url(#ah-flow)"/>
+<g class="n-store"><path class="sh" d="M 386 176 H 688 L 728 216 V 342 Q 728 352 718 352 H 386 Q 376 352 376 342 V 186 Q 376 176 386 176 Z"/><path class="fold" d="M 688 176 V 210 Q 688 216 694 216 H 728 Z"/><text class="tag" x="552" y="221.52" text-anchor="middle">FEATURE</text><text class="nt" x="552" y="270.28" text-anchor="middle">Decisions</text><text class="nb" x="552" y="324.24" text-anchor="middle">what to answer</text></g>
+<g class="n-store"><path class="sh" d="M 386 384 H 688 L 728 424 V 598 Q 728 608 718 608 H 386 Q 376 608 376 598 V 394 Q 376 384 386 384 Z"/><path class="fold" d="M 688 384 V 418 Q 688 424 694 424 H 728 Z"/><text class="tag" x="552" y="427.52" text-anchor="middle">KUMPEL SKILL</text><text class="nt" x="552" y="476.28" text-anchor="middle">Standing</text><text class="nt" x="552" y="528.28" text-anchor="middle">orders</text><text class="nb" x="552" y="582.24" text-anchor="middle">how to act</text></g>
+<g class="n-store"><path class="sh" d="M 386 640 H 688 L 728 680 V 806 Q 728 816 718 816 H 386 Q 376 816 376 806 V 650 Q 376 640 386 640 Z"/><path class="fold" d="M 688 640 V 674 Q 688 680 694 680 H 728 Z"/><text class="tag" x="552" y="685.52" text-anchor="middle">LOCAL FILE</text><text class="nt" x="552" y="734.28" text-anchor="middle">Switches</text><text class="nb" x="552" y="788.24" text-anchor="middle">how far</text></g>
+<g class="n-human"><rect class="sh" x="48" y="176" width="192" height="640" rx="16"/><text class="nt" x="144" y="436.28" text-anchor="middle">The</text><text class="nt" x="144" y="488.28" text-anchor="middle">human</text><text class="nb" x="144" y="542.24" text-anchor="middle">writes,</text><text class="nb" x="144" y="586.24" text-anchor="middle">sets</text></g>
+<g class="n-agent"><rect class="sh" x="872" y="360" width="240" height="272" rx="16"/><text class="tag" x="992" y="405.52" text-anchor="middle">A SESSION</text><text class="nt" x="992" y="454.28" text-anchor="middle">In the</text><text class="nt" x="992" y="506.28" text-anchor="middle">seat</text><text class="nb" x="992" y="560.24" text-anchor="middle">reads, then</text><text class="nb" x="992" y="604.24" text-anchor="middle">acts</text></g>
+<g class="n-store"><rect class="sh" x="1296" y="336" width="256" height="320" rx="16"/><text class="tag" x="1424" y="409.52" text-anchor="middle">GITHUB</text><text class="nt" x="1424" y="458.28" text-anchor="middle">Hosting</text><text class="nb" x="1424" y="512.24" text-anchor="middle">pull</text><text class="nb" x="1424" y="556.24" text-anchor="middle">requests,</text><text class="nb" x="1424" y="600.24" text-anchor="middle">develop</text></g>
+<g class="n-store"><rect class="sh" x="824" y="696" width="336" height="192" rx="16"/><text class="tag" x="992" y="749.52" text-anchor="middle">DEVELOP</text><text class="nt" x="992" y="798.28" text-anchor="middle">The log</text><text class="nb" x="992" y="852.24" text-anchor="middle">every act, why</text></g>
+<rect class="halo" x="246.72" y="210" width="122.57" height="44" rx="6"/><text class="lb lb-flow" x="308" y="242.24" text-anchor="middle">writes</text>
+<rect class="halo" x="263.55" y="674" width="88.9" height="44" rx="6"/><text class="lb lb-flow" x="308" y="706.24" text-anchor="middle">sets</text>
+<rect class="halo" x="760.45" y="398" width="95.09" height="88" rx="6"/><text class="lb lb-plain" x="808" y="430.24" text-anchor="middle">read</text><text class="lb lb-plain" x="808" y="474.24" text-anchor="middle">first</text>
+<rect class="halo" x="1143.03" y="398" width="121.94" height="88" rx="6"/><text class="lb lb-flow" x="1204" y="430.24" text-anchor="middle">all but</text><text class="lb lb-flow" x="1204" y="474.24" text-anchor="middle">close</text>
+<rect class="halo" x="476.5" y="882" width="183.01" height="44" rx="6"/><text class="lb lb-dashed" x="568" y="914.24" text-anchor="middle">read later</text>
+<rect class="halo" x="694.29" y="50" width="179.41" height="44" rx="6"/><text class="lb lb-flow" x="784" y="82.24" text-anchor="middle">every act</text>
+</svg>

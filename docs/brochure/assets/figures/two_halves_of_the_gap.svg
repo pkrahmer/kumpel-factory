@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
+<title id="title">Two halves of the gap</title>
+<desc id="desc">Six gaps lie between an agent session and a factory, shown as two groups of three under a session with a person beside it. The left group, control, continuity, and economy, holds the jobs the person does by sitting there, which go undone when the person leaves. The right group, a guaranteed trail, four eyes, and isolation, holds the guarantees a session lacks even while the person stays. Each gap names, in one line, what the factory puts there.</desc>
+<style>
+text { font-family: Inter, "Segoe UI", Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif; }
+.code { font-family: "JetBrains Mono", ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, "Liberation Mono", "DejaVu Sans Mono", monospace; font-size: 1em; }
+.tag { font-size: 28px; font-weight: 600; letter-spacing: 0.08em; }
+.nt { font-size: 42px; font-weight: 600; }
+.nb { font-size: 36px; font-weight: 400; }
+.nf { font-size: 36px; font-weight: 400; }
+.lb { font-size: 36px; font-weight: 400; }
+.lane-h { font-size: 42px; font-weight: 600; }
+.lane-n { font-size: 36px; font-weight: 400; }
+.col-h { font-size: 42px; font-weight: 600; }
+.col-n { font-size: 36px; font-weight: 400; }
+.grp-c { font-size: 28px; font-weight: 600; letter-spacing: 0.08em; }
+.tx { font-size: 36px; font-weight: 400; }
+.tx-bold { font-size: 36px; font-weight: 600; }
+.tx-mono { font-size: 36px; font-weight: 400; font-family: "JetBrains Mono", ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, "Liberation Mono", "DejaVu Sans Mono", monospace; }
+.tx-note { font-size: 36px; font-weight: 400; font-style: italic; }
+.lg { font-size: 32px; font-weight: 400; }
+.sh, .fold { stroke-width: 3; stroke-linejoin: round; }
+.n-end .sh, .n-dashed .sh { stroke-dasharray: 14 8; }
+.e { fill: none; stroke-linejoin: round; stroke-linecap: butt; }
+.halo { stroke: none; }
+.rule, .lane-a, .lane-b { stroke-width: 2; }
+.rule, .col-u { fill: none; } .col-r { stroke-dasharray: 4 10; stroke-width: 3; }
+.col-u { stroke-width: 3; }
+.grp { stroke-width: 3; } .grp-d { stroke-dasharray: 14 10; }
+.e-plain { stroke-width: 3; }
+.bg { fill: #ffffff; }
+.nt, .lane-h, .col-h, .tx-bold { fill: #1b1f24; }
+.lane-n, .col-n, .grp-c, .tx-note, .nf { fill: #565d69; }
+.nb, .tx, .tx-mono, .lg { fill: #30353d; }
+.halo { fill: #ffffff; } .halo.on-lane { fill: #f3f5f8; }
+.lane-a { fill: #f3f5f8; stroke: #d5dae0; }
+.lane-b { fill: #ffffff; stroke: #d5dae0; }
+.rule { stroke: #d5dae0; }
+.grp { fill: #ffffff; stroke: #a9b0ba; } .col-u { stroke: #a9b0ba; }
+.n-human .sh { fill: #fff4df; stroke: #c27400; }
+.n-human .fold { fill: #f3dab2; stroke: #c27400; }
+.n-human .tag, .k-human { fill: #8a5300; }
+.g-human { stroke: #c27400; }
+.n-agent .sh { fill: #eaf2fc; stroke: #2f6db5; }
+.n-agent .fold { fill: #c5d7ee; stroke: #2f6db5; }
+.n-agent .tag, .k-agent { fill: #245a99; }
+.g-agent { stroke: #2f6db5; }
+.n-quiet .sh { fill: #f4f5f7; stroke: #a3a8b2; }
+.n-quiet .fold { fill: #e4e6e9; stroke: #a3a8b2; }
+.n-quiet .tag, .k-quiet { fill: #5f6670; }
+.g-quiet { stroke: #a3a8b2; }
+.e-plain { stroke: #8f96a1; } .ah-plain { fill: #8f96a1; }
+.lb-plain { fill: #565d69; }
+
+</style>
+<defs><marker id="ah-plain" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="20" markerHeight="20" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="ah-plain" d="M0.5 1 L10 5 L0.5 9 L2.6 5 Z"/></marker></defs>
+<rect class="bg" width="1200" height="900"/>
+<rect class="grp g-human" x="48" y="216" width="536" height="616" rx="20"/><text class="grp-c k-human" x="72" y="260" text-anchor="start">WHEN THE PERSON LEAVES</text>
+<rect class="grp g-quiet" x="616" y="216" width="536" height="616" rx="20"/><text class="grp-c k-quiet" x="640" y="260" text-anchor="start">EVEN WITH THE PERSON</text>
+<path class="e e-plain" d="M 360 136 L 360 208" marker-end="url(#ah-plain)"/>
+<path class="e e-plain" d="M 800 136 L 800 208" marker-end="url(#ah-plain)"/>
+<g class="n-human"><rect class="sh" x="208" y="48" width="304" height="88" rx="44"/><text class="nt" x="360" y="106.28" text-anchor="middle">The person</text></g>
+<g class="n-agent"><rect class="sh" x="648" y="48" width="304" height="88" rx="16"/><text class="nt" x="800" y="106.28" text-anchor="middle">A session</text></g>
+<g class="n-quiet"><rect class="sh" x="80" y="288" width="472" height="160" rx="16"/><text class="nt" x="316" y="356.28" text-anchor="middle">Control</text><text class="nb" x="316" y="410.24" text-anchor="middle">Human starts, accepts</text></g>
+<g class="n-quiet"><rect class="sh" x="80" y="464" width="472" height="160" rx="16"/><text class="nt" x="316" y="532.28" text-anchor="middle">Continuity</text><text class="nb" x="316" y="586.24" text-anchor="middle">Code watches, recovers</text></g>
+<g class="n-quiet"><rect class="sh" x="80" y="640" width="472" height="160" rx="16"/><text class="nt" x="316" y="708.28" text-anchor="middle">Economy</text><text class="nb" x="316" y="762.24" text-anchor="middle">Every run on the books</text></g>
+<g class="n-quiet"><rect class="sh" x="648" y="288" width="472" height="160" rx="16"/><text class="nt" x="884" y="356.28" text-anchor="middle">A guaranteed trail</text><text class="nb" x="884" y="410.24" text-anchor="middle">Code writes the record</text></g>
+<g class="n-quiet"><rect class="sh" x="648" y="464" width="472" height="160" rx="16"/><text class="nt" x="884" y="532.28" text-anchor="middle">Four eyes</text><text class="nb" x="884" y="586.24" text-anchor="middle">Separate roles, rights</text></g>
+<g class="n-quiet"><rect class="sh" x="648" y="640" width="472" height="160" rx="16"/><text class="nt" x="884" y="708.28" text-anchor="middle">Isolation</text><text class="nb" x="884" y="762.24" text-anchor="middle">A throwaway container</text></g>
+<rect class="halo" x="370" y="156" width="290.76" height="44" rx="6"/><text class="lb lb-plain" x="378" y="188.24" text-anchor="start">fills, while there</text>
+<rect class="halo" x="810" y="156" width="299.55" height="44" rx="6"/><text class="lb lb-plain" x="818" y="188.24" text-anchor="start">open, even then</text>
+</svg>

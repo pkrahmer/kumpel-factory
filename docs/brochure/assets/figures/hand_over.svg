@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc">
+<title id="title">The hand-over on the pull request</title>
+<desc id="desc">A facsimile, abridged, of the pull request of chapter 2's story at its approval. At the top stand the story's title, a mark that the pull request is ready rather than a draft, and the label that names the approval stage. Below come the description the factory wrote from the work item, with the story's sections, the reviewer's verdict of no findings and the smoke tester's last line, and then the factory's post with the bill and the line that counts the human, ending in a faint hidden marker. At the foot, the human's one act: the merge.</desc>
+<style>
+text { font-family: Inter, "Segoe UI", Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif; }
+.code { font-family: "JetBrains Mono", ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, "Liberation Mono", "DejaVu Sans Mono", monospace; font-size: 1em; }
+.tag { font-size: 28px; font-weight: 600; letter-spacing: 0.08em; }
+.nt { font-size: 42px; font-weight: 600; }
+.nb { font-size: 36px; font-weight: 400; }
+.nf { font-size: 36px; font-weight: 400; }
+.lb { font-size: 36px; font-weight: 400; }
+.lane-h { font-size: 42px; font-weight: 600; }
+.lane-n { font-size: 36px; font-weight: 400; }
+.col-h { font-size: 42px; font-weight: 600; }
+.col-n { font-size: 36px; font-weight: 400; }
+.grp-c { font-size: 28px; font-weight: 600; letter-spacing: 0.08em; }
+.tx { font-size: 36px; font-weight: 400; }
+.tx-bold { font-size: 36px; font-weight: 600; }
+.tx-mono { font-size: 36px; font-weight: 400; font-family: "JetBrains Mono", ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, "Liberation Mono", "DejaVu Sans Mono", monospace; }
+.tx-note { font-size: 36px; font-weight: 400; font-style: italic; }
+.lg { font-size: 32px; font-weight: 400; }
+.sh, .fold { stroke-width: 3; stroke-linejoin: round; }
+.n-end .sh, .n-dashed .sh { stroke-dasharray: 14 8; }
+.e { fill: none; stroke-linejoin: round; stroke-linecap: butt; }
+.halo { stroke: none; }
+.rule, .lane-a, .lane-b { stroke-width: 2; }
+.rule, .col-u { fill: none; } .col-r { stroke-dasharray: 4 10; stroke-width: 3; }
+.col-u { stroke-width: 3; }
+.grp { stroke-width: 3; } .grp-d { stroke-dasharray: 14 10; }
+.e-plain { stroke-width: 3; }
+.e-dashed { stroke-width: 3; stroke-dasharray: 10 10; }
+.bg { fill: #ffffff; }
+.nt, .lane-h, .col-h, .tx-bold { fill: #1b1f24; }
+.lane-n, .col-n, .grp-c, .tx-note, .nf { fill: #565d69; }
+.nb, .tx, .tx-mono, .lg { fill: #30353d; }
+.halo { fill: #ffffff; } .halo.on-lane { fill: #f3f5f8; }
+.lane-a { fill: #f3f5f8; stroke: #d5dae0; }
+.lane-b { fill: #ffffff; stroke: #d5dae0; }
+.rule { stroke: #d5dae0; }
+.grp { fill: #ffffff; stroke: #a9b0ba; } .col-u { stroke: #a9b0ba; }
+.n-human .sh { fill: #fff4df; stroke: #c27400; }
+.n-human .fold { fill: #f3dab2; stroke: #c27400; }
+.n-human .tag, .k-human { fill: #8a5300; }
+.g-human { stroke: #c27400; }
+.n-code .sh { fill: #e8f5ef; stroke: #2a8a6e; }
+.n-code .fold { fill: #c2e0d5; stroke: #2a8a6e; }
+.n-code .tag, .k-code { fill: #1b6651; }
+.g-code { stroke: #2a8a6e; }
+.n-data .sh { fill: #eef1f6; stroke: #5d6f8c; }
+.n-data .fold { fill: #d1d7e1; stroke: #5d6f8c; }
+.n-data .tag, .k-data { fill: #465570; }
+.g-data { stroke: #5d6f8c; }
+.e-plain { stroke: #8f96a1; } .ah-plain { fill: #8f96a1; }
+.lb-plain { fill: #565d69; }
+.e-dashed { stroke: #6b7280; } .ah-dashed { fill: #6b7280; }
+.lb-dashed { fill: #565d69; }
+
+</style>
+<defs><marker id="ah-plain" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="20" markerHeight="20" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="ah-plain" d="M0.5 1 L10 5 L0.5 9 L2.6 5 Z"/></marker><marker id="ah-dashed" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="20" markerHeight="20" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="ah-dashed" d="M0.5 1 L10 5 L0.5 9 L2.6 5 Z"/></marker></defs>
+<rect class="bg" width="1600" height="1000"/>
+<path class="e e-plain" d="M 1272 720 L 1272 680" marker-end="url(#ah-plain)"/>
+<path class="e e-dashed" d="M 632 672 L 632 712" marker-end="url(#ah-dashed)"/>
+<g class="n-data"><rect class="sh" x="48" y="48" width="896" height="120" rx="16"/><text class="tag" x="68" y="91.52" text-anchor="start">PULL REQUEST</text><text class="nt" x="68" y="140.28" text-anchor="start">F0045-S0002: The reset drops ...</text></g>
+<g class="n-data"><rect class="sh" x="992" y="48" width="192" height="120" rx="60"/><text class="tag" x="1088" y="91.52" text-anchor="middle">STATE</text><text class="nb" x="1088" y="142.24" text-anchor="middle">ready</text></g>
+<g class="n-data"><rect class="sh" x="1216" y="48" width="336" height="120" rx="60"/><text class="tag" x="1384" y="91.52" text-anchor="middle">LABEL</text><text class="nb" x="1384" y="142.24" text-anchor="middle">stage:approval</text></g>
+<g class="n-code"><path class="sh" d="M 58 184 H 904 L 944 224 V 662 Q 944 672 934 672 H 58 Q 48 672 48 662 V 194 Q 48 184 58 184 Z"/><path class="fold" d="M 904 184 V 218 Q 904 224 910 224 H 944 Z"/><text class="tag" x="68" y="227.52" text-anchor="start">DESCRIPTION</text><text class="nt" x="68" y="276.28" text-anchor="start">by the factory</text><text class="nb" x="68" y="330.24" text-anchor="start">## Description ...</text><text class="nb" x="68" y="374.24" text-anchor="start">## Acceptance criteria 1 ... 13</text><text class="nb" x="68" y="418.24" text-anchor="start">## Tests ...</text><text class="nb" x="68" y="462.24" text-anchor="start">## Review ... no findings</text><text class="nb" x="68" y="506.24" text-anchor="start">## Documentation ...</text><text class="nb" x="68" y="550.24" text-anchor="start">## Smoke test ... Findings: none.</text><text class="nb" x="68" y="594.24" text-anchor="start">## Commits ...</text><text class="nb" x="68" y="638.24" text-anchor="start">Merge to accept the story. ...</text></g>
+<g class="n-code"><path class="sh" d="M 1002 184 H 1512 L 1552 224 V 662 Q 1552 672 1542 672 H 1002 Q 992 672 992 662 V 194 Q 992 184 1002 184 Z"/><path class="fold" d="M 1512 184 V 218 Q 1512 224 1518 224 H 1552 Z"/><text class="tag" x="1012" y="227.52" text-anchor="start">FACTORY POST</text><text class="nt" x="1012" y="276.28" text-anchor="start">Cost of this work item</text><text class="nt" x="1012" y="328.28" text-anchor="start">so far</text><text class="nb" x="1012" y="382.24" text-anchor="start">intake 2 runs $0.27</text><text class="nb" x="1012" y="426.24" text-anchor="start">...</text><text class="nb" x="1012" y="470.24" text-anchor="start">total 15 runs $5.57</text><text class="nb" x="1012" y="514.24" text-anchor="start"> </text><text class="nb" x="1012" y="558.24" text-anchor="start">Human: 3 questions</text><text class="nb" x="1012" y="602.24" text-anchor="start">answered (question 3), 0.1 h</text><text class="nb" x="1012" y="646.24" text-anchor="start">waited</text></g>
+<g class="n-code n-dashed"><rect class="sh" x="992" y="720" width="560" height="120" rx="16"/><text class="tag" x="1272" y="763.52" text-anchor="middle">HIDDEN</text><text class="nb" x="1272" y="814.24" text-anchor="middle">id: cost table 34</text></g>
+<g class="n-human"><rect class="sh" x="416" y="720" width="432" height="176" rx="88"/><text class="tag" x="632" y="765.52" text-anchor="middle">THE HUMAN</text><text class="nt" x="632" y="814.28" text-anchor="middle">Merge</text><text class="nb" x="632" y="868.24" text-anchor="middle">accepts the story</text></g>
+<g class="n-human"><rect class="sh" x="992" y="870" width="64" height="30" rx="6"/></g><text class="lg" x="1072" y="896" text-anchor="start">the human</text>
+<g class="n-code"><rect class="sh" x="992" y="918" width="64" height="30" rx="6"/></g><text class="lg" x="1072" y="944" text-anchor="start">Kumpel's code</text>
+<g class="n-data"><rect class="sh" x="1352.4" y="918" width="64" height="30" rx="6"/></g><text class="lg" x="1432.4" y="944" text-anchor="start">data</text>
+</svg>
