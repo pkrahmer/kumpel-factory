@@ -53,6 +53,12 @@ The plain tests that fail on demo4's code check the sessions' own stricter decis
 - **What the demo does not measure:** the factory's worth lies where a plain session has no answer: the human's decisions and acceptance on a pull request per story, the written trail, review by a separate role, unattended work across many stories and days, recovery after a crash, and the agent's isolation from the host. The demo's stories are small, precise, and written in the factory's form with an Interface; the human's design work in them helps every side alike.
 - **One sample each.** Differences under about 10 % are within the noise; the factors of two and four are not.
 
+## Test first, asked or enforced
+
+Every side was told to write the tests first: the plain prompts said so, the thin line's builder says so, and the full factory gives the tests to a separate tester before the coder starts. The plain transcripts show that the sessions mostly did it unasked-for by any role boundary. In the one session, three of the four stories went: write the tests, run them and see them fail, write the code, run them green; in the fourth it wrote tests and code before the first run. The four sessions show the same order where their writes are visible (they wrote files through shell heredocs, and one session's writes could not be read from its transcript).
+
+So the comparison says only this: on this demo, enforcing test-first through a separate tester role gave no better quality than asking one agent for it. It does not say whether test-first itself matters. That would need a run without it (build first, then write tests until every criterion is covered), judged by the mutation sweep and by demo4's tests on its code; coverage would not tell the two apart, because `make check` demands it. On stories as precise as these, where each criterion nearly spells out its test, the difference is likely small; test-first should matter more on vaguer stories, where the test is where the agent decides what done means.
+
 ## Open points
 
 - A plain session on a larger feature, where one context fills up, is the comparison that would show where the factory starts to pay.
