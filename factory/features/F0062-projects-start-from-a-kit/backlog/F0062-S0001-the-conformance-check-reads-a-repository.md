@@ -1,0 +1,106 @@
+# The conformance check reads a repository
+
+## Description
+
+Whether a repository is ready for the factory is found out today by starting a story and reading the stop. This story builds the static part of the conformance check: a command `factory-check-project <folder>` that reads the commit at `HEAD` of the git repository in `<folder>`, prints one line per point and ends with `project: ready` or `project: not ready`. It judges six points: the pipeline definition, the makefile's targets, the stage file, the agents of the roles, the write paths and the forms. It starts no container and no project command, and it reads the committed files only, never the work tree, since the factory reads commits too. The live part (building the image, running `make sync` and `make check`) is a later story of this feature, and so is the makefile that a pipeline definition names: this story reads `Makefile` at the root. The console script's line in `pyproject.toml` is the human's change after this story; until then the command runs as `python -m factory.entry.check_project`.
+
+## Interface
+
+- `src/factory/pipeline/domain/project_check.py` (`domain`):
+
+```python
+POINT_NAMES: tuple[str, ...] = ("pipeline definition", "makefile", "stage file", "agents", "write paths", "forms")
+MAKEFILE = "Makefile"
+SYNC_COMMAND = "sync"
+
+class ProjectPoint(BaseModel):          # frozen, unknown keys forbidden
+    name: str
+    faults: list[str] = []
+    skipped: bool = False
+
+class MakefileInclude(BaseModel):       # frozen, unknown keys forbidden
+    path: str
+    optional: bool
+
+def makefile_targets(text: str) -> frozenset[str]: ...
+def makefile_includes(text: str) -> list[MakefileInclude]: ...
+def target_faults(commands: Sequence[str], targets: Collection[str]) -> list[str]: ...
+def write_path_faults(definition: PipelineDefinition, tracked: Sequence[str]) -> list[str]: ...
+def report_lines(points: Sequence[ProjectPoint]) -> list[str]: ...
+def is_ready(points: Sequence[ProjectPoint]) -> bool: ...
+```
+
+  - `makefile_targets`: the names before the colon of every rule line. A rule line starts at column 0 with one or more names separated by spaces or tabs, then optional spaces, then `:` or `::`; a name holds only letters, digits, `_`, `.` and `-`. A line where the colon is followed by `=` (`X := 1`, `X ::= 1`) is an assignment and gives no target; an indented line, a comment line, a line whose names hold `%` or `$` give none.
+  - `makefile_includes`: one entry for each path of every line that starts at column 0 with `include`, `-include` or `sinclude` and a space; `optional` is true for `-include` and `sinclude`. A path that holds `$` is left out.
+  - `target_faults`: `no target <name>` for every name of `commands` that is not in `targets`, in the order of `commands`.
+  - `write_path_faults`: `role <role>: write path <pattern> matches no tracked file` for every write path of every role that matches no path of `tracked`, matched as the factory matches write paths (`factory.agents.domain.write_paths.matches_any`). A write path that holds `{` (a placeholder such as `{work_item}`) is not judged.
+  - `report_lines`: one line per point in the given order, `<name>: ok` without faults, `<name>: FAIL: <fault>; <fault>` with faults (joined by `; `), `<name>: skipped: no valid pipeline definition` when `skipped`; then the last line: `project: ready` when no point has a fault, otherwise `project: not ready (<n> faults)` with the number of all faults, `(1 fault)` for one. A skipped point has no fault of its own.
+  - `is_ready`: true when no point has a fault.
+- `src/factory/pipeline/application/project_check.py` (`application`):
+
+```python
+class ProjectCheck:
+    def __init__(self, git: Git, pipeline_reader: PipelineDefinitionReader, agents: AgentDefinitionReader, ref: str = "HEAD") -> None: ...
+    def run(self) -> list[ProjectPoint]: ...
+```
+
+  - `run` returns the six points in the order of `POINT_NAMES`, every file read through `git` at `ref`.
+  - `pipeline definition`: fault `factory/pipeline.yml is missing` when the file is not there; otherwise the fault text of `PipelineDefinitionInvalid` when `pipeline_reader.parse` refuses it.
+  - Without a valid pipeline definition the points `makefile`, `agents` and `write paths` are `skipped`; `stage file` and `forms` are judged all the same.
+  - `makefile`: fault `Makefile is missing` when it is not there. Otherwise the targets are those of `Makefile` and of every file it includes, followed through included files until no new file appears, each file read once, every path taken from the root of the repository; a missing file of a non-optional include is the fault `<including file>: included file <path> is missing`, a missing optional one is nothing. The commands are the names of the definition's `project_commands` in their order, and `sync` after them when they do not hold it; their faults are `target_faults`.
+  - `stage file`: no fault when `factory/stage.Containerfile` is not there (the project then runs on the factory's stage image); otherwise the reason of `StageLayerRefused` when `factory.machine.domain.stage_layer.stage_layer` refuses its text.
+  - `agents`: for every role of the definition, in its order, `agents.read(<role>)`; an `AgentDefinitionMissing` is the fault `role <role>: no agent file`, any other `AgentDefinitionError` the fault `role <role>: <its fault>`.
+  - `write paths`: `write_path_faults` with all files tracked at `ref`.
+  - `forms`: fault `<path> is missing` for each of `factory/story-form.md` and `factory/feature-form.md` that is not there.
+- `src/factory/entry/check_project.py` (`entry`): `main(argv: Sequence[str] | None = None) -> int`, with `if __name__ == "__main__": sys.exit(main())`. Usage: `factory-check-project [--agent-home <dir>] <folder>`.
+  - The installed agents are read from `--agent-home`, or from the environment's `FACTORY_CLAUDE_HOME` when the option is not given; the project's own agents come first, as in a stage (`ProjectAgentDefinitions` with the ref `HEAD`).
+  - It prints the lines of `report_lines` and returns 0 when the project is ready and 1 when it is not.
+  - It returns 2 and prints one line on standard error: the usage when the folder is not given, more than one is given, or no agent home is known; `cannot read <folder>: <reason>` when the folder is no git repository or has no commit at `HEAD`.
+- Tests: `tests/pipeline/domain/test_project_check.py`, `tests/pipeline/application/test_project_check_run.py` (real repositories in `tmp_path`, the agents through a real agent home written there) and `tests/entry/test_check_project.py`. The table of `tests/guards/test_areas.py` gains the two new modules; `feature.md` gives the leave for it (decision 4): "S0001 to S0004 may add their new modules to the table of `tests/guards/test_areas.py`, and to any other guard table that lists every module or every entry command."
+
+## Acceptance criteria
+
+1. `makefile_targets` returns the names of rule lines and nothing else: `check: lint` gives `check`; `a b: c` gives `a` and `b`; `x::` gives `x`; `X := 1`, `X ::= 1`, an indented `y: z`, `# c: d`, `%.o: %.c` and `$(T): u` give nothing: rows of one parametrized test.
+2. `makefile_includes` returns `include a.mk b.mk` as two entries that are not optional, `-include c.mk` and `sinclude d.mk` as optional ones, and nothing for `include $(X).mk`, an indented `include e.mk` and `included: f`: rows of one parametrized test.
+3. `target_faults(["check", "lint"], {"check"})` is `["no target lint"]`, and `[]` when both are there.
+4. `write_path_faults` names a role's write path that matches no tracked file, names none for one that matches, and none for `{work_item}` and `{feature}/backlog/*`: rows of one parametrized test.
+5. `report_lines` prints `ok`, `FAIL` with two faults joined by `; `, and `skipped` lines as the Interface says, and ends with `project: ready`, `project: not ready (1 fault)` or `project: not ready (3 faults)`; `is_ready` is true only in the first case: rows of one parametrized test.
+6. `ProjectCheck.run` on a committed repository that holds a valid pipeline definition, a `Makefile` with every command's target, both forms, a file under every write path and an installed agent for every role returns six points without a fault, in the order of `POINT_NAMES`.
+7. Each fault alone turns its point and no other: a missing `factory/pipeline.yml`; a definition the reader refuses (its fault text is the fault); a missing `Makefile`; a `Makefile` without the target `lint`; a `Makefile` without a `sync` target when `project_commands` does not name `sync`; a stage file with two `FROM`; a role without any agent file; a project agent file under `factory/agents/` without front matter; a write path that matches nothing; a missing `factory/feature-form.md`: rows of one parametrized test.
+8. Without a valid pipeline definition, `makefile`, `agents` and `write paths` are skipped, and `stage file` and `forms` are still judged.
+9. A target that only an included file holds counts: `Makefile` with `include factory/kit.mk`, the target in `factory/kit.mk`, and the same through a second level of include. A missing included file is the fault `Makefile: included file factory/kit.mk is missing`; with `-include` it is no fault.
+10. A role whose agent exists only as the project's file `factory/agents/<role>.md` at `HEAD` has no fault; a file that exists only in the work tree and is not committed does not count.
+11. `main` prints the report and returns 0 for a ready repository and 1 for one with a fault; returns 2 with the usage on standard error without a folder, with two folders, and without `--agent-home` when `FACTORY_CLAUDE_HOME` is not set; returns 2 with `cannot read <folder>: ...` for a folder that is no git repository and for a repository without a commit; and reads the agent home from `FACTORY_CLAUDE_HOME` when the option is not given.
+12. `make check` stays green.
+13. docs: the operator guide (`docs/operator-guide/`, where it explains setting up a project) says that `factory-check-project <folder>` answers whether a repository is ready, what its six points judge, that it reads the commit at `HEAD` and starts nothing, what its three exit statuses mean, and where it takes the installed agents from; the project guide (`docs/project-guide/pipeline.md`) names the two modules and the rule that the check reads commits, not the work tree; `docs/decisions.md` records that the check is a command of its own and not a preflight item, because the preflight guards a machine and the check a repository.
+
+## Smoke test
+
+```bash
+d=$(mktemp -d); trap 'rm -rf "$d"' EXIT
+git init -q "$d/p"; mkdir -p "$d/p/factory" "$d/p/src" "$d/p/tests" "$d/p/docs"
+cp operator/template/factory/pipeline.yml factory/story-form.md factory/feature-form.md "$d/p/factory/"
+cp operator/template/Makefile "$d/p/Makefile"
+touch "$d/p/src/a.py" "$d/p/tests/t.py" "$d/p/docs/d.md" "$d/p/README.md"
+git -C "$d/p" add -A; git -C "$d/p" -c user.name=t -c user.email=t@example.com commit -q -m one
+uv run python -m factory.entry.check_project --agent-home agents "$d/p"; echo "status $?"
+```
+Expect: seven lines and the status: `pipeline definition: ok`, `makefile: ok`, `stage file: ok`, `agents: ok`, `write paths: ok`, `forms: ok`, `project: ready`, `status 0`.
+
+```bash
+d=$(mktemp -d); trap 'rm -rf "$d"' EXIT
+git init -q "$d/p"; mkdir -p "$d/p/factory" "$d/p/src" "$d/p/tests" "$d/p/docs"
+cp operator/template/factory/pipeline.yml factory/story-form.md "$d/p/factory/"
+grep -v '^lint:' operator/template/Makefile > "$d/p/Makefile"
+touch "$d/p/src/a.py" "$d/p/tests/t.py" "$d/p/docs/d.md" "$d/p/README.md"
+git -C "$d/p" add -A; git -C "$d/p" -c user.name=t -c user.email=t@example.com commit -q -m one
+uv run python -m factory.entry.check_project --agent-home agents "$d/p"; echo "status $?"
+```
+Expect: `makefile: FAIL: no target lint`, `forms: FAIL: factory/feature-form.md is missing`, the other four points `ok`, the last line `project: not ready (2 faults)`, then `status 1`.
+
+```bash
+uv run pytest tests/pipeline/domain/test_project_check.py tests/pipeline/application/test_project_check_run.py tests/entry/test_check_project.py
+```
+Expect: a summary line with only `passed`, no `failed` or `error`.
+
+## Journal

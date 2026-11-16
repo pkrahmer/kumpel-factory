@@ -1,7 +1,5 @@
 # Projects start from a kit and a stack pack
 
-Draft of 2026-11-16, not pre-checked. The plan behind it is `planning/templates-plan.md`.
-
 ## Goal
 
 Today a new project copies `operator/template/`, a Python example, and every other stack copied and rewrote it by hand: the ESP32 template, the HeishaMon fork and the Spring service template each carry their own copy of the pipeline definition, the forms, the agents and the Makefile's contract part. When this feature is done, the factory holds one kit that every project shares and one small pack per stack, a project of any stack is assembled from the two, and one command says whether a repository is ready for the factory. An existing repository can be made ready without a change to its own Makefile. Done when every story below is merged and `make check` is green.
@@ -35,11 +33,19 @@ The build order; start one at a time, the next when the one before is archived i
 
 ## The human's changes
 
-1. After S0006: the three templates become starters built from kit and pack (`spring-service-template`, `esp32-template`, and a Python starter from the todo demo), each checked with `factory-check-project --run` on the VM.
-2. Before S0002: the contract's minor version in `docs/` where a story's write paths do not reach.
+1. After S0001 is merged: `pyproject.toml` gains the console script `factory-check-project = "factory.entry.check_project:main"`.
+2. Before S0005: in `factory/pipeline.yml` the coder's write paths gain `operator/kit/*` and `operator/packs/*`, and the documenter's the `README.md` of each new folder that the folder guard asks for.
+3. After S0006: the three templates become starters built from kit and pack (`spring-service-template`, `esp32-template`, and a Python starter from the todo demo), each checked with `factory-check-project --run` on the VM. These are repositories of their own and wait for the human.
 
 ## Decisions taken for the human
 
 1. Placement, agents, the first step and the makefile key: the human's four answers of 2026-11-16, recorded in `planning/templates-plan.md`.
 2. The check is a console command of its own, not a preflight item: the preflight guards a machine, the check a repository. The preflight may call it later.
 3. The packs hold no application source. The Spring worker, the ESP32 logic and the todo service stay in their starters.
+4. Leave for the areas table (S0001 to S0004): "S0001 to S0004 may add their new modules to the table of `tests/guards/test_areas.py`, and to any other guard table that lists every module or every entry command." Taken when the stories were written, 2026-11-17: a new module cannot pass that guard otherwise.
+5. Leave for S0002: "S0002 may change earlier tests that pin the exact argument list of the sync script or of the check script, where their only failure is the added argument for the makefile." Taken with the story, 2026-11-17.
+6. The conformance check reads the commit at `HEAD`, never the work tree, because the factory reads commits too; an uncommitted file does not count (S0001, 2026-11-17).
+7. A project without `factory/stage.Containerfile` passes the point `stage file`: it runs on the factory's stage image, as this repository does (S0001, 2026-11-17).
+8. The contract's minor version 1.2 is not enforced: a definition at 1.0 or 1.1 that holds `make_file` loads, as it was with `context` at 1.1. The version's text in `docs/` is S0002's docs criterion, which the documenter can reach, so the draft's change "before S0002" is not needed (S0002, 2026-11-17).
+9. `ProjectCommands` and `StageEnvironment` keep their signatures; the two classes that call make ask a source for the makefile's name at every call. Reason: no fake and no other implementation has to change (S0002, 2026-11-17).
+10. S0003 to S0007 are written out one by one while the earlier stories are built, so that each can name what the one before really built (2026-11-17, the night's plan).
