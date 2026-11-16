@@ -1,0 +1,115 @@
+# The installed builder
+
+## Description
+
+A small project runs the thin line: one builder that writes tests, code and documents, one reviewer, the approval. The factory ships no `builder`, so each of the three templates carries its own copy of a builder and of a reviewer under `factory/agents/`, and the copies have drifted. After this story the factory's installed agents hold `builder`, written for any stack, and the installed reviewer also checks the review points a project writes in the section `## Review` of its `CLAUDE.md`. A project of the thin line then needs no agent file at all, and what is special about its stack lives in `CLAUDE.md`. A project's own agent file still wins over the installed one, file by file; nothing changes for the full line.
+
+## Interface
+
+- `agents/agents/builder.md`, new, with exactly this front matter and text:
+
+```markdown
+---
+model: opus
+effort: medium
+budget_usd: 6
+tools: [Read, Grep, Glob, Edit, Bash, Write, Skill]
+---
+Your entry says what you built (the paths), the decisions you took where the story left something open, and what you noticed but did not touch.
+
+## Role
+
+You build the whole story alone: its tests, its code and its documents, inside the architecture `CLAUDE.md` describes. No other role writes tests, code or documents in this pipeline; a reviewer reads your work after you.
+
+- Meet every acceptance criterion and cover it with tests. Write the tests first, see them fail, then write the code.
+- Implement where the `## Interface` puts it; the rules of `CLAUDE.md` are binding, and `make check` enforces the ones it can.
+- You write only inside your role's write paths; the factory takes nothing else from you. The build files, the makefile and `factory/` are the human's unless `CLAUDE.md` says otherwise: a story that seems to need a change there, a new dependency included, ends with `question`.
+- Update the documents the story's docs criterion names, and nothing it does not name.
+- Small functions, explicit names, no clever one-liners. Comments say why, never what, and they are timeless: no work item ids, no criterion numbers, no stage names.
+- Where the story leaves something open, decide yourself and say so in your entry; ask only what you cannot decide without the human.
+- Leave your work in the working tree; the factory commits it under the work item's subject after you. Never commit and never push.
+
+## Stage
+
+1. Read the work item: its Description, Interface, criteria and smoke test. `CLAUDE.md` is already in your context. Read the code and documents the story touches; not other work items, not `feature.md`, not `factory/`, not `.claude/`. If the prompt's round is greater than 0, address exactly the findings in the reviewer's latest entry, nothing more.
+2. Write the tests for every criterion, then the code, until `make check` is green.
+3. Update the documents the docs criterion names.
+4. Run the smoke test's commands as written and check each against its `Expect:` line. A command that does not meet its line is work still to do, not a remark.
+5. With everything green, read your own diff and the new files (`git status --short`) the way a reviewer would: rename what is unclear, simplify what is convoluted, remove duplication and dead code. Chain the final `make check` with your last edit in one command.
+6. End with `review` and an entry: what you built (paths), the decisions you took and the alternatives you rejected, the smoke test's results, anything you noticed but did not touch. The factory runs `make check` after you; red holds the work item here.
+
+## Lessons
+
+- Run `make check` and every other make target in the foreground and read its output. Never start one in the background, and never wait for a process with `pgrep -f`: it matches its own command line, so the wait never ends.
+- Give a project command that can take minutes, such as `make check`, the shell tool's largest timeout (600000 ms), so that the tool does not move it to the background.
+- Before you write a helper, search the code and the tests for one that does the same, and reuse or extend it.
+```
+
+- `agents/agents/reviewer.md` gains, as its last part before any `## Lessons` section, or at its end when it has none, exactly:
+
+```markdown
+### The project's review points
+
+When the project's `CLAUDE.md` holds a section `## Review`, each of its points is a checklist item of every review, beside the groups above. Check each point against the diff and report a broken one as a finding that names the point. Without that section there is nothing more to check.
+```
+
+- Where another shipped file lists the installed agents or the roles by name (the system prompt `agents/system-prompt.md`, `agents/README.md` is the documenter's), the coder adds `builder` only where the list claims to be complete.
+- No module under `src/factory/` changes: `ProjectAgentDefinitions` already reads a project's file first and the installed one otherwise.
+- Tests: `tests/agent_files/test_installed_builder.py`. `feature.md` gives this leave (decision 11): "S0004 may change earlier tests under `tests/agent_files/`, and any other earlier test, that pin the list or the number of the shipped agents or the text or a checksum of `reviewer.md`, where their only failure is the eighth agent `builder` or the reviewer's new part."
+
+## Acceptance criteria
+
+1. The installed agents' reader (`FrontmatterAgentDefinitionReader` on the repository's `agents/` folder) names `builder` among its agents and reads it: model `opus`, effort `medium`, a budget of 6, the seven tools of the Interface.
+2. The builder's text holds the three headings `## Role`, `## Stage` and `## Lessons`, ends its stage with `review`, and names no stack: none of the words `gradle`, `pytest`, `cmake` appears in it (compared without case).
+3. The installed reviewer's text holds the heading `### The project's review points` and names the section `## Review` of `CLAUDE.md`.
+4. A pipeline definition of the thin line (roles `builder` and `reviewer`; stages `doing`, `review`, `approval`, `done`) on a repository without `factory/agents/` loads through `PipelineLoader` with the installed agents, and `ProjectCheck.run` gives its point `agents` no fault.
+5. A project's own `factory/agents/builder.md` is the one that is read when it exists, and the installed one when it does not: rows of one parametrized test.
+6. Every earlier test of the shipped agent files passes with the eighth agent.
+7. `make check` stays green.
+8. docs: the operator guide's page on the agents (`docs/operator-guide/agent-runtime.md` or the page that lists the installed agents) names `builder` and says that the thin line (one builder, one reviewer) needs no agent file in the project, that a project's own file under `factory/agents/` still replaces the installed one file by file, and that a project gives the reviewer its own review points in the section `## Review` of its `CLAUDE.md`; the project guide (`docs/project-guide/agents.md`) lists the eighth agent; `agents/README.md` lists `builder.md`; `docs/decisions.md` records the decision of 2026-11-16 that the installed agents are the default, a kit copies no agent file, and a stack's review points live in the project's `CLAUDE.md`.
+
+## Smoke test
+
+```bash
+uv run python -c "
+from pathlib import Path
+from factory.agents.adapters.agent_files import FrontmatterAgentDefinitionReader as R
+reader = R(Path('agents').resolve())
+print('builder' in reader.names(), len(reader.names()))
+reader.read('builder'); print('read')
+"
+grep -c '^### The project.s review points$' agents/agents/reviewer.md
+```
+Expect: `True 8`, then `read`, then `1`.
+
+```bash
+d=$(mktemp -d); trap 'rm -rf "$d"' EXIT
+git init -q "$d/p"; mkdir -p "$d/p/factory" "$d/p/src"
+cat > "$d/p/factory/pipeline.yml" <<'EOF'
+contract: "1.1"
+project_commands:
+  check: {time_limit: 10}
+  sync: {time_limit: 5}
+roles:
+  builder: {write_paths: ["src/*"]}
+  reviewer: {write_paths: ["{work_item}"]}
+stages:
+  doing: {role: builder, next: [review], checks: [check]}
+  review: {role: reviewer, next: [approval, doing], round_cap: 3}
+  approval: {approval: true, next: [done, doing]}
+  done: {}
+EOF
+cp factory/story-form.md factory/feature-form.md "$d/p/factory/"
+printf 'check:\n\techo "check: green"\nsync:\n\techo "sync: green (0.0 s)"\n' > "$d/p/Makefile"
+touch "$d/p/src/a.c"
+git -C "$d/p" add -A; git -C "$d/p" -c user.name=t -c user.email=t@example.com commit -q -m one
+uv run python -m factory.entry.check_project --agent-home agents "$d/p" | grep -E '^(agents|project):'
+```
+Expect: `agents: ok` and `project: ready`.
+
+```bash
+uv run pytest tests/agent_files/
+```
+Expect: a summary line with only `passed`, no `failed` or `error`.
+
+## Journal
