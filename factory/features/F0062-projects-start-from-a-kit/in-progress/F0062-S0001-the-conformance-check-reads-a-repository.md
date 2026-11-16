@@ -1,3 +1,30 @@
+---
+stage: intake
+blocked: null
+round: 0
+attempts: 0
+crashes: 0
+pull_request: null
+comments_read: []
+handed_over: null
+claim:
+  instance: self
+  stage: intake
+  started_at: '2026-11-16T22:49:41.573495Z'
+  lease_duration: 60
+journal:
+- number: 1
+  speaker: human
+  kind: created
+  at: '2026-11-16T22:49:41.566527Z'
+  stage: intake
+- number: 2
+  speaker: factory
+  kind: started
+  at: '2026-11-16T22:49:41.573495Z'
+  stage: intake
+---
+
 # The conformance check reads a repository
 
 ## Description
@@ -104,3 +131,6 @@ uv run pytest tests/pipeline/domain/test_project_check.py tests/pipeline/applica
 Expect: a summary line with only `passed`, no `failed` or `error`.
 
 ## Journal
+
+1. 2026-11-16 human: created.
+2. factory: started intake as self.
