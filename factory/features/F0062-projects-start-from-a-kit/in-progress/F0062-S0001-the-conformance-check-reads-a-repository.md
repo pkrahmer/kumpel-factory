@@ -1,17 +1,13 @@
 ---
 stage: intake
-blocked: null
+blocked: question
 round: 0
 attempts: 0
 crashes: 0
-pull_request: null
+pull_request: 690
 comments_read: []
 handed_over: null
-claim:
-  instance: self
-  stage: intake
-  started_at: '2026-11-16T22:49:41.573495Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -23,6 +19,13 @@ journal:
   kind: started
   at: '2026-11-16T22:49:41.573495Z'
   stage: intake
+- number: 3
+  speaker: intake
+  kind: question
+  at: '2026-11-16T22:50:21.062434Z'
+  stage: intake
+  run: 90d27bf0547c4f7da1847693825a8b1b
+  blocked: question
 ---
 
 # The conformance check reads a repository
@@ -134,3 +137,18 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
 1. 2026-11-16 human: created.
 2. factory: started intake as self.
+3. intake: Intake found the story mostly buildable. I checked it against the code: `PipelineDefinitionReader`, `AgentDefinitionReader`, `ProjectAgentDefinitions`, `AgentDefinitionMissing` and `AgentDefinitionError`, `matches_any`, `stage_layer` and `StageLayerRefused`, `PipelineDefinitionInvalid`, `FACTORY_CLAUDE_HOME`, and the template's `pipeline.yml` and `Makefile` used by the smoke test. All of them exist as the Interface assumes. The placement in `domain`, `application` and `entry` fits the architecture. The story is within F0062's scope and follows decisions 2, 4, 6 and 7. The smoke test can run: `addopts` already sets `-q`, so the summary line prints. The docs criterion names what the reader must know and dictates no sentences. Six Interface clauses still have no criterion. I would like your word on adding these criteria:
+
+   1. Each included file is read only once, so an include cycle ends. No criterion tests this. I would add a row to criterion 9: `Makefile` includes `a.mk`, `a.mk` includes `Makefile` again, and the target in `a.mk` counts with no fault and no endless loop. Add it, or drop the clause?
+
+   2. Decision 7 and the Interface say a missing `factory/stage.Containerfile` gives no fault. A valid stage file (`ARG` base and `FROM ${...}` alone) should also be `ok`. No criterion pins either case. Criterion 6 does not say whether its repository has a stage file, and criterion 7 has only the refused side. I would make criterion 6's repository have no stage file and add a valid-stage-file row to criterion 8 or a new criterion.
+
+   3. `makefile_targets` has clauses whose cases are missing from criterion 1. Names separated by a tab (`a\tb: c`). Spaces before the colon (`check : lint` gives `check`). A name with a character outside the allowed set (`src/a.o: x` gives nothing). I would add these three rows to criterion 1's table.
+
+   4. `makefile_includes` needs the space after the keyword (`include` at column 0 followed by a space). Criterion 2's `included: f` row does not separate that rule from the `include` + space rule. I would add `include\te.mk` (tab after the keyword) as a row that gives nothing. Or should a tab count as the separator? If so, the Interface line changes.
+
+   5. The fault `<including file>: included file <path> is missing` names the including file. Criterion 9 tests it only with `Makefile` as the includer. I would add a row where `factory/kit.mk` includes a missing `factory/deep.mk`, giving `factory/kit.mk: included file factory/deep.mk is missing`. That also tests that paths are taken from the repository root.
+
+   6. Criterion 11 tests the agent home taken from `FACTORY_CLAUDE_HOME`, but not that `--agent-home` wins when both are given. I would add a row: the variable points to an empty folder, the option to a real agent home, and `main` returns 0.
+
+   What I'd choose: add all six as rows of the existing parametrized criteria, with the tab case in question 4 counting as no include. Then I would accept the story on the `tests` route.
