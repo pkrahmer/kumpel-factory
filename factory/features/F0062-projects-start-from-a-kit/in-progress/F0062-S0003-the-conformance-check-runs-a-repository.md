@@ -1,17 +1,13 @@
 ---
-stage: review
+stage: doing
 blocked: null
-round: 0
+round: 1
 attempts: 0
 crashes: 0
 pull_request: 692
 comments_read: [6935336014, 6935606286]
 handed_over: null
-claim:
-  instance: self
-  stage: review
-  started_at: '2026-11-17T02:05:46.357391Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -112,6 +108,12 @@ journal:
   kind: started
   at: '2026-11-17T02:05:46.357391Z'
   stage: review
+- number: 19
+  speaker: reviewer
+  kind: result
+  at: '2026-11-17T02:07:34.606484Z'
+  stage: review
+  run: 020318c37c534e20bc3f4b6256985d3c
 ---
 
 # The conformance check runs a repository
@@ -322,3 +324,20 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     `duplicates`: duplicates: 8 new, 38 known, 5 gone
 18. factory: started review as self.
+19. reviewer: Findings:
+
+    1. `src/factory/machine/application/project_run.py` `_run_in` (`path = self._images.path(image)`): `Images.path` raises `ContainerError` when the image cannot be inspected, for example when the stage image is missing on a repository without a stage file. The call sits outside `_point`, so the error escapes `main` as a traceback, not as the `sync` fault `could not start: <reason>` that the Interface gives for a `ContainerError`. The stage's wiring catches this same error (`src/factory/entry/wiring.py:388` `_image_path`, which falls back to `SYSTEM_PATH`). Fix: read the path inside the sync point's guarded run, so the error becomes `could not start: ...`, or fall back as `_image_path` does. The tester then adds a row to criterion 4's test where `path` raises.
+    2. `src/factory/entry/check_project.py:93` (`containers` in `build_project_run`) together with `project_run.py` `_image`: the image the containers run in is decided twice. The use case decides from `show_file(HEAD, STAGE_FILE)` and builds `check_image_tag`. The entry decides again from the files on disk (`checkout_has_stage_file`). Both entry tests monkeypatch `build_project_run`, so no test reaches the code that picks the image. Criterion 2 says "both containers run in that image", but its test sees the image only through `PATH`. The real `extra_environment` and `ca_bundle` wiring for criterion 6 is not reached either. Fix: the use case passes the image it chose to the `containers` callable (for example `Callable[[Path, str], ContainerRuns]`), and `checkout_has_stage_file` is dropped. The tester then changes the pinned signature in `tests/support/project_run_support.py` and checks the image of each run in criteria 1 and 2.
+    3. `src/factory/machine/application/project_run.py:226` `_last_line` is a second copy of `printed_lines` in `factory.shared.domain.printed_lines`, which `preflight._last_line` and `printed_output.failure_detail` already use to get the last non-blank line. Fix: build `_last_line` on `printed_lines(output)`. It keeps the `make:` lines, which is the only reason it differs from `checks.last_line`.
+
+    Checked and fine:
+    - Criteria 1 to 9 each have a test that checks what the criterion says.
+    - `make check` was green after the coder (entry 17).
+    - Layers hold: `project_run` is in `machine.application` and imports no adapter, and `ANY_BASE` is reused from `pipeline.application`.
+    - The scripts are argument-passing constants and are reused, not copied. `_NAMED_SYNC` with `shift 6` keeps the seventh argument.
+    - No markers that silence a check, no secrets. A `ContainerError` from `PodmanRuns.run` names only the executable.
+    - The journal explains the main choice and what was rejected. The Description and the docs criterion still match.
+
+    Earlier tests:
+    - `tests/entry/test_check_project.py`: the human's leave, journal entry 11 (`USAGE` only).
+    - `tests/guards/test_make_search.py`: the human's leave, journal entry 11 (adds `factory.machine.application.project_run` to the expected set only).
