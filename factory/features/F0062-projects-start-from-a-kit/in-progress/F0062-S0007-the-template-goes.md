@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 696
 comments_read: [6937913187]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: smoke-test
+  started_at: '2026-11-17T04:25:31.929540Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -104,6 +108,11 @@ journal:
   stage: smoke-test
   run: d3eec7729fc44452ba50b36c497fbff6
   reason: check_red
+- number: 18
+  speaker: factory
+  kind: started
+  at: '2026-11-17T04:25:31.929540Z'
+  stage: smoke-test
 ---
 
 # The template goes
@@ -390,3 +399,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
           ╚╝────────────────────┘
 
     make: *** [Makefile:44: layers] Error 139
+18. factory: started smoke-test as self.
