@@ -1,17 +1,13 @@
 ---
 stage: intake
-blocked: null
+blocked: question
 round: 0
 attempts: 0
 crashes: 0
-pull_request: null
+pull_request: 700
 comments_read: []
 handed_over: null
-claim:
-  instance: self
-  stage: intake
-  started_at: '2026-11-17T05:20:19.216194Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -23,6 +19,13 @@ journal:
   kind: started
   at: '2026-11-17T05:20:19.216194Z'
   stage: intake
+- number: 3
+  speaker: intake
+  kind: question
+  at: '2026-11-17T05:20:50.182426Z'
+  stage: intake
+  run: c7464a2d0e96478a8cc67a292470fb54
+  blocked: question
 ---
 
 # The makefile a pipeline definition names, and the kit's `kit.mk`, are protected paths
@@ -80,3 +83,8 @@ Expect: `13 13`
 
 1. 2026-11-17 human: created.
 2. factory: started intake as self.
+3. intake: Intake: the story is buildable apart from two points. Code read: `src/factory/agents/domain/write_paths.py`, `src/factory/agents/application/write_paths.py` (the only place in `src/factory` that uses `PROTECTED_PATHS`), `tests/pipeline/application/test_write_paths.py:42-49` and the feature's decisions 1–31. The Interface, the architecture (a pure function in the domain, the definition read at the commit in the application) and the scope (follow-up S0010 of decision 31) look right. The format check passed.
+
+   1. The leave to change an earlier test is only proposed. The Interface says the human gives it "when refining this story (proposed wording)", and the story still holds the comment `<!-- proposed by feature acceptance of 2026-11-17; refine before starting -->`. No journal entry and no decision in `feature.md` grants it. Without it, `test_at_returns_the_role_write_paths_with_the_work_item_expanded` (it asserts `settings.protected_paths == list(PROTECTED_PATHS)`, line 49) fails once `factory/kit.mk` is added, and the tester may not change it (CLAUDE.md, *Not without asking*). Options: (a) grant the leave as worded: "the tester may change the expected `protected_paths` in `tests/pipeline/application/test_write_paths.py::test_at_returns_the_role_write_paths_with_the_work_item_expanded`, and in any other earlier test whose only failure is the added `factory/kit.mk`, to `protected_paths(None)`"; (b) narrow it to that one test. I recommend (a). I will carry it into the story and remove the "refine before starting" comment.
+
+   2. `protected_paths("Makefile")`: the Interface says only that it "holds `Makefile` once". Criterion 1 says it returns "the list the Interface names", and the smoke test expects a length of 13. So the exact list, and its order, is not stated. Options: (a) state that `protected_paths("Makefile")` is `[*PROTECTED_PATHS, KIT_MAKEFILE]`: a `make_file` already in the list is not added again, and the same holds for `"factory/kit.mk"`. Criterion 1 then checks that exact list, and a row for `"factory/kit.mk"` is added. (b) Keep "holds once" and test only the count of `Makefile` and the length. I recommend (a), so that two coders cannot both pass with different orders.
