@@ -1,5 +1,5 @@
 ---
-stage: docs
+stage: smoke-test
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 703
 comments_read: [6940217140]
 handed_over: null
-claim:
-  instance: self
-  stage: docs
-  started_at: '2026-11-17T06:11:26.621243Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -84,6 +80,12 @@ journal:
   kind: started
   at: '2026-11-17T06:11:26.621243Z'
   stage: docs
+- number: 14
+  speaker: documenter
+  kind: result
+  at: '2026-11-17T06:15:33.106262Z'
+  stage: docs
+  run: ac743a28e39a479bb005956efeaee974
 ---
 
 # A `make_file` is written in its plain form, or the definition refuses it
@@ -218,3 +220,23 @@ Expect: one line ending with `passed` and a time, with no `failed`.
     - `tests/pipeline/domain/test_pipeline_definition_make_file.py`: none needed. One test is appended, and every earlier test is unchanged.
     - `tests/entry/test_check_project.py`: none needed. One test is appended, the imports gain `PIPELINE_YAML` and `READY_MAKEFILE`, and every earlier test is unchanged.
 13. factory: started docs as self.
+14. documenter: Documented the plain-form rule for `make_file`. `make documents` ends with `documents ok (48.2 s)`. I changed only documents, so I did not run `make check`, as the stage says; the factory checks after this stage.
+
+    Files changed:
+    - `docs/operator-guide/pipeline.md`, *Name the makefile*: a new paragraph after the rule on characters. It says the value must be written in its plain form (no `./` segment, no doubled `/`, no trailing `/`) and why: make reads both spellings as one file, but the protected paths and `factory-check-project` compare the text as written. It lists `./factory/Makefile`, `factory//Makefile`, `factory/./Makefile` and `factory/Makefile/` as refused, each with `make_file <value> must be written as factory/Makefile`. A value outside the checkout such as `../Makefile` gets only the "must be a path inside the checkout" fault.
+    - `docs/project-guide/pipeline.md`, *The makefile source*: the bullet on `MakeFilePath` and `_make_file_faults` now names the second rule. A path whose `posixpath.normpath` differs from the text gets `make_file <path> must be written as <plain>`; a path outside the checkout gets only the first fault; neither `MakeFilePath` nor the schema carries the rule.
+
+    Ran: smoke test 1's command. Its last line is `factory.shared.domain.errors.PipelineDefinitionInvalid: make_file ./factory/Makefile must be written as factory/Makefile`. The first `make documents` run flagged backticked bare paths such as `factory//Makefile` as files that do not exist. I rewrote each example as `make_file: <value>`, the way the existing sentence on line 110 already writes its values, and the next run was green.
+
+    Cross-read and found current:
+    - the operator guide's fault table for `factory-check-project` ("the fault text of the definition's refusal" covers the new fault) and its protected-paths list;
+    - `docs/project-guide/agents.md` on `protected_paths(make_file)`, which needs no change because it only ever receives plain paths now;
+    - `docs/project-guide/pipeline.md` on the conformance check;
+    - `docs/project-guide/machine.md` on `make_file` in the check and the sync;
+    - `docs/project-guide/operator.md`.
+
+    Stale text not mine: none seen.
+
+    `guides`: guides: green (9.5 s)
+    `secrets`: secrets: green (1.0 s)
+    `documents`: documents ok (48.8 s)
