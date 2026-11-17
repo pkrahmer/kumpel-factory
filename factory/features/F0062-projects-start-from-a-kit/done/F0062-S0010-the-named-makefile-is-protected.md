@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 0
 attempts: 0
@@ -97,6 +97,11 @@ journal:
   at: '2026-11-17T05:36:56.945713Z'
   stage: smoke-test
   run: a77c6441788a4a7bb221abad60c74458
+- number: 17
+  speaker: factory
+  kind: done
+  at: '2026-11-17T05:38:48.216612Z'
+  stage: approval
 ---
 
 # The makefile a pipeline definition names, and the kit's `kit.mk`, are protected paths
@@ -306,3 +311,4 @@ Expect: `13 13`
     Still open, as the reviewer noted in entry 12 and outside this story: a `make_file` written as `./factory/Makefile` is not normalised, so that spelling would not protect `factory/Makefile`.
 
     `check`: check: green
+17. factory: done (pull request merged); cost: 7 runs, 11.9 min, 56 turns, 179270 tokens in (2044946 more from cache), 24132 out, $1.79
