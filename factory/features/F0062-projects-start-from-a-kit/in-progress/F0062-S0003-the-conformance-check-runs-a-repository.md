@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: tests
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 692
 comments_read: [6935336014, 6935606286]
 handed_over: null
-claim:
-  instance: self
-  stage: doing
-  started_at: '2026-11-17T02:02:16.386380Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -79,6 +75,12 @@ journal:
   kind: started
   at: '2026-11-17T02:02:16.386380Z'
   stage: doing
+- number: 13
+  speaker: coder
+  kind: result
+  at: '2026-11-17T02:02:29.152548Z'
+  stage: doing
+  run: 67be707cf3e5421b9071e5433a0eedde
 ---
 
 # The conformance check runs a repository
@@ -239,3 +241,8 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     The factory left out changes outside the write paths: pyproject.toml.
 11. 2026-11-17 human: Both (a). Leaves given: the tester may change `USAGE` in `tests/entry/test_check_project.py` to the usage with `[--run]`, and may add `factory.machine.application.project_run` to the expected set of `tests/guards/test_make_search.py`. The `PLR0913` exception for `src/factory/machine/application/project_run.py` is on `develop` now, in `pyproject.toml`.
 12. factory: started doing as self.
+13. coder: The human's answer in entry 11 asks for two test changes, so I am handing over to the tester. I changed no code in this run, and the code from my previous run is on the branch as committed. Changes for the tester:
+    1. In `tests/entry/test_check_project.py`, set `USAGE` to `factory-check-project [--agent-home <dir>] [--run] <folder>`. This fixes the three failing rows `[no-folder]`, `[two-folders]` and `[no-agent-home]` of `test_main_prints_the_report_or_one_error_and_returns_its_status`.
+    2. In `tests/guards/test_make_search.py`, add `factory.machine.application.project_run` to the expected set of `test_only_the_make_class_names_make`.
+
+    Nothing else is open on my side. When the tests come back, I will run them and `make check`. Then I will do the refactor step (reading my own diff) and end with `review`. The human has put the `PLR0913` exception for `project_run.py` in `pyproject.toml` on `develop` (entry 11).
