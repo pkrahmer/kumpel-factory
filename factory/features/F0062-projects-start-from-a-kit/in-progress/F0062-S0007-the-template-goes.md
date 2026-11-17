@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 696
 comments_read: [6937913187]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: intake
+  started_at: '2026-11-17T04:04:55.384731Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -30,6 +34,11 @@ journal:
   speaker: human
   kind: comment
   at: '2026-11-17T04:04:52.806545Z'
+  stage: intake
+- number: 5
+  speaker: factory
+  kind: started
+  at: '2026-11-17T04:04:55.384731Z'
   stage: intake
 ---
 
@@ -99,3 +108,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    - The story is within the feature's scope.
    - `operator/kit/README.md:5` names the template too. It is a shipped file under `operator/`, so the coder rewords it by the Interface's second line.
 4. 2026-11-17 human: (a). Leave given: the coder may end its run with the new guard `tests/guards/test_template_removed.py` red and the folder-readme row red, both only on `operator/README.md` naming `operator/template`, which the docs stage fixes.
+5. factory: started intake as self.
