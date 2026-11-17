@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 707
 comments_read: [6941636547]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: tests
+  started_at: '2026-11-17T07:33:27.656634Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -75,6 +79,11 @@ journal:
   at: '2026-11-17T07:33:22.273750Z'
   stage: review
   run: e0d12146bcc747109e8b428f3f4fff8d
+- number: 13
+  speaker: factory
+  kind: started
+  at: '2026-11-17T07:33:27.656634Z'
+  stage: tests
 ---
 
 # The root makefile forwards a target that a file at the root is named after
@@ -215,3 +224,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     - **Work item hygiene:** the Description matches what was built. The coder's entry names the main choice (copy the draft as it is) and what was rejected (a `.PHONY` list of known targets, `MAKECMDGOALS` tricks). Docs criterion 7 still says what the reader must know.
 
     Earlier tests: none changed. The diff only adds `tests/operator_scripts/test_root_makefile.py`. The fixes above will change `tests/operator_scripts/test_one_layout.py` under the standing leave to move a shared test helper.
+13. factory: started tests as self.
