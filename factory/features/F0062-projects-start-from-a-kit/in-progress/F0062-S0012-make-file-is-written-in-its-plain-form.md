@@ -1,17 +1,13 @@
 ---
 stage: intake
-blocked: null
+blocked: question
 round: 0
 attempts: 0
 crashes: 0
-pull_request: null
+pull_request: 703
 comments_read: []
 handed_over: null
-claim:
-  instance: self
-  stage: intake
-  started_at: '2026-11-17T06:03:43.320645Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -23,6 +19,13 @@ journal:
   kind: started
   at: '2026-11-17T06:03:43.320645Z'
   stage: intake
+- number: 3
+  speaker: intake
+  kind: question
+  at: '2026-11-17T06:04:10.866048Z'
+  stage: intake
+  run: 233e96fc8a444ea0a2f4fe1119d9d922
+  blocked: question
 ---
 
 # A `make_file` is written in its plain form, or the definition refuses it
@@ -81,3 +84,12 @@ Expect: one line ending with `passed` and a time, with no `failed`.
 
 1. 2026-11-17 human: created.
 2. factory: started intake as self.
+3. intake: 1. The third smoke test cannot meet its `Expect:`. `pyproject.toml` already sets `addopts = "-q --strict-markers -p no:cacheprovider"`, so `uv run pytest -q tests/pipeline/domain/test_pipeline_definition_make_file.py` runs at `-qq`, and at that level pytest prints no summary line. I ran it on `develop`'s code: the last line is `...............                                                          [100%]`, not `15 passed in 0.03s`. The same command without `-q` ends with `15 passed in 0.03s`. Options: (a) remove the `-q` from the command and keep the `Expect:` as it is (my choice); (b) keep `-q` and change the `Expect:` to a line of dots ending in `[100%]` with no `F` or `E`, which is weaker.
+
+   The rest of the story looks ready to build:
+   - Interface: it names `_make_file_faults` in `factory.pipeline.domain.pipeline_definition` (currently at line 274) and the exact text of the fault. The rule that a value outside the checkout gets only that fault matches how the current function returns early.
+   - Criteria: each one is testable. Criterion 1 covers both sides of the rule, and criterion 2 covers the case outside the checkout. The test modules it names exist: `tests/pipeline/domain/test_pipeline_definition_make_file.py`, `tests/entry/test_check_project.py` and `tests/pipeline/application/test_project_check_make_file.py`.
+   - Smoke tests 1 and 2: the `sed` pattern matches line 9 of `operator/kit/factory/pipeline.full.yml`, and each `Expect:` can be checked against the output.
+   - Docs criterion: it says what the reader must know and dictates no sentences.
+   - Architecture: the change is a load-time rule in the domain layer, and the schema does not change.
+   - Scope: within F0062 and not in its out-of-scope list.
