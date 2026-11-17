@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 699
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: docs-only
+  started_at: '2026-11-17T05:10:51.191726Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -25,6 +29,11 @@ journal:
   at: '2026-11-17T05:10:46.282495Z'
   stage: intake
   run: 52b57a2d34e7473ba66f471cd715be90
+- number: 4
+  speaker: factory
+  kind: started
+  at: '2026-11-17T05:10:51.191726Z'
+  stage: docs-only
 ---
 
 # The conformance check's documents catch up with the console script and the live part
@@ -74,3 +83,4 @@ Expect: a number of at least 2.
    - Docs criterion: it names what the reader must know (the command's name, why the examples run the module, why the live part uses a clone, its own image and the static part first). It dictates no sentences.
    - Architecture: no code. The decision log is the place for lasting reasons and the operator guide for the operator, as CLAUDE.md *Docs* says.
    - Scope: within F0062. It brings the documents of S0001 and S0003 up to date, and none of it is under the feature's Out of scope.
+4. factory: started docs-only as self.
