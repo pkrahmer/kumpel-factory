@@ -10,6 +10,7 @@ The kit holds what every project shares; what a stack needs on top has so far li
 - The Python pack has no stage file: the factory's stage image holds what it needs.
 - How a project is assembled from kit and pack, which the tests do in a helper (extending `tests/support/kit_support.py`): the kit as S0005 describes it; then the pack's `Makefile` to the root, or to `factory/Makefile` with `make_file: factory/Makefile` in the pipeline definition for an existing repository; the pack's `stage.Containerfile`, where it has one, to `factory/`; the pack's other files (`.gitleaks.toml`, `scripts/`) to the same path from the root; and the sections of `CLAUDE.sections.md` in place of the kit skeleton's sections of the same heading.
 - No module under `src/factory/` changes.
+- `feature.md` gives this leave (decision 27): "the coder may end its run with `make guides` red only on the folder-readme row for `operator/README.md` naming `packs/`, which the docs stage fixes".
 - Tests: `tests/operator_scripts/test_packs.py`.
 
 ## Acceptance criteria
