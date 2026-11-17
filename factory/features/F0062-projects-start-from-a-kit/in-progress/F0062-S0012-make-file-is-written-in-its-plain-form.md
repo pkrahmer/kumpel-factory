@@ -1,5 +1,5 @@
 ---
-stage: review
+stage: docs
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 703
 comments_read: [6940217140]
 handed_over: null
-claim:
-  instance: self
-  stage: review
-  started_at: '2026-11-17T06:10:56.532448Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -73,6 +69,12 @@ journal:
   kind: started
   at: '2026-11-17T06:10:56.532448Z'
   stage: review
+- number: 12
+  speaker: reviewer
+  kind: result
+  at: '2026-11-17T06:11:21.274026Z'
+  stage: review
+  run: 0ad68fc78e334194a086da8b4e96ac51
 ---
 
 # A `make_file` is written in its plain form, or the definition refuses it
@@ -188,3 +190,21 @@ Expect: one line ending with `passed` and a time, with no `failed`.
 
     `duplicates`: duplicates: 8 new, 38 known, 5 gone
 11. factory: started review as self.
+12. reviewer: no findings
+
+    I read the diff of `src/factory/pipeline/domain/pipeline_definition.py`, `tests/pipeline/domain/test_pipeline_definition_make_file.py` and `tests/entry/test_check_project.py` against the criteria and the Interface.
+
+    - Criterion 1: `test_a_make_file_not_in_its_plain_form_is_refused_with_its_plain_spelling` checks the exact fault text for the four refused spellings (`dot-slash`, `double-slash`, `dot-inside`, `trailing-slash`). It checks that the three plain values are accepted (`root-makefile`, `factory-makefile`, `mk-file`). Both sides of the rule are rows of one parametrized test.
+    - Criterion 2: the row `outside-the-checkout` compares the whole outcome with `make_file ../Makefile must be a path inside the checkout`, so a second `must be written as` fault would fail it. In `_make_file_faults` (`src/factory/pipeline/domain/pipeline_definition.py:275`), the check for a path outside the checkout returns before the plain-form rule runs. A value such as `./../Makefile` therefore gets only one fault.
+    - Criterion 3: `test_main_refuses_a_make_file_not_in_its_plain_form` has two rows. `not-plain` checks the `pipeline definition: FAIL:` line, that no line says `./factory/Makefile is missing`, and that the last line starts with `project: not ready`. `plain` checks `pipeline definition: ok`. Both rows run on a committed project that holds `factory/Makefile`.
+    - Criterion 4: the diff does not touch `src/factory/contract/`, and `MakeFilePath` is unchanged.
+    - Criterion 5: the coder's entry says `make check` is green.
+    - Criterion 6: this is the documenter's next step. The criterion still says what the reader must know.
+    - Architecture: the rule is a pure domain function using `posixpath` from the standard library. It adds no I/O, no new dependency and no new import across layers. `protected_paths`, the take and the conformance check are unchanged, as the Interface says.
+    - Security: the diff adds no marker that silences a check, no secret and no command built from strings.
+    - Quality: the names are clear. The one comment gives the reason for the rule, not a description of the code. No helper is duplicated: the tests reuse `pipeline_outcome`, `_with_make_file`, `PIPELINE_YAML`, `READY_MAKEFILE`, `ready_files`, `committed_repository` and `installed_home`.
+    - Work item hygiene: the coder's entry explains the main choice, which was to extend the existing function. It also names what was rejected: a separate rule in `_RULES`, which would give an outside value two faults. The Description matches what was built.
+
+    Earlier tests:
+    - `tests/pipeline/domain/test_pipeline_definition_make_file.py`: none needed. One test is appended, and every earlier test is unchanged.
+    - `tests/entry/test_check_project.py`: none needed. One test is appended, the imports gain `PIPELINE_YAML` and `READY_MAKEFILE`, and every earlier test is unchanged.
