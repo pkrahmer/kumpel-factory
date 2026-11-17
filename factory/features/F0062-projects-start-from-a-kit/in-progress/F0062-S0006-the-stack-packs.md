@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 695
 comments_read: [6937495535]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: smoke-test
+  started_at: '2026-11-17T03:58:50.411681Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -119,6 +123,11 @@ journal:
   at: '2026-11-17T03:58:44.887478Z'
   stage: docs
   run: 472ef1c5c94e463da18f10032c9f4d3b
+- number: 21
+  speaker: factory
+  kind: started
+  at: '2026-11-17T03:58:50.411681Z'
+  stage: smoke-test
 ---
 
 # The stack packs
@@ -376,3 +385,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     `guides`: guides: green (9.4 s)
     `secrets`: secrets: green (0.6 s)
     `documents`: documents ok (47.7 s)
+21. factory: started smoke-test as self.
