@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 707
 comments_read: [6941636547]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: smoke-test
+  started_at: '2026-11-17T07:42:09.562230Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -119,6 +123,11 @@ journal:
   at: '2026-11-17T07:42:04.168182Z'
   stage: docs
   run: 7c6977b374ac41b1b8a4aa4927bd1b4b
+- number: 21
+  speaker: factory
+  kind: started
+  at: '2026-11-17T07:42:09.562230Z'
+  stage: smoke-test
 ---
 
 # The root makefile forwards a target that a file at the root is named after
@@ -357,3 +366,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     `guides`: guides: green (9.5 s)
     `secrets`: secrets: green (1.5 s)
     `documents`: documents ok (48.8 s)
+21. factory: started smoke-test as self.
