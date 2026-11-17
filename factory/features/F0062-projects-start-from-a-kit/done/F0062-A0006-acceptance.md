@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 0
 attempts: 0
@@ -20,8 +20,13 @@ journal:
   at: '2026-11-17T08:32:44.766152Z'
   stage: acceptance
   run: 30453305afff4e86b1179e8703622a15
+- number: 3
+  speaker: factory
+  kind: done
+  at: '2026-11-17T08:34:35.622032Z'
+  stage: done
 stories: [F0062-S0001, F0062-S0002, F0062-S0003, F0062-S0004, F0062-S0005, F0062-S0006, F0062-S0007, F0062-S0008, F0062-S0009, F0062-S0010, F0062-S0011, F0062-S0012, F0062-S0013, F0062-S0014, F0062-S0015, F0062-S0016]
-outcome: null
+outcome: accepted
 ---
 
 # Acceptance of Projects start from a kit and a stack pack
@@ -358,3 +363,4 @@ None. Nothing I found has the weight of a story. The open items are the human's 
    6. Decisions: decision 38; S0016's answer (a), expected lines instead of hashes, with no marker and no baseline entry; no decision-log entry by the documenter's choice. Still open for the human: c-host `TRAPS.md:6`, the brochure, the "Why after the static part" wording, ratifying the S0011 change to `test_tests_layout.py`, `factory/*` protection, the starters (change 3), and archiving and release. The one earlier test changed, `test_claude_files.py`, was changed under S0016's leave.
    7. Slow checks: nothing beyond `make check`, which was green (102.0 s, 99.14 %, 11370 cases, 8 more, 7 of them S0016's). The slowest test is `test_documents_marker` at 19.8 s. The feature's tests are 526 cases taking 17.7 s. Disk: 0.2 GB less free on the shared pool with used space unchanged, which the feature does not explain.
    8. Cost: $48.01 for 157 runs. S0016 cost $1.74 over 9 runs, which includes one secrets-driven round, and does not stand out; S0003 is still the dearest at $6.53. 17 questions were answered with 2.0 h waited, one more question than before (S0016 entry 7). S0001 is still the story that needed the human most.
+3. factory: done (pull request merged); cost: 1 runs, 5.4 min, 21 turns, 76540 tokens in (1137774 more from cache), 21787 out, $1.05
