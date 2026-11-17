@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 697
 comments_read: [6938616709]
 handed_over: null
-claim:
-  instance: self
-  stage: tests
-  started_at: '2026-11-17T04:44:59.496331Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -62,6 +58,12 @@ journal:
   kind: started
   at: '2026-11-17T04:44:59.496331Z'
   stage: tests
+- number: 10
+  speaker: tester
+  kind: result
+  at: '2026-11-17T04:45:38.262836Z'
+  stage: tests
+  run: 56fd96a4e92f41089d9a8c276c30f583
 ---
 
 # The guide
@@ -156,3 +158,23 @@ Expect: two numbers, each at least 3 for the first and at least 2 for the second
 
    When the story comes back to the docs stage, `make guides` should be run again. Its only red result was the guard above.
 9. factory: started tests as self.
+10. tester: Made the test change the human allowed in entry 6 (answer A: the page becomes the eleventh topic of the operator guide). No new test file was written. Criteria 1 to 7 are checked against the documents by the document check and the docs stage's checks, not by a pytest test.
+
+    Earlier test files I changed, with the human's leave from entry 6:
+    - `tests/support/check_documents_support.py`: added `"start-a-project.md"` as the last entry of `TOPIC_FILES`. `MISSING_LINES` is built from that list, so it now also expects `docs/operator-guide/start-a-project.md: missing`.
+    - `tests/shared/domain/test_documents_guide_files.py::test_the_guide_is_an_index_in_its_folder`: the pinned `DOCUMENT_PATHS` tuple gains `"docs/operator-guide/start-a-project.md"` after `work-items.md` and before `docs/project-guide/README.md`. The test keeps its name.
+
+    Every test keeps its name. `tests/guards/test_operator_guide_files.py` needed no edit because it reads `TOPIC_FILES`. Its name still says "ten topics"; I left the name as it is because the leave says each test keeps its name.
+
+    What the coder must do: add `f"{OPERATOR_GUIDE_FOLDER}/start-a-project.md"` as the last entry of `OPERATOR_GUIDE_FILES` in `src/factory/shared/domain/documents.py:29`. It must come right after `work-items.md`, because `OPERATOR_GUIDE_FILES == TOPIC_PATHS` compares the two lists in order.
+
+    The run of the changed and dependent test files (`test_documents_guide_files.py`, `test_operator_guide_files.py`, `test_check_documents.py`, `test_check_documents_guide_files.py`, `pipeline/domain/test_documents.py`) has three red tests, and that is intended:
+    - `tests/shared/domain/test_documents_guide_files.py::test_the_guide_is_an_index_in_its_folder`
+    - `tests/entry/test_check_documents.py::test_the_module_run_as_a_process_exits_with_the_status_of_main[empty-directory]`
+    - `tests/entry/test_check_documents_guide_files.py::test_the_old_guide_path_is_not_read[empty-root]`
+
+    Each fails with a wrong result (the code does not list the new page yet), not with an import error. The guard `test_the_single_guide_is_gone_and_the_folder_holds_the_index_and_ten_topics` is now green. Every module was imported. `make lint` is green.
+
+    When the coder is done, the story goes back to the docs stage, where `make guides` must be run again.
+
+    `lint`: lint: green (0.2 s)

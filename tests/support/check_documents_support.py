@@ -19,6 +19,7 @@ TOPIC_FILES = (
     "pipeline.md",
     "records.md",
     "work-items.md",
+    "start-a-project.md",
 )
 MISSING_LINES = (
     "README.md: missing\n"
