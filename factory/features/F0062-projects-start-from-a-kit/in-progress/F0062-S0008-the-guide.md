@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 697
 comments_read: [6938616709]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: doing
+  started_at: '2026-11-17T04:45:43.570874Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -64,6 +68,11 @@ journal:
   at: '2026-11-17T04:45:38.262836Z'
   stage: tests
   run: 56fd96a4e92f41089d9a8c276c30f583
+- number: 11
+  speaker: factory
+  kind: started
+  at: '2026-11-17T04:45:43.570874Z'
+  stage: doing
 ---
 
 # The guide
@@ -178,3 +187,4 @@ Expect: two numbers, each at least 3 for the first and at least 2 for the second
     When the coder is done, the story goes back to the docs stage, where `make guides` must be run again.
 
     `lint`: lint: green (0.2 s)
+11. factory: started doing as self.
