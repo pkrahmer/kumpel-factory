@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 695
 comments_read: [6937495535]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: review
+  started_at: '2026-11-17T03:51:33.137159Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -97,6 +101,11 @@ journal:
   at: '2026-11-17T03:51:27.952540Z'
   stage: doing
   run: b14aced5462b4e23b2aba011c5571784
+- number: 17
+  speaker: factory
+  kind: started
+  at: '2026-11-17T03:51:33.137159Z'
+  stage: review
 ---
 
 # The stack packs
@@ -288,3 +297,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     Noticed but not touched: the draft `planning/packs-draft/java-gradle/scripts/trust-store.sh` still has no licence header. `planning/` is the human's.
 
     `duplicates`: duplicates: 8 new, 38 known, 5 gone
+17. factory: started review as self.
