@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 692
 comments_read: [6935336014, 6935606286]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: tests
+  started_at: '2026-11-17T02:02:34.345448Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -81,6 +85,11 @@ journal:
   at: '2026-11-17T02:02:29.152548Z'
   stage: doing
   run: 67be707cf3e5421b9071e5433a0eedde
+- number: 14
+  speaker: factory
+  kind: started
+  at: '2026-11-17T02:02:34.345448Z'
+  stage: tests
 ---
 
 # The conformance check runs a repository
@@ -246,3 +255,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     2. In `tests/guards/test_make_search.py`, add `factory.machine.application.project_run` to the expected set of `test_only_the_make_class_names_make`.
 
     Nothing else is open on my side. When the tests come back, I will run them and `make check`. Then I will do the refactor step (reading my own diff) and end with `review`. The human has put the `PLR0913` exception for `project_run.py` in `pyproject.toml` on `develop` (entry 11).
+14. factory: started tests as self.
