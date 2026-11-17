@@ -1,5 +1,5 @@
 ---
-stage: review
+stage: docs
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 697
 comments_read: [6938616709, 6938770109]
 handed_over: null
-claim:
-  instance: self
-  stage: review
-  started_at: '2026-11-17T04:53:11.549513Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -123,6 +119,12 @@ journal:
   kind: started
   at: '2026-11-17T04:53:11.549513Z'
   stage: review
+- number: 21
+  speaker: reviewer
+  kind: result
+  at: '2026-11-17T04:53:42.902845Z'
+  stage: review
+  run: 1916865327af4fbe87625a49ee66d01d
 ---
 
 # The guide
@@ -148,7 +150,7 @@ The kit, the packs and the conformance check exist, but an operator who wants th
 6. Every command the page shows is a runnable example that the document check runs, or is marked as an example for the VM that names the real run it was copied from, with its date.
 7. `docs/operator-guide/site.md` says what a Java project needs from a site: the private Maven repository's address and login as variables named in `FACTORY_CONTAINER_ENV` and set in the instance's `factory.local.env`, never in the repository; the CA bundle in `FACTORY_CA_BUNDLE`, which Java does not read by itself and the Java pack turns into a trust store at `make sync`; and that both were proven with a stand-in repository on 2026-11-16.
 8. `make check` stays green.
-9. docs: the page `docs/operator-guide/start-a-project.md`, the index's entry for it, `README.md`'s pointer to it and the Java part of `docs/operator-guide/site.md`, as criteria 1 to 7 describe them; `docs/decisions.md` records that the guide for starting a project is the operator's page, not the agents' project guide, because its reader is a person who sets a repository up.
+9. docs: the page `docs/operator-guide/start-a-project.md`, the index's entry for it, `README.md`'s pointer to it and the Java part of `docs/operator-guide/site.md`, as criteria 1 to 7 describe them; the VM examples in `docs/operator-guide/start-a-project.md` and `docs/operator-guide/pipeline.md` that load the instance's environment load `factory.local.env` after `factory.env` when it exists, as the unit does; `docs/decisions.md` records that the guide for starting a project is the operator's page, not the agents' project guide, because its reader is a person who sets a repository up.
 
 ## Smoke test
 
@@ -311,3 +313,23 @@ Expect: two numbers, each at least 3 for the first and at least 2 for the second
     - `tests/shared/domain/test_documents_guide_files.py`: the human's leave, journal entry 6 (the pinned list of guide paths gains the page; the test keeps its name).
 19. 2026-11-17 human: docs. The documenter fixes finding 1 in `start-a-project.md`, and the same line in `docs/operator-guide/pipeline.md` (the example that loads only `factory.env`): both load `factory.local.env` after `factory.env` when it exists, as the unit does. The real run of 2026-11-17 on the Spring demo loaded both files.
 20. factory: started review as self.
+21. reviewer: Passed on to the docs stage, as the human's answer in entry 19 asks ("docs"). The diff has not changed since entry 18 (`git diff --stat develop...HEAD`: the same 10 files, +155/-3), so the review in entries 14 and 18 still holds. I found nothing new.
+
+    For the documenter (entry 19, finding 1 from entries 14 and 18):
+    1. `docs/operator-guide/start-a-project.md:90`, the VM `sh` block in *The live check on the machine*, and step 8 ("with the instance's environment loaded"). Both load only `/srv/factory/vm/factory.env`. Fix: after `factory.env`, also load `/srv/factory/vm/factory.local.env` when it exists, as the unit does (`docs/operator-guide/machine.md:387`, `:407`). Entry 19 says the real run of 2026-11-17 on the Spring demo loaded both files, so the example stays a copy of a real run.
+    2. `docs/operator-guide/pipeline.md:273`, the same line, gets the same fix (entry 19). This is outside the current diff, but the human named it.
+
+    After the fix, run `make guides` and `make documents` again (entries 8 and 12 ask for this too).
+
+    description corrected: criterion 9 "... and the Java part of `docs/operator-guide/site.md`, as criteria 1 to 7 describe them; `docs/decisions.md` records ..." -> "... and the Java part of `docs/operator-guide/site.md`, as criteria 1 to 7 describe them; the VM examples in `docs/operator-guide/start-a-project.md` and `docs/operator-guide/pipeline.md` that load the instance's environment load `factory.local.env` after `factory.env` when it exists, as the unit does; `docs/decisions.md` records ..." (entry 19 settles it).
+
+    Checked again with no finding:
+    - criteria 1 to 7 against the documents and the code;
+    - the one code line in `src/factory/shared/domain/documents.py`, in the order of `TOPIC_FILES`;
+    - no marker;
+    - the decision log entry;
+    - both `console` examples are listed in `docs/checked-documents.txt`.
+
+    Earlier tests changed:
+    - `tests/support/check_documents_support.py`: the human's leave, journal entry 6.
+    - `tests/shared/domain/test_documents_guide_files.py`: the human's leave, journal entry 6.
