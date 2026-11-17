@@ -1,11 +1,11 @@
 ---
 stage: doing
-blocked: question
+blocked: null
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 692
-comments_read: [6935336014]
+comments_read: [6935336014, 6935606286]
 handed_over: null
 claim: null
 journal:
@@ -65,6 +65,11 @@ journal:
   stage: doing
   run: d4e44ad636da4d26a1ecc1eff54ecd43
   blocked: question
+- number: 11
+  speaker: human
+  kind: comment
+  at: '2026-11-17T02:02:13.840299Z'
+  stage: doing
 ---
 
 # The conformance check runs a repository
@@ -223,3 +228,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     Not touched: docs (that is the documenter's job). The refactor step is not done yet; it comes after `make check` is green.
 
     The factory left out changes outside the write paths: pyproject.toml.
+11. 2026-11-17 human: Both (a). Leaves given: the tester may change `USAGE` in `tests/entry/test_check_project.py` to the usage with `[--run]`, and may add `factory.machine.application.project_run` to the expected set of `tests/guards/test_make_search.py`. The `PLR0913` exception for `src/factory/machine/application/project_run.py` is on `develop` now, in `pyproject.toml`.
