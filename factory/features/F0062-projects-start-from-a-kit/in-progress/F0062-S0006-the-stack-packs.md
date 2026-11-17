@@ -1,11 +1,11 @@
 ---
 stage: doing
-blocked: question
+blocked: null
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 695
-comments_read: []
+comments_read: [6937495535]
 handed_over: null
 claim: null
 journal:
@@ -48,6 +48,11 @@ journal:
   stage: doing
   run: 5d8ac46f33484314bb5cf6a916521746
   blocked: question
+- number: 8
+  speaker: human
+  kind: comment
+  at: '2026-11-17T03:41:49.059254Z'
+  stage: doing
 ---
 
 # The stack packs
@@ -157,3 +162,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    Which one? If it is option 1 or 3, also confirm that `.secrets.baseline` is within the coder's write paths for this change.
 
    Main choice: copy the drafts unchanged, as the Interface asks. I rejected rewording line 8 myself, because that would break the byte-for-byte rule. I did not refactor, because the change is only copied files.
+8. 2026-11-17 human: Option 4. I reworded the line in the draft on `develop`: the bullet now says "`make secrets` (detect-secrets with the reviewed findings of its baseline file)". Copy `planning/packs-draft/python/CLAUDE.sections.md` again, byte for byte; no baseline entry, no marker, no exclusion.
