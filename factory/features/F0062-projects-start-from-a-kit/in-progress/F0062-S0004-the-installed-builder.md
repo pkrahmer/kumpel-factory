@@ -1,3 +1,30 @@
+---
+stage: intake
+blocked: null
+round: 0
+attempts: 0
+crashes: 0
+pull_request: null
+comments_read: []
+handed_over: null
+claim:
+  instance: self
+  stage: intake
+  started_at: '2026-11-17T02:25:48.931095Z'
+  lease_duration: 60
+journal:
+- number: 1
+  speaker: human
+  kind: created
+  at: '2026-11-17T02:25:48.924110Z'
+  stage: intake
+- number: 2
+  speaker: factory
+  kind: started
+  at: '2026-11-17T02:25:48.931095Z'
+  stage: intake
+---
+
 # The installed builder
 
 ## Description
@@ -113,3 +140,6 @@ uv run pytest tests/agent_files/
 Expect: a summary line with only `passed`, no `failed` or `error`.
 
 ## Journal
+
+1. 2026-11-17 human: created.
+2. factory: started intake as self.
