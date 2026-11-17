@@ -1,17 +1,13 @@
 ---
-stage: docs-review
+stage: docs-only
 blocked: null
-round: 0
+round: 1
 attempts: 0
 crashes: 0
 pull_request: 699
 comments_read: []
 handed_over: null
-claim:
-  instance: self
-  stage: docs-review
-  started_at: '2026-11-17T05:15:14.415382Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -45,6 +41,12 @@ journal:
   kind: started
   at: '2026-11-17T05:15:14.415382Z'
   stage: docs-review
+- number: 7
+  speaker: reviewer
+  kind: result
+  at: '2026-11-17T05:16:03.676242Z'
+  stage: docs-review
+  run: fcbc454622334846a4d2d4643d35c7a8
 ---
 
 # The conformance check's documents catch up with the console script and the live part
@@ -122,3 +124,21 @@ Expect: a number of at least 2.
    `secrets`: secrets: green (1.4 s)
    `documents`: documents ok (47.0 s)
 6. factory: started docs-review as self.
+7. reviewer: Reviewed `git diff develop...HEAD -- README.md docs operator/README.md`. I checked the documents against `src/factory/entry/check_project.py`, `src/factory/machine/application/project_run.py`, `src/factory/pipeline/application/project_check.py`, `pyproject.toml:19` and decisions 12, 13 and 17 of the feature's `feature.md`. I judged the writing by `docs/project-guide/style.md`.
+
+   What the code confirms:
+   - The six static points (pipeline, makefile, stage file, agents, write paths, forms) and the three live ones.
+   - The temporary clone of `HEAD`: `ProjectRun.run`, `tempfile.mkdtemp`, `_clone`.
+   - The image tag `<stage image>-check`: `CHECK_TAG_SUFFIX`, `check_image_tag`.
+   - `--run` needs the settings and no dataset: `main` reads `read_environment_settings` and calls `build_project_run`.
+   - The live points run only after a clean static part, and nothing is printed after a failed one: `is_ready(points)` in `main`, the early returns in `_run_in`.
+   - The live sync runs only the make part, from the public constants `SYNC_MAKE` and `NAMED_SYNC_MAKE`.
+   - The agent home serves only the point `agents`, through `build_agent_definitions`.
+   - The S0001 entry keeps its text.
+
+   Criteria 1 and 2 are met, and so are points 1 to 5 of criterion 3. Criterion 6 is met for the operator guide.
+
+   Findings:
+   1. `docs/decisions.md`, new entry *The live part of the conformance check works on a clone with an image of its own*: criterion 6 asks the log to say why the live part runs only after the static part, and the entry gives the rule ("When it runs") but no reason. The code has one. `src/factory/entry/check_project.py` `_live_points` reads the pipeline definition on the comment "The static part has just read the definition at the same commit, so it is there and valid". `ProjectRun._sync` and `_check` take the named makefile (`definition.make_file`) and the time limits (`command_time_limit`) from that definition. Fix: add a "Why after the static part" line saying that the live points run with the pipeline definition's makefile and time limits, which only a clean static part has read and validated. If the documenter does not want to word a reason from the code, end with `question` to the human instead.
+   2. `docs/operator-guide/pipeline.md:223`, the added sentence "The example runs `python -m factory.entry.check_project`, which is the same command … on the path." is about 50 words, against style rule 2 (split a sentence of more than about 25 words). Fix: split it in two, one sentence that names `factory-check-project` as the same command with the same arguments, and one that says why the example runs the module.
+   3. `docs/operator-guide/start-a-project.md:38`, the added sentence "Its two checks run `python -m factory.entry.check_project`, which is the same command … on the path." is about 55 words, against the same style rule 2. Fix: split it the same way as finding 2.
