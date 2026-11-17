@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 705
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: docs
+  started_at: '2026-11-17T07:04:18.214424Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -113,6 +117,11 @@ journal:
   at: '2026-11-17T07:04:12.225506Z'
   stage: review
   run: 2065d595e37d40268e15b8e70d6c7959
+- number: 20
+  speaker: factory
+  kind: started
+  at: '2026-11-17T07:04:18.214424Z'
+  stage: docs
 ---
 
 # One layout for every project
@@ -391,3 +400,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     - `tests/operator_scripts/test_kit_files.py`: feature decision 36. Two assertions about the old commented `make_file` were removed because criterion 1 covers them. The makefile is now at `factory/Makefile`, and the tests keep their names and what they check.
     - `tests/operator_scripts/test_packs.py`: feature decision 36 removed `test_a_brownfield_project_with_the_pack_makefile_under_factory_is_ready`, which criteria 2 and 3 cover. The standing leave to move a shared test helper covers the move of `PATH_TOOLS`, `PROJECT_TOOLS`, `_stand_in`, `_stand_in_project` and the trust-store stand-in to `tests/support/pack_make_support.py`. Every remaining test keeps its name and what it checks.
     - `tests/support/kit_support.py`: feature decision 36 (one assembly; `brownfield=` replaced by `own_root_makefile=`).
+20. factory: started docs as self.
