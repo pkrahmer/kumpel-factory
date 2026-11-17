@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 703
 comments_read: [6940217140]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: tests
+  started_at: '2026-11-17T06:05:21.572673Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -42,6 +46,11 @@ journal:
   at: '2026-11-17T06:05:16.447030Z'
   stage: intake
   run: c94ba50822794f90bbbcdd2c60e70622
+- number: 7
+  speaker: factory
+  kind: started
+  at: '2026-11-17T06:05:21.572673Z'
+  stage: tests
 ---
 
 # A `make_file` is written in its plain form, or the definition refuses it
@@ -120,3 +129,4 @@ Expect: one line ending with `passed` and a time, with no `failed`.
    - Architecture: the change is a load-time rule in the pipeline area's domain layer, a pure function with no I/O. No new dependency, and the records contract does not change.
    - Scope: within F0062 (projects start from a kit) and not in its out-of-scope list. It closes a gap that the feature acceptance of 2026-11-17 found in its smoke test.
    - Route: tests. The Interface changes `src/factory`, which the documenter may not write.
+7. factory: started tests as self.
