@@ -1,3 +1,30 @@
+---
+stage: intake
+blocked: null
+round: 0
+attempts: 0
+crashes: 0
+pull_request: null
+comments_read: []
+handed_over: null
+claim:
+  instance: self
+  stage: intake
+  started_at: '2026-11-17T03:31:08.761944Z'
+  lease_duration: 60
+journal:
+- number: 1
+  speaker: human
+  kind: created
+  at: '2026-11-17T03:31:08.754463Z'
+  stage: intake
+- number: 2
+  speaker: factory
+  kind: started
+  at: '2026-11-17T03:31:08.761944Z'
+  stage: intake
+---
+
 # The stack packs
 
 ## Description
@@ -48,3 +75,6 @@ uv run pytest tests/operator_scripts/test_packs.py
 Expect: a summary line with only `passed`, no `failed` or `error`.
 
 ## Journal
+
+1. 2026-11-17 human: created.
+2. factory: started intake as self.
