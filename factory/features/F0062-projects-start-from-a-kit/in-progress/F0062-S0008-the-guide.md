@@ -1,17 +1,13 @@
 ---
 stage: review
-blocked: null
+blocked: question
 round: 1
 attempts: 0
 crashes: 0
 pull_request: 697
 comments_read: [6938616709]
 handed_over: null
-claim:
-  instance: self
-  stage: review
-  started_at: '2026-11-17T04:50:48.687816Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -106,6 +102,13 @@ journal:
   kind: started
   at: '2026-11-17T04:50:48.687816Z'
   stage: review
+- number: 18
+  speaker: reviewer
+  kind: question
+  at: '2026-11-17T04:51:20.803859Z'
+  stage: review
+  run: a131cb7df5bb4985aa0f97b93f9cc5aa
+  blocked: question
 ---
 
 # The guide
@@ -269,3 +272,26 @@ Expect: two numbers, each at least 3 for the first and at least 2 for the second
 
     `duplicates`: duplicates: 8 new, 38 known, 5 gone
 17. factory: started review as self.
+18. reviewer: Question: the only finding is in a document. Neither the coder nor the tester can write documents, so `doing` cannot fix it. Which way should the story go?
+
+    Findings:
+
+    1. `docs/operator-guide/start-a-project.md:90`, the `sh` block in *The live check on the machine*, and step 8 ("with the instance's environment loaded"). The block loads only `/srv/factory/vm/factory.env`. The new *A Java project* part of `docs/operator-guide/site.md` tells the operator to put the private Maven repository's variables in `factory.local.env`. The unit reads that file after `factory.env` (`docs/operator-guide/machine.md`, *The environment file* and *The service*). `factory-check-project --run` takes the names in `FACTORY_CONTAINER_ENV` and their values from its own process environment (`src/factory/entry/check_project.py:134`, `src/factory/machine/domain/containers.py:81`). So for a Java project set up as these two pages say, the copied example leaves the Maven variables out and `sync` fails. Fix (documenter): keep the real run's command, and add a sentence or a second marked line that loads `/srv/factory/vm/factory.local.env` after `factory.env` when that file exists, as the unit does. This is the finding from entry 14. It is still open: the coder changed no file in entry 16, and the diff is the same as in round 0.
+
+    Rest of the review: I found nothing new. The diff has not changed since round 0, so the other checks in entry 14 still hold:
+    - criteria 1 to 7 against the documents and the code;
+    - the one code line in `src/factory/shared/domain/documents.py`, in `TOPIC_FILES`' order;
+    - no marker;
+    - the decision log entry;
+    - both `console` examples are in `docs/checked-documents.txt`, and the VM block names its runs and dates.
+
+    Open beyond this story: `docs/operator-guide/pipeline.md:273` loads only `factory.env` in the same way. That line is not in this diff.
+
+    Options:
+    - A (my choice): reply "docs". The review then passes the story to the docs stage, and the documenter fixes finding 1 there (one sentence in `start-a-project.md`, in its write paths). It runs `make guides` and `make documents` again, which entry 8 asked for anyway.
+    - B: reply "doing". The story goes back to the coder, who can only pass it back again as in entry 16. That uses round 2 of 2 and reaches you at the cap anyway.
+    - C: accept the page as it is and record finding 1 as a follow-up story in the backlog.
+
+    Earlier tests changed:
+    - `tests/support/check_documents_support.py`: the human's leave, journal entry 6 (adds `start-a-project.md` to `TOPIC_FILES`).
+    - `tests/shared/domain/test_documents_guide_files.py`: the human's leave, journal entry 6 (the pinned list of guide paths gains the page; the test keeps its name).
