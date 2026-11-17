@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 690
 comments_read: [6933812910, 6934072851]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: doing
+  started_at: '2026-11-17T00:45:16.722515Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -92,6 +96,11 @@ journal:
   at: '2026-11-17T00:45:11.680003Z'
   stage: tests
   run: 3b70abda2a80475f9bb2cc067cfe1f76
+- number: 16
+  speaker: factory
+  kind: started
+  at: '2026-11-17T00:45:16.722515Z'
+  stage: doing
 ---
 
 # The conformance check reads a repository
@@ -312,3 +321,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     No module failed to import.
 
     `lint`: lint: green (0.1 s)
+16. factory: started doing as self.
