@@ -1,3 +1,30 @@
+---
+stage: intake
+blocked: null
+round: 0
+attempts: 0
+crashes: 0
+pull_request: null
+comments_read: []
+handed_over: null
+claim:
+  instance: self
+  stage: intake
+  started_at: '2026-11-17T07:46:56.158292Z'
+  lease_duration: 60
+journal:
+- number: 1
+  speaker: human
+  kind: created
+  at: '2026-11-17T07:46:56.151183Z'
+  stage: intake
+- number: 2
+  speaker: factory
+  kind: started
+  at: '2026-11-17T07:46:56.158292Z'
+  stage: intake
+---
+
 # The guides catch up with the one layout and name every shared test helper
 
 
@@ -34,3 +61,6 @@ for f in tests/support/*.py; do b=$(basename "$f"); [ "$b" = __init__.py ] || gr
 Expect: the single line `done`.
 
 ## Journal
+
+1. 2026-11-17 human: created.
+2. factory: started intake as self.
