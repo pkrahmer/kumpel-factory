@@ -2,7 +2,7 @@
 
 The kit is the small set of files that every project the factory builds needs, whatever its stack. They belong to the factory's contract: a pipeline definition, the two forms, the factory's part of the makefile and the skeleton of `CLAUDE.md`. None of them names a language, a build tool or a test framework. A stack adds its own part on top of the kit: the makefile's targets, and the files under the write paths.
 
-The kit is one of three layers. A stack pack adds what one stack needs, and a starter is a repository of its own, built from the kit and a pack. The kit and the packs live in this repository; the starters do not. The decision log has the reasons, in [decisions.md](../../docs/decisions.md) (*A project starts from a kit, a stack pack and a starter*). The packs are in [`operator/packs/`](../packs/README.md); `operator/template/`, the older Python example, still stays beside them until it is removed.
+The kit is one of three layers. A stack pack adds what one stack needs, and a starter is a repository of its own, built from the kit and a pack. The kit and the packs live in this repository; the starters do not. The decision log has the reasons, in [decisions.md](../../docs/decisions.md) (*A project starts from a kit, a stack pack and a starter*). The packs are in [`operator/packs/`](../packs/README.md).
 
 ## Assembling a project by hand
 

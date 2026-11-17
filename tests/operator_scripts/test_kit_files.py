@@ -21,7 +21,14 @@ from support.project_check_support import ROLES, project_faults
 from support.shipped_agents import ROOT
 
 STACK_WORDS = re.compile(r"\b(uv|gradle|pytest|cmake)\b", re.IGNORECASE)
-TEMPLATE_FILES = ("CLAUDE.md", "Makefile", "factory/pipeline.yml")
+# What a project once took from the template, now in the kit and the Python pack.
+TEMPLATE_FILES = (
+    "kit/CLAUDE.md",
+    "kit/factory/kit.mk",
+    "kit/factory/pipeline.full.yml",
+    "packs/python/Makefile",
+    "packs/python/CLAUDE.sections.md",
+)
 KIT_PROJECT_MAKEFILE = (
     "include factory/kit.mk\n"
     "sync:\n\t$(start)\n\t$(green)\n"
@@ -151,6 +158,6 @@ def test_each_kit_file_is_there_and_names_no_stack(relative: str) -> None:
 
 
 def test_the_template_stays_with_its_three_files() -> None:
-    template = ROOT / "operator" / "template"
+    operator = ROOT / "operator"
 
-    assert all((template / relative).is_file() for relative in TEMPLATE_FILES)
+    assert all((operator / relative).is_file() for relative in TEMPLATE_FILES)

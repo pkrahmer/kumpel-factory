@@ -15,7 +15,7 @@ HEADER = "# SPDX-License-Identifier: Apache-2.0"
 SHEBANG = "#!"
 PACKAGE = "src/factory/"
 OPERATOR = "operator/"
-TEMPLATE = "operator/template/"
+KIT = "operator/kit/"
 BASH_SHEBANGS = ("#!/bin/bash", "#!/usr/bin/env bash")
 SH_SHEBANGS = ("#!/bin/sh", "#!/usr/bin/env sh")
 
@@ -28,7 +28,7 @@ def in_scope(path: str, first_line: str) -> bool:
     """Whether the tracked file `path`, whose first line is `first_line`, must carry the header."""
     if path.startswith(PACKAGE):
         return path.endswith(".py")
-    if not path.startswith(OPERATOR) or path.startswith(TEMPLATE):
+    if not path.startswith(OPERATOR) or path.startswith(KIT):
         return False
     name = path.rsplit("/", 1)[-1]
     return name.endswith(".sh") or name == "Dockerfile" or first_line.startswith(SHEBANG)
@@ -159,7 +159,7 @@ def test_the_guard_names_a_file_without_the_header_in_its_place(
     ("path", "first_line", "inside"),
     [
         pytest.param("tests/guards/test_module.py", '"""A test."""', False, id="test-module"),
-        pytest.param("operator/template/bin/tool.sh", "#!/bin/sh", False, id="template-script"),
+        pytest.param("operator/kit/bin/tool.sh", "#!/bin/sh", False, id="template-script"),
         pytest.param("operator/README.md", "# The operator folder", False, id="readme"),
         pytest.param("operator/settings.json", "{", False, id="json-without-shebang"),
         pytest.param("operator/vm/Dockerfile", "# The image.", True, id="dockerfile"),

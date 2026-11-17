@@ -1743,3 +1743,11 @@ Date: 2026-11-16 (F0062-S0005).
 - Who owns which: `kit.mk` and the two forms stay the kit's, and an upgrade of the kit replaces them, so a project does not edit them. `pipeline.yml`, `CLAUDE.md` and `factory/README.md` become the project's own once copied.
 - Where they live: the kit and the packs live in this repository; the starters are repositories of their own.
 - Why: every project needs the same few contract files, and each one copied them from `operator/template/`, a Python example, and rewrote what did not fit its stack. The kit holds them once, without naming a stack. `operator/template/` stays until it becomes the Python pack.
+
+## The template is removed
+
+Date: 2026-11-17 (F0062-S0007).
+
+- Decision: `operator/template/` is removed, with its three files, `CLAUDE.md`, `Makefile` and `factory/pipeline.yml`. A project starts from the kit and a stack pack alone. In place of the template's pipeline definition stands the kit's `operator/kit/factory/pipeline.full.yml`; in place of its makefile, `operator/packs/python/Makefile` with `operator/kit/factory/kit.mk`; in place of its `CLAUDE.md`, `operator/kit/CLAUDE.md` with the Python sections in `operator/packs/python/CLAUDE.sections.md`. The tests that read the template read the kit and the Python pack instead, and a guard, `tests/guards/test_template_removed.py`, keeps the folder gone and its name out of the shipped files and the tests.
+- The licence header: `tests/guards/test_license_headers.py` leaves out `operator/kit/` where it left out `operator/template/`; the scripts of the packs keep the header.
+- Why: the kit and the Python pack hold everything the template held, so the template had become a second, older copy of the same files, and two copies drift. Nothing a project gets changed with its removal.

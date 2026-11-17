@@ -1,6 +1,6 @@
 # The operator folder
 
-This folder holds what an operator runs next to a factory [instance](../docs/project-guide/glossary.md). That is the skill `kumpel`, the scripts for the site file and the Cloud Run job, and the files that set up a VM. It also holds the start of a new project: the kit, the stack packs, and for now the template. Kumpel is the product; kumpel-factory, this repository, is one of its components.
+This folder holds what an operator runs next to a factory [instance](../docs/project-guide/glossary.md). That is the skill `kumpel`, the scripts for the site file and the Cloud Run job, and the files that set up a VM. It also holds the start of a new project: the kit and the stack packs. Kumpel is the product; kumpel-factory, this repository, is one of its components.
 
 The skill lets an agent (Claude Code, or opencode at work) run an instance together with you. It watches the pull requests of the [work items](../docs/project-guide/glossary.md). It answers the factory's questions within the [feature](../docs/project-guide/glossary.md)'s decisions. It checks finished [stories](../docs/project-guide/glossary.md) and, when you allow it, merges them. It starts the next story, and it shapes stories and features on request. Its plan is in [DESIGN.md](../planning/operator-skill/DESIGN.md).
 
@@ -16,7 +16,6 @@ What the folders hold:
 - [`opencode/`](opencode/README.md) The skill's command for opencode.
 - [`packs/`](packs/README.md) One pack per stack on top of the kit (`python`, `c-host`, `java-gradle`): its makefile, stage file, `CLAUDE.md` sections and traps.
 - [`skill/`](skill/README.md) The skill `kumpel`.
-- `operator/template/` The Python example of a new project, copied into it; it carries no README of its own. The Python pack replaces it, and it goes in a later story.
 - [`vm/`](vm/README.md) The files that set up a VM.
 
 Where to read next:
@@ -121,7 +120,6 @@ Kumpel works with your token, so it signs everything it does. A reader of the pu
 | `operator/vm/job-start.sh` | the command of a Cloud Run job: it builds an instance and ends in `factory-run` |
 | `operator/kit/` | the stack-neutral start of every project: the thin and the full line's pipeline definitions, the forms, `kit.mk` and a `CLAUDE.md` skeleton; [kit/README.md](kit/README.md) says how a project is assembled from it |
 | `operator/packs/` | one pack per stack on top of the kit, `python`, `c-host` and `java-gradle`: the makefile, the stage file, the stack's sections of `CLAUDE.md` and its traps; [packs/README.md](packs/README.md) says how kit and pack are assembled |
-| `operator/template/` | the Python example of a new project, until it is removed in favour of the Python pack: a [pipeline definition](../docs/project-guide/glossary.md), a `CLAUDE.md` and a `Makefile` |
 
 ### Settings
 

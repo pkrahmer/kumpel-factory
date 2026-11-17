@@ -238,13 +238,13 @@ The factory runs a project's build through make. It calls four targets, which th
 
 Each target is judged by its exit status alone. A target that does not exist counts as a failed command. A target that runs past its time limit is killed and counts as failed for that reason. The factory reads only the exit status, the last line and the last 30 lines of the output.
 
-The factory does not remove ignored paths such as `.venv` and the caches. The checks run on a rolled-back copy of the dataset, and only the paths the [role](../project-guide/glossary.md) may write reach the checkout. So each target should build what it needs. The `uv run` of kumpel-factory and of the template creates `.venv` from `uv.lock`, and the first check after a rebuild of the image downloads the packages once. A target that relies on an ignored file another stage left fails.
+The factory does not remove ignored paths such as `.venv` and the caches. The checks run on a rolled-back copy of the dataset, and only the paths the [role](../project-guide/glossary.md) may write reach the checkout. So each target should build what it needs. The `uv run` of kumpel-factory and of the Python pack's makefile creates `.venv` from `uv.lock`, and the first check after a rebuild of the image downloads the packages once. A target that relies on an ignored file another stage left fails.
 
-A project whose `check` scans for secrets, with the template's `make secrets` or a scanner of its own, must leave out the factory's cost records (`*.costs.jsonl`, beside each work item). Otherwise the first agent run of every work item makes `check` red.
+A project whose `check` scans for secrets, with the Python pack's `make secrets` or a scanner of its own, must leave out the factory's cost records (`*.costs.jsonl`, beside each work item). Otherwise the first agent run of every work item makes `check` red.
 
 ### Mutation testing by sweep
 
-No stage and no agent runs `make mutants`. Mutation testing runs only as sweeps outside the factory, which the human starts on a fresh copy in a throwaway container. Every run makes `mutants/` anew. The template's `CLAUDE.md` and `Makefile` say the same: `make mutants` is for a sweep by hand. A coder's entry has no `mutants` line, and the [acceptance](../project-guide/glossary.md)'s check 3, *Mutation testing*, says `By sweep, not run here.`
+No stage and no agent runs `make mutants`. Mutation testing runs only as sweeps outside the factory, which the human starts on a fresh copy in a throwaway container. Every run makes `mutants/` anew. The Python pack's `Makefile` says the same: `make mutants` is for a sweep by hand. A coder's entry has no `mutants` line, and the [acceptance](../project-guide/glossary.md)'s check 3, *Mutation testing*, says `By sweep, not run here.`
 
 A sweep's command is `make mutants MODULES=factory.pipeline.application MUTANTS_SECONDS=7200 MUTANTS_CHILDREN=2`. Its variables are:
 

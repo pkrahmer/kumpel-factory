@@ -1,4 +1,5 @@
-"""The template's Makefile: its text, and its targets run with a stand-in `uv`."""
+"""The Python pack's makefile with the kit's `kit.mk`: its text, and its targets run with a
+stand-in `uv`."""
 
 import json
 import re
@@ -219,9 +220,14 @@ def _branch_with_look_alikes(folder: Path) -> None:
 @pytest.mark.parametrize(
     ("setup", "status", "files"),
     [
-        pytest.param(_on_main, 0, ["Makefile", "README.md", "src/todo/a.py"], id="main"),
         pytest.param(
-            _without_origin, 0, ["Makefile", "README.md", "src/todo/a.py"], id="no-origin"
+            _on_main, 0, ["Makefile", "README.md", "factory/kit.mk", "src/todo/a.py"], id="main"
+        ),
+        pytest.param(
+            _without_origin,
+            0,
+            ["Makefile", "README.md", "factory/kit.mk", "src/todo/a.py"],
+            id="no-origin",
         ),
         pytest.param(
             _branch_with_code_untracked_and_unstaged,
@@ -234,7 +240,7 @@ def _branch_with_look_alikes(folder: Path) -> None:
         pytest.param(
             _on_main_with_a_sidecar,
             0,
-            ["Makefile", "README.md", "src/todo/a.py"],
+            ["Makefile", "README.md", "factory/kit.mk", "src/todo/a.py"],
             id="sidecar-on-main",
         ),
         pytest.param(_branch_with_code_and_sidecars, 0, ["src/todo/a.py"], id="sidecars-on-branch"),

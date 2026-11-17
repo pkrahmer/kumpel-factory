@@ -1,4 +1,4 @@
-"""The todo demo's `secrets` recipe and the template's are one and the same."""
+"""The todo demo's `secrets` recipe and the Python pack's are one and the same."""
 
 import re
 from pathlib import Path
@@ -23,7 +23,7 @@ def _secrets_recipe(makefile: Path) -> list[str]:
 
 
 def test_the_todo_demos_secrets_target_is_the_templates() -> None:
-    template = _secrets_recipe(ROOT / "operator" / "template" / "Makefile")
+    template = _secrets_recipe(ROOT / "operator" / "packs" / "python" / "Makefile")
     demo = _secrets_recipe(ROOT / "demo" / "todo-service" / "project" / "Makefile")
 
     assert demo == template

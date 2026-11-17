@@ -1,4 +1,5 @@
-"""Runs of the template's Makefile in a copy of it, with a stand-in `uv` on the `PATH`."""
+"""Runs of the Python pack's makefile with the kit's `kit.mk` in a copy of them, with a stand-in
+`uv` on the `PATH`."""
 
 import os
 import re
@@ -10,15 +11,26 @@ from factory.shared.adapters.process import ProcessRequest, ProcessResult, run_p
 from support.claude_stand_in import Step, write_stand_in
 from support.shipped_agents import ROOT
 
-MAKEFILE = ROOT / "operator" / "template" / "Makefile"
+MAKEFILE = ROOT / "operator" / "packs" / "python" / "Makefile"
+KIT_MK = ROOT / "operator" / "kit" / "factory" / "kit.mk"
 
 # An outer `make` passes its variables on through these; the run must see none of them.
 DROPPED = {"MAKEFLAGS", "MFLAGS", "MAKELEVEL", "FEATURE", "SOURCE", "LAYERS"}
 
 
 def makefile_lines() -> list[str]:
-    """The lines of the template's Makefile."""
+    """The lines of the Python pack's makefile."""
     return MAKEFILE.read_text(encoding="utf-8").splitlines()
+
+
+def header_text() -> str:
+    """The comment lines that open the Python pack's makefile, without their `#`, in one line."""
+    words: list[str] = []
+    for line in makefile_lines():
+        if not line.startswith("#"):
+            break
+        words.extend(line.removeprefix("#").split())
+    return " ".join(words)
 
 
 def green_line(target: str) -> re.Pattern[str]:
@@ -27,10 +39,12 @@ def green_line(target: str) -> re.Pattern[str]:
 
 
 def template_project(tmp_path: Path) -> Path:
-    """A folder `project` in `tmp_path` that holds a copy of the template's Makefile."""
+    """A folder `project` in `tmp_path` that holds a copy of the Python pack's makefile and of the
+    kit's `factory/kit.mk`, which it includes."""
     folder = tmp_path / "project"
-    folder.mkdir()
+    (folder / "factory").mkdir(parents=True)
     shutil.copyfile(MAKEFILE, folder / "Makefile")
+    shutil.copyfile(KIT_MK, folder / "factory" / "kit.mk")
     return folder
 
 

@@ -4,7 +4,7 @@ The pytest suite of the factory: the folders mirror the package as `tests/<area>
 
 Modules that read the real documents carry the marker `documents`; [the project guide](../docs/project-guide/README.md), *The marker `documents`*, says which and why.
 
-- `agent_files/` the tests of the agent files under `agents/` and of the template under `operator/template/`.
+- `agent_files/` the tests of the agent files under `agents/` and of the kit and the Python pack under `operator/`.
 - `agents/` the tests of the agents area, one folder per layer.
 - `entry/` the tests of the commands and the wiring in `factory.entry`.
 - `guards/` the structural guards: searches over the source and the tests, and the layout of the suite.

@@ -1,1 +1,1 @@
-"""Tests of the agent files under `agents/` and of the template under `operator/template/`."""
+"""Tests of the agent files under `agents/` and of the kit and the Python pack under `operator/`."""

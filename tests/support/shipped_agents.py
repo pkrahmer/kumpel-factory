@@ -14,7 +14,7 @@ from factory.work.adapters.work_item_markdown import RuamelYamlHandler, split_fr
 ROOT = Path(__file__).parents[2]
 AGENT_HOME = ROOT / "agents"
 SYSTEM_PROMPT_FILE = AGENT_HOME / "system-prompt.md"
-TEMPLATE_PIPELINE = ROOT / "operator" / "template" / "factory" / "pipeline.yml"
+TEMPLATE_PIPELINE = ROOT / "operator" / "kit" / "factory" / "pipeline.full.yml"
 
 WITHOUT_ROLE = {"intake", "smoke-tester"}
 
@@ -23,7 +23,7 @@ REVIEW_POINTS_SUBSECTION = re.compile(
     r"^### The project's review points\n(?:(?!#).*\n|\n)*", re.MULTILINE
 )
 
-# The roles only the thin line has; the template's pipeline definition is the full line.
+# The roles only the thin line has; the kit's `pipeline.full.yml` is the full line.
 THIN_LINE_ONLY = {"builder"}
 
 THIN_LINE_PIPELINE = """\
@@ -204,7 +204,7 @@ def stage_section(name: str) -> str:
 
 
 def template_definition() -> PipelineDefinition:
-    """The pipeline definition the template ships, parsed by the factory's reader."""
+    """The pipeline definition of the kit's full line, parsed by the factory's reader."""
     return RuamelPipelineDefinitionReader().parse(TEMPLATE_PIPELINE.read_text(encoding="utf-8"))
 
 
@@ -214,7 +214,7 @@ def thin_line_definition() -> PipelineDefinition:
 
 
 def full_line_names() -> list[str]:
-    """The shipped agents the template's full line uses: all but the thin line's own."""
+    """The shipped agents the kit's full line uses: all but the thin line's own."""
     return [name for name in SHIPPED_NAMES if name not in THIN_LINE_ONLY]
 
 
