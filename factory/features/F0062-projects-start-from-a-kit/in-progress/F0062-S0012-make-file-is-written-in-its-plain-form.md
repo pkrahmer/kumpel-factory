@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 703
 comments_read: [6940217140]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: intake
+  started_at: '2026-11-17T06:04:58.457306Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -30,6 +34,11 @@ journal:
   speaker: human
   kind: comment
   at: '2026-11-17T06:04:56.089165Z'
+  stage: intake
+- number: 5
+  speaker: factory
+  kind: started
+  at: '2026-11-17T06:04:58.457306Z'
   stage: intake
 ---
 
@@ -99,3 +108,4 @@ Expect: one line ending with `passed` and a time, with no `failed`.
    - Architecture: the change is a load-time rule in the domain layer, and the schema does not change.
    - Scope: within F0062 and not in its out-of-scope list.
 4. 2026-11-17 human: (a): remove the `-q` from the command and keep the `Expect:` as it is.
+5. factory: started intake as self.
