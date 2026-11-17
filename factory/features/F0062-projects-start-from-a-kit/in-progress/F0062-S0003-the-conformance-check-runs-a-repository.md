@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 692
 comments_read: [6935336014, 6935606286]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: tests
+  started_at: '2026-11-17T02:10:25.493578Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -125,6 +129,11 @@ journal:
   at: '2026-11-17T02:10:20.129104Z'
   stage: doing
   run: 2cbf36f35e7a49eea01ecb7ac873a1f6
+- number: 22
+  speaker: factory
+  kind: started
+  at: '2026-11-17T02:10:25.493578Z'
+  stage: tests
 ---
 
 # The conformance check runs a repository
@@ -366,3 +375,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     When the tests come back, I will change the `containers` callable in `ProjectRun` to receive the chosen image. I will also update `build_project_run` in `src/factory/entry/check_project.py` to use that image, and drop `checkout_has_stage_file`.
 
     Noticed, not touched: as finding 2 also says, the entry tests monkeypatch `build_project_run`. So the real wiring of `extra_environment` and `ca_bundle` is still reached by no test.
+22. factory: started tests as self.
