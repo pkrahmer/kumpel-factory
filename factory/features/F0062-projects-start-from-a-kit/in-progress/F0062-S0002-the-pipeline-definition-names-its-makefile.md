@@ -1,17 +1,13 @@
 ---
-stage: review
+stage: tests
 blocked: null
-round: 0
+round: 1
 attempts: 0
 crashes: 0
 pull_request: 691
 comments_read: [6934588171, 6934893656]
 handed_over: null
-claim:
-  instance: self
-  stage: review
-  started_at: '2026-11-17T01:29:51.901942Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -112,6 +108,12 @@ journal:
   kind: started
   at: '2026-11-17T01:29:51.901942Z'
   stage: review
+- number: 19
+  speaker: reviewer
+  kind: result
+  at: '2026-11-17T01:31:21.027603Z'
+  stage: review
+  run: 3c3e18bd37ed4c818b6c6ee4fe7059a5
 ---
 
 # The pipeline definition names its makefile
@@ -158,8 +160,9 @@ class MakeFileSource(ABC):
 8. `ProjectCheck.run` on a repository whose definition names `factory/Makefile`: no fault when that file holds every target and there is no root `Makefile`; the fault `factory/Makefile is missing` when it is not there, also when a root `Makefile` with every target exists.
 9. `ProjectCheck.run` on a repository whose definition names `factory/Makefile`, which includes `common.mk`: no fault when `common.mk` is at the root of the repository and holds the targets `factory/Makefile` lacks; the fault `factory/Makefile: included file common.mk is missing` when `common.mk` is only beside it at `factory/common.mk`: rows of one parametrized test.
 10. The project commands and the stage environment that `factory.entry.wiring` builds both read `make_file` from the pipeline definition at `origin/<working branch>`: on a wired instance whose definition names `factory/Makefile`, a check and a sync, read from the fake container runs, call make with `-f factory/Makefile` (a guard in the style of `tests/guards/test_agent_home_wiring.py` is an acceptable test).
-11. `make check` stays green.
-12. docs: the operator guide's page on the pipeline definition (`docs/operator-guide/pipeline.md`) explains `make_file`: what it is for (an existing repository keeps its own root `Makefile`), that every project command and the sync then run as `make -f <path>` from the root of the checkout, that paths inside that makefile are therefore still relative to the root, which values are refused, and that it is contract 1.2 while 1.0 and 1.1 still load; the project guide (`docs/project-guide/pipeline.md` and `docs/project-guide/machine.md`) names the source interface and the rule that the path is always an argument; `docs/decisions.md` records the decision of 2026-11-16 that the pipeline definition names the makefile and that make stays the one command runner for every stack.
+11. The source built on git returns `None` when `origin/<working branch>` does not exist at all (git refuses the ref), as it does for a missing definition.
+12. `make check` stays green.
+13. docs: the operator guide's page on the pipeline definition (`docs/operator-guide/pipeline.md`) explains `make_file`: what it is for (an existing repository keeps its own root `Makefile`), that every project command and the sync then run as `make -f <path>` from the root of the checkout, that paths inside that makefile are therefore still relative to the root, which values are refused, and that it is contract 1.2 while 1.0 and 1.1 still load; the project guide (`docs/project-guide/pipeline.md` and `docs/project-guide/machine.md`) names the source interface and the rule that the path is always an argument; `docs/decisions.md` records the decision of 2026-11-16 that the pipeline definition names the makefile and that make stays the one command runner for every stack.
 
 ## Smoke test
 
@@ -328,3 +331,29 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     `duplicates`: duplicates: 7 new, 39 known, 4 gone
 18. factory: started review as self.
+19. reviewer: Review, round 0. I read the code on the branch against criteria 1 to 10 and the Interface. The code under `src/` holds:
+    - `MakeFilePath` and `_make_file_faults` refuse every listed value, and the faults name `make_file`.
+    - With a path, the path is always an argument (`$3`, `$7`) and never part of a script's text.
+    - `GitMakeFileSource` reads `PIPELINE_REF` at every call.
+    - The project check reads the named file and takes includes from the root.
+    - The records contract rose to 4.6 under the human's answer in entry 11, with the schemas regenerated.
+    - Architecture: the ABC is in `machine.application` with a docstring-only abstract method. The git-based implementation is in `pipeline.application`. Only `entry.wiring` builds the source. Every import goes downward or sideways between application layers.
+    - Security: the path is validated at the boundary and passed only as an argument. No silencing markers.
+    - No documents are changed.
+
+    Every finding below needs a change to this story's tests only, so the work item goes to the tester.
+
+    Findings:
+    1. criterion 11 added: it needs its test. `src/factory/pipeline/application/make_file_source.py:30-32` returns `None` when `show_file` raises `GitError`, which happens when `origin/<working branch>` does not exist. No test reaches that branch: the missing-definition test removes the file, so `show_file` returns `None` instead. Fix: in `tests/pipeline/application/test_make_file_source.py`, a test of a checkout without the working branch, expecting `None`.
+    2. `tests/guards/test_make_file_wiring.py:35-45` does not fully test criterion 10 for the stage environment. The guard only checks that `ContainerEnvironment(...)` gets `make_file=boundaries.make_file`, which is not the literal `None`. A wiring that leaves `make_file=` out of `Boundaries(...)` in `src/factory/entry/wiring.py:334-380` keeps the guard green while the wired stage environment has no source. Fix: also assert that the `Boundaries(...)` call in `factory.entry.wiring` passes `make_file=` with a value that is not `None` (ideally the same name it passes to `ContainerMakeCommands`), or test a wired instance as criterion 10 describes.
+    3. `tests/guards/test_make_file_wiring.py:10-15`: `_called_name` is a copy of `_called_name` in `tests/guards/test_agent_home_wiring.py:10-15`. Fix: under the standing leave, move it to `tests/support/source_search.py` and use it from there in both guards.
+    4. `AnsweringSource` is written twice:
+       - `tests/machine/adapters/test_make_commands_make_file.py:42-52` (answers in turn, repeats the last)
+       - `tests/machine/application/test_stage_environment_make_file.py:21-30` (one answer, which the first one already covers)
+
+       Fix: keep the first in `tests/support/make_file_support.py` and use it in both test files.
+
+    Earlier tests changed by the diff:
+    - `tests/pipeline/domain/test_contract.py`: the human's leave in journal entry 11 (version 4.5 → 4.6 only).
+    - `tests/shared/domain/test_contract_version_4.py`: the human's leave in journal entry 11 (version 4.5 → 4.6 only).
+    - `tests/shared/domain/test_contract_version_4_2.py`: the human's leave in journal entry 11 (version 4.5 → 4.6 only).
