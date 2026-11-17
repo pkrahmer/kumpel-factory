@@ -56,11 +56,6 @@ def check_image_tag(stage_image: str) -> str:
     return f"{stage_image}{CHECK_TAG_SUFFIX}"
 
 
-def checkout_has_stage_file(workspace: Path) -> bool:
-    """Whether the checkout in the work folder `workspace` holds a stage file."""
-    return (workspace / MOUNTED_CHECKOUT / STAGE_FILE).is_file()
-
-
 class ProjectRun:
     """Builds a repository's image and runs its sync and its check as a stage does."""
 
@@ -68,13 +63,15 @@ class ProjectRun:
         self,
         images: Images,
         *,
-        containers: Callable[[Path], ContainerRuns],
+        containers: Callable[[Path, str], ContainerRuns],
         git: Callable[[Path], Git],
         stage_image: str,
         extra_environment: Mapping[str, str] = {},
         ca_bundle: Path | None = None,
     ) -> None:
         """Build through `images`; run in the containers `containers` gives for a work folder.
+
+        `containers` is called with the work folder and the image the containers run in.
 
         `git` gives the git of a folder. The containers get `extra_environment` below their
         own names and `ca_bundle` mounted read-only at its own path.
@@ -106,7 +103,7 @@ class ProjectRun:
         image, image_point = self._image(checkout)
         if image_point.faults:
             return [image_point]
-        containers = self._containers(workspace)
+        containers = self._containers(workspace, image)
         try:
             path = self._images.path(image)
         except ContainerError as error:

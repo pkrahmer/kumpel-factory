@@ -17,11 +17,7 @@ from factory.entry.wiring import (
 from factory.hosting.adapters.git_cli import GitCli
 from factory.machine.adapters.podman_runs import PodmanRuns
 from factory.machine.application.containers import ContainerRuns
-from factory.machine.application.project_run import (
-    ProjectRun,
-    check_image_tag,
-    checkout_has_stage_file,
-)
+from factory.machine.application.project_run import ProjectRun
 from factory.machine.domain.containers import extra_environment
 from factory.pipeline.application.project_check import ProjectCheck
 from factory.pipeline.domain.project_check import ProjectPoint, is_ready, report_lines
@@ -87,10 +83,7 @@ def build_project_run(settings: InstanceSettings) -> ProjectRun:
     if stage_image is None:
         raise SettingsInvalid(STAGE_IMAGE_VARIABLE, "missing")
 
-    def containers(workspace: Path) -> ContainerRuns:
-        # The use case builds the stage file of the clone under the check's tag, so the
-        # containers run in that image exactly when the clone holds one.
-        image = check_image_tag(stage_image) if checkout_has_stage_file(workspace) else stage_image
+    def containers(workspace: Path, image: str) -> ContainerRuns:
         return PodmanRuns(
             settings.podman_executable,
             image,

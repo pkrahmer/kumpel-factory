@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 692
 comments_read: [6935336014, 6935606286]
 handed_over: null
-claim:
-  instance: self
-  stage: doing
-  started_at: '2026-11-17T02:11:25.776137Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -145,6 +141,12 @@ journal:
   kind: started
   at: '2026-11-17T02:11:25.776137Z'
   stage: doing
+- number: 25
+  speaker: coder
+  kind: result
+  at: '2026-11-17T02:14:14.851380Z'
+  stage: doing
+  run: 102f002edcb843858b7335556d7e7f6e
 ---
 
 # The conformance check runs a repository
@@ -403,3 +405,19 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     `lint`: lint: green (0.1 s)
 24. factory: started doing as self.
+25. coder: Round 1: I finished reviewer finding 2 (entry 19) on top of the tester's changes in entry 23. Findings 1 and 3 were already fixed in entry 21. First run: `uv run pytest -q tests/machine/application/test_project_run.py tests/entry/test_check_project_run.py` failed in the expected way. The use case still called `containers(workspace)` without the image. After the change those two files give 25 passed, and `make check guides` ends with `check: green` and `guides: green`.
+
+    Built:
+    - `src/factory/machine/application/project_run.py`:
+      - `ProjectRun`'s `containers` is now `Callable[[Path, str], ContainerRuns]`. It is called with the work folder and the image the use case chose: the stage image, or `<stage image>-check` when the clone holds a stage file.
+      - `checkout_has_stage_file` is removed.
+      - The image is now decided in one place, `_image`, which reads it from `show_file(HEAD, STAGE_FILE)`.
+    - `src/factory/entry/check_project.py`: in `build_project_run`, `containers(workspace, image)` passes the image it is given to `PodmanRuns` and no longer looks at the files on disk. The imports of `check_image_tag` and `checkout_has_stage_file` are gone.
+
+    Main choice: the use case passes the chosen image to the callable, as the reviewer and the tester's pinned signature ask. I rejected keeping a second decision in the entry from the files of the checkout, because the two could disagree and no test reached that code.
+
+    Refactor: I read the diff and found nothing more to change. `check_image_tag` stays a public function of the use case module, and only that module uses it now.
+
+    Noticed, not touched: the entry tests still monkeypatch `build_project_run`. So the real wiring of `extra_environment` and `ca_bundle` in `src/factory/entry/check_project.py` is reached by no test. The use case's handling of both is tested, under criterion 6.
+
+    `duplicates`: duplicates: 8 new, 38 known, 5 gone
