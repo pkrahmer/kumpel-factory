@@ -315,6 +315,7 @@ The stage's checks see the taken result on a clean base. `ContainerMakeCommands`
 - It rolls the dataset back to the base, copies in the files the take brought into the host's work tree, and runs `make sync && make <command>` in a container with the command's time limit.
 - `make_file` is a `MakeFileSource` (*The makefile source* in [pipeline.md](pipeline.md)), asked at every `run` and `start_fact`. With a path the script is `"$1" -f "$3" sync && "$1" -f "$3" --no-print-directory "$2"` (the start fact only its second half), and the path is the script's third argument after `make` and the command. With no source, or `None`, the argument list is the one without `-f`. The path is always an argument, never part of the script's text. `start_fact` does the same without the `sync`: the stage's `prepare` has just synced that base, and the sync's lines would only fill the start fact.
 - The container gets `{**extra_environment, **CHECK_ENVIRONMENT, "PATH": path}`. The constants and the image's `path` win.
+- The two scripts (`CHECK_SCRIPT`, `NAMED_CHECK_SCRIPT`), their name `CHECK_SCRIPT_NAME` and `CHECK_ENVIRONMENT` are public in `factory.machine.application.project_commands`, so the live project check reuses them; `make_commands.py` imports them from there. `SYNC_ENVIRONMENT` in `stage_environment.py` is a copy of `CHECK_ENVIRONMENT` (an import the other way would close a cycle through `boundaries`).
 - `ca_bundle` is mounted read-only at its own path. `build_boundaries` hands it the same extras as the sync and the agent.
 - A file a check makes stays in its container's dataset and is reset away by the next run. It never reaches the host.
 - What is copied is what differs from `HEAD` on the host (`git.changed_paths("HEAD")`), not a list the take kept. After the take that is the taken files, the restored work item and the factory's cost record. At the preflight's `lint` on `develop` it is nothing.
@@ -322,6 +323,23 @@ The stage's checks see the taken result on a clean base. `ContainerMakeCommands`
 - The copy is `copy_changed`, so the take and the checks share one rule for links, modes, deletions and refused paths.
 
 See also: *The take*, *Known results* and *Project commands*.
+
+## The live project check
+
+`factory-check-project --run` (*The project check* in [pipeline.md](pipeline.md)) builds a project's image and runs its sync and its check as a stage does, on a temporary clone and never on the instance's dataset. The use case is `ProjectRun` in [project_run.py](../../src/factory/machine/application/project_run.py) (`factory.machine.application.project_run`); it works only through `Images`, `ContainerRuns` and `Git`, and `build_project_run` in [check_project.py](../../src/factory/entry/check_project.py) wires `PodmanImages` and `PodmanRuns`.
+
+    ProjectRun(images, *, containers, git, stage_image, extra_environment={}, ca_bundle=None)
+    ProjectRun.run(folder, definition) -> list[ProjectPoint]
+
+- `containers(workspace, image)` gives the `ContainerRuns` for the work folder, mounted at `/work`, and the image the use case chose; `git(folder)` gives the `Git` of a folder.
+- The work folder is a `tempfile.mkdtemp` with `checkout/` (a clone of `folder`, reset to its `HEAD` commit, so an uncommitted change is not in it) and `home/`. It is removed in a `finally`, after a fault or an exception too.
+- `image`: the stage file is read from the clone at `HEAD`. Without it the containers run in `stage_image`. With it, `stage_layer(text, ANY_BASE)` and `Images.build` on `stage_image` under `check_image_tag(stage_image)` (`<stage image>-check`, never the instance's project image tag), with `IMAGE_BUILD_TIME_LIMIT`.
+- `sync`: in `/work`, the script `cd "$1"; shift` followed by `SYNC_MAKE` or `NAMED_SYNC_MAKE`, with `/work/checkout` (and the makefile) as arguments; the environment `{**extra_environment, **SYNC_ENVIRONMENT, "PATH": images.path(image)}`, the bundle's mount and the `sync` command's time limit (`command_time_limit`). The stage's preparation (fetch, checkout, agent files) is not run, and no agent files are mounted.
+- `check`: in `/work/checkout`, `CHECK_SCRIPT` or `NAMED_CHECK_SCRIPT` with `make` and `check`, the environment `{**extra_environment, **CHECK_ENVIRONMENT, "PATH": ...}`, and the `check` command's time limit.
+- The rule: the scripts and the environments are the stage's own constants, imported from `stage_environment.py` and `project_commands.py`, never copied, so the live check runs what a stage runs.
+- The faults, the first that applies: a `ContainerError` (from the run, or from `Images.path`) is `could not start: <reason>`; then `timed out after <n> min`; `exit status <n>: <last line>`; for status 0 the missing green line (`target_times` for the sync, the last line `check: green` for the check). The last line is the last of `printed_lines`, make's own lines kept, unlike `checks.last_line`. The points stop after the first with a fault.
+
+Tests: [test_project_run.py](../../tests/machine/application/test_project_run.py) on a real repository in `tmp_path`, with `ScriptedContainerRuns` and `UninspectableImages` from [project_run_support.py](../../tests/support/project_run_support.py) and `FakeImages`.
 
 ## The settings and the wiring
 
@@ -421,7 +439,7 @@ The factory reaches a project's build only through one interface, so another sta
 - `MakeProjectCommands.start_fact` starts `<executable> --no-print-directory <command>` in `directory` through `run_process`, with stderr merged into stdout, and `run` is the same call. `directory` is where make finds the project's Makefile.
 - The environment is the current one less `MAKELEVEL`, `MAKEFLAGS` and `MFLAGS`. Without that, a run inside `make check` (where `MAKELEVEL` is set) would print `make[N]: Entering directory` lines that a run on its own does not.
 - `MakeProjectCommands` runs `make` as the factory's own user. Every instance runs a project command in a check container, and `MakeProjectCommands` stays for the suite.
-- The string `"make"` appears in `make_commands.py` alone. [test_make_search.py](../../tests/guards/test_make_search.py) allows exactly that one.
+- The string `"make"` appears in `make_commands.py` and in `project_run.py` (the live project check, which passes it to the check script as `ContainerMakeCommands` does) alone. [test_make_search.py](../../tests/guards/test_make_search.py) allows exactly those two.
 - The contract between a project and the factory is four make targets: `check`, `lint`, `test` and `sync`.
 - `sync` brings a checkout's tools up to date (`uv sync --frozen` for Python; another stack names its own command in the same target). The stage environment runs it, in its sync container before every agent run and in its check container before every check. It is never a stage's `checks` or `reports`, and `check` does not run it.
 - [Makefile](../../operator/template/Makefile) in `operator/template/` has the target, and [pipeline.yml](../../operator/template/factory/pipeline.yml) there has the command `sync` with a time limit. This repository's own [Makefile](../../Makefile) has the target `sync` (`uv sync --frozen`), and its [pipeline.yml](../../factory/pipeline.yml) has the command `sync` with `time_limit: 5`.
@@ -672,7 +690,7 @@ Every container path reaches the script as an argument (`$1` checkout, `$2` home
 3. in `$1`, runs `git init -q` when there is no `.git`;
 4. fetches `+refs/heads/*:refs/heads/*` and `+refs/heads/*:refs/remotes/origin/*` from `$3` in one `git fetch` with `--prune` and `--update-head-ok`;
 5. runs `git checkout -q -f "$5"` and `git reset -q --hard "$6"`, so `HEAD` is on the branch at the stage-start commit and never detached;
-6. runs `make sync` (*The sync command*), or `make -f "$7" sync` with a named makefile.
+6. runs the make part, `SYNC_MAKE` (`make sync`, *The sync command*), or, with a named makefile, `shift 6` and then `NAMED_SYNC_MAKE` (`make -f "$1" sync`, the former `$7`). The two make parts are public constants of `stage_environment.py`, which the live project check reuses.
 
 Why the fetch is so wide:
 

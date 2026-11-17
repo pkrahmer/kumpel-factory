@@ -26,7 +26,7 @@ from factory.pipeline.application.stalls import StallContext, StallResult, Stall
 from factory.pipeline.application.take import TakeReport
 from factory.pipeline.application.task import StoryFormChecker, TaskComposer, TaskContext
 from factory.pipeline.domain.checks import CheckResult, command_line
-from factory.pipeline.domain.pipeline_definition import PipelineDefinition, ProjectCommandDefinition
+from factory.pipeline.domain.pipeline_definition import PipelineDefinition, command_time_limit
 from factory.shared.domain.errors import HostingServiceError, PushFailed
 from factory.shared.domain.identifiers import Name, WorkItemId, is_acceptance
 from factory.shared.domain.paths import WORK_BRANCH, WORK_REF, cost_records_path
@@ -156,8 +156,7 @@ class StageLauncher:
         return transcripts.keep(work_item, run, read), tools
 
     def _sync_time_limit(self) -> timedelta:
-        sync = self._definition.project_commands.get("sync", ProjectCommandDefinition())
-        return timedelta(minutes=sync.time_limit)
+        return command_time_limit(self._definition, "sync")
 
     def _launchable_stage(self, prepared: PreparedWorkItem) -> str:
         if prepared.merge_conflict:

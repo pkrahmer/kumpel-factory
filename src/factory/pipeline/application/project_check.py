@@ -32,7 +32,7 @@ from factory.shared.domain.paths import (
 _PIPELINE, _MAKEFILE, _STAGE_FILE, _AGENTS, _WRITE_PATHS, _FORMS = POINT_NAMES
 _ALL_FILES = ""
 # The rule of a stage file does not depend on the base it is built on.
-_ANY_BASE = "base"
+ANY_BASE = "base"
 
 
 class _Makefiles:
@@ -132,7 +132,7 @@ class ProjectCheck:
         if text is None:
             return ProjectPoint(name=_STAGE_FILE)
         try:
-            stage_layer(text, _ANY_BASE)
+            stage_layer(text, ANY_BASE)
         except StageLayerRefused as error:
             return ProjectPoint(name=_STAGE_FILE, faults=[str(error)])
         return ProjectPoint(name=_STAGE_FILE)

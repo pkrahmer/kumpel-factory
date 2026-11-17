@@ -10,7 +10,7 @@ from factory.entry.check_project import main
 from support.git_support import run_git
 from support.project_check_support import committed_repository, installed_home, ready_files
 
-USAGE = "factory-check-project [--agent-home <dir>] <folder>"
+USAGE = "factory-check-project [--agent-home <dir>] [--run] <folder>"
 HOME_VARIABLE = "FACTORY_CLAUDE_HOME"
 
 
