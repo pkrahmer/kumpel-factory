@@ -62,6 +62,11 @@ def test_makefile_targets_are_the_names_of_rule_lines(text: str, targets: set[st
             [MakefileInclude(path="e.mk", optional=False)],
             id="tab-after-keyword",
         ),
+        pytest.param(
+            "include a.mk # b.mk\n",
+            [MakefileInclude(path="a.mk", optional=False)],
+            id="comment-after-path",
+        ),
         pytest.param("include $(X).mk\n", [], id="variable-path"),
         pytest.param("  include e.mk\n", [], id="indented"),
         pytest.param("included: f\n", [], id="rule-named-included"),

@@ -215,6 +215,24 @@ def test_without_a_valid_definition_three_points_are_skipped_and_two_judged(
             [],
             id="include-cycle",
         ),
+        pytest.param(
+            {"Makefile": "include ../common.mk\ncheck lint test sync:\n"},
+            ["Makefile: included file ../common.mk is missing"],
+            id="include-outside-the-repository",
+        ),
+        pytest.param(
+            {"Makefile": "-include ../common.mk\ncheck lint test sync:\n"},
+            [],
+            id="optional-include-outside-the-repository",
+        ),
+        pytest.param(
+            {
+                "Makefile": "include ./factory/kit.mk\ncheck lint test:\n",
+                "factory/kit.mk": "sync:\n",
+            },
+            [],
+            id="include-with-dot-slash",
+        ),
     ],
 )
 def test_targets_count_through_included_files(

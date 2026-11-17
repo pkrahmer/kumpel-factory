@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 690
 comments_read: [6933812910, 6934072851]
 handed_over: null
-claim:
-  instance: self
-  stage: tests
-  started_at: '2026-11-17T00:55:07.580333Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -134,6 +130,12 @@ journal:
   kind: started
   at: '2026-11-17T00:55:07.580333Z'
   stage: tests
+- number: 23
+  speaker: tester
+  kind: result
+  at: '2026-11-17T00:55:34.950580Z'
+  stage: tests
+  run: c5e176c4a1f04583bfc9aebeb84cce60
 ---
 
 # The conformance check reads a repository
@@ -417,3 +419,24 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     The journal did not change the Description.
 22. factory: started tests as self.
+23. tester: Round 1. I added the test rows that the reviewer's findings in entry 19 call for, as the coder's entry 21 named them. I changed only this story's own test files.
+
+    - Finding 1 → three new rows in `tests/pipeline/application/test_project_check_run.py::test_targets_count_through_included_files` (criterion 9):
+      - `include-outside-the-repository`: `include ../common.mk` gives the fault `Makefile: included file ../common.mk is missing`.
+      - `optional-include-outside-the-repository`: `-include ../common.mk` gives no fault.
+      - `include-with-dot-slash`: `include ./factory/kit.mk`, with `sync` only in `factory/kit.mk`, gives no fault.
+    - Finding 2 → the new row `comment-after-path` in `tests/pipeline/domain/test_project_check.py::test_makefile_includes_are_the_paths_of_include_lines` (criterion 2): `include a.mk # b.mk` gives the one entry `a.mk`, not optional.
+
+    The reviewer's note about a definition whose `project_commands` already names `sync` was a note, not a finding, so I added no row for it.
+
+    No earlier test file changed, and no file created. ruff format reformatted the new row in the application test.
+
+    Runs:
+    - `uv run pytest -q tests/pipeline/domain/test_project_check.py tests/pipeline/application/test_project_check_run.py`: every test passed, with no failure or error. The output's last line showed only the progress dots and `[100%]`, so I have no count.
+    - `make lint`: lint: green (0.1 s).
+
+    No module failed to import.
+
+    `lint`: lint: green (0.1 s)
+
+    `lint`: lint: green (0.1 s)
