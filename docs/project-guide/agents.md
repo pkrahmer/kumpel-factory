@@ -269,11 +269,11 @@ A project may carry its own agents. They are read from `origin/develop`, never f
 
 [agents/](../../agents/) and [operator/template/](../../operator/template/) are data the image carries; no code under `src/` reads them except through the readers named here. To change what an agent is told, edit its file under `agents/agents/`; there is no other copy of a shipped agent. A project's own agent is its file under `<project>/factory/agents/` on `origin/develop` (see *A project's own agents*).
 
-### The seven agents
+### The eight agents
 
-`agents/agents/<role>.md` holds one agent for each role of the starting pipeline definition. Each file's front matter has exactly the four keys the runner applies (see *The agent definition reader*).
+`agents/agents/<role>.md` holds one agent for each role of the starting pipeline definition, the full line, and the `builder` of the thin line (one builder, one reviewer, the approval). Each file's front matter has exactly the four keys the runner applies (see *The agent definition reader*).
 
-Every agent has the same tools, and every agent runs on `opus`. Five of them share `effort: medium`; the two reviewers run at `high`. A Claude Code request begins with its tool list, and the prompt cache is per model and is cut by a change of effort, so runs share a cached start only where tools, model and effort agree. The tool list does not limit what a role writes: the [write paths](glossary.md) do, through the take, so `Write` and `Edit` are refused alike outside them. [test_shared_start_agent_files.py](../../tests/agent_files/test_shared_start_agent_files.py) pins the tools, the model and the effort of every file.
+Every agent has the same tools, and every agent runs on `opus`. Six of them share `effort: medium`; the two reviewers run at `high`. A Claude Code request begins with its tool list, and the prompt cache is per model and is cut by a change of effort, so runs share a cached start only where tools, model and effort agree. The tool list does not limit what a role writes: the [write paths](glossary.md) do, through the take, so `Write` and `Edit` are refused alike outside them. [test_shared_start_agent_files.py](../../tests/agent_files/test_shared_start_agent_files.py) pins the tools, the model and the effort of every file.
 
 | Agent | model | effort | budget_usd | tools |
 |---|---|---|---|---|
@@ -284,6 +284,9 @@ Every agent has the same tools, and every agent runs on `opus`. Five of them sha
 | `documenter` | opus | medium | 1.5 | Read, Grep, Glob, Edit, Bash, Write, Skill |
 | `smoke-tester` | opus | medium | 2 | Read, Grep, Glob, Edit, Bash, Write, Skill |
 | `acceptance-reviewer` | opus | high | 8 | Read, Grep, Glob, Edit, Bash, Write, Skill |
+| `builder` | opus | medium | 6 | Read, Grep, Glob, Edit, Bash, Write, Skill |
+
+`builder` builds a story alone: its tests first, then its code and its documents, and ends its stage with `review`. Its text names no stack, so a thin-line project needs no agent file: what is special about its stack stands in its `CLAUDE.md`. The `reviewer` serves both lines. Its last part before `## Lessons`, `### The project's review points`, makes each point of the section `## Review` of the project's `CLAUDE.md` a checklist item of every review; a broken point is a finding that names it. [test_installed_builder.py](../../tests/agent_files/test_installed_builder.py) pins both and loads a thin-line definition with the installed agents alone.
 
 Each body starts with two paragraphs: the role's boundary as one sentence, a blank line, and one sentence on what the role's [journal](glossary.md) entry contains. After them come these `## ` sections and no other `## ` heading, in this order:
 
@@ -373,7 +376,7 @@ These rules do not change the other stages, the allowed decisions or the opencod
 [operator/template/](../../operator/template/) is what a new project starts from, laid out as the project's tree. It holds three files and nothing else.
 
 - `operator/template/factory/pipeline.yml`, the starting pipeline definition. Copy it to `factory/pipeline.yml` and adjust it. This guide does not copy it, because a copy goes stale with every change of the file: read the file itself.
-  - Its roles are the seven agents above. The stages run `intake`, `tests`, `doing`, `review`, `docs`, `smoke-test`, then `approval`; `acceptance` is the acceptance stage.
+  - Its roles are the agents above other than `builder`: the template is the full line. The stages run `intake`, `tests`, `doing`, `review`, `docs`, `smoke-test`, then `approval`; `acceptance` is the acceptance stage.
   - The smoke test's `next` is `approval`, `doing`, `docs` (`round_cap` 3).
   - `docs` is a rework like `doing`, counted against the cap by `decide`, for a finding that is only a slip in a document. R12 in every agent names it (`smoke-test → docs`).
   - The smoke tester's *Stage* steps 5 and 6 choose between `docs` and `doing`. The documenter's step 1 says what to do on a `docs` round. [test_claude_agent_texts_docs_slip.py](../../tests/agent_files/test_claude_agent_texts_docs_slip.py) pins the texts.

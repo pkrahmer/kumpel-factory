@@ -1,5 +1,5 @@
 ---
-stage: docs
+stage: smoke-test
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 693
 comments_read: [6936126509]
 handed_over: null
-claim:
-  instance: self
-  stage: docs
-  started_at: '2026-11-17T02:43:24.613607Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -117,6 +113,12 @@ journal:
   kind: started
   at: '2026-11-17T02:43:24.613607Z'
   stage: docs
+- number: 20
+  speaker: documenter
+  kind: result
+  at: '2026-11-17T02:51:27.462465Z'
+  stage: docs
+  run: a8ad34b872cf4e9aaf5e27ec53c47ce2
 ---
 
 # The installed builder
@@ -429,3 +431,33 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     - `tests/agent_files/test_shared_start_agent_files.py`: entry 4. It adds a `builder` row to `EFFORTS`.
     - `tests/support/shipped_agents.py`: entry 4. It adds the builder's `ShippedAgent` row, `THIN_LINE_ONLY`, `THIN_LINE_PIPELINE`, `thin_line_definition()` and `full_line_names()`. Under the standing leave to move a shared test helper, it also takes over the regex `REVIEW_POINTS_SUBSECTION` from the two test files above.
 19. factory: started docs as self.
+20. documenter: Docs, round 1: I wrote what criterion 8 asks for. `make documents` ends with `documents ok (45.8 s)`. I also changed `agents/README.md`, which is outside `docs/`, so I ran `make guides check`: every target is green, ending with `guides: green` and `check: green`.
+
+    Files changed:
+    - `docs/operator-guide/agent-runtime.md`, *The shipped agents and settings*:
+      - The folder now holds eight agents, `builder` included.
+      - New paragraph *The two lines*. The full line is the template's seven roles. The thin line has the roles `builder` and `reviewer` and the stages `doing`, `review`, `approval` and `done`. A thin-line project needs no agent file, because the installed agents are the default and what is special about its stack goes into `CLAUDE.md`. A project's own file under `<project>/factory/agents/` still replaces the installed one, file by file.
+      - New paragraph *The project's review points*: a project gives the reviewer its points in the section `## Review` of `CLAUDE.md`, with an example of that section.
+      - A pointer to `factory-check-project`, whose point `agents` passes without the project's agent folder. The coder's smoke run in entry 10 showed `agents: ok` for that case.
+    - `docs/project-guide/agents.md`:
+      - The heading *The seven agents* is now *The eight agents*, and the effort sentence now says six agents run at medium.
+      - The table has a `builder` row: opus, medium, 6, the seven tools.
+      - New paragraph on what the builder does and on the reviewer's `### The project's review points`, with a link to `test_installed_builder.py`.
+      - *The template* now says its roles are every agent except `builder`, because the template is the full line.
+    - `agents/README.md`: the `agents/` line now names `builder.md`. My first try listed every file on separate lines, and `tests/guards/test_folder_readmes.py` refused them as "no part of the form". The README now keeps its one-sentence subfolder line.
+    - `docs/decisions.md`: new entry *The installed agents are the default; a kit copies no agent file*, dated 2026-11-16. It has a Decision and a Why, both from the Description. It has no "Rejected" line, because the story names no rejected option.
+
+    Cross-read and found current:
+    - In `docs/operator-guide/agent-runtime.md`: *The agent files* and *A project's own agents*. Read first, then installed, file by file, as `ProjectAgentDefinitions` does.
+    - The other operator-guide pages: `pipeline.md` (the conformance check and its point `agents`), `stops.md` (`agent is not installed`), `health.md` and `install.md`.
+    - The rest of `docs/project-guide/agents.md` (*A project's own agents*, the docs route, the lessons list), and `README.md`.
+
+    Example: the `## Review` block in `agent-runtime.md` is a sample of a `CLAUDE.md` section, not a command, so there was nothing to run. The `factory-check-project` claim rests on the command's real output from the coder's smoke run (entry 10).
+
+    Stale text I noticed but did not touch: none that relates to this story.
+
+    No findings.
+
+    `guides`: guides: green (9.3 s)
+    `secrets`: secrets: green (1.9 s)
+    `documents`: documents ok (46.4 s)

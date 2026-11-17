@@ -2,6 +2,6 @@
 
 The agent files of the factory's roles and the settings they run under. [The agents page of the project guide](../docs/project-guide/agents.md) explains them.
 
-- `agents/` The instructions of each role, one file per role, shipped with the factory.
+- `agents/` The instructions of each role, one file per role, shipped with the factory, `builder.md` of the thin line included.
 
 `system-prompt.md`, the role's instructions and the work item in the first message: [the system prompt and the first message](../docs/project-guide/agents.md#the-system-prompt-and-the-first-message).

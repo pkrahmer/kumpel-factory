@@ -1727,3 +1727,10 @@ Date: 2026-11-16 (F0062-S0002).
 
 - Decision: a pipeline definition may name the makefile the factory runs, with the key `make_file` (for example `factory/Makefile`). Every project command, every start fact and the sync then run as `make -f <path> ...`, still from the root of the checkout; without the key they run as plain `make`. The path is a path inside the checkout that cannot read as an option, it is always passed to make as an argument and never written into a script's text, and the classes that call make ask a `MakeFileSource` for it at every call. The conformance check reads the named makefile. make stays the one command runner for every stack, and the interfaces `ProjectCommands` and `StageEnvironment` keep their signatures. The pipeline definition's contract rises to 1.2 (1.0 and 1.1 still load), and the records contract to 4.6.
 - Why: the factory ran every project command as `make <command>` in the root, so a project had to give its root `Makefile` the factory's targets, and an existing repository often has a root `Makefile` of its own, or none and no wish for one.
+
+## The installed agents are the default; a kit copies no agent file
+
+Date: 2026-11-16 (F0062-S0004).
+
+- Decision: the factory's installed agents are the default for every project, and a kit copies no agent file into the project. The installed agents include `builder`, written for any stack, which builds a story's tests, code and documents alone for the thin line (one builder, one reviewer, the approval). The installed reviewer also checks each point of the section `## Review` of the project's `CLAUDE.md`, so a stack's review points live there. A project's own file under `factory/agents/` still replaces the installed one, file by file; the full line is unchanged.
+- Why: the factory shipped no `builder`, so each of the three templates carried its own copy of a builder and of a reviewer under `factory/agents/`, and the copies had drifted.
