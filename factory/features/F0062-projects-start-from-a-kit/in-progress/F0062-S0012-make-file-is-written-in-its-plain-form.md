@@ -1,5 +1,5 @@
 ---
-stage: intake
+stage: tests
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 703
 comments_read: [6940217140]
 handed_over: null
-claim:
-  instance: self
-  stage: intake
-  started_at: '2026-11-17T06:04:58.457306Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -40,6 +36,12 @@ journal:
   kind: started
   at: '2026-11-17T06:04:58.457306Z'
   stage: intake
+- number: 6
+  speaker: intake
+  kind: result
+  at: '2026-11-17T06:05:16.447030Z'
+  stage: intake
+  run: c94ba50822794f90bbbcdd2c60e70622
 ---
 
 # A `make_file` is written in its plain form, or the definition refuses it
@@ -90,7 +92,7 @@ sed 's|^# make_file: factory/Makefile|make_file: factory/Makefile|' operator/kit
 Expect: `factory/Makefile`
 
 ```bash
-uv run pytest -q tests/pipeline/domain/test_pipeline_definition_make_file.py 2>&1 | tail -1
+uv run pytest tests/pipeline/domain/test_pipeline_definition_make_file.py 2>&1 | tail -1
 ```
 Expect: one line ending with `passed` and a time, with no `failed`.
 
@@ -109,3 +111,12 @@ Expect: one line ending with `passed` and a time, with no `failed`.
    - Scope: within F0062 and not in its out-of-scope list.
 4. 2026-11-17 human: (a): remove the `-q` from the command and keep the `Expect:` as it is.
 5. factory: started intake as self.
+6. intake: accepted
+   - Human's answer carried in: following journal entry 4, option (a), I removed the `-q` from the third smoke test's command. It now reads `uv run pytest tests/pipeline/domain/test_pipeline_definition_make_file.py 2>&1 | tail -1`. Its `Expect:` is unchanged. Nothing else in the story was edited.
+   - Interface: it names `_make_file_faults` in `factory.pipeline.domain.pipeline_definition` and gives the exact fault text, `make_file <value> must be written as <posixpath.normpath(value)>`. It lists the inputs the rule refuses and the ones it accepts. A value outside the checkout keeps its fault alone, which matches how the current function already returns early. `MakeFilePath`, `protected_paths`, the take and the conformance check are named as unchanged.
+   - Criteria: each one is testable. Criterion 1 covers both sides of the plain-form rule, with the four refused spellings and the three accepted ones. Criterion 2 covers the outside-the-checkout case and checks that no "must be written as" fault is added. Criterion 3 covers `factory-check-project` on both sides: the FAIL line, no "is missing" line, the `project: not ready` last line, and `ok` for the plain form. Criterion 4 pins the schema as unchanged. `make check` and `docs:` are the last two criteria.
+   - Smoke test: smoke tests 1 and 2 run the reader on `operator/kit/factory/pipeline.full.yml` after a `sed` edit. That `sed` pattern matches its line 9, and each `Expect:` is a concrete line to compare with the output. `pyproject.toml` already sets `addopts = "-q ..."`, so with `-q` removed the third smoke test ends with pytest's summary line, which its `Expect:` checks.
+   - Docs criterion: it names what the reader must know, in `docs/operator-guide/pipeline.md` under *Name the makefile* and on the project guide's page about the pipeline definition. It dictates no sentences.
+   - Architecture: the change is a load-time rule in the pipeline area's domain layer, a pure function with no I/O. No new dependency, and the records contract does not change.
+   - Scope: within F0062 (projects start from a kit) and not in its out-of-scope list. It closes a gap that the feature acceptance of 2026-11-17 found in its smoke test.
+   - Route: tests. The Interface changes `src/factory`, which the documenter may not write.
