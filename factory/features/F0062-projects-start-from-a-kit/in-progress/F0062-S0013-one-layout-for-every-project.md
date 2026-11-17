@@ -1,5 +1,5 @@
 ---
-stage: smoke-test
+stage: approval
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 705
 comments_read: []
 handed_over: null
-claim:
-  instance: self
-  stage: smoke-test
-  started_at: '2026-11-17T07:13:24.832173Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -133,6 +129,12 @@ journal:
   kind: started
   at: '2026-11-17T07:13:24.832173Z'
   stage: smoke-test
+- number: 23
+  speaker: smoke-tester
+  kind: result
+  at: '2026-11-17T07:16:24.911723Z'
+  stage: smoke-test
+  run: 401bbda854414ecb9d08192e53f419c2
 ---
 
 # One layout for every project
@@ -457,3 +459,43 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     `secrets`: secrets: green (2.1 s)
     `documents`: documents ok (48.2 s)
 22. factory: started smoke-test as self.
+23. smoke-tester: Round 1 smoke test. I ran the three commands under `## Smoke test` exactly as written, in order, from the repository root. All three met their `Expect:` lines. No findings.
+
+    Command 1 (assemble each pack the one way, check it, and list the files outside `factory/`):
+    ```
+    Bytecode compiled 4164 files in 88ms
+    python project: ready CLAUDE.md Makefile 
+    Bytecode compiled 4164 files in 49ms
+    c-host project: ready CLAUDE.md Makefile 
+    Bytecode compiled 4164 files in 52ms
+    java-gradle project: ready CLAUDE.md Makefile
+    ```
+    Met. The three expected lines appear. The `Bytecode compiled` lines are uv's own messages, and each expected line has a trailing space from `tr`.
+
+    Command 2 (the forwarding root makefile with no target):
+    ```
+    lint: green (N s)
+    check: green
+    ```
+    Met.
+
+    Command 3 (`uv run pytest tests/operator_scripts/`, last lines):
+    ```
+    ........................................................................ [ 77%]
+    ........................................................................ [ 88%]
+    ........................................................................ [ 99%]
+    ...                                                                      [100%]
+    651 passed in 36.51s
+    ```
+    Met. The summary says only `passed`.
+
+    Criteria read again against what I saw. No criterion is contradicted:
+    - Criterion 1: the kit's thin definition, used in command 1, loads, and the check finds `factory/Makefile`.
+    - Criterion 2: each pack's project is `ready`, and the only files outside `factory/` are `CLAUDE.md` and `Makefile`.
+    - Criterion 4: with no target, `make` ran `check` through `lint`, and no line names a target `Makefile`.
+    - Criteria 3, 5 and 6: tests in `tests/operator_scripts/` cover them, and all of those tests passed in command 3.
+    - Criterion 8 (docs): the documenter's entry 21 records `make documents` green. None of the commands read a document that contradicts the code.
+
+    I did not run `make check`; the factory runs it after this stage. I left no files behind: each block's temporary directory removed itself.
+
+    `check`: check: green
