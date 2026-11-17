@@ -1,3 +1,30 @@
+---
+stage: intake
+blocked: null
+round: 0
+attempts: 0
+crashes: 0
+pull_request: null
+comments_read: []
+handed_over: null
+claim:
+  instance: self
+  stage: intake
+  started_at: '2026-11-17T04:38:27.712552Z'
+  lease_duration: 60
+journal:
+- number: 1
+  speaker: human
+  kind: created
+  at: '2026-11-17T04:38:27.705681Z'
+  stage: intake
+- number: 2
+  speaker: factory
+  kind: started
+  at: '2026-11-17T04:38:27.712552Z'
+  stage: intake
+---
+
 # The guide
 
 ## Description
@@ -36,3 +63,6 @@ grep -c -e 'factory-check-project' -e 'make_file' -e 'TRAPS.md' docs/operator-gu
 Expect: two numbers, each at least 3 for the first and at least 2 for the second.
 
 ## Journal
+
+1. 2026-11-17 human: created.
+2. factory: started intake as self.
