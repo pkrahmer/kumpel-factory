@@ -1,5 +1,5 @@
 ---
-stage: smoke-test
+stage: approval
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 697
 comments_read: [6938616709, 6938770109]
 handed_over: null
-claim:
-  instance: self
-  stage: smoke-test
-  started_at: '2026-11-17T04:56:21.000423Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -145,6 +141,12 @@ journal:
   kind: started
   at: '2026-11-17T04:56:21.000423Z'
   stage: smoke-test
+- number: 25
+  speaker: smoke-tester
+  kind: result
+  at: '2026-11-17T04:58:36.490755Z'
+  stage: smoke-test
+  run: ff425fa285664085acdae525c9f07dac
 ---
 
 # The guide
@@ -381,3 +383,26 @@ Expect: two numbers, each at least 3 for the first and at least 2 for the second
     `secrets`: secrets: green (1.9 s)
     `documents`: documents ok (48.4 s)
 24. factory: started smoke-test as self.
+25. smoke-tester: I ran the two smoke-test commands as written, from the repository root. Both met their `Expect:` lines. No findings.
+
+    Command 1:
+    ```
+    docs/operator-guide/README.md:2
+    README.md:1
+    ```
+    Expect met: two lines, each a file name, a colon and a number of at least 1.
+
+    Command 2:
+    ```
+    13
+    2
+    ```
+    Expect met: 13 is at least 3 and 2 is at least 2.
+
+    Against the acceptance criteria: the smoke test contradicts none of them. I also checked the following:
+    - Criterion 9 (the `factory.local.env` fix from entry 19) holds. `docs/operator-guide/start-a-project.md` mentions it at step 8 (line 32), in the sentence before the VM block (line 86) and in the VM block (line 92). `docs/operator-guide/pipeline.md` mentions it at lines 269 and 275. In both pages `factory.local.env` is loaded after `factory.env` when it exists.
+    - The page is listed in `OPERATOR_GUIDE_FILES` (`src/factory/shared/domain/documents.py:40`), as the human's answer in entry 6 allowed.
+
+    I did not run `make check`. The factory runs it after this stage.
+
+    `check`: check: green
