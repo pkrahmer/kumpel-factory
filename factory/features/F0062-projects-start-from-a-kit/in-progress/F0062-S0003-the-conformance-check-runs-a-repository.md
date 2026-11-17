@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 692
 comments_read: [6935336014, 6935606286]
 handed_over: null
-claim:
-  instance: self
-  stage: doing
-  started_at: '2026-11-17T02:03:01.599382Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -101,6 +97,12 @@ journal:
   kind: started
   at: '2026-11-17T02:03:01.599382Z'
   stage: doing
+- number: 17
+  speaker: coder
+  kind: result
+  at: '2026-11-17T02:05:40.951443Z'
+  stage: doing
+  run: 778f455a2b3e4a8ba2737d4722e72602
 ---
 
 # The conformance check runs a repository
@@ -277,3 +279,36 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     `lint`: lint: green (0.1 s)
 16. factory: started doing as self.
+17. coder: The tester made the two test changes from entry 11 (entry 15). I changed no code in this run. Both `make check` and `make guides` are green now.
+
+    I first ran `uv run pytest -q tests/entry/test_check_project.py tests/guards/test_make_search.py tests/machine/application/test_project_run.py tests/entry/test_check_project_run.py`, and all of them passed. Then `make check guides` ended with `check: green` (total coverage 99.12 %) and `guides: green`.
+
+    Built in the earlier run (entry 10), as committed on the branch:
+    - `src/factory/machine/application/project_run.py`: the use case `ProjectRun`.
+      - It makes a temporary work folder with `checkout/` and `home/`, and removes it in a `finally`. The checkout is a `GitCli` clone, reset to the source's `HEAD` commit.
+      - It reads the stage file from the clone and builds it on the stage image under `<stage image>-check`, with `IMAGE_BUILD_TIME_LIMIT`.
+      - The sync container runs in `/work`. It changes into `/work/checkout` and runs the stage's make part.
+      - The check container runs in `/work/checkout`, with the moved check scripts.
+      - Faults are reported in the Interface's order. The run stops after the first point with a fault.
+      - It also has `check_image_tag` and `checkout_has_stage_file`, which the entry's wiring uses.
+    - `src/factory/machine/application/project_commands.py`: the public `CHECK_ENVIRONMENT`, `CHECK_SCRIPT`, `NAMED_CHECK_SCRIPT` and `CHECK_SCRIPT_NAME`. `src/factory/machine/adapters/make_commands.py` imports them, and re-exports `CHECK_ENVIRONMENT` through `__all__` so the earlier test can still import it from there.
+    - `src/factory/machine/application/stage_environment.py`: the public `SYNC_MAKE` and `NAMED_SYNC_MAKE`. The stage's named script now runs `shift 6` before the make part. `_SYNC_SCRIPT` keeps its name. `SYNC_ENVIRONMENT` is now a copy of `CHECK_ENVIRONMENT`, which avoids an import cycle through `boundaries`.
+    - `src/factory/pipeline/domain/pipeline_definition.py`: `command_time_limit`, which `pipeline/application/stage.py` now uses in place of its own copy.
+    - `src/factory/pipeline/domain/project_check.py`: `LIVE_POINT_NAMES`.
+    - `src/factory/pipeline/application/project_check.py`: `ANY_BASE` is now public, so the use case reuses it.
+    - `src/factory/entry/check_project.py`: the `--run` option and `build_project_run(settings)`, which wires `PodmanImages` and `PodmanRuns`.
+      - A settings fault prints `cannot run: …` and returns 2, before anything runs.
+      - The agent home comes from `--agent-home`, then from the settings, then from the environment variable.
+
+    Main choice and the alternative I rejected:
+    - The live sync runs only the shared make part, after its own `cd`, and does not run the stage's whole script with its preparation. The human chose this in entry 4.
+    - `PodmanRuns` gets the `-check` image exactly when the clone holds a stage file. I rejected changing the `containers` callable's signature, because the tests pin it.
+
+    Refactor step: I read my own diff (`git diff develop` outside `factory/` and `tests/`, and the new files) and found nothing to change.
+    - `_last_line` in `project_run.py` is not a copy of `checks.last_line`. That one skips `make:` lines, and those lines are what explain a red run here; a comment in the code says so.
+
+    Description: entry 11 only allowed test changes and the `PLR0913` ignore on `develop`, so the task's meaning is unchanged and the Description stays as it is.
+
+    Noticed but not touched: the docs (`docs/operator-guide/`, `docs/project-guide/machine.md`) are left to the documenter for criterion 11.
+
+    `duplicates`: duplicates: 8 new, 38 known, 5 gone
