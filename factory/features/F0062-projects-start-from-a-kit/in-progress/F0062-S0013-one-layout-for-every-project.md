@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 705
 comments_read: []
 handed_over: null
-claim:
-  instance: self
-  stage: doing
-  started_at: '2026-11-17T06:56:00.642017Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -67,6 +63,12 @@ journal:
   kind: started
   at: '2026-11-17T06:56:00.642017Z'
   stage: doing
+- number: 11
+  speaker: coder
+  kind: result
+  at: '2026-11-17T06:58:23.536057Z'
+  stage: doing
+  run: d11e7cafcfdf40f8aeda5f4548852b40
 ---
 
 # One layout for every project
@@ -214,3 +216,17 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
    `lint`: lint: green (0.1 s)
 10. factory: started doing as self.
+11. coder: With the tester's change from entry 9 in place, `make check guides` is green. No code was changed in this run.
+
+    - Built in entry 7: the human's drafts are copied byte for byte into `operator/kit/` (`CLAUDE.md`, `factory/README.md`, `factory/kit.mk`, `factory/pipeline.thin.yml`, `factory/pipeline.full.yml`, and the new `root.Makefile`) and into `operator/packs/` (`c-host/Makefile`, `java-gradle/Makefile`, `java-gradle/TRAPS.md`, `java-gradle/CLAUDE.sections.md`). `java-gradle/.gitleaks.toml` was renamed to `java-gradle/gitleaks.toml`. No module under `src/factory/` changed.
+    - Checked again in this run:
+      - `diff -rq` against `planning/kit-draft/` and `planning/packs-draft/` shows only `operator/kit/README.md` and `operator/packs/README.md`, which exist only under `operator/`, and `java-gradle/scripts/trust-store.sh`, which differs only by the SPDX licence header line the Interface keeps.
+      - `uv run pytest -q tests/agent_files/test_claude_files.py`: all 22 tests passed.
+      - `make check`: green, ending `check: green`, with 99.14 % coverage.
+      - `make guides`: green.
+    - Main choice: copy the draft files whole rather than edit the old files line by line, because the Interface asks for byte-for-byte copies. Rejected: hand edits, which risk drift from the drafts.
+    - Refactor: nothing to refactor, because the diff holds only data files copied from the drafts.
+    - What the journal changed: entry 9 added `root.Makefile` to the expected kit listing in one test, under the leave in feature decision 36. The meaning of the task did not change, so I left the Description as it is.
+    - Noticed, not touched: nothing.
+
+    `duplicates`: duplicates: 8 new, 38 known, 5 gone
