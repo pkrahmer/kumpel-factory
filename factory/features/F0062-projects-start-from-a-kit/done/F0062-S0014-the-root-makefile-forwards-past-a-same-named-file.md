@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 1
 attempts: 0
@@ -130,6 +130,11 @@ journal:
   at: '2026-11-17T07:44:27.354187Z'
   stage: smoke-test
   run: a0534528949c45c3b145ae9e2c6f2eb3
+- number: 23
+  speaker: factory
+  kind: done
+  at: '2026-11-17T07:46:18.885827Z'
+  stage: approval
 ---
 
 # The root makefile forwards a target that a file at the root is named after
@@ -394,3 +399,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     Findings: none.
 
     `check`: check: green
+23. factory: done (pull request merged); cost: 10 runs, 13.8 min, 54 turns, 215509 tokens in (1476208 more from cache), 23666 out, $1.85
