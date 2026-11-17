@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 1
 attempts: 0
@@ -130,6 +130,11 @@ journal:
   at: '2026-11-17T04:01:05.775972Z'
   stage: smoke-test
   run: fd732736433b485a9230174d309cfaa0
+- number: 23
+  speaker: factory
+  kind: done
+  at: '2026-11-17T04:02:57.174722Z'
+  stage: approval
 ---
 
 # The stack packs
@@ -414,3 +419,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     No findings.
 
     `check`: check: green
+23. factory: done (pull request merged); cost: 10 runs, 23.6 min, 81 turns, 342120 tokens in (3274003 more from cache), 50098 out, $3.37
