@@ -1,5 +1,5 @@
 ---
-stage: smoke-test
+stage: approval
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 690
 comments_read: [6933812910, 6934072851]
 handed_over: null
-claim:
-  instance: self
-  stage: smoke-test
-  started_at: '2026-11-17T01:05:03.127249Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -178,6 +174,12 @@ journal:
   kind: started
   at: '2026-11-17T01:05:03.127249Z'
   stage: smoke-test
+- number: 31
+  speaker: smoke-tester
+  kind: result
+  at: '2026-11-17T01:07:21.972297Z'
+  stage: smoke-test
+  run: 0e321f32fa3a41f2b1907dce6ab0a922
 ---
 
 # The conformance check reads a repository
@@ -556,3 +558,43 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     `secrets`: secrets: green (2.9 s)
     `documents`: documents ok (46.2 s)
 30. factory: started smoke-test as self.
+31. smoke-tester: Smoke test, round 1. I ran the three commands from the repository root exactly as written, in order. All three met their `Expect:` lines. The only extra output was uv's own `Bytecode compiled …` line, which uv prints before the run and which is not output of the command under test.
+
+    Command 1 (ready repository):
+    ```
+    pipeline definition: ok
+    makefile: ok
+    stage file: ok
+    agents: ok
+    write paths: ok
+    forms: ok
+    project: ready
+    status 0
+    ```
+    Met: the seven expected lines, then `status 0`.
+
+    Command 2 (no `lint` target and no feature form):
+    ```
+    pipeline definition: ok
+    makefile: FAIL: no target lint
+    stage file: ok
+    agents: ok
+    write paths: ok
+    forms: FAIL: factory/feature-form.md is missing
+    project: not ready (2 faults)
+    status 1
+    ```
+    Met: `makefile` and `forms` fail with the expected texts, the other four points are `ok`, the last line is `project: not ready (2 faults)`, then `status 1`.
+
+    Command 3 (the story's three test files):
+    ```
+    ............................................................             [100%]
+    60 passed in 0.85s
+    ```
+    Met: the summary line shows only `passed`.
+
+    Criteria check: nothing in the smoke test contradicts any criterion. The output order follows `POINT_NAMES` (criteria 5 and 6). Each fault turns only its own point (criterion 7). The exit statuses 0 and 1 match criterion 11. Run 1 had no `factory/stage.Containerfile` and reported `stage file: ok`, as criterion 6 and the Interface say.
+
+    Findings: none.
+
+    `check`: check: green
