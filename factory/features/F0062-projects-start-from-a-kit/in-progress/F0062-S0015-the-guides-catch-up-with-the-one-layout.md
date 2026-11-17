@@ -1,5 +1,5 @@
 ---
-stage: docs-only
+stage: docs-review
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 708
 comments_read: []
 handed_over: null
-claim:
-  instance: self
-  stage: docs-only
-  started_at: '2026-11-17T07:53:04.000708Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -56,6 +52,12 @@ journal:
   kind: started
   at: '2026-11-17T07:53:04.000708Z'
   stage: docs-only
+- number: 9
+  speaker: documenter
+  kind: result
+  at: '2026-11-17T07:55:36.877792Z'
+  stage: docs-only
+  run: 0aa6ee20c6994116be87e1f7502f15f1
 ---
 
 # The guides catch up with the one layout and name every shared test helper
@@ -140,3 +142,21 @@ Expect: the single line `done`.
       - Its one sentence holds three parentheses (`(SeenRun)`, `(with make_file=)`, `(GREEN_SYNC, GREEN_CHECK, NAMED_MAKEFILE)`). Fix: split it into sentences of one parenthesis at most.
       - It counts `NAMED_MAKEFILE` among "the outputs and constants of a green sync and check". `NAMED_MAKEFILE` is the path `"factory/Makefile"` (`tests/support/project_run_support.py:25`) and belongs to neither. Fix: name it apart, as the makefile path a definition names.
 8. factory: started docs-only as self.
+9. documenter: Fixed the reviewer's four findings (round 1). All four were against style.md rule 2, and only documents changed:
+   - `docs/operator-guide/install.md`, *The project's make targets* (finding 1): split the 50-word sentence into four short ones. They say: the factory calls four targets; they are defined in the makefile the definition names with `make_file`, else in the root `Makefile`; a kit project keeps them in `<project>/factory/Makefile`, named with `make_file: factory/Makefile`; *Name the makefile* in pipeline.md tells how to name it. The semicolon and "see" clause are gone, and the table is now introduced by "The four targets:".
+   - `docs/project-guide/operator.md`, the `operator/packs/` bullet (finding 2): now three sentences. The README says what each file is for and how kit and pack are assembled. There is one way, for a fresh start and an existing repository alike. The pack files but `CLAUDE.sections.md` and `TRAPS.md` go into `factory/`, and the kit's definition names the makefile.
+   - `docs/project-guide/README.md`, the `kit_support.py` bullet (finding 3): `LINES` and `PACKS` are now named as "the kit's lines and packs", apart from the files and folders. The long sentence is split: the two `*_project_files` functions in one sentence, then `pack_claude_md`, `forwarding_project` and `run_kit_make` in the next. I checked `LINES` and `PACKS` at `tests/support/kit_support.py:33` and `:37`.
+   - `docs/project-guide/README.md`, the `project_run_support.py` bullet (finding 4): split into three sentences with at most one parenthesis between them. `GREEN_SYNC` and `GREEN_CHECK` are named as the green outputs, and `NAMED_MAKEFILE` separately as the makefile path a definition names.
+
+   What I ran:
+   - Both smoke-test blocks: they print `0`, `0` and the single line `done`.
+   - `make documents`: ended `documents ok (48.7 s)`.
+   - `make guides`: ended `guides: green (9.3 s)`, run after the last edit.
+   - I did not run `make check`, because only documents changed.
+
+   Cross-read and found current: the rest of the `tests/support/` list in the index, and `docs/operator-guide/pipeline.md` *Name the makefile*, which the link targets.
+
+   `check`: check: green (not run again: passed on tree 78201af5d622 at 2026-11-17T07:42:30Z)
+   `guides`: guides: green (9.5 s)
+   `secrets`: secrets: green (0.7 s)
+   `documents`: documents ok (48.8 s)

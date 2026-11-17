@@ -227,7 +227,7 @@ A folder with files and no `.git` is refused: git will not clone into a non-empt
 
 ## The project's make targets
 
-The factory runs a project's build through make. It calls four targets, which the project defines in the makefile its pipeline definition names with `make_file` (`<project>/factory/Makefile` in a project assembled from the kit, whose pipeline definition holds `make_file: factory/Makefile`), or else in the `Makefile` at the root of the checkout; see *Name the makefile* in [pipeline.md](pipeline.md#name-the-makefile):
+The factory runs a project's build through make. It calls four targets. The project defines them in the makefile its pipeline definition names with `make_file`, or else in the `Makefile` at the root of the checkout. A project assembled from the kit keeps them in `<project>/factory/Makefile`, which its pipeline definition names with `make_file: factory/Makefile`. *Name the makefile* in [pipeline.md](pipeline.md#name-the-makefile) tells how to name it. The four targets:
 
 | Target | What it is for |
 |---|---|
