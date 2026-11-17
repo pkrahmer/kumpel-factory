@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 691
 comments_read: [6934588171, 6934893656]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: review
+  started_at: '2026-11-17T01:29:51.901942Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -103,6 +107,11 @@ journal:
   at: '2026-11-17T01:29:46.851313Z'
   stage: doing
   run: bf569057e48f42d797f2fbab8cf4e06c
+- number: 18
+  speaker: factory
+  kind: started
+  at: '2026-11-17T01:29:51.901942Z'
+  stage: review
 ---
 
 # The pipeline definition names its makefile
@@ -318,3 +327,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     Not touched: the new modules are not in the table of `tests/guards/test_areas.py`, and that guard passes as it is. The docs are the documenter's. The journal changed no meaning of the Description: the version rise follows the contract's rule.
 
     `duplicates`: duplicates: 7 new, 39 known, 4 gone
+18. factory: started review as self.
