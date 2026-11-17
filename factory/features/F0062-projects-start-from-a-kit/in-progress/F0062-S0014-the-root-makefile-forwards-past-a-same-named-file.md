@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 707
 comments_read: [6941636547]
 handed_over: null
-claim:
-  instance: self
-  stage: doing
-  started_at: '2026-11-17T07:34:28.452524Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -95,6 +91,12 @@ journal:
   kind: started
   at: '2026-11-17T07:34:28.452524Z'
   stage: doing
+- number: 16
+  speaker: coder
+  kind: result
+  at: '2026-11-17T07:36:58.297367Z'
+  stage: doing
+  run: a46390a63f4e4f80b0e5dcea40475168
 ---
 
 # The root makefile forwards a target that a file at the root is named after
@@ -261,3 +263,18 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     `lint`: lint: green (0.1 s)
 15. factory: started doing as self.
+16. coder: Round 1. The reviewer's two findings were about the tests only, and the tester fixed both in entry 14 by moving `MAKEFILE_TARGET` and `forwarding_project` to `tests/support/kit_support.py`. So I had no code change to make this round. I changed no file.
+
+    Built (from round 0): `operator/kit/root.Makefile`. It is still the same as `planning/kit-draft/root.Makefile`: `diff` reports no difference. The forwarding rule `%:` depends on the phony, empty target `factory-forward`, so the rule runs even when a file or a folder at the root has the target's name.
+
+    Main choice: copy the human's draft as it is (feature decision 18). Rejected: a `.PHONY` list of known target names, because the root makefile cannot know a project's targets.
+
+    Checks:
+    - `uv run pytest -q tests/operator_scripts/test_root_makefile.py tests/operator_scripts/test_one_layout.py`: 34 passed.
+    - `make check guides`: `check: green`, `guides: green`.
+
+    Refactor: nothing to change, because the code diff is the draft word for word. The journal changed the Description only by adding criterion 5, which intake already carried in, so I did not rewrite the Description.
+
+    Noticed but did not touch: nothing.
+
+    `duplicates`: duplicates: 8 new, 38 known, 5 gone
