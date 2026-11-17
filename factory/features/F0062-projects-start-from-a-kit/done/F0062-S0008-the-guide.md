@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 1
 attempts: 0
@@ -147,6 +147,11 @@ journal:
   at: '2026-11-17T04:58:36.490755Z'
   stage: smoke-test
   run: ff425fa285664085acdae525c9f07dac
+- number: 26
+  speaker: factory
+  kind: done
+  at: '2026-11-17T05:00:27.829683Z'
+  stage: approval
 ---
 
 # The guide
@@ -406,3 +411,4 @@ Expect: two numbers, each at least 3 for the first and at least 2 for the second
     I did not run `make check`. The factory runs it after this stage.
 
     `check`: check: green
+26. factory: done (pull request merged); cost: 11 runs, 12.9 min, 85 turns, 290094 tokens in (3261743 more from cache), 40202 out, $2.91
