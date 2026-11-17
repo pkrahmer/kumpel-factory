@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 696
 comments_read: [6937913187]
 handed_over: null
-claim:
-  instance: self
-  stage: doing
-  started_at: '2026-11-17T04:11:08.291187Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -62,6 +58,12 @@ journal:
   kind: started
   at: '2026-11-17T04:11:08.291187Z'
   stage: doing
+- number: 10
+  speaker: coder
+  kind: result
+  at: '2026-11-17T04:15:42.814590Z'
+  stage: doing
+  run: 601939443edd49a5997799dc3b0a60c4
 ---
 
 # The template goes
@@ -187,3 +189,31 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
    `lint`: lint: green (0.1 s)
 9. factory: started doing as self.
+10. coder: Removed the template and reworded the one shipped text that named it, which `operator/` is mine to change.
+
+    What I built:
+    - Removed `operator/template/CLAUDE.md`, `operator/template/Makefile` and `operator/template/factory/pipeline.yml`, and with them the folder. They are staged as deletions.
+    - `operator/kit/README.md:5`: removed the clause that said `operator/template/` still stays beside the packs. The sentence now ends at the link to `operator/packs/`. The clause was only about the template, so by the Interface's second line it goes.
+    - Nothing under `src/` or `agents/` named the template. A case-insensitive grep for "template" over `agents src operator` found only the README lines above and an unrelated "ESP32 template" in `operator/packs/c-host/TRAPS.md`.
+
+    Runs:
+    - The tester's files (`tests/agent_files`, `tests/guards`, `test_kit_files.py`, `test_pipeline_yaml_tool_paths.py`, `test_folder_readmes_list.py`): all pass except one test, `tests/guards/test_template_removed.py::test_no_shipped_file_or_test_names_the_template_folder`. It fails only on `operator/README.md`.
+    - `make check guides`:
+      - `make check` is fully green: lint, types, layers, sast, secrets, licenses, and test (102.0 s), ending with `check: green`.
+      - `make guides` fails on that one test alone. Its failure line: `E AssertionError: assert ['operator/README.md'] == []`, at `tests/guards/test_template_removed.py:37`.
+      - This is within the leave in journal entry 4: `operator/README.md` (lines 3, 19 and 124) is the documenter's to fix. The folder-readme row did not fail.
+    - Smoke test: the first block's condition holds (the folder is gone, and the grep finds only `operator/README.md`, which the docs stage fixes). My attempt to run the `check_project` smoke block in a temporary directory was denied by the shell's permissions, so it is not run here; the smoke tester runs it.
+
+    Main choice:
+    - I kept `operator/README.md` untouched and left its three mentions to the docs stage, as the leave says. That includes line 3's "and for now the template", which the guard does not catch but criterion 6 covers.
+    - Rejected: editing `operator/README.md` myself (option (c) at intake, which the human did not choose).
+
+    Refactor: the diff is three deletions and one shortened sentence; nothing to change.
+
+    The journal changed nothing in the task's meaning beyond the leave, which intake already carried into the Interface. The Description stays as it is.
+
+    Noticed, not touched:
+    - `docs/` and `README.md` may still name the template. That is criterion 6, for the documenter.
+    - `demo/todo-service/README.md` is the human's.
+
+    `duplicates`: duplicates: 8 new, 38 known, 5 gone
