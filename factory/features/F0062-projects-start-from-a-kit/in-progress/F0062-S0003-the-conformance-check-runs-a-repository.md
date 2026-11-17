@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 692
 comments_read: [6935336014, 6935606286]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: doing
+  started_at: '2026-11-17T02:07:40.120916Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -114,6 +118,11 @@ journal:
   at: '2026-11-17T02:07:34.606484Z'
   stage: review
   run: 020318c37c534e20bc3f4b6256985d3c
+- number: 20
+  speaker: factory
+  kind: started
+  at: '2026-11-17T02:07:40.120916Z'
+  stage: doing
 ---
 
 # The conformance check runs a repository
@@ -341,3 +350,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     Earlier tests:
     - `tests/entry/test_check_project.py`: the human's leave, journal entry 11 (`USAGE` only).
     - `tests/guards/test_make_search.py`: the human's leave, journal entry 11 (adds `factory.machine.application.project_run` to the expected set only).
+20. factory: started doing as self.
