@@ -35,7 +35,7 @@ The walk below takes a repository you already have and makes it ready for the fa
 
 ### The walk in one example
 
-The example sets up a small firmware repository that has a root `Makefile` of its own, with the kit's thin line and the C pack. Its first check finds the two slips the walk warns about: the factory's makefile is not named yet, and the builder may write to `tests/` and `docs/`, which hold no file. It runs in the factory's checkout:
+The example sets up a small firmware repository that has a root `Makefile` of its own, with the kit's thin line and the C pack. Its first check finds the two slips the walk warns about: the factory's makefile is not named yet, and the builder may write to `tests/` and `docs/`, which hold no file. It runs in the factory's checkout. Its two checks run `python -m factory.entry.check_project`, which is the same command as the installed console script `factory-check-project` of steps 7 and 8, with the same arguments: the document check runs the page's examples in the factory's own checkout, where the module is reachable whether or not the console script is on the path.
 
 ```console
 $ git init -q my-firmware && mkdir -p my-firmware/src

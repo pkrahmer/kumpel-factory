@@ -1,5 +1,5 @@
 ---
-stage: docs-only
+stage: docs-review
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 699
 comments_read: []
 handed_over: null
-claim:
-  instance: self
-  stage: docs-only
-  started_at: '2026-11-17T05:10:51.191726Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -34,6 +30,12 @@ journal:
   kind: started
   at: '2026-11-17T05:10:51.191726Z'
   stage: docs-only
+- number: 5
+  speaker: documenter
+  kind: result
+  at: '2026-11-17T05:15:09.194683Z'
+  stage: docs-only
+  run: 8af73bcc14a14ad99642663b7a91bc4f
 ---
 
 # The conformance check's documents catch up with the console script and the live part
@@ -84,3 +86,29 @@ Expect: a number of at least 2.
    - Architecture: no code. The decision log is the place for lasting reasons and the operator guide for the operator, as CLAUDE.md *Docs* says.
    - Scope: within F0062. It brings the documents of S0001 and S0003 up to date, and none of it is under the feature's Out of scope.
 4. factory: started docs-only as self.
+5. documenter: Wrote the whole change; only documents changed.
+
+   Files changed:
+   - `docs/operator-guide/pipeline.md`, *Checking a repository before the factory runs it*: removed the sentence "Until the command is installed as a console script…". The paragraph that introduces the example now says that `python -m factory.entry.check_project` is the same command as the installed `factory-check-project`, with the same arguments. It also says why the example uses the module: the document check runs the page's examples in the factory's own checkout, where the module can be reached whether or not the console script is on the path.
+   - `docs/operator-guide/start-a-project.md`, *The walk in one example*: added the same sentence to the paragraph before the two module examples. It points back to steps 7 and 8, which name `factory-check-project`.
+   - `docs/decisions.md`: added a new entry, *The live part of the conformance check works on a clone with an image of its own* (2026-11-17, F0062-S0003), right after the S0001 entry. It records:
+     - the three live points;
+     - the temporary clone of `HEAD`, never the dataset;
+     - the image `<stage image>-check`, never the project image;
+     - that it needs an instance's settings and no dataset;
+     - that live points run only after a clean static part, and none is printed after a failed one;
+     - that the live sync runs only the make part of the sync script;
+     - that the agent home serves only the point `agents`;
+     - that it widens *The conformance check is a command of its own, not a preflight item*, whose text is unchanged.
+     The "Why" (it can run beside a working instance and for another repository) and the "Rejected" line (running on the instance's dataset or project image) come from decision 12. I put the clone and the image on separate lines so that the smoke test's `grep -c` counts 2.
+
+   Checks: `grep -c 'Until the command is installed' docs/operator-guide/pipeline.md` prints 0. The smoke grep on `docs/decisions.md` prints 2. `make documents` ends `documents ok (46.6 s)`; both pages' check_project examples ran and print what the pages show. I did not run `make check`, because only documents changed (the factory runs the stage's checks).
+
+   Open for the reviewer: criterion 6 asks the decision log to say why the live part runs only after the static part. Decision 13 and the story state the rule but give no reason. Following the documenter's lesson, I wrote no reason of my own; the entry has only the "When it runs" rule. If a reason is wanted, the human should word it.
+
+   Cross-read and found current: the rest of the *Checking a repository* section and its *Reference* in `docs/operator-guide/pipeline.md` (the live part, the faults, the usage and the exit status agree with decisions 12, 13 and 17); steps 7 and 8 and *The live check on the machine* in `start-a-project.md`; and the S0001, S0002, S0004, S0005, S0007 and S0008 entries in `docs/decisions.md`. I saw no unrelated stale text.
+
+   `check`: check: green (not run again: passed on tree 115bc87f3451 at 2026-11-17T04:56:37Z)
+   `guides`: guides: green (9.3 s)
+   `secrets`: secrets: green (1.4 s)
+   `documents`: documents ok (47.0 s)

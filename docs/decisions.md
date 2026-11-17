@@ -1721,6 +1721,18 @@ Date: 2026-11-17 (F0062-S0001).
 - Why a command: the preflight guards a machine, and the check guards a repository. Before it, whether a repository was ready was found out by starting a story and reading the stop.
 - Why commits only: the factory reads commits too, so a file that is only in the work tree must not make a repository look ready.
 
+## The live part of the conformance check works on a clone with an image of its own
+
+Date: 2026-11-17 (F0062-S0003).
+
+- Decision: `factory-check-project --run <folder>` adds three live points (`image`, `sync`, `check`) to the six static ones. It needs an instance's settings, not a dataset. The live sync runs only the make part of the stage's sync script, which is a public constant; the agent home serves only the static point `agents`.
+- Where it works: on a temporary clone of the commit at `HEAD`, never on the instance's dataset or checkout.
+- Its image: it builds the project's stage file under the image `<stage image>-check`, never under the instance's project image.
+- When it runs: the live points run only when the static part has no fault, and a live point after a failed one is neither run nor printed.
+- It widens *The conformance check is a command of its own, not a preflight item*: that entry's check starts no container and runs no project command, and stays so without `--run`.
+- Why a clone and an image of its own: so the live part can run beside a working instance and for another repository than the instance's.
+- Rejected: running the live points on the instance's dataset or under its project image, which a working instance uses.
+
 ## The pipeline definition names its makefile; make stays the one command runner
 
 Date: 2026-11-16 (F0062-S0002).
