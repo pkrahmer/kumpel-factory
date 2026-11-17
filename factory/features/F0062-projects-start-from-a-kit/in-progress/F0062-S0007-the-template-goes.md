@@ -1,5 +1,5 @@
 ---
-stage: smoke-test
+stage: approval
 blocked: null
 round: 1
 attempts: 1
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 696
 comments_read: [6937913187]
 handed_over: null
-claim:
-  instance: self
-  stage: smoke-test
-  started_at: '2026-11-17T04:33:33.041175Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -157,6 +153,12 @@ journal:
   kind: started
   at: '2026-11-17T04:33:33.041175Z'
   stage: smoke-test
+- number: 27
+  speaker: smoke-tester
+  kind: result
+  at: '2026-11-17T04:35:58.662253Z'
+  stage: smoke-test
+  run: 278944d355894d4485d3dfeee5525607
 ---
 
 # The template goes
@@ -544,3 +546,37 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     `secrets`: secrets: green (2.9 s)
     `documents`: documents ok (47.2 s)
 26. factory: started smoke-test as self.
+27. smoke-tester: Round 1 smoke test. I ran the three blocks from the repository root exactly as written. All three met their `Expect:` lines, and the smoke test contradicts no criterion. No findings.
+
+    Block 1 (the folder is gone, and no shipped file or test names it):
+    ```
+    gone
+    0
+    ```
+    Met: `gone`, then `0`.
+
+    Block 2 (`check_project` on a project made from the kit's full line, the kit's `CLAUDE.md` and the Python pack's `Makefile`):
+    ```
+    Bytecode compiled 4164 files in 87ms
+    project: ready
+    ```
+    Met: the last line is `project: ready`. The first line is uv's stderr, which `tail -1` does not filter.
+
+    Block 3 (`uv run pytest tests/guards/test_template_removed.py tests/agent_files/`, last lines):
+    ```
+    ........................................................................ [ 82%]
+    ........................................................................ [ 99%]
+    ...                                                                      [100%]
+    435 passed in 3.83s
+    ```
+    Met: the summary line has only `passed`.
+
+    Checked against the criteria:
+    - Criterion 1: block 1 confirms it.
+    - Criterion 6: `git grep 'operator/template' -- README.md docs/operator-guide docs/project-guide operator` finds nothing. In `docs/decisions.md` the folder is named only in the older history entries and in the new removal entry (checked in entry 16; no document changed since).
+    - Criteria 2 to 5: the smoke test contradicts none of them. The factory's `make check` follows this stage. The `layers` exit 139 from entry 17 did not come back in the coder's two runs (entry 21).
+    - `git status --short` is empty: this stage left nothing behind.
+
+    Open, not a finding: `docs/brochure/README.md:459` still says a new project starts from the template. It is a dated record of v1.1, so whether to update it is the human's call (entries 14, 16, 23).
+
+    `check`: check: green
