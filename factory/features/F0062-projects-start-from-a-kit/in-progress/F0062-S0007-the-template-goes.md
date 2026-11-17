@@ -1,3 +1,30 @@
+---
+stage: intake
+blocked: null
+round: 0
+attempts: 0
+crashes: 0
+pull_request: null
+comments_read: []
+handed_over: null
+claim:
+  instance: self
+  stage: intake
+  started_at: '2026-11-17T04:03:34.955195Z'
+  lease_duration: 60
+journal:
+- number: 1
+  speaker: human
+  kind: created
+  at: '2026-11-17T04:03:34.947807Z'
+  stage: intake
+- number: 2
+  speaker: factory
+  kind: started
+  at: '2026-11-17T04:03:34.955195Z'
+  stage: intake
+---
+
 # The template goes
 
 ## Description
@@ -46,3 +73,6 @@ uv run pytest tests/guards/test_template_removed.py tests/agent_files/
 Expect: a summary line with only `passed`, no `failed` or `error`.
 
 ## Journal
+
+1. 2026-11-17 human: created.
+2. factory: started intake as self.
