@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 700
 comments_read: [6939383328]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: review
+  started_at: '2026-11-17T05:28:31.782149Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -64,6 +68,11 @@ journal:
   at: '2026-11-17T05:28:26.235524Z'
   stage: doing
   run: 6c023cf2f750440d86dca3a43647967c
+- number: 11
+  speaker: factory
+  kind: started
+  at: '2026-11-17T05:28:31.782149Z'
+  stage: review
 ---
 
 # The makefile a pipeline definition names, and the kit's `kit.mk`, are protected paths
@@ -195,3 +204,4 @@ Expect: `13 13`
     **Noticed, not touched:** none.
 
     `duplicates`: duplicates: 8 new, 38 known, 5 gone
+11. factory: started review as self.
