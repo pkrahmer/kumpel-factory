@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: tests
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 690
 comments_read: [6933812910, 6934072851]
 handed_over: null
-claim:
-  instance: self
-  stage: doing
-  started_at: '2026-11-17T00:44:36.259417Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -79,6 +75,12 @@ journal:
   kind: started
   at: '2026-11-17T00:44:36.259417Z'
   stage: doing
+- number: 13
+  speaker: coder
+  kind: result
+  at: '2026-11-17T00:44:46.939150Z'
+  stage: doing
+  run: 75b9bc44f959490d99d4ddfacf6a11af
 ---
 
 # The conformance check reads a repository
@@ -280,3 +282,10 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     No refactor pass yet; it waits for the answer. The journal did not change the Description.
 11. 2026-11-17 human: A. Leave given: the tester may change the expected list of `tests/guards/test_agent_home_wiring.py` to the one construction in `factory.entry.wiring` with the argument `agent_home`; the guard keeps its name and still checks that the reader is built in exactly one place.
 12. factory: started doing as self.
+13. coder: The human chose option A in entry 11, so this round needs a test change and no code change. I changed no code and no test, and I did not run `make check` this round.
+
+    Test change for the tester: in `tests/guards/test_agent_home_wiring.py::test_the_agent_definition_reader_is_built_once_from_the_settings_agent_home`, change the expected list from the one call with `settings.agent_home` to `[("factory.entry.wiring", ["agent_home"])]`. The guard keeps its name and still checks that the reader is built in exactly one place.
+
+    That place is `build_agent_definitions(git, agent_home, ref=PIPELINE_REF)` in `src/factory/entry/wiring.py`. `build_boundaries` calls it with `settings.agent_home`, and `src/factory/entry/check_project.py` calls it with the folder from `--agent-home` or `FACTORY_CLAUDE_HOME`.
+
+    When the tests come back, I will run the guard and the story's three test files, do the refactor pass and finish with `make check` green. The smoke test has still not been run. The journal did not change the Description.
