@@ -67,6 +67,7 @@ ignore = ["PLR2004", "N818", "D105", "D107"]
 "src/factory/agents/adapters/oauth_token.py" = ["PLR0913", "S310"]  # F0047-S0004 pins the token source's six-argument constructor; the token URL is the operator's FACTORY_TOKEN_URL, read by the one module allowed urllib.request; no noqa in the source
 "src/factory/machine/adapters/podman_runs.py" = ["PLR0913"]  # F0048-S0016 adds the instance label to the constructor; no noqa in the source
 "src/factory/machine/application/stage_environment.py" = ["PLR0913"]  # F0062-S0002 adds the makefile source to the container environment's constructor; no noqa in the source
+"src/factory/machine/application/project_run.py" = ["PLR0913"]  # F0062-S0003's tests pin the live check's six-argument constructor; no noqa in the source
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
