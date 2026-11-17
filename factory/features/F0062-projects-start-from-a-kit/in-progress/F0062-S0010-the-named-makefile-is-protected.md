@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 700
 comments_read: [6939383328]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: doing
+  started_at: '2026-11-17T05:25:42.091087Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -53,6 +57,11 @@ journal:
   at: '2026-11-17T05:25:37.216044Z'
   stage: tests
   run: ecb5447af0a14177b5f2b359e905b144
+- number: 9
+  speaker: factory
+  kind: started
+  at: '2026-11-17T05:25:42.091087Z'
+  stage: doing
 ---
 
 # The makefile a pipeline definition names, and the kit's `kit.mk`, are protected paths
@@ -162,3 +171,4 @@ Expect: `13 13`
    `make lint` is green.
 
    `lint`: lint: green (0.1 s)
+9. factory: started doing as self.
