@@ -1,0 +1,24 @@
+# The thin line (kumpel-factory's kit): one builder writes tests, code and documents, one reviewer
+# reads them, the human approves. Both agents are the factory's installed ones; a file
+# factory/agents/<role>.md in this repository replaces one of them. Every time is in minutes.
+contract: "1.2"
+attempts_cap: 2
+crash_cap: 2
+# An existing repository that keeps its own root Makefile names the factory's makefile here:
+# make_file: factory/Makefile
+project_commands:
+  check: {time_limit: 15}
+  lint: {time_limit: 5}
+  test: {time_limit: 10}
+  sync: {time_limit: 10}           # the tools after a checkout: the stage environment runs it, no stage lists it
+  facts-diff: {time_limit: 1}      # start facts: the branch's diff, for the reviewer
+  facts-files: {time_limit: 1}     # the tracked files the builder works on
+roles:
+  # The project's: the folders and files the builder may write. Everything else is the human's.
+  builder: {write_paths: ["src/*", "tests/*", "docs/*", "README.md"]}
+  reviewer: {write_paths: ["{work_item}"]}
+stages:
+  doing: {role: builder, next: [review], checks: [check], context: [facts-files]}
+  review: {role: reviewer, next: [approval, doing], round_cap: 3, context: [facts-diff]}
+  approval: {approval: true, next: [done, doing]}
+  done: {}
