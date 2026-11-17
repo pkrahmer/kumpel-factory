@@ -58,7 +58,7 @@ def _apt_packages(commands: list[list[str]]) -> list[str]:
     ]
 
 
-def _instructions(dockerfile: str) -> list[Instruction]:
+def dockerfile_instructions(dockerfile: str) -> list[Instruction]:
     """Every instruction as (keyword, arguments), continuations joined, comments dropped."""
     joined = re.sub(r"\\\n", " ", _uncommented(dockerfile))
     result: list[Instruction] = []
@@ -109,7 +109,7 @@ def _shell_lines(instructions: list[Instruction]) -> list[str]:
 
 
 def _commands(dockerfile: str) -> list[Command]:
-    return _instruction_commands(_instructions(dockerfile))
+    return _instruction_commands(dockerfile_instructions(dockerfile))
 
 
 def _instruction_commands(instructions: list[Instruction]) -> list[Command]:
@@ -190,7 +190,7 @@ def _claude_version_findings(instructions: list[Instruction]) -> list[str]:
 
 def floating_references(dockerfile: str) -> list[str]:
     """One finding per item of `dockerfile` whose version can change between two builds."""
-    instructions = _instructions(dockerfile)
+    instructions = dockerfile_instructions(dockerfile)
     defaults = _arg_defaults(instructions, before_from=False)
     findings = _from_findings(instructions) + _claude_version_findings(instructions)
     for line in _shell_lines(instructions):

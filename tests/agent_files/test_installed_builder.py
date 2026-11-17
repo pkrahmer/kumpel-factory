@@ -62,8 +62,7 @@ def test_the_installed_reviewer_checks_the_projects_review_points() -> None:
     body = agent_body("reviewer")
     points = section_text(body, "Stage") or ""
 
-    assert "\n### The project's review points\n" in f"\n{body}\n"
-    assert "### The project's review points" in points
+    assert "\n### The project's review points\n" in f"\n{points}\n"
     assert "`## Review`" in points
     assert "`CLAUDE.md`" in points.split("### The project's review points", 1)[1]
 

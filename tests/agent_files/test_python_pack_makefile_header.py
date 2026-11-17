@@ -2,7 +2,7 @@
 
 import pytest
 
-from support.template_make_support import MAKEFILE, header_text
+from support.kit_make_support import MAKEFILE, header_text
 
 _NEW_HEADER_LINE = (
     "`duplicates` is a report outside `check`; `mutants` is for a sweep by hand, never a stage."

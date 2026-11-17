@@ -8,8 +8,7 @@ import pytest
 
 from factory.pipeline.adapters.pipeline_yaml import RuamelPipelineDefinitionReader
 from support.claude_stand_in import Step, read_calls
-from support.shipped_agents import ROOT
-from support.template_make_support import (
+from support.kit_make_support import (
     KIT_MK,
     MAKEFILE,
     green_line,
@@ -19,6 +18,7 @@ from support.template_make_support import (
     stand_in_uv,
     template_project,
 )
+from support.shipped_agents import ROOT
 
 KIT = ROOT / "operator" / "kit"
 PYTHON_SECTIONS = ROOT / "operator" / "packs" / "python" / "CLAUDE.sections.md"

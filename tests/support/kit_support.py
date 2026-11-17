@@ -8,8 +8,8 @@ from typing import Literal
 
 from factory.shared.adapters.process import ProcessRequest, ProcessResult, run_process
 from factory.shared.domain.sections import sections, split_lines
+from support.kit_make_support import DROPPED
 from support.shipped_agents import ROOT
-from support.template_make_support import DROPPED
 
 KIT = ROOT / "operator" / "kit"
 KIT_FILES = (
