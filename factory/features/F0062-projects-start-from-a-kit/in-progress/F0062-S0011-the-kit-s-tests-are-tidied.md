@@ -1,5 +1,5 @@
 ---
-stage: review
+stage: docs
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 701
 comments_read: [6939751878]
 handed_over: null
-claim:
-  instance: self
-  stage: review
-  started_at: '2026-11-17T05:47:46.438331Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -73,6 +69,12 @@ journal:
   kind: started
   at: '2026-11-17T05:47:46.438331Z'
   stage: review
+- number: 12
+  speaker: reviewer
+  kind: result
+  at: '2026-11-17T05:48:46.447492Z'
+  stage: review
+  run: 1adb0fe71a414ba3b6c8958f423940ff
 ---
 
 # The feature's tests are tidied: one missing row, one weak check, one copy, and names that still say template
@@ -181,3 +183,31 @@ Expect: one line ending with `passed` and a time, with no `failed`.
 
     `duplicates`: duplicates: 8 new, 38 known, 5 gone
 11. factory: started review as self.
+12. reviewer: no findings
+
+    I read the diff (`git diff develop...HEAD -- . ':!factory'`) against the criteria and the Interface:
+    - Criterion 1: `tests/pipeline/application/test_project_check_run.py::test_a_definition_naming_sync_among_its_commands_asks_for_its_target_once` has two rows. Its first line asserts that `NAMING_SYNC` really adds `sync` to `project_commands`, because `PIPELINE_YAML` names only check, lint and test. The without-target row compares against the exact list `["no target sync"]`, which pins "once". The rule in `src/factory/pipeline/domain/project_check.py:82` produces one fault per command, so the test is aimed at the right rule.
+    - Criterion 2: `test_the_named_makefile_must_reach_the_sync_and_the_command_each` has three rows: both, only-sync and only-command. Only the both row passes. I traced the `"$n"` positions in `_refers`/`_assert_named` against `$0=factory-check`; they line up. The old checks are kept: the shell, NAMED kept out of the script, NAMED and `check` among the arguments, and sync present only `with_sync`. The existing callers still run them.
+    - Criterion 3: `tests/operator_scripts/test_packs.py` no longer defines `_instructions`. It imports `dockerfile_instructions` from `tests/support/dockerfile_support.py` and checks `f"{keyword} {arguments}"`. The shared reader collapses whitespace, so a `curl` followed by a tab is now caught too. The check loses nothing that matters.
+    - Criterion 4: `git ls-files tests | grep template` prints only `tests/guards/test_template_removed.py`. The renamed modules change only their imports, so every test function name is unchanged. Nothing under `tests/` or `src/` still names `template_make_support` or `_instructions` from the Dockerfile support. The guard is now `..._and_its_topics`.
+    - Criterion 5: `tests/agent_files/test_installed_builder.py:65` asserts the heading once, as a whole line of `points`, exactly as the Interface words it.
+    - Criterion 6: the coder's entry (journal 10) records `make check guides` green, with coverage at 99.14 %.
+    - Criterion 7: this is open for the documenter. `docs/project-guide/agents.md:404` and `docs/project-guide/README.md:192` still link `tests/support/template_make_support.py`. `docs/project-guide/README.md:164` still names the reader `_instructions`, while its name is now `dockerfile_instructions`. That last item is outside criterion 7's wording, but the guide would otherwise name a function that no longer exists.
+    - Architecture, security and src: no file under `src/` changes, no marker is added and no secret appears. The shared reader stays in `tests/support/`, and no test module imports another.
+    - Work item hygiene: the Description matches what was built. The tester's entry gives the main choice (the public name `dockerfile_instructions`, because `test_stage_image.py` uses local variables named `instructions`) and the rejected option (an alias).
+
+    Earlier tests:
+    - tests/agent_files/test_installed_builder.py: the human's leave, journal entry 4 (named in the Interface).
+    - tests/agent_files/test_template_makefile.py → test_python_pack_makefile.py: the human's leave, entry 4 (a named rename; only the import changed).
+    - tests/agent_files/test_template_makefile_header.py → test_python_pack_makefile_header.py: the human's leave, entry 4 (a named rename; only the import changed).
+    - tests/agent_files/test_template_sync.py → test_python_pack_sync.py: the human's leave, entry 4 (a named rename; the import changed and was reordered).
+    - tests/guards/test_operator_guide_files.py: the human's leave, entry 4 (the named guard rename; its body is unchanged).
+    - tests/guards/test_tests_layout.py: the human's leave, entry 4. The Interface's renames carry it: the guard's tables of former root modules and helpers, and the placement pattern, follow the renamed modules and check the same placement.
+    - tests/machine/adapters/test_make_commands_make_file.py: the human's leave, entry 4 (named in the Interface).
+    - tests/operator_scripts/test_kit_makefile.py: the human's leave, entry 4 (an importer of the renamed support module, which the Interface names: "with its importers").
+    - tests/operator_scripts/test_packs.py: the human's leave, entry 4 (named in the Interface, and an importer of the renamed support module).
+    - tests/pipeline/application/test_project_check_run.py: the human's leave, entry 4 (named in the Interface; the change only adds a test, and the existing tests are unchanged).
+    - tests/support/dockerfile_support.py: the human's leave, entry 4 (named in the Interface: the reader gets a public name).
+    - tests/support/template_make_support.py → kit_make_support.py: the human's leave, entry 4 (a named rename, content unchanged).
+    - tests/support/kit_support.py: the human's leave, entry 4 (an importer of the renamed support module).
+    - tests/vm/test_stage_image.py: the standing leave to move a shared test helper. The change only switches it to the shared reader under its new public name in `tests/support/dockerfile_support.py`, and every test keeps its name and what it checks. The Interface does not name this file, but the rename it does name requires the change.
