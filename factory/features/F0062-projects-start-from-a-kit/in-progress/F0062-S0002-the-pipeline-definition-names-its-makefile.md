@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 691
 comments_read: [6934588171]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: intake
+  started_at: '2026-11-17T01:10:05.309025Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -30,6 +34,11 @@ journal:
   speaker: human
   kind: comment
   at: '2026-11-17T01:10:02.416640Z'
+  stage: intake
+- number: 5
+  speaker: factory
+  kind: started
+  at: '2026-11-17T01:10:05.309025Z'
   stage: intake
 ---
 
@@ -125,3 +134,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
    3. Plain make when there is no source. "When the definition is missing or not valid … the preflight's probe then runs plain make" is covered only through criteria 3 and 7 (a source returning `None` gives today's call). I take that to be enough and need no new criterion. Please confirm.
 4. 2026-11-17 human: 1: (a). 2: (a), and the guard in the style of `tests/guards/test_agent_home_wiring.py` is an acceptable test. 3: confirmed, no new criterion.
+5. factory: started intake as self.
