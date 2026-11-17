@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 705
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: smoke-test
+  started_at: '2026-11-17T07:13:24.832173Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -124,6 +128,11 @@ journal:
   at: '2026-11-17T07:13:19.244521Z'
   stage: docs
   run: 1ba28b8a41a54d4294e4df0495d63e4c
+- number: 22
+  speaker: factory
+  kind: started
+  at: '2026-11-17T07:13:24.832173Z'
+  stage: smoke-test
 ---
 
 # One layout for every project
@@ -447,3 +456,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     `guides`: guides: green (9.5 s)
     `secrets`: secrets: green (2.1 s)
     `documents`: documents ok (48.2 s)
+22. factory: started smoke-test as self.
