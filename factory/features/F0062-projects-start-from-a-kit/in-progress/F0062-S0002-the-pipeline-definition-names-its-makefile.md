@@ -1,17 +1,13 @@
 ---
 stage: intake
-blocked: null
+blocked: question
 round: 0
 attempts: 0
 crashes: 0
-pull_request: null
+pull_request: 691
 comments_read: []
 handed_over: null
-claim:
-  instance: self
-  stage: intake
-  started_at: '2026-11-17T01:08:39.858634Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -23,6 +19,13 @@ journal:
   kind: started
   at: '2026-11-17T01:08:39.858634Z'
   stage: intake
+- number: 3
+  speaker: intake
+  kind: question
+  at: '2026-11-17T01:09:14.563663Z'
+  stage: intake
+  run: 69127c53d0de492b8c00c9907e2b72e6
+  blocked: question
 ---
 
 # The pipeline definition names its makefile
@@ -109,3 +112,10 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
 1. 2026-11-17 human: created.
 2. factory: started intake as self.
+3. intake: Intake: the format check passed, and I read feature.md along with the modules the Interface names. Most of the story is buildable. MakeFilePath has both sides tested in criterion 2. Criteria 3 to 5 pin the container argv and keep the path out of the script's text. Criterion 7 covers the git-based source. The smoke test is runnable: pyproject's addopts already sets `-q`, so the third block prints its summary line. The docs criterion says what the reader must know without dictating sentences. Placement fits the architecture (an ABC in `machine.application`, the git-based implementation in `pipeline.application`, wiring in `entry`). The story is within the feature's scope (decisions 5, 8, 9). Three clauses of the Interface have no criterion. Lessons: "every clause of an Interface rule has its own criterion"; "every behaviour that the Description, the Interface or a decision of the feature states has its own criterion".
+
+   1. Project check, included files. The Interface says the point's faults name the named file for an include as well (`factory/Makefile: included file ... is missing`), and that "included paths are still taken from the root of the repository, as make takes them". Criterion 8 tests only `factory/Makefile is missing` and the passing case. Options: (a) add a criterion before the two closing ones: "`ProjectCheck.run` on a repository whose definition names `factory/Makefile`, which includes `common.mk`: no fault when `common.mk` is at the root and holds the targets `factory/Makefile` lacks; the fault `factory/Makefile: included file common.mk is missing` when `common.mk` is only beside it at `factory/common.mk`", written as rows of one parametrized test; (b) drop both sentences from the Interface. I would choose (a).
+
+   2. Wiring. The Interface says "`src/factory/entry/wiring.py`: both get the source", but no criterion checks that the wired `ContainerMakeCommands` and the container stage environment hold a source built on git. Neither the smoke test nor criteria 3 to 7 would catch wiring that leaves it out. Options: (a) add a criterion: "the project commands and the stage environment that `factory.entry.wiring` builds both read `make_file` from the pipeline definition at `origin/<working branch>`", tested on a wired instance whose definition names `factory/Makefile`, through the fake container runs; (b) accept that the wiring line is not tested and leave it to review. I would choose (a), with a guard in the style of `tests/guards/test_agent_home_wiring.py` as an acceptable test.
+
+   3. Plain make when there is no source. "When the definition is missing or not valid … the preflight's probe then runs plain make" is covered only through criteria 3 and 7 (a source returning `None` gives today's call). I take that to be enough and need no new criterion. Please confirm.
