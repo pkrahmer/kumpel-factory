@@ -36,6 +36,7 @@ from factory.pipeline.domain.checks import target_times
 from factory.pipeline.domain.pipeline_definition import PipelineDefinition, command_time_limit
 from factory.pipeline.domain.project_check import ProjectPoint
 from factory.shared.domain.errors import ContainerError
+from factory.shared.domain.printed_lines import printed_lines
 
 HOME_FOLDER = "home"
 CHECK_TAG_SUFFIX = "-check"
@@ -106,7 +107,11 @@ class ProjectRun:
         if image_point.faults:
             return [image_point]
         containers = self._containers(workspace)
-        path = self._images.path(image)
+        try:
+            path = self._images.path(image)
+        except ContainerError as error:
+            # The image the sync would run in cannot be read: the sync cannot start.
+            return [image_point, _not_started(_SYNC, error)]
         sync_point = self._sync(containers, path, definition)
         if sync_point.faults:
             return [image_point, sync_point]
@@ -194,9 +199,13 @@ def _point(
     try:
         result = run()
     except ContainerError as error:
-        return ProjectPoint(name=name, faults=[f"could not start: {error}"])
+        return _not_started(name, error)
     fault = _run_fault(result, time_limit, green_fault)
     return ProjectPoint(name=name, faults=[] if fault is None else [fault])
+
+
+def _not_started(name: str, error: ContainerError) -> ProjectPoint:
+    return ProjectPoint(name=name, faults=[f"could not start: {error}"])
 
 
 def _run_fault(
@@ -225,5 +234,5 @@ def _check_green_fault(output: str) -> str | None:
 
 def _last_line(output: str) -> str:
     # Unlike a check's summary, make's own messages count: they say why a run is red.
-    lines = [line for line in output.splitlines() if line.strip()]
+    lines = printed_lines(output)
     return lines[-1] if lines else ""

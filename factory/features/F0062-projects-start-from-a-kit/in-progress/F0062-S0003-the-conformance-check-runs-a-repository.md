@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: tests
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 692
 comments_read: [6935336014, 6935606286]
 handed_over: null
-claim:
-  instance: self
-  stage: doing
-  started_at: '2026-11-17T02:07:40.120916Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -123,6 +119,12 @@ journal:
   kind: started
   at: '2026-11-17T02:07:40.120916Z'
   stage: doing
+- number: 21
+  speaker: coder
+  kind: result
+  at: '2026-11-17T02:10:20.129104Z'
+  stage: doing
+  run: 2cbf36f35e7a49eea01ecb7ac873a1f6
 ---
 
 # The conformance check runs a repository
@@ -351,3 +353,16 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     - `tests/entry/test_check_project.py`: the human's leave, journal entry 11 (`USAGE` only).
     - `tests/guards/test_make_search.py`: the human's leave, journal entry 11 (adds `factory.machine.application.project_run` to the expected set only).
 20. factory: started doing as self.
+21. coder: Round 1: I worked through the reviewer's three findings from entry 19. I fixed findings 1 and 3 in the code. Finding 2 changes a signature that the tests pin, so it goes to the tester first. `make check` is green after this run (`check: green`). The tester's two files pass: `uv run pytest -q tests/machine/application/test_project_run.py tests/entry/test_check_project_run.py` gives 24 passed.
+
+    Done in `src/factory/machine/application/project_run.py`:
+    - Finding 1: `Images.path(image)` is now read in a guarded step before the sync. A `ContainerError` from it becomes the `sync` fault `could not start: <reason>`, and `check` does not run. It does not escape as a traceback. The fault text is built by one helper, `_not_started`, which `_point` also uses. I rejected falling back to `SYSTEM_PATH` as `wiring._image_path` does: the Interface names `could not start` for a `ContainerError`, and a missing image means the containers cannot start anyway.
+    - Finding 3: `_last_line` now takes the last line of `printed_lines(output)` (`factory.shared.domain.printed_lines`) and keeps make's own lines.
+
+    For the tester, these are the test changes the findings call for:
+    1. Finding 2: in `tests/support/project_run_support.py`, change `ScriptedContainerRuns.at` to the pinned signature `containers: Callable[[Path, str], ContainerRuns]`, called with the work folder and the image the use case chose. Record the image of each run, and have criterion 1's test (`test_live_points_of_a_ready_repository_without_a_stage_file`) and criterion 2's test (`test_a_stage_file_is_built_under_the_check_tag`) check that each container ran in the stage image or in `<stage image>-check`.
+    2. Finding 1: add a row to criterion 4's test `test_faults_of_the_sync_and_the_check`, where `Images.path` raises `ContainerError`. Expect `sync` with `could not start: <reason>` and no `check`. `FakeImages` (`src/factory/machine/adapters/fake_images.py`) cannot raise, so this needs a raising stand-in in `tests/support/`.
+
+    When the tests come back, I will change the `containers` callable in `ProjectRun` to receive the chosen image. I will also update `build_project_run` in `src/factory/entry/check_project.py` to use that image, and drop `checkout_has_stage_file`.
+
+    Noticed, not touched: as finding 2 also says, the entry tests monkeypatch `build_project_run`. So the real wiring of `extra_environment` and `ca_bundle` is still reached by no test.
