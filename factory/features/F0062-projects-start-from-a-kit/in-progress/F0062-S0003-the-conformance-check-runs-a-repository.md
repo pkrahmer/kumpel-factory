@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 692
 comments_read: [6935336014]
 handed_over: null
-claim:
-  instance: self
-  stage: tests
-  started_at: '2026-11-17T01:48:50.421574Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -51,6 +47,12 @@ journal:
   kind: started
   at: '2026-11-17T01:48:50.421574Z'
   stage: tests
+- number: 8
+  speaker: tester
+  kind: result
+  at: '2026-11-17T01:54:56.185553Z'
+  stage: tests
+  run: 8cbc8405911544faabf66604ef3ef28c
 ---
 
 # The conformance check runs a repository
@@ -136,3 +138,32 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    - Architecture: the use case sits in `machine.application` and works only through the `Images`, `ContainerRuns` and `Git` interfaces. Its domain point type is in `pipeline.domain`, and the wiring is in `entry`. Moving the check scripts to `application` keeps the import-linter layers intact, since `application` cannot import from `adapters`.
    - Scope: this is the feature's S0003 (the live check), within decisions 12 and 13. Decision 4 gives leave to add the new modules to the guard tables. Nothing here is in Out of scope.
 7. factory: started tests as self.
+8. tester: Wrote the tests for criteria 1–9. They are red on purpose: `make test` reports ImportError while collecting `tests/machine/application/test_project_run.py` and `tests/entry/test_check_project_run.py`, because `factory.machine.application.project_run` (`ProjectRun`) and `LIVE_POINT_NAMES` in `factory.pipeline.domain.project_check` do not exist yet. Because of that collection error, the two tests of `tests/guards/test_documents_marker.py` error too; they recover once the modules exist. The guards `test_areas`, `test_shared_bodies`, `test_shared_imports` and `test_test_names` pass on the new files. `make lint` is green.
+
+   Mapping:
+   - criterion 1: tests/machine/application/test_project_run.py::test_live_points_of_a_ready_repository_without_a_stage_file
+   - criterion 2: tests/machine/application/test_project_run.py::test_a_stage_file_is_built_under_the_check_tag (rows built / red)
+   - criterion 3: tests/machine/application/test_project_run.py::test_the_sync_and_the_check_run_as_a_stage_runs_them (rows default / named makefile)
+   - criterion 4: tests/machine/application/test_project_run.py::test_faults_of_the_sync_and_the_check (8 rows: not started, timed out, exit 2, no green line, for sync and for check; a sync fault leaves check unrun)
+   - criterion 5: tests/machine/application/test_project_run.py::test_the_work_folder_holds_the_commit_and_is_removed (rows green / fault / exception)
+   - criterion 6: tests/machine/application/test_project_run.py::test_the_containers_get_the_site_variables_and_the_bundle
+   - criterion 7: tests/entry/test_check_project_run.py::test_incomplete_settings_end_before_anything_runs and ::test_a_static_fault_prints_what_the_command_prints_without_run
+   - criterion 8: tests/entry/test_check_project_run.py::test_the_report_holds_the_live_points_that_ran (rows green / red-check / red-build)
+   - criterion 9: tests/entry/test_check_project_run.py::test_the_agents_point_reads_the_agent_home_of_the_run (rows from-settings / from-option)
+
+   Files created: `tests/machine/application/test_project_run.py`, `tests/entry/test_check_project_run.py`, `tests/support/project_run_support.py`. The support module holds `ScriptedContainerRuns`, a `ContainerRuns` fake that plays scripted results or errors and records each call with the files of `<workspace>/checkout` at that moment, plus `result()`, `definition()` (a `sync` limit of 7 min and a `check` limit of 9 min, optional `make_file`) and the green outputs. `FakeImages` is the existing one from `factory.machine.adapters.fake_images`. I changed no earlier test file.
+
+   The Interface leaves these names and shapes open, so the tests fix them and the coder must follow them:
+   - `ProjectRun(images, *, containers: Callable[[Path], ContainerRuns], git: Callable[[Path], Git], stage_image: str, extra_environment: Mapping[str, str] = {}, ca_bundle: Path | None = None)` and `.run(folder: Path, definition: PipelineDefinition) -> list[ProjectPoint]`.
+     - `containers` is called with the temporary work folder that is mounted at `/work` (once, before the runs).
+     - `git` builds a `Git` on a folder; the tests pass `GitCli`.
+     - The use case reads the stage file from the clone.
+     - The containers' `PATH` is `images.path(<image used>)`, and `HOME` is `/work/home`.
+   - `factory.entry.check_project.build_project_run(settings: InstanceSettings) -> ProjectRun` is the seam that `main` calls under `--run`. The entry tests replace it with monkeypatch, so the real one computes `extra_environment` and the CA bundle itself.
+   - Fault texts:
+     - `could not start: ` is checked as a prefix, followed by text that contains the `ContainerError`'s reason.
+     - `no line "sync: green (<seconds> s)"` is checked literally, `<seconds>` included.
+   - Criterion 3 checks the command words loosely: the sync's words contain `/work/checkout`, `make` and `sync`; the check's argv contains `make` and `check`, as `ContainerMakeCommands` builds it; with a makefile both contain `-f` and `factory/Makefile`.
+   - The entry tests' complete settings are `BASE` and `CONTAINER` (`tests/support/settings_support.py`) plus `FACTORY_WORKSPACE`, `FACTORY_CHECKOUT`, `FACTORY_STATE` and `FACTORY_IMAGE_ID_FILE` in `tmp_path`. The settings are read as `read_environment_settings` reads them. The incomplete case leaves out `FACTORY_REPOSITORY_URL`.
+
+   `lint`: lint: green (0.1 s)
