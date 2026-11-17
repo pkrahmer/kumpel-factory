@@ -1,4 +1,5 @@
 #!/bin/sh
+# SPDX-License-Identifier: Apache-2.0
 # usage: trust-store.sh <CA bundle (PEM)> <trust store to write>
 # Writes a copy of the JDK's trust store with every certificate of the bundle added, so that
 # Gradle and the tests trust a site's own certificate authority. `make sync` runs it.

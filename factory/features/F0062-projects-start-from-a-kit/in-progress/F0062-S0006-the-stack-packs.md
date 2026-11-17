@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 695
 comments_read: [6937495535]
 handed_over: null
-claim:
-  instance: self
-  stage: doing
-  started_at: '2026-11-17T03:41:51.600290Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -62,6 +58,12 @@ journal:
   kind: started
   at: '2026-11-17T03:41:51.600290Z'
   stage: doing
+- number: 10
+  speaker: coder
+  kind: result
+  at: '2026-11-17T03:46:41.139558Z'
+  stage: doing
+  run: 15849d18913c473fac8692cff4725d22
 ---
 
 # The stack packs
@@ -173,3 +175,20 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    Main choice: copy the drafts unchanged, as the Interface asks. I rejected rewording line 8 myself, because that would break the byte-for-byte rule. I did not refactor, because the change is only copied files.
 8. 2026-11-17 human: Option 4. I reworded the line in the draft on `develop`: the bullet now says "`make secrets` (detect-secrets with the reviewed findings of its baseline file)". Copy `planning/packs-draft/python/CLAUDE.sections.md` again, byte for byte; no baseline entry, no marker, no exclusion.
 9. factory: started doing as self.
+10. coder: Took up the human's answer (option 4). `make check` and `make guides` are now green: `make check` ends with `check: green` and `make guides` with `guides: green (9.3 s)`. All 28 tests of `tests/operator_scripts/test_packs.py` pass.
+
+    What I built:
+    - `operator/packs/python/`, `operator/packs/c-host/` and `operator/packs/java-gradle/`: copies of `planning/packs-draft/` (the earlier copy from my first run, still in the working tree). `operator/packs/python/CLAUDE.sections.md` is copied again from the reworded draft on `develop`, byte for byte. The `make secrets` finding is gone, with no baseline entry, no marker and no exclusion.
+    - The one change beyond a copy, made under the Interface's clause for guards: `operator/packs/java-gradle/scripts/trust-store.sh` got the line `# SPDX-License-Identifier: Apache-2.0` after its `#!/bin/sh` shebang. Without it the guard `tests/guards/test_license_headers.py::test_every_file_in_scope_carries_the_license_header` failed in `make guides`. That guard applies to every `.sh` under `operator/` except `operator/template/`. `diff -r planning/packs-draft operator/packs` now shows only that one added line. No file under `planning/`, `src/` or `tests/` changed.
+
+    Main choice: I copied the drafts unchanged and added only what a guard requires. I rejected two alternatives: excluding `operator/packs/` from the licence guard (that is a test change, and broader than needed), and asking the human to add the header to the draft (the Interface already allows the coder to add it).
+
+    Refactor: nothing to change. The diff is copied files plus one header line.
+
+    What the journal changed: the human reworded the Python pack's `make secrets` bullet in the draft. The Description needs no rewrite, because the copy is still byte for byte from the draft.
+
+    Noticed but not touched:
+    - The draft `planning/packs-draft/java-gradle/scripts/trust-store.sh` has no licence header. Adding it there would keep draft and pack equal, but `planning/` is the human's.
+    - The folder-readme row for `operator/README.md` did not fail, so leave 27 was not needed.
+
+    `duplicates`: duplicates: 8 new, 38 known, 5 gone

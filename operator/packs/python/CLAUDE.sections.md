@@ -5,7 +5,7 @@
 - Fake commit ids and other hexadecimal test values are low-entropy (`"a" * 40`), so that `make secrets` stays green without a baseline entry.
 
 ## Checks
-- `make check` must be green before any stage reports done. It runs `make lint` (ruff check and format check), `make types` (`mypy --strict`), `make layers` (<the layers command>), `make sast` (semgrep with the rules in `security/semgrep`, and bandit), `make secrets` (detect-secrets against `.secrets.baseline`), `make licenses` (pip-licenses against an allow list) and `make test` (pytest on every core, with coverage). Each target ends with the line `<target>: green (<seconds> s)`; `make check` ends with `check: green`.
+- `make check` must be green before any stage reports done. It runs `make lint` (ruff check and format check), `make types` (`mypy --strict`), `make layers` (<the layers command>), `make sast` (semgrep with the rules in `security/semgrep`, and bandit), `make secrets` (detect-secrets with the reviewed findings of its baseline file), `make licenses` (pip-licenses against an allow list) and `make test` (pytest on every core, with coverage). Each target ends with the line `<target>: green (<seconds> s)`; `make check` ends with `check: green`.
 - Run Python through `uv run`. All dependencies, runtime and development, are declared and pinned in `pyproject.toml`; the lockfile is `uv.lock`.
 - Run `make check` and every other make target in the foreground and read its output.
 
