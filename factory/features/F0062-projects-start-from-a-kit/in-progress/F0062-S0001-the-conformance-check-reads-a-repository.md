@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 690
 comments_read: [6933812910, 6934072851]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: review
+  started_at: '2026-11-17T00:48:04.072495Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -103,6 +107,11 @@ journal:
   at: '2026-11-17T00:47:58.979195Z'
   stage: doing
   run: c816242047a44e3dafe69695f8f6de75
+- number: 18
+  speaker: factory
+  kind: started
+  at: '2026-11-17T00:48:04.072495Z'
+  stage: review
 ---
 
 # The conformance check reads a repository
@@ -346,3 +355,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     The journal did not change the Description.
 
     `duplicates`: duplicates: 7 new, 39 known, 4 gone
+18. factory: started review as self.
