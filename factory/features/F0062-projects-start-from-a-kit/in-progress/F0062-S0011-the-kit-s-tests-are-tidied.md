@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 701
 comments_read: [6939751878]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: docs
+  started_at: '2026-11-17T05:48:51.441851Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -75,6 +79,11 @@ journal:
   at: '2026-11-17T05:48:46.447492Z'
   stage: review
   run: 1adb0fe71a414ba3b6c8958f423940ff
+- number: 13
+  speaker: factory
+  kind: started
+  at: '2026-11-17T05:48:51.441851Z'
+  stage: docs
 ---
 
 # The feature's tests are tidied: one missing row, one weak check, one copy, and names that still say template
@@ -211,3 +220,4 @@ Expect: one line ending with `passed` and a time, with no `failed`.
     - tests/support/template_make_support.py → kit_make_support.py: the human's leave, entry 4 (a named rename, content unchanged).
     - tests/support/kit_support.py: the human's leave, entry 4 (an importer of the renamed support module).
     - tests/vm/test_stage_image.py: the standing leave to move a shared test helper. The change only switches it to the shared reader under its new public name in `tests/support/dockerfile_support.py`, and every test keeps its name and what it checks. The Interface does not name this file, but the rename it does name requires the change.
+13. factory: started docs as self.
