@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 697
 comments_read: [6938616709]
 handed_over: null
-claim:
-  instance: self
-  stage: doing
-  started_at: '2026-11-17T04:45:43.570874Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -73,6 +69,12 @@ journal:
   kind: started
   at: '2026-11-17T04:45:43.570874Z'
   stage: doing
+- number: 12
+  speaker: coder
+  kind: result
+  at: '2026-11-17T04:48:18.692876Z'
+  stage: doing
+  run: f34af49164014aa1ad3f8ef71a95c205
 ---
 
 # The guide
@@ -188,3 +190,15 @@ Expect: two numbers, each at least 3 for the first and at least 2 for the second
 
     `lint`: lint: green (0.2 s)
 11. factory: started doing as self.
+12. coder: Added the line the human allowed in entry 6. `src/factory/shared/domain/documents.py` now has `f"{OPERATOR_GUIDE_FOLDER}/start-a-project.md"` as the last entry of `OPERATOR_GUIDE_FILES`, right after `work-items.md`. The tester's comparison checks the order, so the order matches `TOPIC_FILES`. The document check now requires the new page, as it requires the other operator-guide topics. This is the only code change.
+
+    - Main choice: I added the path as a plain f-string entry, written like the other topics. The rejected alternative was a named constant such as `OPERATOR_START_A_PROJECT`. No code refers to the page by name, so a constant would add nothing.
+    - Tests: the five test files the tester named (`test_documents_guide_files.py`, `test_operator_guide_files.py`, `test_check_documents.py`, `test_check_documents_guide_files.py`, `pipeline/domain/test_documents.py`) are all green, including the three that were failing before.
+    - Checks: `make check guides` is green (`check: green`, `guides: green`).
+    - Refactor: nothing needed after a one-line change.
+    - The records contract: unaffected, because the tuple is not a contract model.
+    - Description: the journal changed it. Entry 6 lifts "no module and no test changes" for exactly these lines. I cannot write the work item, so I did not rewrite `## Description`.
+    - Noticed, not touched: the guard `test_the_single_guide_is_gone_and_the_folder_holds_the_index_and_ten_topics` still says "ten topics" in its name although there are now eleven. It keeps its name under the human's leave.
+    - Next: the story returns to the docs stage, where `make guides` and `make documents` run again.
+
+    `duplicates`: duplicates: 8 new, 38 known, 5 gone
