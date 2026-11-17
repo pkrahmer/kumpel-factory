@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 705
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: doing
+  started_at: '2026-11-17T06:52:14.789438Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -36,6 +40,11 @@ journal:
   at: '2026-11-17T06:52:09.255746Z'
   stage: tests
   run: e0ccf9f4ddcd4fb9b3aa35099a54160c
+- number: 6
+  speaker: factory
+  kind: started
+  at: '2026-11-17T06:52:14.789438Z'
+  stage: doing
 ---
 
 # One layout for every project
@@ -148,3 +157,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    Open: I tried to check these tests against the drafts by copying the drafts into `operator/` for a moment; the call was refused. They have not been run against the finished files, so the coder's run is the first one. The working tree's `operator/` was not changed.
 
    `lint`: lint: green (0.1 s)
+6. factory: started doing as self.
