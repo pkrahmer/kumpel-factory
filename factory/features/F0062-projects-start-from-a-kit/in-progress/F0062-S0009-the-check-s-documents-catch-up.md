@@ -1,5 +1,5 @@
 ---
-stage: docs-review
+stage: docs-approval
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 699
 comments_read: []
 handed_over: null
-claim:
-  instance: self
-  stage: docs-review
-  started_at: '2026-11-17T05:18:29.693344Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -67,6 +63,12 @@ journal:
   kind: started
   at: '2026-11-17T05:18:29.693344Z'
   stage: docs-review
+- number: 11
+  speaker: reviewer
+  kind: result
+  at: '2026-11-17T05:18:52.653241Z'
+  stage: docs-review
+  run: 2227be5c156147ef9e7a858ec607ef7e
 ---
 
 # The conformance check's documents catch up with the console script and the live part
@@ -179,3 +181,24 @@ Expect: a number of at least 2.
    `secrets`: secrets: green (1.5 s)
    `documents`: documents ok (47.2 s)
 10. factory: started docs-review as self.
+11. reviewer: Round 1. I reviewed `git diff develop...HEAD -- README.md docs operator/README.md`, using the diff from the context block. I checked the facts against the code on the branch and the writing against `docs/project-guide/style.md`.
+
+    How the round-0 findings were fixed:
+    1. `docs/decisions.md`, new entry: it now has the line "Why after the static part". The code confirms it. `_live_points` in `src/factory/entry/check_project.py:105-109` reads the pipeline definition again, on the assumption that the static part has validated it. `ProjectRun._sync` and `_check` (`src/factory/machine/application/project_run.py:142-165`) take `definition.make_file` and `command_time_limit(definition, …)` from that definition. Criterion 6 is now met for the decision log.
+    2. `docs/operator-guide/pipeline.md`, *Checking a repository before the factory runs it*: the long sentence is now two. One names `factory-check-project` as the same command with the same arguments. The other says why the example runs the module. The second is about 30 words, which is within style rule 2's "about 25", and it carries one idea.
+    3. `docs/operator-guide/start-a-project.md`, *The walk in one example*: split the same way, with the same judgement.
+
+    What I checked again on the whole diff:
+    - The tag suffix `CHECK_TAG_SUFFIX = "-check"` (`project_run.py:42`).
+    - `SYNC_MAKE` and `NAMED_SYNC_MAKE` are public constants (`stage_environment.py:61-62`), and only their make part is run.
+    - `main` prints only after the live points' early returns and the `is_ready` gate.
+    - The S0001 entry is unchanged, and the new entry names it as the one it widens.
+
+    Criterion by criterion:
+    - 1: the sentence "Until the command is installed" is gone.
+    - 2: each page has the naming sentence in the section of its module example.
+    - 3: every listed point is in the entry.
+    - 4: the journal records `make documents` ending `documents ok`.
+    - 6: met on all three documents.
+
+    no findings
