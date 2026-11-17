@@ -1,0 +1,12 @@
+# gitleaks' own rules, without the folders a build writes.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "what a build writes, and the wrapper's jar"
+paths = [
+  '''^build/''',
+  '''^\.gradle/''',
+  '''^\.git/''',
+  '''^gradle/wrapper/gradle-wrapper\.jar$''',
+]
