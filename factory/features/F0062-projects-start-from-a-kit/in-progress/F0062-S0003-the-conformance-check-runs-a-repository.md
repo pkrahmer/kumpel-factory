@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 692
 comments_read: [6935336014, 6935606286]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: doing
+  started_at: '2026-11-17T02:03:01.599382Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -92,6 +96,11 @@ journal:
   at: '2026-11-17T02:02:56.126470Z'
   stage: tests
   run: c8629d69268645ec87fae5672a510041
+- number: 16
+  speaker: factory
+  kind: started
+  at: '2026-11-17T02:03:01.599382Z'
+  stage: doing
 ---
 
 # The conformance check runs a repository
@@ -267,3 +276,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     I ran the changed files once, as `CLAUDE.md` says for an approved change: `uv run pytest -q tests/entry/test_check_project.py tests/guards/test_make_search.py` passed with no failures. `make lint`: lint: green (0.1 s). I did not run the whole `make test`.
 
     `lint`: lint: green (0.1 s)
+16. factory: started doing as self.
