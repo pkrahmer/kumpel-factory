@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 701
 comments_read: [6939751878]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: doing
+  started_at: '2026-11-17T05:45:14.509124Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -53,6 +57,11 @@ journal:
   at: '2026-11-17T05:45:08.976552Z'
   stage: tests
   run: 0992ac31acbd411e8e0de2bfc15e8450
+- number: 9
+  speaker: factory
+  kind: started
+  at: '2026-11-17T05:45:14.509124Z'
+  stage: doing
 ---
 
 # The feature's tests are tidied: one missing row, one weak check, one copy, and names that still say template
@@ -143,3 +152,4 @@ Expect: one line ending with `passed` and a time, with no `failed`.
    Files created: none (four renamed). No module failed to import.
 
    `lint`: lint: green (0.1 s)
+9. factory: started doing as self.
