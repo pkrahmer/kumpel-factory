@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 710
 comments_read: [6942486584]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: doing
+  started_at: '2026-11-17T08:12:08.180010Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -52,6 +56,11 @@ journal:
   speaker: human
   kind: comment
   at: '2026-11-17T08:12:05.662885Z'
+  stage: doing
+- number: 9
+  speaker: factory
+  kind: started
+  at: '2026-11-17T08:12:08.180010Z'
   stage: doing
 ---
 
@@ -153,3 +162,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
    I would choose (a): it keeps the test readable, needs no secrets exception, and matches what criterion 2 already allows. On an answer of (a), I end the next run with `tests` naming that change.
 8. 2026-11-17 human: (a). No marker and no baseline entry.
+9. factory: started doing as self.
