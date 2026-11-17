@@ -1,17 +1,13 @@
 ---
-stage: review
+stage: tests
 blocked: null
-round: 0
+round: 1
 attempts: 0
 crashes: 0
 pull_request: 695
 comments_read: [6937495535]
 handed_over: null
-claim:
-  instance: self
-  stage: review
-  started_at: '2026-11-17T03:46:46.316482Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -73,13 +69,19 @@ journal:
   kind: started
   at: '2026-11-17T03:46:46.316482Z'
   stage: review
+- number: 12
+  speaker: reviewer
+  kind: result
+  at: '2026-11-17T03:47:56.172460Z'
+  stage: review
+  run: bf1b2f9af9ee49d79ebfdf014765bc40
 ---
 
 # The stack packs
 
 ## Description
 
-The kit holds what every project shares; what a stack needs on top has so far lived in three hand-made templates: the Python template in this repository, an ESP32 template and a Spring service template. After this story the factory holds one small pack per stack under `operator/packs/`: `python`, `c-host` (C that builds and tests on the host with CMake, firmware logic included) and `java-gradle`. A pack holds the stack's makefile, which includes the kit's `kit.mk` and defines `sync`, `lint`, `test` and `check`; the stage file with the tools those targets need; the stack's sections of `CLAUDE.md`, the review points among them; and a page of the stack's traps. A pack holds no application source. The human has worded the packs in `planning/packs-draft/` and has run the C and the Java pack for real, with `factory-check-project --run` on the VM (2026-11-17, all nine points `ok`); this story puts them in place unchanged and proves with tests that kit and pack together make a ready project for each stack. `operator/template/` stays as it is; the next story removes it.
+The kit holds what every project shares; what a stack needs on top has so far lived in three hand-made templates: the Python template in this repository, an ESP32 template and a Spring service template. After this story the factory holds one small pack per stack under `operator/packs/`: `python`, `c-host` (C that builds and tests on the host with CMake, firmware logic included) and `java-gradle`. A pack holds the stack's makefile, which includes the kit's `kit.mk` and defines `sync`, `lint`, `test` and `check`; the stage file with the tools those targets need; the stack's sections of `CLAUDE.md`, the review points among them; and a page of the stack's traps. A pack holds no application source. The human has worded the packs in `planning/packs-draft/` and has run the C and the Java pack for real, with `factory-check-project --run` on the VM (2026-11-17, all nine points `ok`); this story puts them in place unchanged, but for the licence header this repository's guard asks of `scripts/trust-store.sh`, and proves with tests that kit and pack together make a ready project for each stack. `operator/template/` stays as it is; the next story removes it.
 
 ## Interface
 
@@ -202,3 +204,22 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     `duplicates`: duplicates: 8 new, 38 known, 5 gone
 11. factory: started review as self.
+12. reviewer: Reviewed `git diff develop...HEAD -- . ':!factory'` against the criteria and the Interface. I ran `diff -r planning/packs-draft operator/packs`: the only difference is the `# SPDX-License-Identifier: Apache-2.0` line in `java-gradle/scripts/trust-store.sh`, which the Interface's guard clause allows. No file under `planning/` or `src/` changes. I also ran `uv run pytest -q tests/operator_scripts/test_packs.py tests/operator_scripts/test_kit_files.py`, and every test passed.
+
+    Criteria 1 to 7 each have a test that checks what the criterion says:
+    - The thin, full and brownfield lines cover all three packs. Both kit pipeline definitions have the commented `# make_file: factory/Makefile` line that the brownfield helper uncomments.
+    - Criterion 6 checks both sides, with the stand-ins called each time.
+    - Criterion 7 checks both the shebang and `sh -n`, and that the store is built once on the first sync and not again on the second.
+
+    Architecture: no module under `src/` changes. Security: both stage files run `sha256sum -c` after every `curl`. `changeit` is the JDK's default store password, not a secret. There are no markers, no baseline entries and no exclusions. No document the documenter writes is changed. This project's `CLAUDE.md` has no `## Review` section.
+
+    Findings:
+    1. `tests/operator_scripts/test_packs.py` `_faults` is a second copy of `_check` in `tests/operator_scripts/test_kit_files.py:59`: the same `committed_repository` + `run_project_check` dict comprehension. Fix: under the standing leave, move one helper (for example `project_faults(tmp_path, files)`) to `tests/support/kit_support.py` or `tests/support/project_check_support.py`, and use it from both modules. `test_packs.py` passes `{**files, **WRITTEN_FILES}`.
+    2. `tests/operator_scripts/test_packs.py` `_section_texts` trims trailing blank lines with its own `while own and not own[-1].strip(): own.pop()`. This copies `_without_trailing_blanks` in `tests/support/kit_support.py`. Fix: make that helper public in `kit_support.py` (or move `_section_texts` there as a public helper built on it), and use it in the test.
+
+    Both findings need only a change to this story's own tests and the shared support module. That is why I'm sending it to `tests`.
+
+    description corrected: "this story puts them in place unchanged and proves" -> "this story puts them in place unchanged, but for the licence header this repository's guard asks of `scripts/trust-store.sh`, and proves". The Interface's guard clause and entry 10 settle this.
+
+    Earlier tests:
+    - `tests/operator_scripts/test_kit_files.py`: changed under the standing leave to move a shared test helper. `WRITTEN_FILES` moved to `tests/support/kit_support.py`, and every test keeps its name and what it checks.
