@@ -18,6 +18,11 @@ TEMPLATE_PIPELINE = ROOT / "operator" / "template" / "factory" / "pipeline.yml"
 
 WITHOUT_ROLE = {"intake", "smoke-tester"}
 
+# The project's review points, from their heading to the next heading, which a later story added.
+REVIEW_POINTS_SUBSECTION = re.compile(
+    r"^### The project's review points\n(?:(?!#).*\n|\n)*", re.MULTILINE
+)
+
 # The roles only the thin line has; the template's pipeline definition is the full line.
 THIN_LINE_ONLY = {"builder"}
 

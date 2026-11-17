@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 693
 comments_read: [6936126509]
 handed_over: null
-claim:
-  instance: self
-  stage: tests
-  started_at: '2026-11-17T02:39:45.169023Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -84,6 +80,12 @@ journal:
   kind: started
   at: '2026-11-17T02:39:45.169023Z'
   stage: tests
+- number: 14
+  speaker: tester
+  kind: result
+  at: '2026-11-17T02:40:18.386544Z'
+  stage: tests
+  run: 5b1290fb2abb46eb823ded521f49e3f1
 ---
 
 # The installed builder
@@ -328,3 +330,22 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     - `tests/agent_files/test_shared_start_agent_files.py`: entry 4. A `builder` row in `EFFORTS`.
     - `tests/support/shipped_agents.py`: entry 4. A builder `ShippedAgent` row, plus `THIN_LINE_ONLY`, `THIN_LINE_PIPELINE`, `thin_line_definition()` and `full_line_names()`.
 13. factory: started tests as self.
+14. tester: Round 1: I fixed the reviewer's one finding from entry 12. It needed changes to the tests only.
+
+    Finding 1 (the regex `_REVIEW_POINTS_SUBSECTION` was written twice). It is now defined once in `tests/support/shipped_agents.py` as `REVIEW_POINTS_SUBSECTION`, with the comment from the first file. Both tests that used it now import it from there:
+    - `tests/agent_files/test_claude_agent_texts_review_groups.py::test_the_rest_of_the_reviewer_body_is_unchanged`: its local copy is gone and it uses the shared one.
+    - `tests/agent_files/test_shared_rules_system_prompt.py::test_every_agent_file_keeps_its_own_sections_word_for_word_in_order`: its local copy is gone and it uses the shared one. Its old comment now sits above the parametrize: the agents `PARTS_BEFORE` lists predate the builder and the reviewer's review points.
+    Every test keeps its name and checks the same thing. This uses leave 11 as extended in entry 4, and this story's own earlier changes to these files.
+
+    I left the reviewer's note on `tests/agent_files/test_installed_builder.py:65` (two assertions that check the same heading) as it is. It is a note, not a finding.
+
+    Files created: none. Files changed: `tests/support/shipped_agents.py`, `tests/agent_files/test_claude_agent_texts_review_groups.py`, `tests/agent_files/test_shared_rules_system_prompt.py`.
+
+    Checked:
+    - `uv run pytest -q` on those two test files and `tests/agent_files/test_installed_builder.py`: all 44 passed.
+    - `make lint`: lint: green (0.1 s).
+    - I did not run the type check. When I ran `mypy` on these files alone, it could not analyse the `factory` package (`import-untyped`), so the coder's `make check` covers types.
+
+    Every test module imported.
+
+    `lint`: lint: green (0.2 s)

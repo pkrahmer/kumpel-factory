@@ -6,7 +6,7 @@ import zlib
 import pytest
 
 from support.shared_rules_support import RULES_BEFORE
-from support.shipped_agents import SHIPPED_NAMES, agent_body
+from support.shipped_agents import REVIEW_POINTS_SUBSECTION, SHIPPED_NAMES, agent_body
 
 _ALL_GROUPS = (
     "Checklist, in this order. Go through all of groups 1 to 5 in every review, also when an "
@@ -24,11 +24,6 @@ _EARLIER_BODY_CRC32 = 3903663111
 
 # The docs route's subsection, from its heading to the next heading, which a later story added.
 _DOCS_REVIEW_SUBSECTION = re.compile(r"^### docs-review\n(?:(?!#).*\n|\n)*", re.MULTILINE)
-
-# The project's review points, from their heading to the next heading, which a later story added.
-_REVIEW_POINTS_SUBSECTION = re.compile(
-    r"^### The project's review points\n(?:(?!#).*\n|\n)*", re.MULTILINE
-)
 
 # The checklist's documents item, from its heading to the paragraph after the checklist, which a
 # later story added.
@@ -57,7 +52,7 @@ def test_the_rest_of_the_reviewer_body_is_unchanged() -> None:
         "\n## Role\n", "\n## Rules\n\n" + "\n\n".join(RULES_BEFORE) + "\n\n## Role\n", 1
     )
     body = _DOCUMENTS_ITEM.sub(
-        "", _DOCS_REVIEW_SUBSECTION.sub("", _REVIEW_POINTS_SUBSECTION.sub("", with_rules))
+        "", _DOCS_REVIEW_SUBSECTION.sub("", REVIEW_POINTS_SUBSECTION.sub("", with_rules))
     )
     assert body.count(_ALL_GROUPS) == 1
 
