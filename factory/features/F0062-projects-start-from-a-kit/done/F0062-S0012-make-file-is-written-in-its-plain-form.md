@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 0
 attempts: 0
@@ -97,6 +97,11 @@ journal:
   at: '2026-11-17T06:17:57.120051Z'
   stage: smoke-test
   run: ab75d19b0ff7433d9837788c883aa56d
+- number: 17
+  speaker: factory
+  kind: done
+  at: '2026-11-17T06:19:48.590791Z'
+  stage: approval
 ---
 
 # A `make_file` is written in its plain form, or the definition refuses it
@@ -282,3 +287,4 @@ Expect: one line ending with `passed` and a time, with no `failed`.
     I left nothing in `/tmp`.
 
     `check`: check: green
+17. factory: done (pull request merged); cost: 7 runs, 9.5 min, 38 turns, 122908 tokens in (1027825 more from cache), 14713 out, $1.11
