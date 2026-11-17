@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 710
 comments_read: [6942486584]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: tests
+  started_at: '2026-11-17T08:12:24.756754Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -64,6 +68,11 @@ journal:
   at: '2026-11-17T08:12:19.604833Z'
   stage: doing
   run: 240dfe9e1b094504841da50dbf96bce4
+- number: 11
+  speaker: factory
+  kind: started
+  at: '2026-11-17T08:12:24.756754Z'
+  stage: tests
 ---
 
 # Each pack's checks section keeps the line that names the factory's makefile
@@ -170,3 +179,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     The change for the tester, under option (a): in `tests/operator_scripts/test_pack_checks_line.py::test_each_pack_sections_file_differs_from_before_only_by_the_kit_line`, replace the sha256 pin `SECTIONS_BEFORE_SHA256` with an expected list of each pack file's lines once the kit's line is removed. That list may be merged with `OTHER_CHECKS_BULLETS`. This gets the high-entropy hex values out of the test, so `make secrets` goes green with no `pragma: allowlist secret` and no `.secrets.baseline` entry.
 
     `make check` is still red on `make secrets` until the tester makes this change. When the work item comes back to doing, I will run `make check` again and hand forward to review.
+11. factory: started tests as self.
