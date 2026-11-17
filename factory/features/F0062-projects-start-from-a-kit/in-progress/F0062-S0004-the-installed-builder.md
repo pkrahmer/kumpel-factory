@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 693
 comments_read: [6936126509]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: review
+  started_at: '2026-11-17T02:42:57.242378Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -97,6 +101,11 @@ journal:
   at: '2026-11-17T02:42:51.688521Z'
   stage: doing
   run: f2e07c4a11884461b30b1c3c94538bfd
+- number: 17
+  speaker: factory
+  kind: started
+  at: '2026-11-17T02:42:57.242378Z'
+  stage: review
 ---
 
 # The installed builder
@@ -376,3 +385,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     Not touched: the documents of criterion 8 (`docs/operator-guide/`, `docs/project-guide/agents.md`, `agents/README.md`, `docs/decisions.md`). They belong to the documenter.
 
     `duplicates`: duplicates: 8 new, 38 known, 5 gone
+17. factory: started review as self.
