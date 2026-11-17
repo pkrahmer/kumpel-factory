@@ -11,9 +11,14 @@ from factory.agents.adapters.agent_launch import SHELL_EXECUTABLE, Launch
 from factory.hosting.application.git import Git
 from factory.machine.application.containers import ContainerRuns
 from factory.machine.application.make_file import MakeFileSource, asked_make_file
-from factory.machine.application.project_commands import ProjectCommands
+from factory.machine.application.project_commands import (
+    CHECK_ENVIRONMENT,
+    CHECK_SCRIPT,
+    CHECK_SCRIPT_NAME,
+    NAMED_CHECK_SCRIPT,
+    ProjectCommands,
+)
 from factory.machine.application.snapshots import Snapshots
-from factory.machine.application.stage_environment import SYNC_ENVIRONMENT
 from factory.machine.domain.containers import SYSTEM_PATH, WORK_CHECKOUT, bundle_mounts
 from factory.pipeline.application.take import MOUNTED_CHECKOUT, copy_changed
 from factory.pipeline.domain.checks import (
@@ -29,18 +34,14 @@ from factory.shared.adapters.process import ProcessRequest, ProcessResult, run_p
 from factory.shared.domain.errors import ContainerError, ProjectCommandError, SnapshotError
 from factory.shared.domain.kill_points import KillPoints
 
+# The check's environment is still read from here, where it was first defined.
+__all__ = ["CHECK_ENVIRONMENT", "ContainerMakeCommands", "MakeProjectCommands"]
+
 _COMMAND_NAME = re.compile(COMMAND_NAME_PATTERN)
 
-# A check sees the same system and home as the sync before the agent.
-CHECK_ENVIRONMENT = dict(SYNC_ENVIRONMENT)
-
-# The command's name is an argument, never part of the script, so the shell never parses it.
-_CHECK_SCRIPT = '"$1" sync && "$1" --no-print-directory "$2"'
 # A start fact runs on the base the stage's start has just synced, so only its own output shows.
 _START_FACT_SCRIPT = '"$1" --no-print-directory "$2"'
-_CHECK_SCRIPT_NAME = "factory-check"
-# The same two with the makefile the pipeline definition names, an argument like the command.
-_NAMED_CHECK_SCRIPT = '"$1" -f "$3" sync && "$1" -f "$3" --no-print-directory "$2"'
+# The same with the makefile the pipeline definition names, an argument like the command.
 _NAMED_START_FACT_SCRIPT = '"$1" -f "$3" --no-print-directory "$2"'
 
 # An outer make (the tests run under `make check`) exports these, and an inner make that
@@ -141,7 +142,7 @@ class ContainerMakeCommands(ProjectCommands):
         A fault of the reset or of the container raises `ProjectCommandError`; a `GitError`
         or a `ValueError` of the copy propagates as it is.
         """
-        return self._run_script(_CHECK_SCRIPT, _NAMED_CHECK_SCRIPT, command, time_limit)
+        return self._run_script(CHECK_SCRIPT, NAMED_CHECK_SCRIPT, command, time_limit)
 
     def start_fact(self, command: str, *, time_limit: timedelta) -> CommandOutput:
         """Run `command` without `sync` in a container on the base with the host's changes.
@@ -156,7 +157,7 @@ class ContainerMakeCommands(ProjectCommands):
         _check_call(command, time_limit)
         make_file = asked_make_file(self._make_file)
         chosen = script if make_file is None else named_script
-        argv = [SHELL_EXECUTABLE, "-c", chosen, _CHECK_SCRIPT_NAME, "make", command]
+        argv = [SHELL_EXECUTABLE, "-c", chosen, CHECK_SCRIPT_NAME, "make", command]
         if make_file is not None:
             argv.append(make_file)
         try:

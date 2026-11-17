@@ -8,10 +8,20 @@ from typing import override
 from factory.hosting.application.git import Git
 from factory.hosting.domain.git import CommitId
 from factory.machine.domain.command_records import CommandRecord
+from factory.machine.domain.containers import SYSTEM_PATH, WORK_HOME
 from factory.pipeline.domain.checks import CheckResult, CommandOutput
 from factory.shared.application.files import RecordLog
 from factory.shared.domain.errors import GitError
 from factory.watching.application.machine import Clock, FactoryLog
+
+# A check sees the same system and home as the sync before the agent.
+CHECK_ENVIRONMENT = {"PATH": SYSTEM_PATH, "HOME": WORK_HOME}
+
+# The command's name is an argument, never part of the script, so the shell never parses it.
+CHECK_SCRIPT = '"$1" sync && "$1" --no-print-directory "$2"'
+# The same with the makefile the pipeline definition names, an argument like the command.
+NAMED_CHECK_SCRIPT = '"$1" -f "$3" sync && "$1" -f "$3" --no-print-directory "$2"'
+CHECK_SCRIPT_NAME = "factory-check"
 
 
 class ProjectCommands(ABC):

@@ -17,6 +17,8 @@ POINT_NAMES: tuple[str, ...] = (
     "write paths",
     "forms",
 )
+# The points of the live part, which runs the repository in containers after the static part.
+LIVE_POINT_NAMES: tuple[str, ...] = ("image", "sync", "check")
 MAKEFILE = "Makefile"
 SYNC_COMMAND = "sync"
 

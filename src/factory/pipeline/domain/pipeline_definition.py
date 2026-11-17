@@ -2,6 +2,7 @@
 """The pipeline definition: the project's stages, roles, caps and project commands."""
 
 import re
+from datetime import timedelta
 from typing import Annotated, Self
 
 from pydantic import (
@@ -291,3 +292,9 @@ _RULES = (
     _not_read_faults,
     _make_file_faults,
 )
+
+
+def command_time_limit(definition: PipelineDefinition, command: str) -> timedelta:
+    """The time limit of the project command `command`, the default one when it is not defined."""
+    limit = definition.project_commands.get(command, ProjectCommandDefinition()).time_limit
+    return timedelta(minutes=limit)

@@ -1,17 +1,13 @@
 ---
 stage: doing
-blocked: null
+blocked: question
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 692
 comments_read: [6935336014]
 handed_over: null
-claim:
-  instance: self
-  stage: doing
-  started_at: '2026-11-17T01:55:03.118753Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -62,6 +58,13 @@ journal:
   kind: started
   at: '2026-11-17T01:55:03.118753Z'
   stage: doing
+- number: 10
+  speaker: coder
+  kind: question
+  at: '2026-11-17T02:01:26.668189Z'
+  stage: doing
+  run: d4e44ad636da4d26a1ecc1eff54ecd43
+  blocked: question
 ---
 
 # The conformance check runs a repository
@@ -177,3 +180,46 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
    `lint`: lint: green (0.1 s)
 9. factory: started doing as self.
+10. coder: Questions from doing. The code is written and the tester's two files pass: `uv run pytest -q tests/machine/application/test_project_run.py tests/entry/test_check_project_run.py` gives 24 passed. `make check` is red only on four earlier tests that contradict the Interface. I may not change them, and they are not mine to change (R9). lint, types, layers, sast, secrets and licenses are green.
+
+    Failures, from `make check` (`--tb=short`):
+    - `tests/entry/test_check_project.py::test_main_prints_the_report_or_one_error_and_returns_its_status[no-folder]`, `[two-folders]` and `[no-agent-home]`, at `tests/entry/test_check_project.py:162`:
+      `E   AssertionError: assert 'factory-check-project [--agent-home <dir>] <folder>' in 'usage: factory-check-project [--agent-home <dir>] [--run] <folder>'`
+    - `tests/guards/test_make_search.py::test_only_the_make_class_names_make`, at `tests/guards/test_make_search.py:33`:
+      `E   AssertionError: assert {'factory.mac....project_run'} == {'factory.mac...ake_commands'}` / `Extra items in the left set: 'factory.machine.application.project_run'`
+
+    1. **Usage line.** The Interface's usage is `factory-check-project [--agent-home <dir>] [--run] <folder>`. The earlier test requires the one usage line to contain `factory-check-project [--agent-home <dir>] <folder>`. Options:
+       - (a) The tester changes `USAGE` in `tests/entry/test_check_project.py` to the new usage.
+       - (b) I print a line that holds both forms, such as `usage: factory-check-project [--agent-home <dir>] <folder>; factory-check-project [--agent-home <dir>] --run <folder>`, and no test changes.
+
+       I would choose (a). (b) only gets around the test.
+    2. **The make guard.** The guard allows only `factory.machine.adapters.make_commands` to have the string literal `"make"`. The live check must run the moved check script as `ContainerMakeCommands.run` does: `/bin/sh -c CHECK_SCRIPT factory-check make check [makefile]`. So `project_run.py` passes `"make"` as the script's argument. Options:
+       - (a) The tester adds `factory.machine.application.project_run` to the guard's expected set. Feature decision 4 may already allow this, if this set counts as "a guard table that lists every module".
+       - (b) A public constant `MAKE = "make"` in `factory.machine.application.project_commands`, imported by both `make_commands.py` and `project_run.py`. The guard's set would then need `project_commands` in place of `make_commands`, so it is still a test change.
+
+       I would choose (a).
+
+    If you approve both (a)s, my next run ends with `tests` and names the two changes. Nothing else changes.
+
+    What is built, all in the working tree:
+    - `src/factory/machine/application/project_run.py`: `ProjectRun`, plus `check_image_tag` and `checkout_has_stage_file`.
+      - It makes the work folder (`checkout/` and `home/`) with `tempfile.mkdtemp` and removes it in a `finally`.
+      - The clone is `GitCli.clone`, then `reset_to` the source's `HEAD` commit.
+      - It reads the stage file from the clone with `show_file`, then builds on the stage image under `<stage image>-check` with `IMAGE_BUILD_TIME_LIMIT`.
+      - Sync: the script is `set -eu; cd "$1"; shift` plus the stage's make part, run in `/work`.
+      - Check: `CHECK_SCRIPT` or `NAMED_CHECK_SCRIPT`, run in `/work/checkout`.
+      - Faults are given in the Interface's order. The "last line" here is the last non-blank line with make's own messages kept, because `checks.last_line` skips `make:` lines, which are what explain a red run.
+    - `src/factory/machine/application/project_commands.py`: now holds the public `CHECK_ENVIRONMENT`, `CHECK_SCRIPT`, `NAMED_CHECK_SCRIPT` and `CHECK_SCRIPT_NAME`. `src/factory/machine/adapters/make_commands.py` imports them and re-exports `CHECK_ENVIRONMENT` through `__all__` for the earlier test.
+      - `CHECK_ENVIRONMENT` is now defined in `project_commands.py`, and `SYNC_ENVIRONMENT = dict(CHECK_ENVIRONMENT)` in `stage_environment.py`. Importing `stage_environment` from `project_commands` would create an import cycle through `boundaries`.
+    - `src/factory/machine/application/stage_environment.py`: public `SYNC_MAKE` (`make sync`) and `NAMED_SYNC_MAKE` (`make -f "$1" sync`). The stage's named script now runs `shift 6` before the make part. `_SYNC_SCRIPT` keeps its name.
+    - `src/factory/pipeline/domain/pipeline_definition.py`: `command_time_limit(definition, command)`. `pipeline/application/stage.py` now uses it in place of its own copy.
+    - `src/factory/pipeline/domain/project_check.py`: `LIVE_POINT_NAMES`. `pipeline/application/project_check.py`: `_ANY_BASE` is now the public `ANY_BASE`, so the use case reuses it instead of copying it.
+    - `src/factory/entry/check_project.py`: `--run`, and `build_project_run(settings)`, which wires `PodmanImages` and `PodmanRuns`.
+      - `PodmanRuns` gets the `-check` image exactly when the clone holds a stage file. I rejected changing the `containers` callable's signature, because the tests pin it.
+      - Settings faults, a missing stage image included, print `cannot run: …` and return 2 before anything else runs.
+      - The agent home comes from `--agent-home`, then from the settings, then from the environment variable.
+    - `pyproject.toml`: a per-file `PLR0913` ignore for `project_run.py`, following the existing lines for pinned constructors. The tests pin the six-argument constructor.
+
+    Not touched: docs (that is the documenter's job). The refactor step is not done yet; it comes after `make check` is green.
+
+    The factory left out changes outside the write paths: pyproject.toml.

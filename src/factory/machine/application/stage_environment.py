@@ -12,9 +12,9 @@ from factory.agents.domain.agent_runs import AgentRunRequest, AgentRunResult
 from factory.hosting.domain.git import CommitId
 from factory.machine.application.containers import ContainerRuns
 from factory.machine.application.make_file import MakeFileSource, asked_make_file
+from factory.machine.application.project_commands import CHECK_ENVIRONMENT
 from factory.machine.application.snapshots import Snapshots
 from factory.machine.domain.containers import (
-    SYSTEM_PATH,
     WORK,
     WORK_CHECKOUT,
     WORK_HOME,
@@ -31,7 +31,8 @@ from factory.shared.domain.errors import ContainerError
 UPSTREAM = "/upstream"
 AGENT_FILES = "/etc/factory/agents"
 SHELL = "/bin/sh"
-SYNC_ENVIRONMENT = {"PATH": SYSTEM_PATH, "HOME": WORK_HOME}
+# The sync sees the same system and home as a check after the agent.
+SYNC_ENVIRONMENT = dict(CHECK_ENVIRONMENT)
 TIMING_LINE = (
     "stage environment: reset {reset} s, sync {sync} s, advance {advance} s, take {take} s"
 )
@@ -55,9 +56,13 @@ git fetch -q --prune --update-head-ok "$3" '+refs/heads/*:refs/heads/*' \
 git checkout -q -f "$5"
 git reset -q --hard "$6"
 """
-_SYNC_SCRIPT = _SYNC_PREPARATION + "make sync\n"
-# The makefile the pipeline definition names comes as the seventh argument.
-_NAMED_SYNC = _SYNC_PREPARATION + 'make -f "$7" sync\n'
+# The make part of a sync, run in the checkout; the named one takes the makefile the pipeline
+# definition names as its first argument.
+SYNC_MAKE = "make sync\n"
+NAMED_SYNC_MAKE = 'make -f "$1" sync\n'
+_SYNC_SCRIPT = _SYNC_PREPARATION + SYNC_MAKE
+# The makefile comes as the seventh argument, the first once the preparation's six are shifted.
+_NAMED_SYNC = _SYNC_PREPARATION + "shift 6\n" + NAMED_SYNC_MAKE
 
 
 class StageEnvironment(ABC):
