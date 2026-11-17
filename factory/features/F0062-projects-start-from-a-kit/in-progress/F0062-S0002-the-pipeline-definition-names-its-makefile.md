@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 691
 comments_read: [6934588171, 6934893656]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: smoke-test
+  started_at: '2026-11-17T01:41:36.083378Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -158,6 +162,11 @@ journal:
   at: '2026-11-17T01:41:30.702502Z'
   stage: docs
   run: 5a8f4d6e0c1c4133bd71881353f21e2f
+- number: 28
+  speaker: factory
+  kind: started
+  at: '2026-11-17T01:41:36.083378Z'
+  stage: smoke-test
 ---
 
 # The pipeline definition names its makefile
@@ -503,3 +512,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     `guides`: guides: green (9.2 s)
     `secrets`: secrets: green (2.6 s)
     `documents`: documents ok (46.2 s)
+28. factory: started smoke-test as self.
