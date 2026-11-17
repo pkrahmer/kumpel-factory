@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 691
 comments_read: [6934588171, 6934893656]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: doing
+  started_at: '2026-11-17T01:27:10.950071Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -92,6 +96,11 @@ journal:
   at: '2026-11-17T01:27:05.555731Z'
   stage: tests
   run: 6e0b6024159f4eefa4c8c0fedcae5be7
+- number: 16
+  speaker: factory
+  kind: started
+  at: '2026-11-17T01:27:10.950071Z'
+  stage: doing
 ---
 
 # The pipeline definition names its makefile
@@ -282,3 +291,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     Run: `uv run pytest -q` on the three files. They are red on purpose: `RECORDS_CONTRACT` is still "4.5" on the branch. The last lines show `test_the_records_contract_is_at_version_4_2_with_the_machine_measures[...]` failing for every contract entry. The coder raises `RECORDS_CONTRACT` to "4.6" and regenerates the schemas with `uv run python -m factory.entry.contract`, and these tests then pass. `make lint` is green: `lint: green (0.2 s)`.
 
     `lint`: lint: green (0.2 s)
+16. factory: started doing as self.
