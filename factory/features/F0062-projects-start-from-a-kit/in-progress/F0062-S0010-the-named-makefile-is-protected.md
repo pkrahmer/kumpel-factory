@@ -1,5 +1,5 @@
 ---
-stage: smoke-test
+stage: approval
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 700
 comments_read: [6939383328]
 handed_over: null
-claim:
-  instance: self
-  stage: smoke-test
-  started_at: '2026-11-17T05:34:43.510650Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -95,6 +91,12 @@ journal:
   kind: started
   at: '2026-11-17T05:34:43.510650Z'
   stage: smoke-test
+- number: 16
+  speaker: smoke-tester
+  kind: result
+  at: '2026-11-17T05:36:56.945713Z'
+  stage: smoke-test
+  run: a77c6441788a4a7bb221abad60c74458
 ---
 
 # The makefile a pipeline definition names, and the kit's `kit.mk`, are protected paths
@@ -279,3 +281,28 @@ Expect: `13 13`
     `secrets`: secrets: green (2.0 s)
     `documents`: documents ok (47.2 s)
 15. factory: started smoke-test as self.
+16. smoke-tester: Smoke test passed: I ran both commands as written from the repository root, and both outputs match their `Expect:` lines. No findings.
+
+    Command 1: `uv run python -c "from factory.agents.domain.write_paths import protected_paths; p = protected_paths('factory/Makefile'); print('factory/kit.mk' in p, 'factory/Makefile' in p, len(p))"`
+    ```
+    Bytecode compiled 4164 files in 84ms
+    True True 14
+    ```
+    It met `Expect: True True 14`. The first line is uv's own message, not output from the command.
+
+    Command 2: `uv run python -c "from factory.agents.domain.write_paths import protected_paths; print(len(protected_paths(None)), len(protected_paths('Makefile')))"`
+    ```
+    Bytecode compiled 4164 files in 51ms
+    13 13
+    ```
+    It met `Expect: 13 13`. Again, the first line is uv's message.
+
+    Against the acceptance criteria:
+    - Criterion 1: the output agrees with it. `None` gives 12 + `factory/kit.mk`. `"factory/Makefile"` adds one more entry. `"Makefile"` is not added a second time.
+    - Criteria 2 to 4 cover the refusal, the definition read at the commit and the take. These commands do not exercise them, and nothing here contradicts them. The tests named in journal entries 8 and 12 cover them.
+    - Criterion 5: `make check` is still to come; the factory runs it after this stage.
+    - Criterion 6 (docs): the documenter's entry 14 says it is met, and nothing in the smoke test contradicts it.
+
+    Still open, as the reviewer noted in entry 12 and outside this story: a `make_file` written as `./factory/Makefile` is not normalised, so that spelling would not protect `factory/Makefile`.
+
+    `check`: check: green
