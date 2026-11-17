@@ -1,5 +1,5 @@
 ---
-stage: docs
+stage: smoke-test
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 700
 comments_read: [6939383328]
 handed_over: null
-claim:
-  instance: self
-  stage: docs
-  started_at: '2026-11-17T05:29:25.176747Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -84,6 +80,12 @@ journal:
   kind: started
   at: '2026-11-17T05:29:25.176747Z'
   stage: docs
+- number: 14
+  speaker: documenter
+  kind: result
+  at: '2026-11-17T05:34:38.149493Z'
+  stage: docs
+  run: b2a9dc6e96574df9b46a7aa1b4cd80f2
 ---
 
 # The makefile a pipeline definition names, and the kit's `kit.mk`, are protected paths
@@ -238,3 +240,32 @@ Expect: `13 13`
     - tests/pipeline/application/test_write_paths.py — the human's leave, journal entry 4, for `_expected` and `test_at_returns_the_role_write_paths_with_the_work_item_expanded`. The new test and constants that were added leave every earlier test unchanged.
     - tests/agents/domain/test_write_paths.py — none needed: it only adds tests and an import.
 13. factory: started docs as self.
+14. documenter: The docs now say that the makefile a definition names under `make_file` and the kit's `factory/kit.mk` are protected, and why. `make documents` ends `documents ok (46.9 s)`. I changed only documents, so I did not run `make check`; the factory's docs checks decide.
+
+    Files changed:
+    - `docs/operator-guide/pipeline.md`:
+      - The protected-paths bullet under "Further rules" now names the kit's `kit.mk` and the makefile `make_file` names, read at the stage-start commit like the write paths.
+      - "Name the makefile" gains a bullet: no role writes the named makefile, whatever its write paths say.
+    - `docs/project-guide/agents.md`:
+      - *The write paths* now says `protected_paths` is `protected_paths(definition.make_file)`, read at the commit, so a `make_file` set only in the work tree protects nothing.
+      - *Protected paths and the refusal* gains a paragraph on `protected_paths(make_file)`: the order, the rule that a path already in the list is not added again, 13 or 14 entries, `PROTECTED_PATHS` staying at twelve, and the conformance check not reading this list. It also says a `factory/*` write path opens neither file.
+      - It gains a console example. I ran it and it printed `True True 14 13 13`.
+    - `docs/decisions.md`: new entry "The makefile a definition names, and the kit's `kit.mk`, are protected paths" (F0062-S0010). The "Why" comes from the Description and the docs criterion. It has no "Rejected" line, because the story names no rejected option.
+    - `docs/brochure/README.md`: "under 12 protected patterns" was stale. It now reads "12 fixed patterns, the kit's makefile and the makefile the definition names".
+
+    The document check flags a backticked `factory/kit.mk` or `factory/Makefile` as a file that does not exist in this repository. So in prose I wrote them as `<project>/factory/kit.mk` or `make_file: factory/Makefile`, as the existing pages already do.
+
+    Cross-read and found current:
+    - `docs/operator-guide/agent-runtime.md`: the protected `factory/agents/` and `.claude/` paragraphs, and the kit paragraph.
+    - `docs/operator-guide/start-a-project.md`
+    - `docs/project-guide/pipeline.md`: *The take's rule*.
+    - `docs/project-guide/machine.md`: the take's refused paths.
+    - `docs/project-guide/style.md`
+    - The earlier decision entries on protected paths (F0004-S0003, F0036-S0001) and on `make_file` (F0062-S0002). They are history and still true.
+    - `README.md`
+
+    Stale text not mine to fix: none found. The reviewer's open point still stands as a possible follow-up for the human: `make_file` spelled `./factory/Makefile` is not normalised, so that spelling would not protect `factory/Makefile`. The docs describe the code as it is.
+
+    `guides`: guides: green (9.3 s)
+    `secrets`: secrets: green (2.0 s)
+    `documents`: documents ok (47.2 s)

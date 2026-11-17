@@ -413,7 +413,7 @@ What an agent may write is decided in one place, for the [take](glossary.md) of 
 
 - The service is in the application module [write_paths.py](../../src/factory/agents/application/write_paths.py) and the pure rules in the domain module [write_paths.py](../../src/factory/agents/domain/write_paths.py).
 - `WritePathService.at` reads `factory/pipeline.yml` at `stage_start.commit` with `git.show_file` and parses it with `pipeline_reader`. It never reads the work tree's copy, so an agent that rewrites the pipeline definition widens nothing and an invalid rewrite breaks nothing.
-- The write paths are those of the role of `stage_start.claim.stage`, expanded; `root` is `boundaries.checkout`; `protected_paths` is `PROTECTED_PATHS`.
+- The write paths are those of the role of `stage_start.claim.stage`, expanded; `root` is `boundaries.checkout`; `protected_paths` is `protected_paths(definition.make_file)`, with `make_file` from the same definition at the commit, so a `make_file` set only in the work tree protects nothing.
 - It parses the definition itself and does not use `PipelineLoader`, which stays the one place that loads the definition for the tick. This read checks no installed agent file and raises or clears no stop.
 - `ValueError` when `work_item_path` is not `factory/features/<feature directory>/<lifecycle folder>/<work item file name>`. `PipelineDefinitionInvalid`, naming the fault, when the definition is absent or invalid at the commit, when the stage is not in it or has no role, and when a write path holds a placeholder other than the two below.
 - Tests: [test_write_paths.py](../../tests/agents/domain/test_write_paths.py) and [test_write_paths.py](../../tests/pipeline/application/test_write_paths.py). A later version of the definition is made with `human.push_file("develop", "factory/pipeline.yml", text)` and `checkout.fetch()`.
@@ -440,13 +440,20 @@ True False False True
 $ uv run python -c "from factory.agents.domain.write_paths import PROTECTED_PATHS as P, matches_any as m; print([m(x, P) for x in ['src/.claude/skills/x/SKILL.md', 'src/.claudex/a', 'docs/CLAUDE.md', 'docs/factory/agents/coder.md']])"
 ...
 [True, False, False, False]
+$ uv run python -c "from factory.agents.domain.write_paths import protected_paths; p = protected_paths('factory/Makefile'); print('factory/kit.mk' in p, 'factory/Makefile' in p, len(p), len(protected_paths(None)), len(protected_paths('Makefile')))"
+...
+True True 14 13 13
 ```
 
 ### Protected paths and the refusal
 
 `PROTECTED_PATHS` is the engine's fixed list of twelve patterns: `.claude/*`, `*/.claude/*`, `CLAUDE.md`, `Makefile`, `pyproject.toml`, `uv.lock`, `factory/pipeline.yml`, `factory/story-form.md`, `factory/feature-form.md`, `feature.md`, `*/feature.md` and `PROJECT_AGENTS_DIRECTORY` + `/*`, where `PROJECT_AGENTS_DIRECTORY` is defined in [paths.py](../../src/factory/shared/domain/paths.py). That last pattern matches a project's own agents, `<project>/factory/agents/`, at the project's root.
 
-- No write path can reach them, and a project cannot change the list.
+A stage protects more than the fixed list. `protected_paths(make_file)` gives a stage's list: `PROTECTED_PATHS`, then `KIT_MAKEFILE` (`<project>/factory/kit.mk`, the kit's part of every pack's makefile), then the makefile the pipeline definition names under `make_file`, when it names one. A `make_file` already in the list (`make_file: Makefile`, `make_file: factory/kit.mk`) is not added again, so the list holds no duplicate: thirteen patterns without a named makefile, fourteen with `make_file: factory/Makefile`. `PROTECTED_PATHS` itself stays twelve patterns; the conformance check judges write paths against tracked files and does not read this list.
+
+    protected_paths(make_file: str | None) -> list[str]
+
+- No write path can reach them, and a project cannot change the fixed list. A `factory/*` write path opens neither `<project>/factory/kit.mk` nor the named makefile.
 - The last pattern reaches subfolders too; a folder that only starts with `agents`, and an agents folder below another folder, are not protected.
 - A `.claude` segment is protected at any depth and only as a whole segment: `.claudex`, `x.claude` and `agents/agents/coder.md` are not protected, and nor is a path that only ends in `.claude`.
 - The patterns are anchored: a `CLAUDE.md` or `pyproject.toml` below another folder is not protected. `docs/project-guide/` is not protected; the documenter keeps it.
