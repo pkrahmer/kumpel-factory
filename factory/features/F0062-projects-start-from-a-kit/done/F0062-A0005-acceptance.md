@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 0
 attempts: 0
@@ -20,8 +20,13 @@ journal:
   at: '2026-11-17T08:04:25.159456Z'
   stage: acceptance
   run: 7b908c06be554e76be29904bbac663dc
+- number: 3
+  speaker: factory
+  kind: done
+  at: '2026-11-17T08:06:16.800368Z'
+  stage: done
 stories: [F0062-S0001, F0062-S0002, F0062-S0003, F0062-S0004, F0062-S0005, F0062-S0006, F0062-S0007, F0062-S0008, F0062-S0009, F0062-S0010, F0062-S0011, F0062-S0012, F0062-S0013, F0062-S0014, F0062-S0015]
-outcome: null
+outcome: accepted
 ---
 
 # Acceptance of Projects start from a kit and a stack pack
@@ -320,3 +325,4 @@ Human interventions: 16 questions answered, all of cause `question`, with 2.0 h 
    6. Decisions: decision 37; S0014's intake answer (criterion 5); two documenter choices; the S0016 options (a) packs' drafts carry the line, which I prefer, or (b) guides only; c-host `TRAPS.md` wording. Still open from earlier acceptances: the brochure, the "Why after the static part" wording, ratifying the S0011 change to `test_tests_layout.py`, and `factory/*` protection. Earlier tests changed only under the standing leave (`test_one_layout.py`, `kit_support.py`).
    7. Slow checks: nothing beyond `make check`, which was green (111.0 s, 99.14 %, 11362 cases, 13 more than before). The slowest test is `test_documents_marker` at 19.8 s. The feature's tests are 518 cases taking 17.8 s. Disk: 0.2 GB less free on the shared pool with used space unchanged, so this feature's changes do not explain it.
    8. Cost: $46.27 for 148 runs; S0014 cost $1.85 and S0015 $1.04, neither stands out. 16 questions with 2.0 h waited, one more question than before (S0014's intake). S0001 is still the story that needed the human most.
+3. factory: done (pull request merged); cost: 1 runs, 7.2 min, 39 turns, 102127 tokens in (2949960 more from cache), 28527 out, $1.67
