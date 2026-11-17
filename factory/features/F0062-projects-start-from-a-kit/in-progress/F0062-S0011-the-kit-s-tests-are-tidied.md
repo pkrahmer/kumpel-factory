@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 701
 comments_read: [6939751878]
 handed_over: null
-claim:
-  instance: self
-  stage: doing
-  started_at: '2026-11-17T05:45:14.509124Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -62,6 +58,12 @@ journal:
   kind: started
   at: '2026-11-17T05:45:14.509124Z'
   stage: doing
+- number: 10
+  speaker: coder
+  kind: result
+  at: '2026-11-17T05:47:41.061161Z'
+  stage: doing
+  run: 098a73bb9afe49feace8d81e7efc09be
 ---
 
 # The feature's tests are tidied: one missing row, one weak check, one copy, and names that still say template
@@ -153,3 +155,19 @@ Expect: one line ending with `passed` and a time, with no `failed`.
 
    `lint`: lint: green (0.1 s)
 9. factory: started doing as self.
+10. coder: Nothing built, because this story only changes tests. No file under `src/factory/` or anywhere else changed in this stage, and the working tree is the tester's.
+
+    - I ran the test files the tester's entry names with `uv run pytest -q`: `test_project_check_run.py`, `test_make_commands_make_file.py`, `test_packs.py`, `test_installed_builder.py`, the three `test_python_pack_*.py` modules, `test_operator_guide_files.py`, `test_tests_layout.py`, `test_kit_makefile.py` and `tests/vm/test_stage_image.py`. All passed.
+    - `make check guides` is green: check: green, with test coverage at 99.14 %, and guides: green.
+
+    Main choice: change no code, as the Interface says ("No module under `src/factory/` changes"). Rejected: none came up, since no test failed and nothing needed building.
+
+    Refactor step: there is no diff of mine to read, so there was nothing to refactor.
+
+    Description: the journal changed nothing that the intake has not already written into it, so I did not rewrite it.
+
+    Noticed but did not touch, for the documenter:
+    - `docs/project-guide/agents.md:404` and `docs/project-guide/README.md:192` still link `tests/support/template_make_support.py`. That is criterion 7.
+    - `docs/project-guide/README.md:164` still names the Dockerfile reader `_instructions`. Its name is now `dockerfile_instructions`.
+
+    `duplicates`: duplicates: 8 new, 38 known, 5 gone
