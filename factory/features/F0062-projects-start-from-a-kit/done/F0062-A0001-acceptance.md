@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 0
 attempts: 0
@@ -20,8 +20,13 @@ journal:
   at: '2026-11-17T05:07:57.964541Z'
   stage: acceptance
   run: d6a9e67795f44421820f0ac5e60dffea
+- number: 3
+  speaker: factory
+  kind: done
+  at: '2026-11-17T05:09:48.954338Z'
+  stage: done
 stories: [F0062-S0001, F0062-S0002, F0062-S0003, F0062-S0004, F0062-S0005, F0062-S0006, F0062-S0007, F0062-S0008]
-outcome: null
+outcome: accepted
 ---
 
 # Acceptance of Projects start from a kit and a stack pack
@@ -232,3 +237,4 @@ Human interventions: 12 questions answered, all of cause `question`. Five came f
    6 Decisions for the human: ten lasting ones from `feature.md` are listed in the report. Every earlier test changed names its leave; none was changed without one.
    7 Slow checks: nothing beyond `make check`, which is green (test 110.7 s, coverage 99.14 %). The slowest test is `test_documents_marker` at 20 s. Disk: 0.6 GB less free on the shared pool, with the dataset's used unchanged at 1.2 GB. The feature does not explain it.
    8 Cost: 96 runs, $34.05, about $4.26 a story. S0003 stands out at $6.53 (two leaves and a `PLR0913` exception, plus test rework). 12 questions were answered, 1.9 h waited. S0001 needed the human most: 2 questions, one of which waited 102 minutes overnight.
+3. factory: done (pull request merged); cost: 1 runs, 7.3 min, 42 turns, 91275 tokens in (2425230 more from cache), 30026 out, $1.54
