@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 690
 comments_read: [6933812910]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: intake
+  started_at: '2026-11-17T00:32:03.988821Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -30,6 +34,11 @@ journal:
   speaker: human
   kind: comment
   at: '2026-11-17T00:32:00.839227Z'
+  stage: intake
+- number: 5
+  speaker: factory
+  kind: started
+  at: '2026-11-17T00:32:03.988821Z'
   stage: intake
 ---
 
@@ -158,3 +167,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
    What I'd choose: add all six as rows of the existing parametrized criteria, with the tab case in question 4 counting as no include. Then I would accept the story on the `tests` route.
 4. 2026-11-17 human: Add all six, as rows of the existing parametrized criteria. On 4: a tab after the keyword counts as the separator, as make itself reads it, so change the Interface line to "followed by a space or a tab" and make `include<tab>e.mk` a row that gives one entry; keep `included: f` as the row that gives nothing. On 2: criterion 6's repository has no stage file, and a valid stage file is a new row that is ok.
+5. factory: started intake as self.
