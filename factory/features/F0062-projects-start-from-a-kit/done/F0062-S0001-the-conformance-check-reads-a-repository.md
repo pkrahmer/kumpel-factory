@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 1
 attempts: 0
@@ -180,6 +180,11 @@ journal:
   at: '2026-11-17T01:07:21.972297Z'
   stage: smoke-test
   run: 0e321f32fa3a41f2b1907dce6ab0a922
+- number: 32
+  speaker: factory
+  kind: done
+  at: '2026-11-17T01:08:11.446041Z'
+  stage: approval
 ---
 
 # The conformance check reads a repository
@@ -598,3 +603,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     Findings: none.
 
     `check`: check: green
+32. factory: done (pull request merged); cost: 14 runs, 30.2 min, 118 turns, 532395 tokens in (5158620 more from cache), 79638 out, $5.29
