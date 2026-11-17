@@ -2,16 +2,12 @@
 stage: smoke-test
 blocked: null
 round: 0
-attempts: 0
+attempts: 1
 crashes: 0
 pull_request: 696
 comments_read: [6937913187]
 handed_over: null
-claim:
-  instance: self
-  stage: smoke-test
-  started_at: '2026-11-17T04:24:50.128762Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -95,6 +91,19 @@ journal:
   kind: started
   at: '2026-11-17T04:24:50.128762Z'
   stage: smoke-test
+- number: 16
+  speaker: smoke-tester
+  kind: result
+  at: '2026-11-17T04:25:24.809532Z'
+  stage: smoke-test
+  run: d3eec7729fc44452ba50b36c497fbff6
+- number: 17
+  speaker: factory
+  kind: stall
+  at: '2026-11-17T04:25:25.006554Z'
+  stage: smoke-test
+  run: d3eec7729fc44452ba50b36c497fbff6
+  reason: check_red
 ---
 
 # The template goes
@@ -332,3 +341,52 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     `secrets`: secrets: green (2.9 s)
     `documents`: documents ok (47.3 s)
 15. factory: started smoke-test as self.
+16. smoke-tester: Smoke test run from the repository root, each block exactly as written. All three blocks met their `Expect:` lines, and no criterion is contradicted. No findings.
+
+    Block 1 (the folder is gone and nothing under the shipped folders or tests names it):
+    ```
+    gone
+    0
+    ```
+    Met: `gone`, then `0`.
+
+    Block 2 (`check_project` on a project made from the kit's full line, the kit's `CLAUDE.md` and the Python pack's `Makefile`):
+    ```
+    Bytecode compiled 4164 files in 83ms
+    project: ready
+    ```
+    Met: the last line is `project: ready`. The first line is uv's own output on stderr. `tail -1` does not filter stderr, so that line shows too.
+
+    Block 3 (`uv run pytest tests/guards/test_template_removed.py tests/agent_files/`, last lines):
+    ```
+    ........................................................................ [ 82%]
+    ........................................................................ [ 99%]
+    ...                                                                      [100%]
+    435 passed in 3.82s
+    ```
+    Met: the summary line has only `passed`.
+
+    Checked against the criteria:
+    - Criterion 1: confirmed by block 1. The guard's two exceptions are the only hits left.
+    - Criterion 6: `git grep 'operator/template' -- README.md docs operator` finds no hit in `README.md`, `operator/`, the operator guide or the project guide.
+      - In `docs/decisions.md`, the template is named only in older history entries (lines 1576, 1660 and 1745), which keep their words, and in the new entry *The template is removed* (line 1747).
+      - The other hits are under `docs/runs/`, which is the human's.
+    - Criteria 2 to 5: the smoke test contradicts none of them. The factory's `make check` follows this stage.
+
+    Open, as the documenter noted: `docs/brochure/README.md:459` still says a new project starts from the template. It is a dated record of v1.1. The human may want it updated.
+17. factory: Stage smoke-test stalled (attempt 1 of 2): a check is red after the stage: `check`
+    Bytecode compiled 4164 files in 52ms
+    Success: no issues found in 1103 source files
+    types: green (4.8 s)
+    Bytecode compiled 4164 files in 51ms
+
+    ╔══╗─────────▶╔╗ ╔╗      ╔╗◀───┐
+    ╚╣╠╝◀─────┐  ╔╝╚╗║║────▶╔╝╚╗   │
+     ║║   ╔══╦══╦╩╗╔╝║║  ╔╦═╩╗╔╝╔═╦══╗
+     ║║╔══╣╔╗║╔╗║╔╣║ ║║ ╔╬╣╔╗║║ ║│║╔═╝
+    ╔╣╠╣║║║╚╝║╚╝║║║╚╗║╚═╝║║║║║╚╗║═╣║
+    ╚══╩╩╩╣╔═╩══╩╝╚═╝╚═══╩╩╝╚╩═╩╩═╩╝
+      └──▶║║                    ▲ 
+          ╚╝────────────────────┘
+
+    make: *** [Makefile:44: layers] Error 139
