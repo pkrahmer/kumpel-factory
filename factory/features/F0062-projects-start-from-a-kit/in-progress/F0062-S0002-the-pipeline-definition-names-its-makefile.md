@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 691
 comments_read: [6934588171, 6934893656]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: tests
+  started_at: '2026-11-17T01:31:26.166479Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -114,6 +118,11 @@ journal:
   at: '2026-11-17T01:31:21.027603Z'
   stage: review
   run: 3c3e18bd37ed4c818b6c6ee4fe7059a5
+- number: 20
+  speaker: factory
+  kind: started
+  at: '2026-11-17T01:31:26.166479Z'
+  stage: tests
 ---
 
 # The pipeline definition names its makefile
@@ -357,3 +366,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     - `tests/pipeline/domain/test_contract.py`: the human's leave in journal entry 11 (version 4.5 → 4.6 only).
     - `tests/shared/domain/test_contract_version_4.py`: the human's leave in journal entry 11 (version 4.5 → 4.6 only).
     - `tests/shared/domain/test_contract_version_4_2.py`: the human's leave in journal entry 11 (version 4.5 → 4.6 only).
+20. factory: started tests as self.
