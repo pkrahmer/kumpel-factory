@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 692
 comments_read: [6935336014, 6935606286]
 handed_over: null
-claim:
-  instance: self
-  stage: tests
-  started_at: '2026-11-17T02:02:34.345448Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -90,6 +86,12 @@ journal:
   kind: started
   at: '2026-11-17T02:02:34.345448Z'
   stage: tests
+- number: 15
+  speaker: tester
+  kind: result
+  at: '2026-11-17T02:02:56.126470Z'
+  stage: tests
+  run: c8629d69268645ec87fae5672a510041
 ---
 
 # The conformance check runs a repository
@@ -256,3 +258,12 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     Nothing else is open on my side. When the tests come back, I will run them and `make check`. Then I will do the refactor step (reading my own diff) and end with `review`. The human has put the `PLR0913` exception for `project_run.py` in `pyproject.toml` on `develop` (entry 11).
 14. factory: started tests as self.
+15. tester: I made the two test changes the human approved in entry 11, which the coder named in entry 13. Nothing else changed.
+    1. `tests/entry/test_check_project.py`: `USAGE` is now `factory-check-project [--agent-home <dir>] [--run] <folder>`, the usage the Interface gives. This fixes the rows `[no-folder]`, `[two-folders]` and `[no-agent-home]` of `test_main_prints_the_report_or_one_error_and_returns_its_status`.
+    2. `tests/guards/test_make_search.py`: `test_only_the_make_class_names_make` now also expects `factory.machine.application.project_run`. The live check passes `"make"` to the moved check script, as `ContainerMakeCommands.run` does.
+
+    Both are earlier tests that another story wrote; the human gave leave for both changes in entry 11.
+
+    I ran the changed files once, as `CLAUDE.md` says for an approved change: `uv run pytest -q tests/entry/test_check_project.py tests/guards/test_make_search.py` passed with no failures. `make lint`: lint: green (0.1 s). I did not run the whole `make test`.
+
+    `lint`: lint: green (0.1 s)
