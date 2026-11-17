@@ -1,5 +1,5 @@
 ---
-stage: smoke-test
+stage: approval
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 691
 comments_read: [6934588171, 6934893656]
 handed_over: null
-claim:
-  instance: self
-  stage: smoke-test
-  started_at: '2026-11-17T01:41:36.083378Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -167,6 +163,12 @@ journal:
   kind: started
   at: '2026-11-17T01:41:36.083378Z'
   stage: smoke-test
+- number: 29
+  speaker: smoke-tester
+  kind: result
+  at: '2026-11-17T01:43:59.332546Z'
+  stage: smoke-test
+  run: 1fba6fcfc9054b23b9ccea0fa764656b
 ---
 
 # The pipeline definition names its makefile
@@ -513,3 +515,55 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     `secrets`: secrets: green (2.6 s)
     `documents`: documents ok (46.2 s)
 28. factory: started smoke-test as self.
+29. smoke-tester: Smoke test, round 1. I ran the three blocks under `## Smoke test` exactly as written, in order, from the repository root. All three matched their `Expect:` lines. No finding.
+
+    Command 1 (project check with the named makefile, then the same check after moving it to the root):
+    ```
+    Bytecode compiled 4164 files in 85ms
+    pipeline definition: ok
+    makefile: ok
+    stage file: ok
+    agents: ok
+    write paths: ok
+    forms: ok
+    project: ready
+    status 0
+    Bytecode compiled 4164 files in 55ms
+    pipeline definition: ok
+    makefile: FAIL: factory/Makefile is missing
+    stage file: ok
+    agents: ok
+    write paths: ok
+    forms: ok
+    project: not ready (1 fault)
+    status 1
+    ```
+    Met. The first report has six lines ending in `: ok`, then `project: ready` and `status 0`. The second report has `makefile: FAIL: factory/Makefile is missing`, `project: not ready (1 fault)` and `status 1`. The `Bytecode compiled` lines come from uv and are not part of the factory's output.
+
+    Command 2 (the reader parses `make_file`):
+    ```
+    Bytecode compiled 4164 files in 55ms
+    None build/factory.mk
+    refused True
+    ```
+    Met: the two lines `None build/factory.mk` and `refused True`.
+
+    Command 3 (the story's five test files):
+    ```
+    Bytecode compiled 4164 files in 52ms
+    ......................................                                   [100%]
+    38 passed in 0.83s
+    ```
+    Met: the summary line shows only `passed`.
+
+    Criteria check: nothing in the output contradicts any criterion.
+    - The first block checks criterion 8 on both sides: the named file is read, and a root `Makefile` does not stand in for it.
+    - The second block checks criteria 1 and 2 through the real reader.
+    - The third block runs the tests for criteria 1 to 9 and 11. Criterion 10's guard is not in the smoke test's list. The reviewer and the coder's `make check` covered it.
+    - The smoke test reads no document, so it gives no evidence on the docs criterion (13).
+
+    The factory runs `make check` after this stage. I did not run it.
+
+    No temporary files are left: the shell's `trap` removed the directory.
+
+    `check`: check: green
