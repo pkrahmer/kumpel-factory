@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 693
 comments_read: [6936126509]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: docs
+  started_at: '2026-11-17T02:43:24.613607Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -108,6 +112,11 @@ journal:
   at: '2026-11-17T02:43:19.347175Z'
   stage: review
   run: 0366877c5b1f49c9bb2912e0483d736f
+- number: 19
+  speaker: factory
+  kind: started
+  at: '2026-11-17T02:43:24.613607Z'
+  stage: docs
 ---
 
 # The installed builder
@@ -419,3 +428,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     - `tests/agent_files/test_shared_rules_system_prompt.py`: leave 11 and entry 4. It strips the reviewer's new part, and its rows stay the seven agents of `PARTS_BEFORE`.
     - `tests/agent_files/test_shared_start_agent_files.py`: entry 4. It adds a `builder` row to `EFFORTS`.
     - `tests/support/shipped_agents.py`: entry 4. It adds the builder's `ShippedAgent` row, `THIN_LINE_ONLY`, `THIN_LINE_PIPELINE`, `thin_line_definition()` and `full_line_names()`. Under the standing leave to move a shared test helper, it also takes over the regex `REVIEW_POINTS_SUBSECTION` from the two test files above.
+19. factory: started docs as self.
