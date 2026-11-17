@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 708
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: docs-review
+  started_at: '2026-11-17T07:52:00.414052Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -36,6 +40,11 @@ journal:
   at: '2026-11-17T07:51:55.255880Z'
   stage: docs-only
   run: 8dbccf733bbd4497879d87810a0b7529
+- number: 6
+  speaker: factory
+  kind: started
+  at: '2026-11-17T07:52:00.414052Z'
+  stage: docs-review
 ---
 
 # The guides catch up with the one layout and name every shared test helper
@@ -100,3 +109,4 @@ Expect: the single line `done`.
    `guides`: guides: green (9.5 s)
    `secrets`: secrets: green (0.6 s)
    `documents`: documents ok (48.8 s)
+6. factory: started docs-review as self.
