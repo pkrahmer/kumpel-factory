@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 707
 comments_read: [6941636547]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: doing
+  started_at: '2026-11-17T07:34:28.452524Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -86,6 +90,11 @@ journal:
   at: '2026-11-17T07:34:23.024960Z'
   stage: tests
   run: 5bd4194c546d4916982f986fbcc6ba6c
+- number: 15
+  speaker: factory
+  kind: started
+  at: '2026-11-17T07:34:28.452524Z'
+  stage: doing
 ---
 
 # The root makefile forwards a target that a file at the root is named after
@@ -251,3 +260,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     - Every module was imported; none failed to import.
 
     `lint`: lint: green (0.1 s)
+15. factory: started doing as self.
