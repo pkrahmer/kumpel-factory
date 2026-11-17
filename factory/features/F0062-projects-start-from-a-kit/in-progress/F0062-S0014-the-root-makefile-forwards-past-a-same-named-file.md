@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 707
 comments_read: [6941636547]
 handed_over: null
-claim:
-  instance: self
-  stage: tests
-  started_at: '2026-11-17T07:33:27.656634Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -84,6 +80,12 @@ journal:
   kind: started
   at: '2026-11-17T07:33:27.656634Z'
   stage: tests
+- number: 14
+  speaker: tester
+  kind: result
+  at: '2026-11-17T07:34:23.024960Z'
+  stage: tests
+  run: 5bd4194c546d4916982f986fbcc6ba6c
 ---
 
 # The root makefile forwards a target that a file at the root is named after
@@ -225,3 +227,27 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     Earlier tests: none changed. The diff only adds `tests/operator_scripts/test_root_makefile.py`. The fixes above will change `tests/operator_scripts/test_one_layout.py` under the standing leave to move a shared test helper.
 13. factory: started tests as self.
+14. tester: I fixed both of the reviewer's findings by moving shared test helpers under the standing leave in `CLAUDE.md` (*Tests*). The earlier test file I changed is `tests/operator_scripts/test_one_layout.py`. I created no new file.
+
+    - Finding 1 (`MAKEFILE_TARGET` copied): the constant and its comment now live in `tests/support/kit_support.py`. `tests/operator_scripts/test_root_makefile.py` and `tests/operator_scripts/test_one_layout.py` both import it from there, and neither defines it any more.
+    - Finding 2 (project setup repeated): I added `forwarding_project(tmp_path, factory_makefile)` to `tests/support/kit_support.py`. It builds `project/` with `factory/kit.mk` copied from `KIT_MAKEFILE`, `Makefile` copied from `ROOT_MAKEFILE` and the given text as `factory/Makefile`.
+      - `test_one_layout.py::test_the_root_makefile_forwards_every_target_to_the_factory_makefile` now calls `forwarding_project(tmp_path, FORWARDED_MAKEFILE)` instead of writing the project inline. Its name, rows and assertions are unchanged.
+      - Imports that are no longer used were removed from `test_one_layout.py`: `shutil` and `KIT_MAKEFILE`.
+      - In `test_root_makefile.py`, the local helper is now `project_with(tmp_path, test_recipe)`, a thin wrapper that passes this story's `factory_makefile(test_recipe)` to the shared helper.
+
+    Criteria mapping, unchanged:
+    - criterion 1: `tests/operator_scripts/test_root_makefile.py::test_a_target_is_forwarded_past_a_file_or_folder_of_its_name`
+    - criterion 2: `tests/operator_scripts/test_root_makefile.py::test_the_default_goal_runs_check_past_a_check_folder`
+    - criterion 3: `tests/operator_scripts/test_root_makefile.py::test_a_red_target_is_not_hidden_by_a_folder_of_its_name`
+    - criterion 4: `tests/operator_scripts/test_root_makefile.py::test_an_unknown_target_ends_red_and_no_run_remakes_the_makefile`
+    - criterion 5: `tests/operator_scripts/test_root_makefile.py::test_the_forwarding_target_name_is_not_forwarded`
+    - criterion 6: the coder's `make check`.
+    - criterion 7: the docs stage.
+
+    Checks:
+    - `uv run pytest -q tests/operator_scripts/test_root_makefile.py tests/operator_scripts/test_one_layout.py`: all passed (the coder's root makefile is already in place).
+    - `make lint` is green (`lint: green (0.1 s)`); I applied ruff's import sort once.
+    - `make types` is green.
+    - Every module was imported; none failed to import.
+
+    `lint`: lint: green (0.1 s)

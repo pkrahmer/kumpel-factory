@@ -2,21 +2,18 @@
 the root has the target's name."""
 
 import re
-import shutil
 from collections.abc import Callable
 from pathlib import Path
 
 import pytest
 
 from support.kit_make_support import green_line
-from support.kit_support import KIT_MAKEFILE, ROOT_MAKEFILE, run_kit_make
+from support.kit_support import MAKEFILE_TARGET, forwarding_project, run_kit_make
 
 GREEN_RECIPE = "\t$(start)\n\t$(green)\n"
 RED_RECIPE = "\t$(start)\n\texit 3\n"
 CHECK_GREEN = re.compile(r"^check: green$")
 FORWARDED = re.compile(r"^forwarded$")
-# A line of make's output that names the target `Makefile`, in either quoting make uses.
-MAKEFILE_TARGET = re.compile(r"[`']Makefile'")
 
 
 def factory_makefile(test_recipe: str) -> str:
@@ -32,15 +29,9 @@ def factory_makefile(test_recipe: str) -> str:
     )
 
 
-def forwarding_project(tmp_path: Path, test_recipe: str = GREEN_RECIPE) -> Path:
-    """A project in `tmp_path` with the kit's root makefile as `Makefile` and a `factory/Makefile`
-    that includes the kit's `factory/kit.mk`."""
-    project = tmp_path / "project"
-    (project / "factory").mkdir(parents=True)
-    shutil.copyfile(KIT_MAKEFILE, project / "factory" / "kit.mk")
-    shutil.copyfile(ROOT_MAKEFILE, project / "Makefile")
-    (project / "factory" / "Makefile").write_text(factory_makefile(test_recipe), encoding="utf-8")
-    return project
+def project_with(tmp_path: Path, test_recipe: str = GREEN_RECIPE) -> Path:
+    """A forwarding project in `tmp_path` whose `factory/Makefile` has `test_recipe` as `test`."""
+    return forwarding_project(tmp_path, factory_makefile(test_recipe))
 
 
 def with_nothing(project: Path) -> None:
@@ -81,7 +72,7 @@ def matching(pattern: re.Pattern[str], lines: list[str]) -> int:
 def test_a_target_is_forwarded_past_a_file_or_folder_of_its_name(
     tmp_path: Path, setup: Setup
 ) -> None:
-    project = forwarding_project(tmp_path)
+    project = project_with(tmp_path)
     setup(project)
 
     result = run_kit_make(project, "test")
@@ -93,7 +84,7 @@ def test_a_target_is_forwarded_past_a_file_or_folder_of_its_name(
 
 
 def test_the_default_goal_runs_check_past_a_check_folder(tmp_path: Path) -> None:
-    project = forwarding_project(tmp_path)
+    project = project_with(tmp_path)
     with_check_folder(project)
 
     result = run_kit_make(project)
@@ -107,7 +98,7 @@ def test_the_default_goal_runs_check_past_a_check_folder(tmp_path: Path) -> None
 
 
 def test_a_red_target_is_not_hidden_by_a_folder_of_its_name(tmp_path: Path) -> None:
-    project = forwarding_project(tmp_path, RED_RECIPE)
+    project = project_with(tmp_path, RED_RECIPE)
     with_test_folder(project)
 
     result = run_kit_make(project, "test")
@@ -129,7 +120,7 @@ def test_a_red_target_is_not_hidden_by_a_folder_of_its_name(tmp_path: Path) -> N
 def test_an_unknown_target_ends_red_and_no_run_remakes_the_makefile(
     tmp_path: Path, test_recipe: str, setup: Setup, args: list[str], succeeds: bool
 ) -> None:
-    project = forwarding_project(tmp_path, test_recipe)
+    project = project_with(tmp_path, test_recipe)
     setup(project)
 
     result = run_kit_make(project, *args)
@@ -141,7 +132,7 @@ def test_an_unknown_target_ends_red_and_no_run_remakes_the_makefile(
 
 
 def test_the_forwarding_target_name_is_not_forwarded(tmp_path: Path) -> None:
-    project = forwarding_project(tmp_path)
+    project = project_with(tmp_path)
 
     result = run_kit_make(project, "factory-forward")
 
