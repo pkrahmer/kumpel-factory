@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 695
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: doing
+  started_at: '2026-11-17T03:36:58.715956Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -36,6 +40,11 @@ journal:
   at: '2026-11-17T03:36:52.736072Z'
   stage: tests
   run: ade89571e3a145f1b6e3a76479c6c11c
+- number: 6
+  speaker: factory
+  kind: started
+  at: '2026-11-17T03:36:58.715956Z'
+  stage: doing
 ---
 
 # The stack packs
@@ -127,3 +136,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    The one `make test` run: 28 failures, all in `test_packs.py` and all `FileNotFoundError` on the missing pack files. The JUnit report shows no other failure. `make lint` is green. Every module the tests import exists; the runner could import all of them, only the pack files are missing.
 
    `lint`: lint: green (0.2 s)
+6. factory: started doing as self.
