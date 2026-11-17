@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 696
 comments_read: [6937913187]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: tests
+  started_at: '2026-11-17T04:05:22.094981Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -42,6 +46,11 @@ journal:
   at: '2026-11-17T04:05:16.513702Z'
   stage: intake
   run: d6665a7d80a0424cab69fb0b136eb0f7
+- number: 7
+  speaker: factory
+  kind: started
+  at: '2026-11-17T04:05:22.094981Z'
+  stage: tests
 ---
 
 # The template goes
@@ -121,3 +130,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    - Architecture: no module under `src/factory/` reads the template. Changes to tests made by other stories are covered by `feature.md` decision 25. `demo/todo-service/README.md` stays the human's.
    - Scope: within F0062 (projects start from a kit). This story is the cleanup after S0005 and S0006 and is not in the feature's out-of-scope list.
    - Route: `tests`. The story removes files under `operator/` and changes tests and shipped texts, which are outside the documenter's paths.
+7. factory: started tests as self.
