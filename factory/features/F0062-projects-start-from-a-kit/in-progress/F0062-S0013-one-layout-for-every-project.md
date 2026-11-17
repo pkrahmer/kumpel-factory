@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 705
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: review
+  started_at: '2026-11-17T07:03:28.170331Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -102,6 +106,11 @@ journal:
   at: '2026-11-17T07:03:22.626510Z'
   stage: doing
   run: d12c40003e8a4a998d8628fbcf077a53
+- number: 18
+  speaker: factory
+  kind: started
+  at: '2026-11-17T07:03:28.170331Z'
+  stage: review
 ---
 
 # One layout for every project
@@ -351,3 +360,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     - Noticed, not touched: the tester's open point for the documenter still stands. `docs/project-guide/README.md` does not yet name `tests/support/pack_make_support.py`.
 
     `duplicates`: duplicates: 8 new, 38 known, 5 gone
+18. factory: started review as self.
