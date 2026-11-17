@@ -1,5 +1,5 @@
 ---
-stage: docs
+stage: smoke-test
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 691
 comments_read: [6934588171, 6934893656]
 handed_over: null
-claim:
-  instance: self
-  stage: docs
-  started_at: '2026-11-17T01:36:17.432382Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -156,6 +152,12 @@ journal:
   kind: started
   at: '2026-11-17T01:36:17.432382Z'
   stage: docs
+- number: 27
+  speaker: documenter
+  kind: result
+  at: '2026-11-17T01:41:30.702502Z'
+  stage: docs
+  run: 5a8f4d6e0c1c4133bd71881353f21e2f
 ---
 
 # The pipeline definition names its makefile
@@ -473,3 +475,31 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     - `tests/shared/domain/test_contract_version_4_2.py`: the human's leave in journal entry 11 (version 4.5 → 4.6 only).
     - `tests/guards/test_agent_home_wiring.py`: the standing leave to move a shared test helper (`_called_name` moved to `tests/support/source_search.py` as `called_name`; the test keeps its name and checks the same thing).
 26. factory: started docs as self.
+27. documenter: Docs for `make_file`, written from the diff `develop...HEAD`. I read the code on the branch first: `pipeline_definition.py`, `make_file.py`, `make_file_source.py`, `make_commands.py`, `stage_environment.py`, `project_check.py`, the wiring and `boundaries.py`. `make documents` ends `documents ok (45.8 s)`. I changed only documents, so I did not run `make check`.
+
+    Files changed:
+    - `docs/operator-guide/pipeline.md`:
+      - New section "Name the makefile". It says what `make_file` is for (an existing repository keeps its own root `Makefile`). Every check, report, start fact and the sync then run as `make -f <path>` from the root, so paths inside that makefile, includes among them, stay relative to the root. The value is read at every call, a missing or refused definition gives plain make, and `factory-check-project` reads the named file. It lists the accepted and refused values and says the key came with contract 1.2 while 1.0 and 1.1 still load.
+      - Also in that file: a `make_file` row in the keys table, the `makefile` point and its fault `<makefile> is missing` in the project check's tables, and a note that includes are taken from the root also for a named makefile in a folder.
+    - `docs/project-guide/pipeline.md`: new section "The makefile source" covers:
+      - `MakeFilePath` and `_make_file_faults` with their fault text
+      - the `MakeFileSource` interface and `asked_make_file`
+      - `GitMakeFileSource`, which reads `PIPELINE_REF` and returns `None` for a missing branch, a missing file or an invalid definition
+      - the wiring through `Boundaries.make_file`
+      - the rule that the path is always an argument, and the tests
+
+      Also: a `make_file` row in the keys table, the contract rule (1.2, with 1.0 and 1.1 still loading), and the project check's line on which makefile it reads and the faults that name it.
+    - `docs/project-guide/machine.md`: the `make_file=None` keyword on `ContainerEnvironment` and `ContainerMakeCommands`. The named check script, with the path as `$3`, and the start fact. The sync script: `_NAMED_SYNC`, the path as `$7`, and step 6 `make -f "$7" sync`. The two new test files.
+    - `docs/decisions.md`: new entry "The pipeline definition names its makefile; make stays the one command runner", dated 2026-11-16. It covers the decision, the path always passed as an argument and asked for at every call, the unchanged interfaces, pipeline contract 1.2 and records contract 4.6. The Why comes from the Description. The entry has no "Rejected" line, because the story names no rejected option.
+    - `docs/operator-guide/records.md`: the records contract version was stale at `4.5`; it now reads `4.6`.
+
+    Examples run: the story's first two smoke blocks, which match their Expect lines. `make_file: factory/Makefile` loads at contract 1.2. The fault texts quoted in the project guide came from that run (`make_file ../Makefile must be a path inside the checkout`, and pydantic's pattern message for `-f`). The document check reads backticked paths like `factory/Makefile` as files of this repository, so the examples are written as `make_file: factory/Makefile` or `<checkout>/factory/Makefile`.
+
+    Cross-read and found current: `README.md`, the rest of `docs/operator-guide/` (`agent-runtime.md`, whose template paragraph still holds, `install.md`, `machine.md`, `stops.md`), `docs/project-guide/README.md` and the sync command section of `machine.md`. Nothing else in `docs/` names the sync or check argv.
+
+    Stale or open, not mine to fix:
+    - The protected paths (`PROTECTED_PATHS` in `src/factory/agents/domain/write_paths.py`) list `Makefile` but not the makefile that `make_file` names. A role whose write paths cover `factory/*` could therefore edit the factory's targets. This was not in the story's scope; the human may want a story for it.
+
+    `guides`: guides: green (9.2 s)
+    `secrets`: secrets: green (2.6 s)
+    `documents`: documents ok (46.2 s)

@@ -89,6 +89,24 @@ The targets are your project's own. The factory knows only the names a stage's `
 
 The full rules are under *Start facts* in [the project guide's pipeline.md](../project-guide/pipeline.md).
 
+### Name the makefile
+
+The factory runs every project command, and the sync before every agent run, as `make <command>` in the root of the checkout. make then reads the root `Makefile`. An existing repository often has a root `Makefile` of its own, or none and no wish for one. It can keep it: put the factory's targets in another makefile and name it in the definition.
+
+```yaml
+contract: '1.2'
+make_file: factory/Makefile
+```
+
+- Every check, every report, every start fact and the sync then run as `make -f factory/Makefile <command>`, still from the root of the checkout.
+- make still runs in the root, so every path inside that makefile, an `include` among them, is relative to the root of the checkout, not to the makefile's folder. In a makefile named `make_file: factory/Makefile`, the line `include common.mk` reads `common.mk` at the root.
+- The factory reads `make_file` from the definition on the working branch at every call, so a merged change takes effect at the next check or sync.
+- A definition without `make_file` runs plain `make <command>`, as before. So does every call while the definition is missing or refused.
+- `factory-check-project` reads the named makefile instead of `Makefile` (see *The six points* below).
+- `make_file` came with the definition's contract 1.2; a definition at `'1.0'` or `'1.1'` may carry it too.
+
+The value must be a path inside the checkout made of letters, digits, `_`, `.`, `/` and `-`, which does not start with `-` or `/` and has no `..` segment. `make_file: Makefile`, `make_file: factory/Makefile` and `make_file: build/factory.mk` are accepted. An empty value, `-f`, `/etc/Makefile`, `../Makefile`, `a/../b`, `my file`, `a;b` and a number are refused, and the fault names `make_file`.
+
 ### More than one route
 
 A definition may hold more than one route and more than one [approval](../project-guide/glossary.md) stage. When you close a pull request at an approval stage, the story goes to that stage's second `next`. The stage whose first `next` is that approval counts the [rounds](../project-guide/glossary.md).
@@ -155,6 +173,7 @@ The keys of the definition:
 | `attempts_cap` | [stalls](../project-guide/glossary.md) of one stage before the human is asked | 2 | `attempts_cap: 3` |
 | `crash_cap` | [crashes](../project-guide/glossary.md) before the human is asked | 2 | `crash_cap: 3` |
 | `acceptance_stage` | the stage of the feature [acceptance](../project-guide/glossary.md); it needs a role | none | `acceptance_stage: acceptance` |
+| `make_file` | the makefile every project command and the sync run with, as `make -f <path>` from the root of the checkout (see "Name the makefile") | none: make's own default, the root `Makefile` | `make_file: factory/Makefile` |
 
 The keys of a stage:
 
@@ -225,7 +244,7 @@ project: not ready (2 faults)
 | Point | What it judges |
 |---|---|
 | `pipeline definition` | `factory/pipeline.yml` is there and the factory's reader accepts it. The fault is the reader's fault text, the same as in the stop `pipeline_definition_invalid`. |
-| `makefile` | `Makefile` at the root has a target for every project command the definition names under `project_commands`, and for `sync`. A target in a file the `Makefile` includes counts, through any depth of includes. |
+| `makefile` | The makefile the definition names under `make_file`, else `Makefile` at the root, has a target for every project command the definition names under `project_commands`, and for `sync`. A target in a file it includes counts, through any depth of includes. |
 | `stage file` | `<project>/factory/stage.Containerfile`, when the project has one, follows the rules of a project's stage file (see *The project's stage file* in [machine.md](machine.md)). Without the file the project runs on the factory's stage image, which is no fault. |
 | `agents` | Every role of the definition has an agent: the project's own `factory/agents/<role>.md` at `HEAD`, else the installed one (see *A project's own agents* in [agent-runtime.md](agent-runtime.md)). |
 | `write paths` | Every write path of every role matches at least one tracked file. A write path with a placeholder such as `{work_item}` is not judged. |
@@ -248,7 +267,7 @@ The faults:
 |---|---|
 | `factory/pipeline.yml is missing` | `pipeline definition` |
 | the fault text of the definition's refusal | `pipeline definition` |
-| `Makefile is missing` | `makefile` |
+| `<makefile> is missing`, such as `Makefile is missing` or `factory/Makefile is missing` | `makefile`; `<makefile>` is the file `make_file` names, else `Makefile`. A root `Makefile` does not stand in for a named one that is missing. |
 | `no target <name>` | `makefile` |
 | `<including file>: included file <path> is missing` | `makefile`; an `include` whose file is not committed, or lies outside the repository. A `-include` or `sinclude` whose file is missing is no fault. |
 | the reason the stage file is refused, such as two `FROM` lines | `stage file` |
@@ -257,7 +276,7 @@ The faults:
 | `role <role>: write path <pattern> matches no tracked file` | `write paths` |
 | `factory/story-form.md is missing`, `factory/feature-form.md is missing` | `forms` |
 
-How the makefile is read: a rule line starts at column 0 with one or more names of letters, digits, `_`, `.` and `-`, then `:` or `::`. An assignment (`X := 1`), an indented line, a comment and a pattern or variable rule (`%.o: %.c`, `$(T): u`) give no target. An include line starts at column 0 with `include`, `-include` or `sinclude`, then a space or a tab; a `#` ends its paths, and a path that holds `$` is left out. Every included path is taken from the root of the repository, and each file is read once, so an include cycle ends.
+How the makefile is read: a rule line starts at column 0 with one or more names of letters, digits, `_`, `.` and `-`, then `:` or `::`. An assignment (`X := 1`), an indented line, a comment and a pattern or variable rule (`%.o: %.c`, `$(T): u`) give no target. An include line starts at column 0 with `include`, `-include` or `sinclude`, then a space or a tab; a `#` ends its paths, and a path that holds `$` is left out. Every included path is taken from the root of the repository, also in a makefile that `make_file` names in a folder, as make takes it, and each file is read once, so an include cycle ends.
 
 The usage is `factory-check-project [--agent-home <dir>] <folder>`. `--agent-home` wins over `FACTORY_CLAUDE_HOME`.
 

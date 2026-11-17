@@ -1720,3 +1720,10 @@ Date: 2026-11-17 (F0062-S0001).
 - Decision: whether a repository is ready for the factory is answered by the command `factory-check-project <folder>`, not by an item of the preflight. It reads the commit at `HEAD`, never the work tree, judges six points (the pipeline definition, the makefile's targets, the stage file, the agents of the roles, the write paths and the forms), starts no container and runs no project command, and exits 0 when ready, 1 when not, 2 when it cannot do its job.
 - Why a command: the preflight guards a machine, and the check guards a repository. Before it, whether a repository was ready was found out by starting a story and reading the stop.
 - Why commits only: the factory reads commits too, so a file that is only in the work tree must not make a repository look ready.
+
+## The pipeline definition names its makefile; make stays the one command runner
+
+Date: 2026-11-16 (F0062-S0002).
+
+- Decision: a pipeline definition may name the makefile the factory runs, with the key `make_file` (for example `factory/Makefile`). Every project command, every start fact and the sync then run as `make -f <path> ...`, still from the root of the checkout; without the key they run as plain `make`. The path is a path inside the checkout that cannot read as an option, it is always passed to make as an argument and never written into a script's text, and the classes that call make ask a `MakeFileSource` for it at every call. The conformance check reads the named makefile. make stays the one command runner for every stack, and the interfaces `ProjectCommands` and `StageEnvironment` keep their signatures. The pipeline definition's contract rises to 1.2 (1.0 and 1.1 still load), and the records contract to 4.6.
+- Why: the factory ran every project command as `make <command>` in the root, so a project had to give its root `Makefile` the factory's targets, and an existing repository often has a root `Makefile` of its own, or none and no wish for one.
