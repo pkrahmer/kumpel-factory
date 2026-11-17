@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 705
 comments_read: []
 handed_over: null
-claim:
-  instance: self
-  stage: tests
-  started_at: '2026-11-17T06:47:59.401485Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -34,6 +30,12 @@ journal:
   kind: started
   at: '2026-11-17T06:47:59.401485Z'
   stage: tests
+- number: 5
+  speaker: tester
+  kind: result
+  at: '2026-11-17T06:52:09.255746Z'
+  stage: tests
+  run: e0ccf9f4ddcd4fb9b3aa35099a54160c
 ---
 
 # One layout for every project
@@ -104,3 +106,45 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    - Architecture: the changes are data files under `operator/kit/` and `operator/packs/` (coder's write paths), tests under `tests/` (tester's) and documents (documenter's); `make_file` and its protection are already built, so no layer or wrapper is touched.
    - Scope: within F0062 and exactly its decision 36 (one layout, story S0013); nothing from its Out of scope. Route `tests`, since the coder must write `operator/kit/` and `operator/packs/`.
 4. factory: started tests as self.
+5. tester: Wrote the tests for the one layout and moved the kit and pack helper and the earlier tests to it, under the leave the human gave in feature decision 36.
+
+   Criteria → tests (all in `tests/operator_scripts/test_one_layout.py`):
+   - criterion 1: `test_each_kit_pipeline_definition_names_the_factory_makefile` (rows: thin and full). Checks that `make_file == "factory/Makefile"` and that no line matches `^\s*#\s*make_file\s*:`.
+   - criterion 2: `test_a_one_way_project_is_ready_with_only_claude_md_and_makefile_outside_factory` (rows: 3 packs × 2 lines). `project_faults` must be all empty. Apart from `WRITTEN_FILES`, the assembly writes only `CLAUDE.md` and `Makefile` outside `factory/`, and `Makefile` is `operator/kit/root.Makefile` byte for byte.
+   - criterion 3: `test_an_own_root_makefile_is_kept_byte_for_byte` (rows: 3 packs × 2 lines). Uses an own root `Makefile`; the committed file must equal it byte for byte, and `ProjectCheck.run` must give no fault.
+   - criterion 4: `test_the_root_makefile_forwards_every_target_to_the_factory_makefile` (rows: no target, `lint`, `nosuch`). Real make runs in `tmp_path`:
+     - with no target, the `lint` green line prints, then `check: green` as the last line;
+     - `lint` prints its green line and not `check: green`;
+     - `nosuch` ends red;
+     - in every row, no output line names `'Makefile'` or `` `Makefile' ``.
+   - criterion 5: `test_the_java_pack_calls_its_files_under_factory`.
+     - `sync` runs with `SSL_CERT_FILE` set and calls a recording stand-in placed at `factory/scripts/trust-store.sh`.
+     - `secrets` calls a stand-in `gitleaks` with `--config factory/gitleaks.toml`.
+     - Refused side: no file in the three pack folders names `scripts/trust-store.sh` without `factory/` in front, or `.gitleaks.toml`.
+   - criterion 6: `test_the_factory_makefiles_are_protected_for_every_role` (rows: 2 lines × `factory/Makefile` and `factory/kit.mk`). Checks `matches_any(path, protected_paths(definition.make_file))`.
+   - criteria 7 and 8: no test (`make check` and docs).
+
+   Files:
+   - Created: `tests/operator_scripts/test_one_layout.py`.
+   - Changed under decision 36's leave:
+     - `tests/support/kit_support.py`:
+       - new `ROOT_MAKEFILE` and `PACK_PAGES`;
+       - `kit_project_files` now also writes `root.Makefile` as the root `Makefile`;
+       - `pack_project_files` has a single assembly: every pack file but `CLAUDE.sections.md` and `TRAPS.md` goes to `factory/<same path>`;
+       - the `brownfield=` keyword is replaced by `own_root_makefile=`;
+       - `_PACK_PLACED_FILES` and `_MAKE_FILE_LINE` are removed.
+     - `tests/operator_scripts/test_kit_files.py`:
+       - in `test_each_kit_pipeline_definition_loads_through_the_reader`, removed the two lines that asserted `make_file is None` and the commented line (criterion 1 now covers them);
+       - in `test_a_project_from_the_kit_alone_lacks_only_the_makefile_and_written_files`, the expected fault is now `factory/Makefile is missing`;
+       - `test_a_kit_project_with_its_makefile_and_written_files_is_ready` puts its makefile at `factory/Makefile`.
+     - `tests/operator_scripts/test_packs.py`:
+       - removed `test_a_brownfield_project_with_the_pack_makefile_under_factory_is_ready` (all 6 rows; the criterion 2 and 3 tests cover it);
+       - `test_the_java_sync_builds_the_trust_store_once_per_bundle` writes its stand-in to `factory/scripts/trust-store.sh`;
+       - every other test keeps its name and what it checks. The stand-in `make check` now runs through the forwarding root makefile.
+   - Left as they are: `test_kit_makefile.py`, whose tests are about `kit.mk` with any includer and do not depend on the layout, and `test_claude_files.py`, which uses only `pack_claude_md`.
+
+   Test run: `make test` is red as intended. Every failure seen was `FileNotFoundError` on `operator/kit/root.Makefile`, which does not exist yet; no module failed to import. `make lint` is green.
+
+   Open: I tried to check these tests against the drafts by copying the drafts into `operator/` for a moment; the call was refused. They have not been run against the finished files, so the coder's run is the first one. The working tree's `operator/` was not changed.
+
+   `lint`: lint: green (0.1 s)

@@ -100,20 +100,6 @@ def test_a_project_from_the_kit_and_a_pack_is_ready(tmp_path: Path, pack: Pack, 
     assert faults == {name: [] for name in faults}
 
 
-@pytest.mark.parametrize("line", LINES)
-@pytest.mark.parametrize("pack", PACKS)
-def test_a_brownfield_project_with_the_pack_makefile_under_factory_is_ready(
-    tmp_path: Path, pack: Pack, line: Line
-) -> None:
-    files = pack_project_files(pack, line, brownfield=True)
-
-    faults = project_faults(tmp_path, {**files, **WRITTEN_FILES})
-
-    assert "Makefile" not in files
-    assert "make_file: factory/Makefile" in files["factory/pipeline.yml"].splitlines()
-    assert faults == {name: [] for name in faults}
-
-
 @pytest.mark.parametrize("pack", PACKS)
 def test_each_pack_makefile_includes_the_kit_first_and_defines_only_the_stack_targets(
     pack: Pack,
@@ -204,7 +190,7 @@ def test_the_java_trust_store_script_is_a_posix_shell_script(tmp_path: Path) -> 
 def test_the_java_sync_builds_the_trust_store_once_per_bundle(tmp_path: Path) -> None:
     project, variables = _stand_in_project(tmp_path, "java-gradle", 0)
     record = tmp_path / "trust-store-calls"
-    (project / "scripts" / "trust-store.sh").write_text(
+    (project / "factory" / "scripts" / "trust-store.sh").write_text(
         f'printf \'%s\\n\' "$*" >> "{record}"\nmkdir -p "$(dirname "$2")"\n: > "$2"\n',
         encoding="utf-8",
     )
