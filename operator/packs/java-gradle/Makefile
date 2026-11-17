@@ -40,7 +40,7 @@ sync:
 	if [ -n "$${SSL_CERT_FILE:-}" ] && [ -f "$${SSL_CERT_FILE}" ]; then
 	  bundle=$$(sha256sum < "$${SSL_CERT_FILE}" | cut -d' ' -f1)
 	  if [ ! -f "$(TRUST_STORE)" ] || [ "$$(cat "$(TRUST_STORE).sha256" 2>/dev/null)" != "$$bundle" ]; then
-	    sh scripts/trust-store.sh "$${SSL_CERT_FILE}" "$(TRUST_STORE)"
+	    sh factory/scripts/trust-store.sh "$${SSL_CERT_FILE}" "$(TRUST_STORE)"
 	    echo "$$bundle" > "$(TRUST_STORE).sha256"
 	  fi
 	else
@@ -57,10 +57,10 @@ lint:
 	$(OFFLINE) $(LINT_TASKS)
 	$(green)
 
-# Secrets in the working tree, by gitleaks with the rules of .gitleaks.toml.
+# Secrets in the working tree, by gitleaks with the rules of factory/gitleaks.toml.
 secrets:
 	$(start)
-	gitleaks dir . --config .gitleaks.toml --no-banner --redact --log-level error
+	gitleaks dir . --config factory/gitleaks.toml --no-banner --redact --log-level error
 	$(green)
 
 test:

@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: tests
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 705
 comments_read: []
 handed_over: null
-claim:
-  instance: self
-  stage: doing
-  started_at: '2026-11-17T06:52:14.789438Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -45,6 +41,12 @@ journal:
   kind: started
   at: '2026-11-17T06:52:14.789438Z'
   stage: doing
+- number: 7
+  speaker: coder
+  kind: result
+  at: '2026-11-17T06:55:26.918099Z'
+  stage: doing
+  run: 33c2c3c901d64cebbc76d7ae434ceb36
 ---
 
 # One layout for every project
@@ -158,3 +160,24 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
    `lint`: lint: green (0.1 s)
 6. factory: started doing as self.
+7. coder: Put the human's drafts in place, unchanged. `make check` is red on one earlier test that only the new layout breaks, so the story goes back to the tester.
+
+   Built (data files only; no module under `src/factory/` changed):
+   - Copied byte for byte from `planning/kit-draft/`: `operator/kit/CLAUDE.md`, `operator/kit/factory/README.md`, `operator/kit/factory/kit.mk`, `operator/kit/factory/pipeline.thin.yml`, `operator/kit/factory/pipeline.full.yml`, and the new `operator/kit/root.Makefile`.
+   - Copied byte for byte from `planning/packs-draft/`: `operator/packs/c-host/Makefile`, `operator/packs/java-gradle/Makefile`, `operator/packs/java-gradle/TRAPS.md`, `operator/packs/java-gradle/CLAUDE.sections.md`, and the new `operator/packs/java-gradle/gitleaks.toml`. Removed `operator/packs/java-gradle/.gitleaks.toml`.
+   - Left `operator/packs/java-gradle/scripts/trust-store.sh` as it was. It differs from the draft only by the SPDX licence header line, which the Interface keeps.
+   - `diff -rq` against the drafts now shows only that header and the two `README.md` files, which exist only under `operator/`.
+
+   Main choice: copy the drafts as files rather than edit the old files line by line, because the Interface asks for byte-for-byte copies. There was nothing to refactor.
+
+   Results:
+   - `uv run pytest -q tests/operator_scripts/`: all passed. This was the first run of the new tests against the finished files.
+   - `make guides`: green.
+   - `make check`: red at `make test`, with one failure:
+     `FAILED tests/agent_files/test_claude_files.py::test_template_holds_only_the_rules_file_the_makefile_and_the_pipeline_definition`
+     `E         Left contains one more item: 'root.Makefile'`
+     `tests/agent_files/test_claude_files.py:173: AssertionError`
+
+   Change asked of the tester: in `tests/agent_files/test_claude_files.py`, `test_template_holds_only_the_rules_file_the_makefile_and_the_pipeline_definition`, add `"root.Makefile"` to the expected kit listing, after `"factory/story-form.md"` (the list is sorted). The test fails only because of the new layout, so feature decision 36's leave covers the change; the tester's entry had left this file out because it uses only `pack_claude_md`, but this test lists the kit's files.
+
+   Noticed, not touched: nothing else.
