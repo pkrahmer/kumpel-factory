@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 710
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: tests
+  started_at: '2026-11-17T08:07:23.290770Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -25,6 +29,11 @@ journal:
   at: '2026-11-17T08:07:18.171476Z'
   stage: intake
   run: 9c414dde64ce440f911031b60381cd1e
+- number: 4
+  speaker: factory
+  kind: started
+  at: '2026-11-17T08:07:23.290770Z'
+  stage: tests
 ---
 
 # Each pack's checks section keeps the line that names the factory's makefile
@@ -76,3 +85,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    - Docs criterion: it says what the reader must know in the guide's step 5 and the packs README's step 4. That is: the pack's `## Checks` section replaces the kit's section together with the line about `factory/Makefile`, the reader keeps the wording that fits their repository, and no step asks them to keep a line the replacement removed. It dictates no sentences.
    - Architecture: the change is pack data under `operator/packs/` plus one test in `tests/operator_scripts/`. No code changes and no layer is touched.
    - Scope: within F0062, which covers the kit and the packs. The packs are copies of the human's drafts (feature decision 23), and the change touches nothing listed under Out of scope. The route is `tests`, because the pack files are outside the documenter's write paths.
+4. factory: started tests as self.
