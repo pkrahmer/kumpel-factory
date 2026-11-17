@@ -1,5 +1,5 @@
 ---
-stage: review
+stage: docs
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 690
 comments_read: [6933812910, 6934072851]
 handed_over: null
-claim:
-  instance: self
-  stage: review
-  started_at: '2026-11-17T00:58:12.678196Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -156,6 +152,12 @@ journal:
   kind: started
   at: '2026-11-17T00:58:12.678196Z'
   stage: review
+- number: 27
+  speaker: reviewer
+  kind: result
+  at: '2026-11-17T00:59:34.914932Z'
+  stage: review
+  run: 7928edf6aa364b29bf2923a5e50a85d0
 ---
 
 # The conformance check reads a repository
@@ -487,3 +489,23 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     `duplicates`: duplicates: 7 new, 39 known, 4 gone
 26. factory: started review as self.
+27. reviewer: Review, round 1. I read the whole diff again against the Interface, the criteria and the round 0 findings.
+
+    no findings
+
+    - Finding 1 from round 0 is fixed. In `src/factory/pipeline/application/project_check.py:46-68` (`_Makefiles`), every include path now goes through `posixpath.normpath` before it is used for `seen`, the read and the including file's name. A path that is absolute or leaves the root is caught by the existing `is_inside_checkout` and never reaches `Git.show_file`. It counts as a missing include for `include` and as nothing for `-include`. The coder rejected catching `GitError` around `show_file`, because that would hide real git failures, and I agree. The three new rows in `tests/pipeline/application/test_project_check_run.py::test_targets_count_through_included_files` pin it: `include-outside-the-repository`, `optional-include-outside-the-repository` and `include-with-dot-slash`.
+    - Finding 2 from round 0 is fixed. The row `comment-after-path` is in `tests/pipeline/domain/test_project_check.py::test_makefile_includes_are_the_paths_of_include_lines`.
+    - Group 1, acceptance criteria: criteria 1 to 11 each have a test, and each test checks what its criterion says, including every row the human's answer in entry 4 added. Criterion 4's placeholders `{work_item}` and `{feature}/backlog/*` are in `PIPELINE_YAML` (`tests/support/git_support.py:32-38`), so the `domain` test exercises them in every row. The changed `list_files(ref, "")` is pinned indirectly: criterion 6's ready repository needs the root `README.md` listed. The Interface's limits are tested on both sides, apart from the note below. The coder's entry 25 reports `make check guides` green.
+    - Group 2, architecture: the parsing and judging are pure in `domain`. The use case in `application` uses only the `Git`, `PipelineDefinitionReader` and `AgentDefinitionReader` interfaces. Only `entry` wires, and `build_agent_definitions` is the one place that builds `FrontmatterAgentDefinitionReader`. `GitCli` is still the only implementation of `Git.list_files`, so the interface's new `""` meaning has no other implementation to follow.
+    - Group 3, security: no new tool and no silencing marker. `GitCli` sets `GIT_CEILING_DIRECTORIES` to the folder's parent, so a subfolder of another repository is refused as `cannot read`. Include paths are passed to git after `--`, never through a shell.
+    - Group 4, quality: names, docstrings and comments are as `CLAUDE.md` asks. I found no second copy of an existing helper.
+    - Group 5, work item hygiene: the Description matches what was built. The journal names the main decisions and what was rejected (argparse, a new `Git` operation, catching `GitError`). The docs criterion still says what the reader needs.
+
+    Notes:
+    - `tests/pipeline/application/test_project_check_run.py` still has no row where the definition's `project_commands` already names `sync`. The code handles that case as the Interface says, at `src/factory/pipeline/application/project_check.py:124` (`if SYNC_COMMAND not in commands`). The missing row: such a definition with a `sync` target gives no fault; without one it gives exactly one `no target sync`.
+
+    Earlier tests:
+    - `tests/guards/test_agent_home_wiring.py`: changed with the human's leave in journal entry 11. Only the expected list changed; the guard keeps its name and still checks the one construction.
+    - `tests/guards/test_areas.py`: changed under the feature's decision 4, quoted in the Interface. It only adds the two new modules to the table.
+
+    Open: the smoke test has not been run yet. The smoke-test stage runs it.
