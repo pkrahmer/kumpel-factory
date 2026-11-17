@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 1
 attempts: 1
@@ -159,6 +159,11 @@ journal:
   at: '2026-11-17T04:35:58.662253Z'
   stage: smoke-test
   run: 278944d355894d4485d3dfeee5525607
+- number: 28
+  speaker: factory
+  kind: done
+  at: '2026-11-17T04:37:50.267335Z'
+  stage: approval
 ---
 
 # The template goes
@@ -580,3 +585,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     Open, not a finding: `docs/brochure/README.md:459` still says a new project starts from the template. It is a dated record of v1.1, so whether to update it is the human's call (entries 14, 16, 23).
 
     `check`: check: green
+28. factory: done (pull request merged); cost: 12 runs, 25.6 min, 104 turns, 379950 tokens in (4751680 more from cache), 61915 out, $4.09
