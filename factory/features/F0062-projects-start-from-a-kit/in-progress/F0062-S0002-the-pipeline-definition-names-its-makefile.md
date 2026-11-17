@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 691
 comments_read: [6934588171, 6934893656]
 handed_over: null
-claim:
-  instance: self
-  stage: tests
-  started_at: '2026-11-17T01:31:26.166479Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -123,6 +119,12 @@ journal:
   kind: started
   at: '2026-11-17T01:31:26.166479Z'
   stage: tests
+- number: 21
+  speaker: tester
+  kind: result
+  at: '2026-11-17T01:32:42.026352Z'
+  stage: tests
+  run: a8d8025ede64428aba15248fe298f370
 ---
 
 # The pipeline definition names its makefile
@@ -367,3 +369,19 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     - `tests/shared/domain/test_contract_version_4.py`: the human's leave in journal entry 11 (version 4.5 → 4.6 only).
     - `tests/shared/domain/test_contract_version_4_2.py`: the human's leave in journal entry 11 (version 4.5 → 4.6 only).
 20. factory: started tests as self.
+21. tester: I answered the reviewer's four findings from round 0 (entry 19). The changes are in tests only, and no code changed.
+
+    - Finding 1 (criterion 11): `tests/pipeline/application/test_make_file_source.py::test_the_source_returns_none_when_the_definition_or_its_branch_is_missing` now has two rows. `missing-definition` is the earlier test, folded in. `missing-working-branch` is new: it deletes `refs/remotes/origin/<working branch>` in the checkout with `run_git(... "update-ref", "-d", ...)`, so `show_file` raises `GitError`, and it expects `None`. The two rows share their setup, as criterion 7 asks, so they are one parametrized test. The old test `test_the_source_returns_none_for_a_missing_definition` is gone; it is now the first row.
+    - Finding 2 (criterion 10): `tests/guards/test_make_file_wiring.py::test_the_wiring_builds_the_git_source_and_both_users_get_a_source` now also checks the `Boundaries(...)` calls in `factory.entry.wiring`. There must be at least one, and each must pass the same `make_file=` expression that the wiring passes to `ContainerMakeCommands`. A wiring that leaves `make_file=` out of `Boundaries(...)` now fails the guard.
+    - Finding 3: under the standing leave in CLAUDE.md (*Tests*), I moved `_called_name` to `tests/support/source_search.py` as `called_name`. Both guards now import it from there. I changed one earlier test file: `tests/guards/test_agent_home_wiring.py`. Its test keeps its name and checks the same thing.
+    - Finding 4: `AnsweringSource` (answers in turn, then repeats the last) now lives in `tests/support/make_file_support.py`. `tests/machine/adapters/test_make_commands_make_file.py` and `tests/machine/application/test_stage_environment_make_file.py` both import it from there. The single-answer copy is gone, since `AnsweringSource(answer)` behaves the same.
+
+    Criterion → test (unchanged except for criteria 7 and 11):
+    - criterion 7: `tests/pipeline/application/test_make_file_source.py::test_the_source_returns_the_make_file_of_the_definition_at_the_working_ref`, `::test_the_source_returns_none_when_the_definition_or_its_branch_is_missing[missing-definition]` and `::test_the_source_reads_the_new_value_after_the_branch_moved`
+    - criterion 11: `tests/pipeline/application/test_make_file_source.py::test_the_source_returns_none_when_the_definition_or_its_branch_is_missing[missing-working-branch]`
+
+    Files changed: the seven files named above, comprising four of this story's test files, two support modules and the earlier guard. I created no new files, and every module imported.
+
+    Run: `uv run pytest -q` on the five affected test files passed all 21 tests. `make types` is green. Lint: `lint: green (0.1 s)`.
+
+    `lint`: lint: green (0.1 s)

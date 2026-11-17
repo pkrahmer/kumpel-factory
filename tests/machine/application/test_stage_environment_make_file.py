@@ -12,21 +12,11 @@ from factory.shared.domain.paths import WORK_BRANCH
 from support.container_support import FIVE_MINUTES, Dataset, push_main
 from support.git_support import install_agents
 from support.human_clone import HumanClone
+from support.make_file_support import AnsweringSource
 
 NAMED = "factory/Makefile"
 ROOT_MARKER = ".root-synced"
 NAMED_MARKER = ".named-synced"
-
-
-class AnsweringSource(MakeFileSource):
-    """A source that always gives one answer."""
-
-    def __init__(self, answer: str | None) -> None:
-        self._answer = answer
-
-    def make_file(self) -> str | None:
-        """The one answer."""
-        return self._answer
 
 
 @pytest.fixture

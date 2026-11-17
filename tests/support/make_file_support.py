@@ -1,4 +1,4 @@
-"""The makefile source built on git, found by the interface it implements."""
+"""The makefile source built on git, found by the interface it implements, and a stand-in source."""
 
 import importlib
 import inspect
@@ -19,3 +19,17 @@ def git_make_file_source_class() -> type[MakeFileSource]:
                 found.add(member)
     [source_class] = found
     return source_class
+
+
+class AnsweringSource(MakeFileSource):
+    """A source that gives its answers in turn and repeats the last one."""
+
+    def __init__(self, *answers: str | None) -> None:
+        """Give `answers` in turn, the last one from then on."""
+        self._answers = list(answers)
+
+    def make_file(self) -> str | None:
+        """The next answer."""
+        if len(self._answers) > 1:
+            return self._answers.pop(0)
+        return self._answers[0]

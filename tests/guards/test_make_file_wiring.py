@@ -3,17 +3,9 @@
 import ast
 
 from support.make_file_support import git_make_file_source_class
-from support.source_search import modules
+from support.source_search import called_name, modules
 
 WIRING = "factory.entry.wiring"
-
-
-def _called_name(call: ast.Call) -> str:
-    if isinstance(call.func, ast.Name):
-        return call.func.id
-    if isinstance(call.func, ast.Attribute):
-        return call.func.attr
-    return ""
 
 
 def _make_file_arguments(name: str) -> list[tuple[str, str | None]]:
@@ -21,7 +13,7 @@ def _make_file_arguments(name: str) -> list[tuple[str, str | None]]:
     found: list[tuple[str, str | None]] = []
     for module, tree in modules().items():
         for node in ast.walk(tree):
-            if isinstance(node, ast.Call) and _called_name(node) == name:
+            if isinstance(node, ast.Call) and called_name(node) == name:
                 passed = [ast.unparse(k.value) for k in node.keywords if k.arg == "make_file"]
                 found.append((module, passed[0] if passed else None))
     return found
@@ -33,13 +25,16 @@ def test_the_wiring_builds_the_git_source_and_both_users_get_a_source() -> None:
         module
         for module, tree in modules().items()
         for node in ast.walk(tree)
-        if isinstance(node, ast.Call) and _called_name(node) == source_name
+        if isinstance(node, ast.Call) and called_name(node) == source_name
     ]
     commands = _make_file_arguments("ContainerMakeCommands")
     environments = _make_file_arguments("ContainerEnvironment")
+    boundaries = [value for module, value in _make_file_arguments("Boundaries") if module == WIRING]
 
     assert WIRING in built
     assert [module for module, _ in commands] == [WIRING]
     assert all(value not in {None, "None"} for _, value in commands)
     assert environments
     assert all(value not in {None, "None"} for _, value in environments)
+    assert boundaries
+    assert all(value == commands[0][1] for value in boundaries)

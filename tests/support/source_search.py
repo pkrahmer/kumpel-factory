@@ -19,6 +19,15 @@ def modules() -> dict[str, ast.Module]:
     return found
 
 
+def called_name(call: ast.Call) -> str:
+    """The name `call` calls: a plain name or the last attribute, empty for anything else."""
+    if isinstance(call.func, ast.Name):
+        return call.func.id
+    if isinstance(call.func, ast.Attribute):
+        return call.func.attr
+    return ""
+
+
 def imported_modules(tree: ast.Module) -> set[str]:
     """The absolute module names that `tree` imports."""
     names: set[str] = set()

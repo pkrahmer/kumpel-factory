@@ -11,6 +11,7 @@ from factory.machine.adapters.fake_snapshots import FakeSnapshots
 from factory.machine.adapters.make_commands import ContainerMakeCommands
 from factory.machine.application.make_file import MakeFileSource
 from support.git_support import CHECKOUT, write_files
+from support.make_file_support import AnsweringSource
 
 LIMIT = timedelta(minutes=1)
 NAMED = "factory/Makefile"
@@ -37,19 +38,6 @@ NAMED_MAKEFILE = (
     "sync:\n\t@touch .synced\n\n"
     f"check:\n\t@test -f .synced\n\t@echo '{CHECK_LINE}'\n"
 )
-
-
-class AnsweringSource(MakeFileSource):
-    """A source that gives its answers in turn and repeats the last one."""
-
-    def __init__(self, *answers: str | None) -> None:
-        self._answers = list(answers)
-
-    def make_file(self) -> str | None:
-        """The next answer."""
-        if len(self._answers) > 1:
-            return self._answers.pop(0)
-        return self._answers[0]
 
 
 class Dataset:
