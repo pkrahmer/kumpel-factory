@@ -1,7 +1,5 @@
 """Each pack's `## Checks` section carries the kit's line that names `factory/Makefile`."""
 
-import hashlib
-
 import pytest
 
 from factory.shared.domain.sections import split_lines
@@ -52,11 +50,130 @@ OTHER_CHECKS_BULLETS: dict[Pack, tuple[str, ...]] = {
     ),
 }
 
-# The sha256 of each pack's `CLAUDE.sections.md` as it was before the kit's line was added.
-SECTIONS_BEFORE_SHA256: dict[Pack, str] = {
-    "python": "db11db87fa8e3028cc57f5db81d28a7d991b5f3428cf87817a802f53ae11971e",
-    "c-host": "9fb0ec3597d149077978af59a390d5960a41392cede3768145ff1e1db8b0958c",
-    "java-gradle": "46d3cc2ebc5d3cc20fa7f2f8bd9ce322f3e5afc3891121772d52b8546d009ba9",
+# Each pack file's lines up to its `## Checks` heading, as before the kit's line was added.
+LINES_BEFORE_CHECKS: dict[Pack, tuple[str, ...]] = {
+    "python": (
+        "## Tests",
+        (
+            "- pytest. Tests live under `tests/` and mirror the package. Plain test functions, "
+            "shared fixtures in `tests/conftest.py`, parametrize for tables of cases. Never mock "
+            "the code under test."
+        ),
+        "- No network, no sleeps, no files outside `tmp_path`.",
+        (
+            "- Tests pass `mypy --strict` once the code exists: never use the value of a call to a "
+            "function typed `-> None`; call it as a statement."
+        ),
+        (
+            '- Fake commit ids and other hexadecimal test values are low-entropy (`"a" * 40`), so '
+            "that `make secrets` stays green without a baseline entry."
+        ),
+        "",
+        "## Checks",
+    ),
+    "c-host": (
+        "## Tests",
+        (
+            "- The tests build and run on the host, registered with CTest; no test needs a device, "
+            "a network or a container runtime."
+        ),
+        (
+            "- The logic is tested through its ports: a test gives it a hand-written fake of the "
+            "port it calls and a clock it can set. No test sleeps."
+        ),
+        (
+            "- The host build runs under the sanitizers `SANITIZERS` names; a sanitizer report is "
+            "a failed test."
+        ),
+        "",
+        "## Checks",
+    ),
+    "java-gradle": (
+        "## Tests",
+        (
+            "- JUnit 5 with AssertJ. Unit tests are in `src/test/java`, mirroring the main "
+            "packages; a class under test is created with `new` and a hand-written fake of the "
+            "port it calls. Mockito is for types that cannot be faked by hand."
+        ),
+        (
+            "- No test reaches the network, and none needs a container runtime: a stage has none. "
+            "What a test needs from outside runs as a plain process that `make test` starts and "
+            "stops."
+        ),
+        "",
+        "## Checks",
+    ),
+}
+
+# Each pack file's lines from the blank line that ends its `## Checks` section, as before.
+LINES_AFTER_CHECKS: dict[Pack, tuple[str, ...]] = {
+    "python": (
+        "",
+        "## Review",
+        "- Everything is typed; `Any` only at a boundary that validates immediately.",
+        (
+            "- No `dict[str, Any]` crosses a function boundary: inputs and outputs are models "
+            "shaped by what the code needs."
+        ),
+        (
+            "- A marker that silences a check (`noqa`, `type: ignore`, `nosec`, `nosemgrep`, a "
+            "baseline entry) is a finding unless this file allows it."
+        ),
+        "",
+        "## Not without asking (end the stage with `question`)",
+        (
+            "- New dependency, new top-level package, change to `pyproject.toml`, the makefile or "
+            "`factory/`, change to a test another story wrote, a new entry in `.secrets.baseline`, "
+            "a `nosemgrep` or `nosec` marker, a licence outside the allow list."
+        ),
+        "",
+    ),
+    "c-host": (
+        "",
+        "## Review",
+        (
+            "- The logic names no platform header: what touches hardware, an operating system or a "
+            "vendor's library sits behind a port in an adapter."
+        ),
+        (
+            "- No dynamic allocation after start-up, no unbounded loop, no blocking call in the "
+            "logic; every buffer has its size checked where it is filled."
+        ),
+        "- Every fixed-width quantity has its unit and range in its name or its comment.",
+        "",
+        "## Not without asking (end the stage with `question`)",
+        (
+            "- A new dependency or fetched source, a change to `CMakeLists.txt`, the makefile, the "
+            "toolchain files or `factory/`, a change to a test another story wrote, a marker that "
+            "silences a check."
+        ),
+        "",
+    ),
+    "java-gradle": (
+        "",
+        "## Review",
+        "- No field injection; constructor injection only. Records for values.",
+        (
+            "- No secret and no host of a real environment in any file; configuration reaches a "
+            "deployed service from outside."
+        ),
+        (
+            "- A new dependency, plugin or version in the build files is a finding unless the "
+            "story names it."
+        ),
+        (
+            "- Javadoc: one sentence per public type, and per public method where its signature "
+            "does not say it all."
+        ),
+        "",
+        "## Not without asking (end the stage with `question`)",
+        (
+            "- A new dependency or plugin, a new version, a change to `build.gradle`, "
+            "`settings.gradle`, `gradle/`, the makefile or `factory/`, a new top-level package, a "
+            "change to a test another story wrote, a new entry in `factory/gitleaks.toml`."
+        ),
+        "",
+    ),
 }
 
 
@@ -90,12 +207,16 @@ def test_each_pack_sections_file_differs_from_before_only_by_the_kit_line(pack: 
 
     checks = section_texts(text)[CHECKS]
     bullets = [line for line in checks[1:] if line.strip()]
-    without = [line for line in text.split("\n") if line != kit_line]
-    before = "\n".join(without).encode("utf-8")
+    without = tuple(line for line in text.split("\n") if line != kit_line)
+    expected = (
+        *LINES_BEFORE_CHECKS[pack],
+        *OTHER_CHECKS_BULLETS[pack],
+        *LINES_AFTER_CHECKS[pack],
+    )
 
     assert bullets[1] == kit_line
     assert tuple(bullet for bullet in bullets if bullet != kit_line) == OTHER_CHECKS_BULLETS[pack]
-    assert hashlib.sha256(before).hexdigest() == SECTIONS_BEFORE_SHA256[pack]
+    assert without == expected
 
 
 def test_the_kit_holds_the_makefile_line_once_under_checks() -> None:

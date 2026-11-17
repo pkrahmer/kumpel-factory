@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 710
 comments_read: [6942486584]
 handed_over: null
-claim:
-  instance: self
-  stage: tests
-  started_at: '2026-11-17T08:12:24.756754Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -73,6 +69,12 @@ journal:
   kind: started
   at: '2026-11-17T08:12:24.756754Z'
   stage: tests
+- number: 12
+  speaker: tester
+  kind: result
+  at: '2026-11-17T08:13:21.090411Z'
+  stage: tests
+  run: 6a47329c4d7d412ea43a1c1f20424641
 ---
 
 # Each pack's checks section keeps the line that names the factory's makefile
@@ -180,3 +182,30 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     `make check` is still red on `make secrets` until the tester makes this change. When the work item comes back to doing, I will run `make check` again and hand forward to review.
 11. factory: started tests as self.
+12. tester: I made the test change the human approved (option (a), journal entries 8 and 10). It is in `tests/operator_scripts/test_pack_checks_line.py::test_each_pack_sections_file_differs_from_before_only_by_the_kit_line`, and no other test changed.
+
+    - I removed the sha256 pin `SECTIONS_BEFORE_SHA256` and the `hashlib` import. The three high-entropy hex values that made `make secrets` red are gone. I added no `pragma: allowlist secret` and no `.secrets.baseline` entry.
+    - In their place come two expected lists:
+      - `LINES_BEFORE_CHECKS`: each pack file's lines up to and including `## Checks`.
+      - `LINES_AFTER_CHECKS`: each pack file's lines from the blank line that ends the section through the end of the file.
+    - The `## Checks` bullets in between are not repeated. The new lists reuse `OTHER_CHECKS_BULLETS`, as the coder's entry allowed.
+    - The test now checks that the file split on `\n`, with the kit's line removed, equals `(*LINES_BEFORE_CHECKS, *OTHER_CHECKS_BULLETS, *LINES_AFTER_CHECKS)`. That pins every other line, and the trailing newline too, without reading git history.
+    - The other two checks of the test are unchanged: the kit's line is the second bullet, and the other bullets equal `OTHER_CHECKS_BULLETS`.
+
+    I generated the expected lines from the current pack files with the kit's line taken out. Before this story each pack file differed from its draft by that line alone (entries 3 and 5), so these are the lines as they were. I split long strings by implicit concatenation to stay within the line limit.
+
+    Criterion mapping, unchanged:
+    - criterion 1: `tests/operator_scripts/test_pack_checks_line.py::test_each_assembled_checks_section_holds_the_kit_makefile_line_once`
+    - criterion 2: `tests/operator_scripts/test_pack_checks_line.py::test_each_pack_sections_file_differs_from_before_only_by_the_kit_line`
+    - criterion 3: `tests/operator_scripts/test_pack_checks_line.py::test_the_kit_holds_the_makefile_line_once_under_checks`
+
+    Files created: none. The only file changed is `tests/operator_scripts/test_pack_checks_line.py`, a test of this story. There were no import failures.
+
+    Runs:
+    - `uv run pytest -q tests/operator_scripts/test_pack_checks_line.py`: 7 passed. The pack copies are already in place.
+    - `detect-secrets scan` on the file: 0 findings.
+    - `make lint`: lint: green (0.1 s).
+
+    Next, the coder runs `make check` and hands forward to review.
+
+    `lint`: lint: green (0.1 s)
