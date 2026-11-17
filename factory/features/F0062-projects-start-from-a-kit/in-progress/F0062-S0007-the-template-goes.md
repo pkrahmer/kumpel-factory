@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 696
 comments_read: [6937913187]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: docs
+  started_at: '2026-11-17T04:31:20.620266Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -137,6 +141,11 @@ journal:
   at: '2026-11-17T04:31:15.460769Z'
   stage: review
   run: 07b5a8eb413b4748b535cd4d5bd369a1
+- number: 24
+  speaker: factory
+  kind: started
+  at: '2026-11-17T04:31:20.620266Z'
+  stage: docs
 ---
 
 # The template goes
@@ -505,3 +514,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     - tests/shared/domain/test_folder_readmes_list.py: decision 25
     - tests/support/shipped_agents.py: decision 25 (a test helper)
     - tests/support/template_make_support.py: decision 25 (a test helper)
+24. factory: started docs as self.
