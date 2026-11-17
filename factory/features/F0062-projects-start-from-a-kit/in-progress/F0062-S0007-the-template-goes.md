@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 696
 comments_read: [6937913187]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: doing
+  started_at: '2026-11-17T04:25:55.108186Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -115,6 +119,11 @@ journal:
   at: '2026-11-17T04:25:49.798085Z'
   stage: smoke-test
   run: 9096fdd96f364d3ea401f4e94d4e8fe7
+- number: 20
+  speaker: factory
+  kind: started
+  at: '2026-11-17T04:25:55.108186Z'
+  stage: doing
 ---
 
 # The template goes
@@ -410,3 +419,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     What I observed when I ran `make layers` once by hand on this branch: `Contracts: 4 kept, 0 broken.` and `layers: green (0.3 s)`, exit 0. The crash did not happen again, so it looks like a one-time segfault of the import-linter process rather than something the story's diff caused. The diff touches no file under `src/` and no import contract. For the coder: run `make check` again. If `layers` is green, nothing in the code needs to change. If exit 139 comes back, the crash is in the tool or the machine (import-linter or the Python build that uv runs) and it is a `question` for the human, not a code fix.
 
     Not run: the smoke test (per the stage's rule after a `check_red` stall) and the whole `make check` (the factory runs it after this stage).
+20. factory: started doing as self.
