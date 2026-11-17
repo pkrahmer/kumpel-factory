@@ -1,17 +1,13 @@
 ---
-stage: intake
+stage: docs-only
 blocked: null
 round: 0
 attempts: 0
 crashes: 0
-pull_request: null
+pull_request: 708
 comments_read: []
 handed_over: null
-claim:
-  instance: self
-  stage: intake
-  started_at: '2026-11-17T07:46:56.158292Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -23,6 +19,12 @@ journal:
   kind: started
   at: '2026-11-17T07:46:56.158292Z'
   stage: intake
+- number: 3
+  speaker: intake
+  kind: result
+  at: '2026-11-17T07:47:17.345058Z'
+  stage: intake
+  run: 58a833bd0df64c388bf4065d62ab95fd
 ---
 
 # The guides catch up with the one layout and name every shared test helper
@@ -64,3 +66,10 @@ Expect: the single line `done`.
 
 1. 2026-11-17 human: created.
 2. factory: started intake as self.
+3. intake: accepted
+   - Interface: it names three documents and the exact place in each: the `operator/packs/` bullet of `docs/project-guide/operator.md` (line 25 now holds "at the root or, for an existing repository"), *The project's make targets* in `docs/operator-guide/install.md` (line 230 now holds "Makefile at the root of its checkout"), and the list of `tests/support/` modules in `docs/project-guide/README.md`. It also states what stays unchanged: no `src/`, no test, nothing under `operator/`. *Name the makefile* exists in `docs/operator-guide/pipeline.md` (line 93), so the link has a target. I checked that the eight modules the Description names are the ones the index misses today, and they are.
+   - Criteria: each one can be checked mechanically without further decisions. 1 and 2 are greps that must print `0`, and 2 also names `make_file` and `factory/Makefile`. 3 checks every support module against the index. 4 is `make documents` and `make guides`, and 5 is `make check`. Every Interface line has a criterion: removing the old wording (1 and 2), the new targets wording (2), the eight bullets (3). The "what it holds" part of each bullet is a matter of content, and the docs criterion covers it. The Interface states no rule with a failing side.
+   - Smoke test: both blocks run from the checkout root as written. Each `Expect:` can be checked against the output (`0` then `0`; the single line `done`). Run today, the second block prints exactly the eight `missing` lines, so it tells the state before the story from the state after it.
+   - Docs criterion: it says what the reader must know (a kit project's make targets live in `factory/Makefile`, which the pipeline definition names; there is one way to assemble kit and pack; what each of the eight helpers holds) and dictates no sentences.
+   - Architecture: the story changes documents only. The documenter keeps the project guide and the operator guide (CLAUDE.md, *Docs*), and no code or layer is touched.
+   - Scope: within F0062's "The guide for a fresh start and for a brownfield repository". It brings the pages into line with S0013's one layout and does not touch the feature's "Out of scope". Every path it changes is under `docs/`, which the documenter may write, so the route is `docs-only`.
