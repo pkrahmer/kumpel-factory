@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 710
 comments_read: [6942486584]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: doing
+  started_at: '2026-11-17T08:13:26.494157Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -75,6 +79,11 @@ journal:
   at: '2026-11-17T08:13:21.090411Z'
   stage: tests
   run: 6a47329c4d7d412ea43a1c1f20424641
+- number: 13
+  speaker: factory
+  kind: started
+  at: '2026-11-17T08:13:26.494157Z'
+  stage: doing
 ---
 
 # Each pack's checks section keeps the line that names the factory's makefile
@@ -209,3 +218,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     Next, the coder runs `make check` and hands forward to review.
 
     `lint`: lint: green (0.1 s)
+13. factory: started doing as self.
