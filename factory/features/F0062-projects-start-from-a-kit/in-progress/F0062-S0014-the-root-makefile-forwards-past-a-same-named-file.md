@@ -1,6 +1,5 @@
 # The root makefile forwards a target that a file at the root is named after
 
-<!-- proposed by feature acceptance of 2026-11-17; refine before starting -->
 
 ## Description
 

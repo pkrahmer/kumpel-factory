@@ -1,6 +1,5 @@
 # The guides catch up with the one layout and name every shared test helper
 
-<!-- proposed by feature acceptance of 2026-11-17; refine before starting -->
 
 ## Description
 
