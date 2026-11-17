@@ -1,11 +1,11 @@
 ---
 stage: intake
-blocked: question
+blocked: null
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 691
-comments_read: []
+comments_read: [6934588171]
 handed_over: null
 claim: null
 journal:
@@ -26,6 +26,11 @@ journal:
   stage: intake
   run: 69127c53d0de492b8c00c9907e2b72e6
   blocked: question
+- number: 4
+  speaker: human
+  kind: comment
+  at: '2026-11-17T01:10:02.416640Z'
+  stage: intake
 ---
 
 # The pipeline definition names its makefile
@@ -119,3 +124,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    2. Wiring. The Interface says "`src/factory/entry/wiring.py`: both get the source", but no criterion checks that the wired `ContainerMakeCommands` and the container stage environment hold a source built on git. Neither the smoke test nor criteria 3 to 7 would catch wiring that leaves it out. Options: (a) add a criterion: "the project commands and the stage environment that `factory.entry.wiring` builds both read `make_file` from the pipeline definition at `origin/<working branch>`", tested on a wired instance whose definition names `factory/Makefile`, through the fake container runs; (b) accept that the wiring line is not tested and leave it to review. I would choose (a), with a guard in the style of `tests/guards/test_agent_home_wiring.py` as an acceptable test.
 
    3. Plain make when there is no source. "When the definition is missing or not valid … the preflight's probe then runs plain make" is covered only through criteria 3 and 7 (a source returning `None` gives today's call). I take that to be enough and need no new criterion. Please confirm.
+4. 2026-11-17 human: 1: (a). 2: (a), and the guard in the style of `tests/guards/test_agent_home_wiring.py` is an acceptable test. 3: confirmed, no new criterion.
