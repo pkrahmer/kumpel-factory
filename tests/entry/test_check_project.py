@@ -7,8 +7,13 @@ import pytest
 from pydantic import BaseModel, ConfigDict
 
 from factory.entry.check_project import main
-from support.git_support import run_git
-from support.project_check_support import committed_repository, installed_home, ready_files
+from support.git_support import PIPELINE_YAML, run_git
+from support.project_check_support import (
+    READY_MAKEFILE,
+    committed_repository,
+    installed_home,
+    ready_files,
+)
 
 USAGE = "factory-check-project [--agent-home <dir>] [--run] <folder>"
 HOME_VARIABLE = "FACTORY_CLAUDE_HOME"
@@ -162,3 +167,40 @@ def test_main_prints_the_report_or_one_error_and_returns_its_status(
             assert USAGE in error_lines[0]
         else:
             assert error_lines[0].startswith(expected)
+
+
+@pytest.mark.parametrize(
+    ("make_file", "definition_line", "verdict"),
+    [
+        pytest.param(
+            "./factory/Makefile",
+            "pipeline definition: FAIL: "
+            "make_file ./factory/Makefile must be written as factory/Makefile",
+            "project: not ready",
+            id="not-plain",
+        ),
+        pytest.param("factory/Makefile", "pipeline definition: ok", "project: ready", id="plain"),
+    ],
+)
+def test_main_refuses_a_make_file_not_in_its_plain_form(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+    make_file: str,
+    definition_line: str,
+    verdict: str,
+) -> None:
+    files = ready_files(
+        {
+            "factory/pipeline.yml": f"make_file: {make_file}\n{PIPELINE_YAML}",
+            "factory/Makefile": READY_MAKEFILE,
+        }
+    )
+    repository = committed_repository(tmp_path / "project", files)
+    home = installed_home(tmp_path / "agent-home")
+
+    main(["--agent-home", str(home), str(repository)])
+    lines = capsys.readouterr().out.splitlines()
+
+    assert any(line.startswith(definition_line) for line in lines)
+    assert not any("./factory/Makefile is missing" in line for line in lines)
+    assert lines[-1].startswith(verdict)

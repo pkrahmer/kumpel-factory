@@ -109,6 +109,8 @@ make_file: factory/Makefile
 
 The value must be a path inside the checkout made of letters, digits, `_`, `.`, `/` and `-`, which does not start with `-` or `/` and has no `..` segment. `make_file: Makefile`, `make_file: factory/Makefile` and `make_file: build/factory.mk` are accepted. An empty value, `-f`, `/etc/Makefile`, `../Makefile`, `a/../b`, `my file`, `a;b` and a number are refused, and the fault names `make_file`.
 
+The value must also be written in its plain form: no `./` segment, no doubled `/` and no trailing `/`. make reads `make_file: ./factory/Makefile` as `make_file: factory/Makefile`, but the protected paths and `factory-check-project` compare the text as written, so another spelling would leave the makefile unprotected and reported missing. A value inside the checkout that is not in its plain form is refused with a fault that names the plain spelling: `make_file: ./factory/Makefile`, `make_file: factory//Makefile`, `make_file: factory/./Makefile` and `make_file: factory/Makefile/` each give `make_file <value> must be written as factory/Makefile`. A value outside the checkout, such as `../Makefile`, gives only `make_file ../Makefile must be a path inside the checkout`.
+
 ### More than one route
 
 A definition may hold more than one route and more than one [approval](../project-guide/glossary.md) stage. When you close a pull request at an approval stage, the story goes to that stage's second `next`. The stage whose first `next` is that approval counts the [rounds](../project-guide/glossary.md).
