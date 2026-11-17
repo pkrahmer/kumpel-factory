@@ -1,5 +1,5 @@
 ---
-stage: smoke-test
+stage: approval
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 693
 comments_read: [6936126509]
 handed_over: null
-claim:
-  instance: self
-  stage: smoke-test
-  started_at: '2026-11-17T02:51:32.813101Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -128,6 +124,12 @@ journal:
   kind: started
   at: '2026-11-17T02:51:32.813101Z'
   stage: smoke-test
+- number: 22
+  speaker: smoke-tester
+  kind: result
+  at: '2026-11-17T02:53:58.605468Z'
+  stage: smoke-test
+  run: 51d66de9420146a69d4befa16154c7c6
 ---
 
 # The installed builder
@@ -471,3 +473,41 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     `secrets`: secrets: green (1.9 s)
     `documents`: documents ok (46.4 s)
 21. factory: started smoke-test as self.
+22. smoke-tester: Smoke test, round 1: I ran all three blocks as written from the repository root. Each one met its `Expect:` line. There are no findings.
+
+    Block 1, the installed agents' reader and the reviewer's new heading:
+    ```
+    True 8
+    read
+    1
+    ```
+    Met: `True 8`, then `read`, then `1`. (uv's line "Bytecode compiled …" is left out.)
+
+    Block 2, a thin-line project with no `factory/agents/`, checked with `check_project --agent-home agents`:
+    ```
+    agents: ok
+    project: ready
+    ```
+    Met: `agents: ok` and `project: ready`. To run the block in one shell, I wrapped it in `bash -c`; the commands inside are unchanged. Its temporary directory removed itself through the trap.
+
+    Block 3, `uv run pytest tests/agent_files/` (tail):
+    ```
+    ........................................................................ [ 99%]
+    .                                                                        [100%]
+    433 passed in 3.79s
+    ```
+    Met: the summary line shows only `passed`, with no `failed` and no `error`.
+
+    Criteria read again against what I saw:
+    - 1: the smoke test confirms `builder` is among the 8 agents and reads.
+    - 3: the heading is in `agents/agents/reviewer.md`.
+    - 4: the thin line passes the `agents` point without any agent file.
+    - 6: every test under `tests/agent_files/` passes with the eighth agent.
+    - 8: I read the documents.
+      - `docs/operator-guide/agent-runtime.md` names `builder` and the thin line. It says a thin-line project needs no agent file, that a project file replaces the installed one file by file, and that review points go in `## Review` of `CLAUDE.md`.
+      - `docs/project-guide/agents.md` has the `builder` row.
+      - `agents/README.md` names `builder.md`.
+      - `docs/decisions.md` has the entry dated 2026-11-16 for F0062-S0004.
+    - No criterion is contradicted.
+
+    `check`: check: green
