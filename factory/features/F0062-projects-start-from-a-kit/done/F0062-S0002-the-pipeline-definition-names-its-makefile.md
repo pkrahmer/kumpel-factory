@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 1
 attempts: 0
@@ -169,6 +169,11 @@ journal:
   at: '2026-11-17T01:43:59.332546Z'
   stage: smoke-test
   run: 1fba6fcfc9054b23b9ccea0fa764656b
+- number: 30
+  speaker: factory
+  kind: done
+  at: '2026-11-17T01:45:51.288887Z'
+  stage: approval
 ---
 
 # The pipeline definition names its makefile
@@ -567,3 +572,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     No temporary files are left: the shell's `trap` removed the directory.
 
     `check`: check: green
+30. factory: done (pull request merged); cost: 13 runs, 27.8 min, 127 turns, 493561 tokens in (6158046 more from cache), 71897 out, $5.14
