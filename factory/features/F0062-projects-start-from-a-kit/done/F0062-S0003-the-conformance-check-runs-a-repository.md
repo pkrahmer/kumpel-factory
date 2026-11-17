@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 1
 attempts: 0
@@ -180,6 +180,11 @@ journal:
   at: '2026-11-17T02:23:32.056444Z'
   stage: smoke-test
   run: 072adf7d11084883b40a6a77bfd9a502
+- number: 32
+  speaker: factory
+  kind: done
+  at: '2026-11-17T02:25:23.874346Z'
+  stage: approval
 ---
 
 # The conformance check runs a repository
@@ -535,3 +540,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     Criteria: the smoke test contradicts none of them. Criterion 7's settings fault returns 2, prints `cannot run:` on standard error and nothing on standard output. Criteria 1 to 9 are covered by the 25 passing tests.
 
     `check`: check: green
+32. factory: done (pull request merged); cost: 14 runs, 30.6 min, 145 turns, 588883 tokens in (7627091 more from cache), 102818 out, $6.53
