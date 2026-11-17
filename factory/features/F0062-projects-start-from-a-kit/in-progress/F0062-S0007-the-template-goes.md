@@ -1,17 +1,13 @@
 ---
-stage: smoke-test
+stage: doing
 blocked: null
-round: 0
+round: 1
 attempts: 1
 crashes: 0
 pull_request: 696
 comments_read: [6937913187]
 handed_over: null
-claim:
-  instance: self
-  stage: smoke-test
-  started_at: '2026-11-17T04:25:31.929540Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -113,6 +109,12 @@ journal:
   kind: started
   at: '2026-11-17T04:25:31.929540Z'
   stage: smoke-test
+- number: 19
+  speaker: smoke-tester
+  kind: result
+  at: '2026-11-17T04:25:49.798085Z'
+  stage: smoke-test
+  run: 9096fdd96f364d3ea401f4e94d4e8fe7
 ---
 
 # The template goes
@@ -400,3 +402,11 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     make: *** [Makefile:44: layers] Error 139
 18. factory: started smoke-test as self.
+19. smoke-tester: Routed the factory's red `make check` from the stall in journal entry 17. As the stage says, I did not run the smoke test again: my last run (entry 16) met all three `Expect:` lines.
+
+    Findings:
+    1. The `layers` check failed during the factory's `make check` after the smoke-test stage. The output ended `make: *** [Makefile:44: layers] Error 139`, which comes from the `layers` target at `Makefile:44` (import-linter run against the contracts in `pyproject.toml`). Exit 139 means the process was killed by a segmentation fault. It is not a broken contract: import-linter printed no contract output before it stopped. `types` was green just before it. Under the stage's rules a layer failure goes to `doing`, since it is not a file the documenter writes.
+
+    What I observed when I ran `make layers` once by hand on this branch: `Contracts: 4 kept, 0 broken.` and `layers: green (0.3 s)`, exit 0. The crash did not happen again, so it looks like a one-time segfault of the import-linter process rather than something the story's diff caused. The diff touches no file under `src/` and no import contract. For the coder: run `make check` again. If `layers` is green, nothing in the code needs to change. If exit 139 comes back, the crash is in the tool or the machine (import-linter or the Python build that uv runs) and it is a `question` for the human, not a code fix.
+
+    Not run: the smoke test (per the stage's rule after a `check_red` stall) and the whole `make check` (the factory runs it after this stage).
