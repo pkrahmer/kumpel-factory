@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 697
 comments_read: [6938616709]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: review
+  started_at: '2026-11-17T04:48:23.779568Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -75,6 +79,11 @@ journal:
   at: '2026-11-17T04:48:18.692876Z'
   stage: doing
   run: f34af49164014aa1ad3f8ef71a95c205
+- number: 13
+  speaker: factory
+  kind: started
+  at: '2026-11-17T04:48:23.779568Z'
+  stage: review
 ---
 
 # The guide
@@ -202,3 +211,4 @@ Expect: two numbers, each at least 3 for the first and at least 2 for the second
     - Next: the story returns to the docs stage, where `make guides` and `make documents` run again.
 
     `duplicates`: duplicates: 8 new, 38 known, 5 gone
+13. factory: started review as self.
