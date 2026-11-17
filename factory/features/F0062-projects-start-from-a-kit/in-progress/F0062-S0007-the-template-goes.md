@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 696
 comments_read: [6937913187]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: smoke-test
+  started_at: '2026-11-17T04:33:33.041175Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -148,6 +152,11 @@ journal:
   at: '2026-11-17T04:33:27.436465Z'
   stage: docs
   run: cbf4b397e4b243e693295e55f384d140
+- number: 26
+  speaker: factory
+  kind: started
+  at: '2026-11-17T04:33:33.041175Z'
+  stage: smoke-test
 ---
 
 # The template goes
@@ -534,3 +543,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     `guides`: guides: green (9.4 s)
     `secrets`: secrets: green (2.9 s)
     `documents`: documents ok (47.2 s)
+26. factory: started smoke-test as self.
