@@ -1,17 +1,13 @@
 ---
-stage: review
+stage: doing
 blocked: null
-round: 0
+round: 1
 attempts: 0
 crashes: 0
 pull_request: 697
 comments_read: [6938616709]
 handed_over: null
-claim:
-  instance: self
-  stage: review
-  started_at: '2026-11-17T04:48:23.779568Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -84,13 +80,19 @@ journal:
   kind: started
   at: '2026-11-17T04:48:23.779568Z'
   stage: review
+- number: 14
+  speaker: reviewer
+  kind: result
+  at: '2026-11-17T04:50:12.893927Z'
+  stage: review
+  run: fce76f7e52ce4eef9a7700ded96ae719
 ---
 
 # The guide
 
 ## Description
 
-The kit, the packs and the conformance check exist, but an operator who wants the factory to build a repository finds them only piece by piece: the kit's and the packs' own `README.md`, the page on the pipeline definition, the page on a site. After this story the operator guide has one page, "Starting a project", that leads through both ways from start to the first story: a fresh repository from a starter, and an existing repository by hand with the kit, a pack and the check. The page on a site gains what a Java project needs from it. This is a story of documents only: no code, no test and no kit or pack file changes. It describes what is built, with examples that were really run, and it names what does not exist yet (the onboarding pull request, starters for every stack) as not existing.
+The kit, the packs and the conformance check exist, but an operator who wants the factory to build a repository finds them only piece by piece: the kit's and the packs' own `README.md`, the page on the pipeline definition, the page on a site. After this story the operator guide has one page, "Starting a project", that leads through both ways from start to the first story: a fresh repository from a starter, and an existing repository by hand with the kit, a pack and the check. The page on a site gains what a Java project needs from it. This is a story of documents, with no kit or pack file changes; the one code line and the test lines the human's answer allowed make the new page the operator guide's eleventh topic, which the document check requires like the others. It describes what is built, with examples that were really run, and it names what does not exist yet (the onboarding pull request, starters for every stack) as not existing.
 
 ## Interface
 
@@ -212,3 +214,26 @@ Expect: two numbers, each at least 3 for the first and at least 2 for the second
 
     `duplicates`: duplicates: 8 new, 38 known, 5 gone
 13. factory: started review as self.
+14. reviewer: Findings:
+
+    1. `docs/operator-guide/start-a-project.md`, *The live check on the machine* (the `sh` block, line `set -a; . /srv/factory/vm/factory.env; set +a`), together with step 8 ("with the instance's environment loaded"). The problem: the example loads only `factory.env`. The new *A Java project* part of `docs/operator-guide/site.md` tells the operator to put the private Maven repository's variables in `factory.local.env`, and `FACTORY_CONTAINER_ENV` often goes there too. The unit reads both files (`docs/operator-guide/machine.md:387`, `:407`). `factory-check-project --run` reads its settings and the `FACTORY_CONTAINER_ENV` names from its own process environment (`src/factory/entry/check_project.py:134`, `src/factory/machine/domain/containers.py:81`). So a Java project set up as this page and `site.md` describe gets a red `sync` point when the example is copied. The fix, for the documenter: keep the real run's command, and add one sentence (or a second marked line) saying that `/srv/factory/vm/factory.local.env` must be loaded after `factory.env` when it exists, as the unit does. This is needed for a Java project with a private Maven repository. The coder cannot write the document, so send it on to the documenter as entry 8 did the other way.
+
+    description corrected: "This is a story of documents only: no code, no test and no kit or pack file changes." -> "This is a story of documents, with no kit or pack file changes; the one code line and the test lines the human's answer allowed make the new page the operator guide's eleventh topic, which the document check requires like the others." (entry 6 settles it).
+
+    Checked with no finding:
+    - Criteria 1 to 7 against the documents and the code:
+      - three layers, and which exist (kit; packs `python`, `c-host`, `java-gradle`; no starter);
+      - the ten-step walk, which matches `operator/kit/README.md` and `operator/packs/README.md`: `make_file`, `factory/Makefile`, include line, Java's `.gitleaks.toml` and `scripts/trust-store.sh`, the four `CLAUDE.sections.md` headings, `--agent-home` falling back to `FACTORY_CLAUDE_HOME` or the settings;
+      - the nine points of `--run` (`POINT_NAMES` plus `LIVE_POINT_NAMES` in `src/factory/pipeline/domain/project_check.py:12,21`);
+      - ownership (`kit.mk` and the forms stay the kit's, as in the kit README's file table);
+      - agent replacement and `## Review`;
+      - the TRAPS paragraphs, which match the three `TRAPS.md`;
+      - the site.md Java part, which matches the Java `Makefile` (`--offline`, `TRUST_STORE`, re-built per bundle hash) and `CA_BUNDLE_NAMES`.
+    - Commands: both `console` examples are in `docs/checked-documents.txt` and run by `make documents`. The VM block is marked and names its runs and dates.
+    - Code: one line in `src/factory/shared/domain/documents.py` adds the page to `OPERATOR_GUIDE_FILES`, in `TOPIC_FILES`' order. Architecture, security and quality are unaffected. No marker. The coder's `make check guides` was green (entry 12).
+    - Decision log: the new entry states the decision and its reason as criterion 9 asks.
+    - Not a finding: the `## Interface` bullet "no test is written or changed" is superseded by the human's answer in entry 6, which names the lines it lifts. I changed only the Description, as the role allows.
+
+    Earlier tests changed:
+    - `tests/support/check_documents_support.py`: the human's leave, journal entry 6 (adds `start-a-project.md` to `TOPIC_FILES`).
+    - `tests/shared/domain/test_documents_guide_files.py`: the human's leave, journal entry 6 (the pinned list of guide paths gains the page; the test keeps its name).
