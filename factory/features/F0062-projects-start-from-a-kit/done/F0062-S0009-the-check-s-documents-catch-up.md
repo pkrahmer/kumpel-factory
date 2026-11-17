@@ -1,5 +1,5 @@
 ---
-stage: docs-approval
+stage: done
 blocked: null
 round: 1
 attempts: 0
@@ -69,6 +69,11 @@ journal:
   at: '2026-11-17T05:18:52.653241Z'
   stage: docs-review
   run: 2227be5c156147ef9e7a858ec607ef7e
+- number: 12
+  speaker: factory
+  kind: done
+  at: '2026-11-17T05:19:41.455142Z'
+  stage: docs-approval
 ---
 
 # The conformance check's documents catch up with the console script and the live part
@@ -202,3 +207,4 @@ Expect: a number of at least 2.
     - 6: met on all three documents.
 
     no findings
+12. factory: done (pull request merged); cost: 5 runs, 5.8 min, 27 turns, 90800 tokens in (580825 more from cache), 13999 out, $0.85
