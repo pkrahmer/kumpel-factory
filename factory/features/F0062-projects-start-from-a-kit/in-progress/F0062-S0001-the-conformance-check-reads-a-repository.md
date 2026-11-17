@@ -1,17 +1,13 @@
 ---
-stage: review
+stage: doing
 blocked: null
-round: 0
+round: 1
 attempts: 0
 crashes: 0
 pull_request: 690
 comments_read: [6933812910, 6934072851]
 handed_over: null
-claim:
-  instance: self
-  stage: review
-  started_at: '2026-11-17T00:48:04.072495Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -112,6 +108,12 @@ journal:
   kind: started
   at: '2026-11-17T00:48:04.072495Z'
   stage: review
+- number: 19
+  speaker: reviewer
+  kind: result
+  at: '2026-11-17T00:50:17.571508Z'
+  stage: review
+  run: e4acf29b10f3484b82a0bf7257143aea
 ---
 
 # The conformance check reads a repository
@@ -177,7 +179,7 @@ class ProjectCheck:
 ## Acceptance criteria
 
 1. `makefile_targets` returns the names of rule lines and nothing else: `check: lint` gives `check`; `a b: c` gives `a` and `b`; `a<tab>b: c` gives `a` and `b`; `check : lint` gives `check`; `x::` gives `x`; `X := 1`, `X ::= 1`, an indented `y: z`, `# c: d`, `%.o: %.c`, `$(T): u` and `src/a.o: x` give nothing: rows of one parametrized test.
-2. `makefile_includes` returns `include a.mk b.mk` as two entries that are not optional, `-include c.mk` and `sinclude d.mk` as optional ones, `include<tab>e.mk` as one entry that is not optional, and nothing for `include $(X).mk`, an indented `include e.mk` and `included: f`: rows of one parametrized test.
+2. `makefile_includes` returns `include a.mk b.mk` as two entries that are not optional, `-include c.mk` and `sinclude d.mk` as optional ones, `include<tab>e.mk` as one entry that is not optional, `include a.mk # b.mk` as the one entry `a.mk` (a `#` starts a comment), and nothing for `include $(X).mk`, an indented `include e.mk` and `included: f`: rows of one parametrized test.
 3. `target_faults(["check", "lint"], {"check"})` is `["no target lint"]`, and `[]` when both are there.
 4. `write_path_faults` names a role's write path that matches no tracked file, names none for one that matches, and none for `{work_item}` and `{feature}/backlog/*`: rows of one parametrized test.
 5. `report_lines` prints `ok`, `FAIL` with two faults joined by `; `, and `skipped` lines as the Interface says, and ends with `project: ready`, `project: not ready (1 fault)` or `project: not ready (3 faults)`; `is_ready` is true only in the first case: rows of one parametrized test.
@@ -356,3 +358,15 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     `duplicates`: duplicates: 7 new, 39 known, 4 gone
 18. factory: started review as self.
+19. reviewer: Review, round 0. I read the whole diff against the Interface and the criteria. Every criterion from 1 to 11 has a test, and each test checks what its criterion says. The coder's entry 17 reports `make check guides` green. Architecture holds: the parsing and judging are pure in `domain`, the use case in `application` works over `Git`, `PipelineDefinitionReader` and `AgentDefinitionReader`, and only `entry` wires. `build_agent_definitions` is now the one place that builds `FrontmatterAgentDefinitionReader`. Its default `PIPELINE_REF` equals the default ref of `ProjectAgentDefinitions`, so `build_boundaries` behaves as before. No new tool, dependency or silencing marker. I found no second copy of an existing helper in `src/factory`.
+
+    Findings:
+    1. `src/factory/pipeline/application/project_check.py:46-59` (`_Makefiles.read`) passes each include path to `Git.show_file` unchanged, and that breaks in two cases. (a) A path outside the repository, such as `include ../common.mk` or `include /usr/share/x.mk`, makes `git ls-tree HEAD -- <path>` fail. `GitCli._run` raises `GitError`, nobody catches it, and `main` dies with a traceback and exit status 1, which reads as `not ready`. The Interface says a missing non-optional include is the fault `<including file>: included file <path> is missing`, and nothing for an optional one; a file outside the repository is not in the commit either. (b) `include ./factory/kit.mk` is reported missing even when `factory/kit.mk` is committed: `_blob_in_listing` compares git's normalised `factory/kit.mk` with the raw `./factory/kit.mk`. The Interface says "every path taken from the root of the repository". Fix: normalise each include path (for example with `posixpath.normpath`) before reading it and before adding it to `seen`. Treat a path that is absolute or leaves the root (`is_inside_checkout` in `factory.pipeline.domain.pipeline_definition` already says which) as not in the commit: the missing-include fault, or nothing for `-include`. Then the coder ends with `tests` and names three new rows for criterion 9's parametrized test: `include ../common.mk` gives `Makefile: included file ../common.mk is missing`; `-include ../common.mk` gives no fault; `include ./factory/kit.mk`, with the target in `factory/kit.mk`, gives no fault.
+    2. Criterion 2 extended: it needs its test row. `src/factory/pipeline/domain/project_check.py:73` drops a trailing `#` comment from an include line, and no criterion named that behaviour. Criterion 2 now holds the row `include a.mk # b.mk` as the one entry `a.mk`. It belongs in `tests/pipeline/domain/test_project_check.py::test_makefile_includes_are_the_paths_of_include_lines`.
+
+    Notes:
+    - `tests/pipeline/application/test_project_check_run.py`: no row has a definition whose `project_commands` already names `sync`, so the side where `sync` must not be added a second time is untested. The code handles it as the Interface says, at `src/factory/pipeline/application/project_check.py:114` (`if SYNC_COMMAND not in commands`). The missing row: such a definition with a `sync` target gives no fault, and without a `sync` target gives exactly one `no target sync`.
+
+    Earlier tests:
+    - `tests/guards/test_agent_home_wiring.py`: the human's leave in journal entry 11, used as given; the guard keeps its name and still checks the one construction.
+    - `tests/guards/test_areas.py`: the feature's decision 4, quoted in the Interface; the change only adds the two new modules to the table.
