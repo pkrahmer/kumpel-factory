@@ -1,11 +1,11 @@
 ---
 stage: docs-only
-blocked: question
+blocked: null
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 697
-comments_read: []
+comments_read: [6938616709]
 handed_over: null
 claim: null
 journal:
@@ -37,6 +37,11 @@ journal:
   stage: docs-only
   run: 616009ca26364756b4a7390927ffea1c
   blocked: question
+- number: 6
+  speaker: human
+  kind: comment
+  at: '2026-11-17T04:44:31.945599Z'
+  stage: docs-only
 ---
 
 # The guide
@@ -109,3 +114,4 @@ Expect: two numbers, each at least 3 for the first and at least 2 for the second
    Checked: `make documents` ends `documents ok (48.0 s)`. Both smoke commands give the expected counts (README.md:2, README.md:1; 13 and 2). `make guides` is red only on the guard above.
 
    Cross-read and found current: `operator/kit/README.md`, `operator/packs/README.md`, the three `TRAPS.md`, `docs/operator-guide/pipeline.md` (*Checking a repository before the factory runs it*), `agent-runtime.md` (*Behind a proxy*, *A project's own agents*), `docs/project-guide/style.md` (examples). Nothing stale found that is not this story's.
+6. 2026-11-17 human: A. The page is the eleventh topic. Leave given: the tester may add `start-a-project.md` to `TOPIC_FILES` in `tests/support/check_documents_support.py` and change the earlier tests that pin the number or the list of the operator guide's topics (ten becomes eleven), each keeping its name; the coder adds the page to `OPERATOR_GUIDE_FILES` in `src/factory/shared/domain/documents.py`. The story's sentence that no module and no test changes is lifted for exactly these lines.
