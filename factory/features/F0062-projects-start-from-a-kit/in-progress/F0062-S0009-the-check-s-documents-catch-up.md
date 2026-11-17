@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 699
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: docs-only
+  started_at: '2026-11-17T05:16:08.883753Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -47,6 +51,11 @@ journal:
   at: '2026-11-17T05:16:03.676242Z'
   stage: docs-review
   run: fcbc454622334846a4d2d4643d35c7a8
+- number: 8
+  speaker: factory
+  kind: started
+  at: '2026-11-17T05:16:08.883753Z'
+  stage: docs-only
 ---
 
 # The conformance check's documents catch up with the console script and the live part
@@ -142,3 +151,4 @@ Expect: a number of at least 2.
    1. `docs/decisions.md`, new entry *The live part of the conformance check works on a clone with an image of its own*: criterion 6 asks the log to say why the live part runs only after the static part, and the entry gives the rule ("When it runs") but no reason. The code has one. `src/factory/entry/check_project.py` `_live_points` reads the pipeline definition on the comment "The static part has just read the definition at the same commit, so it is there and valid". `ProjectRun._sync` and `_check` take the named makefile (`definition.make_file`) and the time limits (`command_time_limit`) from that definition. Fix: add a "Why after the static part" line saying that the live points run with the pipeline definition's makefile and time limits, which only a clean static part has read and validated. If the documenter does not want to word a reason from the code, end with `question` to the human instead.
    2. `docs/operator-guide/pipeline.md:223`, the added sentence "The example runs `python -m factory.entry.check_project`, which is the same command … on the path." is about 50 words, against style rule 2 (split a sentence of more than about 25 words). Fix: split it in two, one sentence that names `factory-check-project` as the same command with the same arguments, and one that says why the example runs the module.
    3. `docs/operator-guide/start-a-project.md:38`, the added sentence "Its two checks run `python -m factory.entry.check_project`, which is the same command … on the path." is about 55 words, against the same style rule 2. Fix: split it the same way as finding 2.
+8. factory: started docs-only as self.
