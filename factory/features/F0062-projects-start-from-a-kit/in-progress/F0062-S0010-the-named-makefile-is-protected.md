@@ -1,3 +1,30 @@
+---
+stage: intake
+blocked: null
+round: 0
+attempts: 0
+crashes: 0
+pull_request: null
+comments_read: []
+handed_over: null
+claim:
+  instance: self
+  stage: intake
+  started_at: '2026-11-17T05:20:19.216194Z'
+  lease_duration: 60
+journal:
+- number: 1
+  speaker: human
+  kind: created
+  at: '2026-11-17T05:20:19.208683Z'
+  stage: intake
+- number: 2
+  speaker: factory
+  kind: started
+  at: '2026-11-17T05:20:19.216194Z'
+  stage: intake
+---
+
 # The makefile a pipeline definition names, and the kit's `kit.mk`, are protected paths
 
 <!-- proposed by feature acceptance of 2026-11-17; refine before starting -->
@@ -50,3 +77,6 @@ uv run python -c "from factory.agents.domain.write_paths import protected_paths;
 Expect: `13 13`
 
 ## Journal
+
+1. 2026-11-17 human: created.
+2. factory: started intake as self.
