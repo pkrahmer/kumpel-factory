@@ -1,17 +1,13 @@
 ---
 stage: intake
-blocked: null
+blocked: question
 round: 0
 attempts: 0
 crashes: 0
-pull_request: null
+pull_request: 693
 comments_read: []
 handed_over: null
-claim:
-  instance: self
-  stage: intake
-  started_at: '2026-11-17T02:25:48.931095Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -23,6 +19,13 @@ journal:
   kind: started
   at: '2026-11-17T02:25:48.931095Z'
   stage: intake
+- number: 3
+  speaker: intake
+  kind: question
+  at: '2026-11-17T02:26:51.270261Z'
+  stage: intake
+  run: ba8d80ed90db4e33a8a27f9049a0d235
+  blocked: question
 ---
 
 # The installed builder
@@ -143,3 +146,13 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
 1. 2026-11-17 human: created.
 2. factory: started intake as self.
+3. intake: Questions before the tests stage. The format check passed. The Interface, the placement (agents/agents/, no change under src/factory/), the scope against feature.md, the smoke tests (runnable; pytest is called without `-q`, which `addopts` already sets, so the summary line is printed) and the docs criterion (it names what the reader must know) are all fine. Two points block the build, because the exact builder text in the Interface cannot pass criterion 6 under leave 11 as it is worded now:
+
+   1. The builder's step 1 reads "1. Read the work item: its Description, Interface, …". `tests/agent_files/test_no_agent_file_reads_its_work_item_first_and_each_finds_it_in_the_first_message` (test_first_message_agent_files.py) fails any shipped agent that matches `^\d+\. Read (the work item|the story)\b`. The step also goes against the shared rule R6: the work item is in the first message and is not read first. This failure is about the text, not about the list or the number of agents, so leave 11 does not cover it. Options: (a) reword step 1 in the Interface, for example "1. The work item is in your first message: its Description, Interface, criteria and smoke test. `CLAUDE.md` is already in your context. Read the code and documents the story touches; …". (b) Add a leave that excludes `builder` from that test. I would choose (a).
+
+   2. The per-agent tables in `tests/support/shipped_agents.py` and `tests/agent_files/` need more than a new name for `builder`:
+      - Every `ShippedAgent` has a `boundary` sentence. `test_body_starts_with_the_boundary_and_the_entry_sentence` (test_claude_files.py) and `test_body_still_opens_with_the_boundary_and_the_entry_sentence` (test_claude_agent_texts.py) both require the body to open with "<boundary>\n\n<entry>". The builder text opens with its entry sentence and has no boundary sentence.
+      - `test_body_names_every_decision_of_its_stage_in_inline_code` looks up each role's stage in `operator/template/factory/pipeline.yml` and asserts exactly one. The template has no `builder` stage, so the test fails.
+      - Builder rows are also needed in `ROLE_AND_STAGE_ANCHORS`, `LESSONS` and `EFFORTS`. The pinned role list of `test_template_pipeline_definition_is_valid_with_the_shipped_roles` would also change.
+
+      Does leave 11 cover these changes? Options: (a) Add a boundary line to the builder's Interface text, for example "You build the story; what you cannot decide you ask." Extend leave 11 so the tester may add builder rows to those tables and take builder's decisions (`review`, `question`) from a thin-line definition in the test, not from the template. (b) Leave the builder text as it is, and let the tester make the boundary optional, with builder's row having none. I would choose (a): the builder then follows the same shape as the seven agents, and the tests change only by data rows and the source of one role's decisions.
