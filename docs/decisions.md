@@ -1778,3 +1778,12 @@ Date: 2026-11-17 (F0062-S0010).
 
 - Decision: a stage's protected paths are `protected_paths(make_file)`: the twelve `PROTECTED_PATHS`, the kit's `factory/kit.mk` always, and the makefile the pipeline definition names under `make_file` when it names one, not added twice. `WritePathService.at` reads `make_file` from the definition at the stage-start commit, never from the work tree, as it reads the write paths. `PROTECTED_PATHS` keeps its twelve patterns, and the conformance check is unchanged: it judges write paths against tracked files, not against protected paths.
 - Why: since a definition may name its makefile, and every pack's makefile includes the kit's `factory/kit.mk`, the factory's targets and its green line can lie outside the root `Makefile`. They are the human's wherever the makefile lies, so a role whose write paths cover `factory/*` or `*` must not change them.
+
+## A project holds `CLAUDE.md` and the `factory/` folder, and nothing else of the factory's
+
+Date: 2026-11-17 (F0062-S0013).
+
+- Decision: every project has one layout, for a fresh start and an existing repository alike. Everything the factory needs, beside `CLAUDE.md` at the root, lives in the project's `factory/` folder. Both pipeline definitions of the kit name `make_file: factory/Makefile`. Every file of a stack pack but the two pages a person reads (`CLAUDE.sections.md`, `TRAPS.md`) goes into `factory/` at its own path: the pack's `Makefile` to `factory/Makefile`, the Java pack's `scripts/trust-store.sh` and `gitleaks.toml` to `factory/scripts/trust-store.sh` and `factory/gitleaks.toml`. The kit's `root.Makefile` forwards every target to `factory/Makefile`; a repository without a root `Makefile` of its own copies it as `Makefile`, and one with its own keeps it unchanged and says in `CLAUDE.md` that the agents run `make -f factory/Makefile <target>`. It replaces the two layouts before it: the pack's makefile at the root for a fresh start, and at `factory/Makefile` with `make_file` for an existing repository.
+- Price: a forwarding root `Makefile`, or `make -f factory/Makefile <target>` where the repository keeps its own.
+- Gain: one layout to explain and to upgrade, and the factory's makefile always among the protected paths, as the makefile the definition names.
+- Why: the human's wish for a clean layout, with the kit's and the packs' drafts reworded to it.

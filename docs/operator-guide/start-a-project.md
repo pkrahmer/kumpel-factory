@@ -20,13 +20,17 @@ What exists today:
 
 ## An existing repository
 
+There is one layout for every project: everything the factory needs lives in the project's `factory/` folder, and outside it there is only `CLAUDE.md` and, in a repository without a root `Makefile` of its own, the kit's forwarding `Makefile`. A target is run by hand from the root, as `make check` through the forwarding `Makefile`, or as `make -f factory/Makefile check` in any repository.
+
 The walk below takes a repository you already have and makes it ready for the factory. Run the commands from the root of your clone of the factory's repository, where `operator/kit/` and `operator/packs/` are; `<project>` is the folder of your repository.
 
 1. **Choose a line.** The thin line has one builder and one reviewer before your approval: cheap, for small changes. The full line has intake, tester, coder, reviewer, documenter and smoke tester, and an acceptance per feature: dearer, and every story's tests are written before its code. Both lines are a pipeline definition in the kit, `pipeline.thin.yml` and `pipeline.full.yml`.
 2. **Copy the kit.** Copy every file of `operator/kit/factory/` into `<project>/factory/`. Keep the chosen line's pipeline definition as `factory/pipeline.yml` and delete the other one. Copy `operator/kit/CLAUDE.md` to the root of the project.
-3. **Copy the pack.** Copy the pack's `Makefile` to the project's root. When the repository has a root `Makefile` of its own, copy it to `<project>/factory/Makefile` instead, leave your own makefile as it is, and remove the comment sign from the line `# make_file: factory/Makefile` in `factory/pipeline.yml`; the pack's include line, `include factory/kit.mk`, stays as it is, because make runs from the root. Copy the pack's `stage.Containerfile`, where it has one, to `<project>/factory/stage.Containerfile`, and the pack's other files to the same path from the root (for Java: `.gitleaks.toml` and `<project>/scripts/trust-store.sh`). The Python pack's makefile has two placeholders to fill in, `SOURCE` and `LAYERS`.
+3. **Copy the pack.** Copy every file of the pack but `CLAUDE.sections.md` and `TRAPS.md` into `<project>/factory/`, at the same path: the pack's `Makefile` becomes `<project>/factory/Makefile`, which the kit's pipeline definitions name with `make_file: factory/Makefile`; its `stage.Containerfile`, where it has one, becomes `<project>/factory/stage.Containerfile`; and for Java, the pack's `trust-store.sh` script and `gitleaks.toml` become `<project>/factory/scripts/trust-store.sh` and `<project>/factory/gitleaks.toml`. The Python pack's makefile has two placeholders to fill in, `SOURCE` and `LAYERS`.
+
+   When the repository has no root `Makefile` of its own, copy `operator/kit/root.Makefile` to `<project>/Makefile`: it forwards every target to `<project>/factory/Makefile`, so `make check` works at the root, for you and for the agents. When the repository has a root `Makefile` of its own, leave it as it is; step 5 tells the agents to run `make -f factory/Makefile <target>` instead.
 4. **Set the write paths.** In `factory/pipeline.yml`, each role has `write_paths`: the folders and files the factory may write. Name the folders the factory may change, and nothing else; everything outside them stays yours. Each path without a placeholder must match at least one committed file.
-5. **Fill `CLAUDE.md`.** Fill in each `<...>` placeholder of the kit's skeleton with what is true of the project. Replace the skeleton's sections `## Tests`, `## Checks`, `## Review` and `## Not without asking (end the stage with `question`)` with the pack's sections of the same headings from its `CLAUDE.sections.md`.
+5. **Fill `CLAUDE.md`.** Fill in each `<...>` placeholder of the kit's skeleton with what is true of the project. Under `## Checks`, keep the wording of the line about `<project>/factory/Makefile` that fits: the root `Makefile` forwards every target, or, in a repository with a root `Makefile` of its own, every target the agents' instructions name is run as `make -f factory/Makefile <target>`, `make check` as `make -f factory/Makefile check`. Replace the skeleton's sections `## Tests`, `## Checks`, `## Review` and `## Not without asking (end the stage with `question`)` with the pack's sections of the same headings from its `CLAUDE.sections.md`.
 6. **Commit.** The factory and its checks read commits, never the work tree.
 7. **Run `factory-check-project`** on the project's folder, with `--agent-home` naming the installed agents (in the factory's checkout, the folder `agents`). It prints one line per point and then `project: ready`, or a `FAIL` line for each point that is not ready. Read each `FAIL`: it names the missing target, the write path that matches no file, or the missing form. Fix it, commit, and run the check again. Each point and each fault is listed in *Checking a repository before the factory runs it* in [pipeline.md](pipeline.md).
 8. **Run it with `--run` on the machine.** On the VM, with the instance's environment loaded (`factory.env`, then `factory.local.env` when it exists, as the unit reads them), `factory-check-project --run` also builds the project's image and runs `make sync` and `make check` in containers, as a stage does. Only this shows a tool that ignores `HOME` or a certificate the stack does not read. It ends with nine points `ok` and `project: ready`.
@@ -35,7 +39,7 @@ The walk below takes a repository you already have and makes it ready for the fa
 
 ### The walk in one example
 
-The example sets up a small firmware repository that has a root `Makefile` of its own, with the kit's thin line and the C pack. Its first check finds the two slips the walk warns about: the factory's makefile is not named yet, and the builder may write to `tests/` and `docs/`, which hold no file. It runs in the factory's checkout. Its two checks run `python -m factory.entry.check_project`, which is the same command as the installed console script `factory-check-project` of steps 7 and 8, with the same arguments. They run the module because the document check runs the page's examples in the factory's own checkout, where the module is reachable whether or not the console script is on the path.
+The example sets up a small firmware repository that has a root `Makefile` of its own, with the kit's thin line and the C pack. The root `Makefile` stays as it is, so no forwarding `Makefile` is copied. Its first check finds the slip the walk warns about: the builder may write to `tests/` and `docs/`, which hold no file. It runs in the factory's checkout. Its two checks run `python -m factory.entry.check_project`, which is the same command as the installed console script `factory-check-project` of steps 7 and 8, with the same arguments. They run the module because the document check runs the page's examples in the factory's own checkout, where the module is reachable whether or not the console script is on the path.
 
 ```console
 $ git init -q my-firmware && mkdir -p my-firmware/src
@@ -48,15 +52,15 @@ $ cp operator/packs/c-host/Makefile operator/packs/c-host/stage.Containerfile my
 $ git -C my-firmware add -A && git -C my-firmware -c user.name=t -c user.email=t@example.com commit -q -m kit
 $ python -m factory.entry.check_project --agent-home agents my-firmware
 pipeline definition: ok
-makefile: FAIL: no target check; no target lint; no target test; no target sync; no target facts-diff; no target facts-files
+makefile: ok
 stage file: ok
 agents: ok
 write paths: FAIL: role builder: write path tests/* matches no tracked file; role builder: write path docs/* matches no tracked file
 forms: ok
-project: not ready (8 faults)
+project: not ready (2 faults)
 ```
 
-The makefile fault comes from the root `Makefile`, which the check reads while the pipeline definition names no other. Name the factory's makefile, let the builder write only `src/`, `tests/` and `README.md`, give `tests/` its first file, commit, and check again:
+The makefile point is `ok` because the pipeline definition names `make_file: factory/Makefile`, so the check reads the pack's makefile there and not the firmware's own root `Makefile`. Let the builder write only `src/`, `tests/` and `README.md`, give `tests/` its first file, commit, and check again:
 
 ```console
 $ git init -q my-firmware && mkdir -p my-firmware/src my-firmware/tests my-firmware/factory
@@ -65,7 +69,6 @@ $ touch my-firmware/src/main.c my-firmware/README.md my-firmware/tests/test_main
 $ cp operator/kit/factory/* my-firmware/factory/ && cp operator/kit/CLAUDE.md my-firmware/
 $ mv my-firmware/factory/pipeline.thin.yml my-firmware/factory/pipeline.yml && rm my-firmware/factory/pipeline.full.yml
 $ cp operator/packs/c-host/Makefile operator/packs/c-host/stage.Containerfile my-firmware/factory/
-$ sed -i 's|^# make_file: factory/Makefile|make_file: factory/Makefile|' my-firmware/factory/pipeline.yml
 $ sed -i 's|"tests/\*", "docs/\*", |"tests/*", |' my-firmware/factory/pipeline.yml
 $ grep -e '^make_file' -e 'builder: ' my-firmware/factory/pipeline.yml
 make_file: factory/Makefile
@@ -80,6 +83,8 @@ write paths: ok
 forms: ok
 project: ready
 ```
+
+The agents of this project run every target as `make -f factory/Makefile <target>`, which its `CLAUDE.md` says under `## Checks`; the factory itself runs them that way because of `make_file`.
 
 ### The live check on the machine
 
@@ -114,7 +119,7 @@ A company keeps its own starter, private, because a starter carries the company'
 
 ## What the project owns afterwards
 
-Once copied, most files are the project's own: `factory/pipeline.yml`, `CLAUDE.md`, `factory/README.md`, and every file of the pack (the makefile, the stage file, the scripts). Change them as the project needs; no upgrade of the kit or the pack replaces them.
+Once copied, most files are the project's own: `factory/pipeline.yml`, `CLAUDE.md`, `factory/README.md`, the forwarding root `Makefile` where it was copied, and every file of the pack (`<project>/factory/Makefile`, `<project>/factory/stage.Containerfile`, the scripts and rules under `factory/`). Change them as the project needs; no upgrade of the kit or the pack replaces them.
 
 Three files stay the kit's: `<project>/factory/kit.mk`, `<project>/factory/story-form.md` and `<project>/factory/feature-form.md`. An upgrade of the kit replaces them, so the project does not edit them.
 

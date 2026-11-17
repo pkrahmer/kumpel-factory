@@ -22,19 +22,22 @@ Choose a line first. The thin line has one builder and one reviewer before the h
    ```
 
 3. Copy `operator/kit/CLAUDE.md` to the project's root, and fill in each `<...>` placeholder with what is true of the project.
-4. Write the project's makefile. Its first line is `include factory/kit.mk`. After it, the makefile defines the four targets the pipeline definition needs: `sync`, `lint`, `test` and `check`. Each of them opens its recipe with `$(start)` and ends it with `$(green)`, and `check` ends with `echo "check: green"`. A stack pack brings these targets; [packs/README.md](../packs/README.md) says how kit and pack are assembled.
-5. Fill the write paths. Each role's write path without a placeholder (such as `src/*` or `README.md`) must match at least one committed file. Change the paths in `factory/pipeline.yml` to fit the project.
-6. Commit, then run the conformance check on the project's folder:
+4. Write the factory's makefile, `factory/Makefile`, which both pipeline definitions name with `make_file: factory/Makefile`. Its first line is `include factory/kit.mk`. After it, the makefile defines the four targets the pipeline definition needs: `sync`, `lint`, `test` and `check`. Each of them opens its recipe with `$(start)` and ends it with `$(green)`, and `check` ends with `echo "check: green"`. A stack pack brings this makefile; [packs/README.md](../packs/README.md) says how kit and pack are assembled.
+5. If the repository has no root `Makefile` of its own, copy `operator/kit/root.Makefile` to the project's root as `Makefile`. It forwards every target to `factory/Makefile`, so `make check` works at the root, for a developer and for the agents. A repository that keeps a root `Makefile` of its own leaves it as it is, and picks the second wording of the `make` line under `## Checks` in `CLAUDE.md`: every target is run as `make -f factory/Makefile <target>`.
+6. Fill the write paths. Each role's write path without a placeholder (such as `src/*` or `README.md`) must match at least one committed file. Change the paths in `factory/pipeline.yml` to fit the project.
+7. Commit, then run the conformance check on the project's folder:
 
    ```sh
    factory-check-project --agent-home <the factory's agents folder> <project>
    ```
 
-   It reads the commit at `HEAD`, never the work tree. It ends with `project: ready` when the project is ready for the factory. Otherwise it prints one `FAIL` line for each point that is not ready. Before step 4, `makefile` fails with `Makefile is missing`. Before step 5, `write paths` fails for each path that matches no file. The command is described in the operator guide, in [pipeline.md](../../docs/operator-guide/pipeline.md).
+   It reads the commit at `HEAD`, never the work tree. It ends with `project: ready` when the project is ready for the factory. Otherwise it prints one `FAIL` line for each point that is not ready. Before step 4, `makefile` fails with `factory/Makefile is missing`. Before step 6, `write paths` fails for each path that matches no file. The command is described in the operator guide, in [pipeline.md](../../docs/operator-guide/pipeline.md).
 
-A repository that keeps a root `Makefile` of its own can put the factory's makefile at `factory/Makefile` instead. It then removes the comment sign from the line `# make_file: factory/Makefile` in `factory/pipeline.yml`. The include line stays `include factory/kit.mk`, because make runs from the root of the checkout.
+There is one layout for a fresh start and for an existing repository alike: the factory's files live in `factory/`, and the only other file the factory needs is `CLAUDE.md` at the root, with the forwarding `Makefile` where the repository has none of its own. The include line in `factory/Makefile` is `include factory/kit.mk`, because make runs from the root of the checkout, and every path in both files is taken from the root.
 
-A minimal makefile that passes the check:
+A target is run by hand from the root: `make check` (or plain `make`) through the forwarding root `Makefile`, or `make -f factory/Makefile check` in any repository.
+
+A minimal `factory/Makefile` that passes the check:
 
 ```make
 include factory/kit.mk
@@ -50,7 +53,7 @@ check: lint test
 ## What `kit.mk` gives the makefile
 
 - Every recipe runs in one bash shell, which stops at the first failing line. make echoes no recipe line.
-- `check` is the default goal, so plain `make` runs `make check`.
+- `check` is the default goal, so `make -f factory/Makefile` without a target runs `check`. The forwarding root `Makefile` has `check` as its default goal too, so plain `make` at the root runs it.
 - `$(start)` and `$(green)` time a recipe. `$(green)` prints `<target>: green (<seconds> s)`, which is the line the factory's records read.
 - The three start facts: `facts-diff` (the branch's diff), `facts-changes` (the changed and new files) and `facts-files` (the tracked files). The factory runs them before an agent and puts their output into the agent's first message. They leave out `factory/`.
 
@@ -67,6 +70,7 @@ check: lint test
 | `factory/pipeline.full.yml` | `factory/pipeline.yml`, for the full line | the project's own |
 | `factory/README.md` | `factory/README.md` | the project's own |
 | `CLAUDE.md` | `CLAUDE.md` | the project's own |
+| `root.Makefile` | `Makefile`, only when the repository has no root `Makefile` of its own | the project's own: it forwards every target to `factory/Makefile`, with `check` as its default goal |
 
 ### The variables of `kit.mk`
 
@@ -79,4 +83,4 @@ A project sets them in its makefile before the include line, or in the environme
 
 ### Tests
 
-`tests/operator_scripts/test_kit_files.py` checks the kit's files and a project assembled from them. `tests/operator_scripts/test_kit_makefile.py` runs make on `kit.mk`. The assembling helper is `tests/support/kit_support.py`.
+`tests/operator_scripts/test_kit_files.py` checks the kit's files and a project assembled from them. `tests/operator_scripts/test_kit_makefile.py` runs make on `kit.mk`. `tests/operator_scripts/test_one_layout.py` checks the one layout: the definitions' `make_file`, a project assembled from the kit and each pack with and without a root `Makefile` of its own, the forwarding root `Makefile`, and the protection of `factory/Makefile` and `factory/kit.mk`. The assembling helper is `tests/support/kit_support.py`.

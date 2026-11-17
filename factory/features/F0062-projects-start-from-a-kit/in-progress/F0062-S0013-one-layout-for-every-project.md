@@ -1,5 +1,5 @@
 ---
-stage: docs
+stage: smoke-test
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 705
 comments_read: []
 handed_over: null
-claim:
-  instance: self
-  stage: docs
-  started_at: '2026-11-17T07:04:18.214424Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -122,6 +118,12 @@ journal:
   kind: started
   at: '2026-11-17T07:04:18.214424Z'
   stage: docs
+- number: 21
+  speaker: documenter
+  kind: result
+  at: '2026-11-17T07:13:19.244521Z'
+  stage: docs
+  run: 1ba28b8a41a54d4294e4df0495d63e4c
 ---
 
 # One layout for every project
@@ -401,3 +403,47 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     - `tests/operator_scripts/test_packs.py`: feature decision 36 removed `test_a_brownfield_project_with_the_pack_makefile_under_factory_is_ready`, which criteria 2 and 3 cover. The standing leave to move a shared test helper covers the move of `PATH_TOOLS`, `PROJECT_TOOLS`, `_stand_in`, `_stand_in_project` and the trust-store stand-in to `tests/support/pack_make_support.py`. Every remaining test keeps its name and what it checks.
     - `tests/support/kit_support.py`: feature decision 36 (one assembly; `brownfield=` replaced by `own_root_makefile=`).
 20. factory: started docs as self.
+21. documenter: Round 1 docs. I wrote what the docs criterion asks for: the one layout, everywhere a project's assembly is described. No findings for the coder: the data files are the drafts, and the behaviour I describe matches what I ran.
+
+    Files changed:
+    - `operator/kit/README.md`:
+      - Rewrote the assembly steps. Step 4 now writes `factory/Makefile`, which both definitions name with `make_file`. The new step 5 copies `root.Makefile` as `Makefile` only when the repository has no root `Makefile` of its own; otherwise the `CLAUDE.md` wording for `make -f factory/Makefile <target>` applies. Steps 6 and 7 cover the write paths and the check; the check's missing-makefile fault is now `factory/Makefile is missing`.
+      - Added how to run a target by hand, and a paragraph on the one layout.
+      - Removed the old "existing repository" paragraph with the commented `make_file`.
+      - The `kit.mk` default goal bullet now names the forwarding makefile.
+      - The Files table has a `root.Makefile` row, and the Tests section names `test_one_layout.py`.
+    - `operator/packs/README.md`:
+      - Replaced the fresh-start and existing-repository paths with one way: every pack file but `CLAUDE.sections.md` and `TRAPS.md` goes into `factory/` at the same path, and `root.Makefile` goes to the root only when the repository has no `Makefile` of its own. Also covers the `## Checks` wording in `CLAUDE.md` and running a target by hand.
+      - The Files table now has `factory/Makefile`, `gitleaks.toml` → `factory/gitleaks.toml`, and `factory/scripts/trust-store.sh`.
+      - The new-pack paragraph says the makefile names its files under `factory/` and points to `test_one_layout.py`.
+    - `docs/operator-guide/start-a-project.md`:
+      - Added a layout paragraph and how to run a target by hand.
+      - Step 3: the pack's files go to `factory/`, plus `root.Makefile` and when to copy it. Step 5: the `CLAUDE.md` line for `make -f factory/Makefile`.
+      - Rewrote the firmware example for the new layout. The `make_file` sed step is gone, and the first check now fails only on write paths; I ran this output myself.
+      - "What the project owns afterwards" now names the forwarding `Makefile` and the pack's files under `factory/`.
+    - `docs/operator-guide/pipeline.md`:
+      - *Name the makefile*: the kit's definitions name `factory/Makefile` for every project, and a new bullet covers running by hand, `root.Makefile` and the `CLAUDE.md` line for a repository with its own root `Makefile`.
+      - The `factory-check-project` example now writes the broken Python makefile to `my-project/factory/Makefile`. Its old root `Makefile` would now give `factory/Makefile is missing`.
+    - `docs/decisions.md`: new entry "A project holds `CLAUDE.md` and the `factory/` folder, and nothing else of the factory's" (2026-11-17, F0062-S0013), with the decision, its price, its gain and why. It has no "Rejected" line, because the story names no rejected option.
+    - `docs/project-guide/operator.md`: changed the packs bullet's assembly wording from "at the root or brownfield" to the one way, and added `test_one_layout.py` and `pack_make_support.py`.
+    - `docs/project-guide/README.md`: added `tests/support/pack_make_support.py` to the list of shared test helpers. This was the open point in entries 15, 17 and 19.
+
+    Checks run:
+    - Smoke block 2 (the forwarding makefile): printed `lint: green` and then `check: green`. `make -f factory/Makefile lint` alone also printed its green line.
+    - `make documents`:
+      - The first run found bare `factory/...` paths, which the check reads as repository paths. I rewrote them as `<project>/factory/...`, as the guides already do.
+      - The final run ended `documents ok (48.0 s)`.
+    - `make check`: green (coverage 99.14 %). I ran it because the operator READMEs are outside `docs/`.
+    - `make guides`: green.
+
+    Cross-read and found current:
+    - `docs/operator-guide/site.md`: its link to the pack's `trust-store.sh` under `operator/packs/` is still right.
+    - `docs/operator-guide/agent-runtime.md`, `docs/project-guide/agents.md` (protected paths, `protected_paths('factory/Makefile')` example), `docs/project-guide/pipeline.md`, `docs/project-guide/machine.md`, `README.md`.
+    - The C traps line in `start-a-project.md` ("factory's makefile at `<project>/factory/Makefile`").
+
+    Stale text noticed, not touched:
+    - `docs/project-guide/README.md` does not list `tests/support/kit_support.py` among the shared helpers, though the page says it names every module of `tests/support/`. This predates this story.
+
+    `guides`: guides: green (9.5 s)
+    `secrets`: secrets: green (2.1 s)
+    `documents`: documents ok (48.2 s)
