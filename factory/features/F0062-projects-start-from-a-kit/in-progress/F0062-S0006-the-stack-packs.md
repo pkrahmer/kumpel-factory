@@ -1,5 +1,5 @@
 ---
-stage: review
+stage: docs
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 695
 comments_read: [6937495535]
 handed_over: null
-claim:
-  instance: self
-  stage: review
-  started_at: '2026-11-17T03:51:33.137159Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -106,6 +102,12 @@ journal:
   kind: started
   at: '2026-11-17T03:51:33.137159Z'
   stage: review
+- number: 18
+  speaker: reviewer
+  kind: result
+  at: '2026-11-17T03:52:11.255033Z'
+  stage: review
+  run: 1b19a4b4598143efbefe5655724d8d04
 ---
 
 # The stack packs
@@ -298,3 +300,34 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     `duplicates`: duplicates: 8 new, 38 known, 5 gone
 17. factory: started review as self.
+18. reviewer: Round 1 review of `git diff develop...HEAD -- . ':!factory'`. I read the diff from the start facts and checked three things myself:
+    - `diff -r planning/packs-draft operator/packs` shows one difference only: the `# SPDX-License-Identifier: Apache-2.0` line in `java-gradle/scripts/trust-store.sh`. The Interface's guard clause allows it, and the Description now names it.
+    - `uv run pytest -q tests/operator_scripts/test_packs.py tests/operator_scripts/test_kit_files.py`: all passed.
+    - `git diff --name-status develop...HEAD`: no file under `src/` or `planning/` changes.
+
+    no findings
+
+    - Acceptance criteria:
+      - Criteria 1 and 2 are rows over the three packs and both kit lines, thin and full. The brownfield row checks that there is no root `Makefile` and that `make_file: factory/Makefile` is uncommented.
+      - Criterion 3 finds the first rule with `makefile_targets` and checks that the include comes before it, that the stack targets are present and that no kit target is defined.
+      - Criterion 4 runs `stage_layer` and checks that `sha256sum -c` follows each `curl` within the joined instruction.
+      - Criterion 5 checks the headings both ways, that each heading appears once (by count), that the pack's text is in place, and that `## Language` and `## Architecture` are unchanged.
+      - Criterion 6 tests both sides: exit status 0 with one green line for each target `check` depends on, and exit status 1 with no `check: green`. The stand-ins are checked as called on both sides.
+      - Criterion 7 tests `#!/bin/sh` with `sh -n`, and that the trust store is built exactly once over two syncs with the bundle and the store's path.
+      - The coder's `make check guides` was green (entry 16).
+    - The round 0 findings are resolved. `project_faults` in `tests/support/project_check_support.py` replaces both copies, and `section_texts` with `without_trailing_blanks` in `tests/support/kit_support.py` replaces the trimming loop.
+    - Architecture: only operator files and tests changed, no module under `src/factory/`, and the assembly helper is in `tests/support/kit_support.py` as the Interface asks.
+    - Security:
+      - Both stage files pin each download by version and SHA-256.
+      - `changeit` is the JDK's default store password.
+      - No marker, no baseline entry, no exclusion. The `make secrets` hit was solved by the human rewording the draft (entry 8).
+    - Quality: the support helpers have docstrings, and their names say what they are.
+    - Work item hygiene: the Description matches what was built, and the journal names the main choice and what was rejected. The docs criterion still describes what the reader must know.
+    - Documents: the diff changes no document the documenter writes.
+
+    Notes:
+    1. `tests/operator_scripts/test_packs.py` `_instructions` joins continuation lines and drops comments, much like `_instructions` in `tests/support/dockerfile_support.py:61`. That one is private and returns `(keyword, arguments)` pairs, but either form would do here. Reusing it, or making a public version of it, would remove the second copy.
+    2. `tests/operator_scripts/test_packs.py` `_stand_in` overlaps with `recording_stand_in` in `tests/support/recording_stand_in_support.py:10`. That helper has no exit status parameter and writes the calls file in its own folder, so the overlap is partial.
+
+    Earlier tests:
+    - `tests/operator_scripts/test_kit_files.py`: changed under the standing leave to move a shared test helper. `WRITTEN_FILES` moved to `tests/support/kit_support.py`, and `_check` was replaced by `project_faults` in `tests/support/project_check_support.py`. Both tests that used it keep their names and what they check.
