@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 690
 comments_read: [6933812910, 6934072851]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: docs
+  started_at: '2026-11-17T00:59:40.279762Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -158,6 +162,11 @@ journal:
   at: '2026-11-17T00:59:34.914932Z'
   stage: review
   run: 7928edf6aa364b29bf2923a5e50a85d0
+- number: 28
+  speaker: factory
+  kind: started
+  at: '2026-11-17T00:59:40.279762Z'
+  stage: docs
 ---
 
 # The conformance check reads a repository
@@ -509,3 +518,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     - `tests/guards/test_areas.py`: changed under the feature's decision 4, quoted in the Interface. It only adds the two new modules to the table.
 
     Open: the smoke test has not been run yet. The smoke-test stage runs it.
+28. factory: started docs as self.
