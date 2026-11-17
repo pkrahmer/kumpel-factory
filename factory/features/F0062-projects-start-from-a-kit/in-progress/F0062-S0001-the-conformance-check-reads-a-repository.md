@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 690
 comments_read: [6933812910, 6934072851]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: doing
+  started_at: '2026-11-17T00:50:23.014476Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -114,6 +118,11 @@ journal:
   at: '2026-11-17T00:50:17.571508Z'
   stage: review
   run: e4acf29b10f3484b82a0bf7257143aea
+- number: 20
+  speaker: factory
+  kind: started
+  at: '2026-11-17T00:50:23.014476Z'
+  stage: doing
 ---
 
 # The conformance check reads a repository
@@ -370,3 +379,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     Earlier tests:
     - `tests/guards/test_agent_home_wiring.py`: the human's leave in journal entry 11, used as given; the guard keeps its name and still checks the one construction.
     - `tests/guards/test_areas.py`: the feature's decision 4, quoted in the Interface; the change only adds the two new modules to the table.
+20. factory: started doing as self.
