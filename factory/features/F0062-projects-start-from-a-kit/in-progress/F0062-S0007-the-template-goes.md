@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 696
 comments_read: [6937913187]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: doing
+  started_at: '2026-11-17T04:11:08.291187Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -53,6 +57,11 @@ journal:
   at: '2026-11-17T04:11:03.308751Z'
   stage: tests
   run: 6c620ef8363c403bb70b7aad571efa4b
+- number: 9
+  speaker: factory
+  kind: started
+  at: '2026-11-17T04:11:08.291187Z'
+  stage: doing
 ---
 
 # The template goes
@@ -177,3 +186,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    Files created: `tests/guards/test_template_removed.py`.
 
    `lint`: lint: green (0.1 s)
+9. factory: started doing as self.
