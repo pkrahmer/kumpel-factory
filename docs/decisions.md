@@ -1787,3 +1787,12 @@ Date: 2026-11-17 (F0062-S0013).
 - Price: a forwarding root `Makefile`, or `make -f factory/Makefile <target>` where the repository keeps its own.
 - Gain: one layout to explain and to upgrade, and the factory's makefile always among the protected paths, as the makefile the definition names.
 - Why: the human's wish for a clean layout, with the kit's and the packs' drafts reworded to it.
+
+## The forwarding root `Makefile` forwards a target past a file of its name
+
+Date: 2026-11-17 (F0062-S0014).
+
+- Decision: the forwarding rule `%:` of the kit's `root.Makefile` depends on the phony, empty target `factory-forward`, the GNU make manual's idiom for overriding another makefile. Every target named at the root is forwarded to `factory/Makefile`, also when a file or a folder at the root has the target's name. `check` stays the default goal, `Makefile` is never remade through the rule, and an unknown target still ends red. The name `factory-forward` is the forwarding makefile's own and is not forwarded.
+- Price: a project's `factory/Makefile` cannot reach a target named `factory-forward` through the root.
+- Why: with a match-anything rule and no prerequisite, make took a target whose name a root file or folder carries for an existing file with nothing to remake. `make test` in a C project that keeps its tests in `test/` printed `make: 'test' is up to date.`, ran no test and exited 0: a false green for a developer and for an agent whose `CLAUDE.md` says that `make test` works at the root.
+- Rejected: a `.PHONY` list of the project's target names, because the root makefile cannot know a project's targets (the coder's choice in the story's journal).

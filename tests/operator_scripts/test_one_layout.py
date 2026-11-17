@@ -2,7 +2,6 @@
 forwards to `factory/Makefile`."""
 
 import re
-import shutil
 from pathlib import Path
 
 import pytest
@@ -11,14 +10,15 @@ from factory.agents.domain.write_paths import matches_any, protected_paths
 from factory.pipeline.adapters.pipeline_yaml import RuamelPipelineDefinitionReader
 from support.kit_make_support import green_line
 from support.kit_support import (
-    KIT_MAKEFILE,
     LINES,
+    MAKEFILE_TARGET,
     PACKS,
     PACKS_FOLDER,
     ROOT_MAKEFILE,
     WRITTEN_FILES,
     Line,
     Pack,
+    forwarding_project,
     kit_pipeline_text,
     pack_project_files,
     run_kit_make,
@@ -33,8 +33,6 @@ OWN_ROOT_MAKEFILE = "# The repository's own makefile.\nbuild:\n\t@echo built\n"
 FORWARDED_MAKEFILE = (
     'include factory/kit.mk\nlint:\n\t$(start)\n\t$(green)\ncheck: lint\n\techo "check: green"\n'
 )
-# A line of make's output that names the target `Makefile`, in either quoting make uses.
-MAKEFILE_TARGET = re.compile(r"[`']Makefile'")
 OLD_ROOT_PATHS = (
     re.compile(r"(?<!factory/)scripts/trust-store\.sh"),
     re.compile(r"\.gitleaks\.toml"),
@@ -103,11 +101,7 @@ def test_the_root_makefile_forwards_every_target_to_the_factory_makefile(
     expected: list[re.Pattern[str]],
     unexpected: list[re.Pattern[str]],
 ) -> None:
-    project = tmp_path / "project"
-    (project / "factory").mkdir(parents=True)
-    shutil.copyfile(KIT_MAKEFILE, project / "factory" / "kit.mk")
-    shutil.copyfile(ROOT_MAKEFILE, project / "Makefile")
-    (project / FACTORY_MAKEFILE).write_text(FORWARDED_MAKEFILE, encoding="utf-8")
+    project = forwarding_project(tmp_path, FORWARDED_MAKEFILE)
 
     result = run_kit_make(project, *args)
 

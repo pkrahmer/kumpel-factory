@@ -23,7 +23,7 @@ Choose a line first. The thin line has one builder and one reviewer before the h
 
 3. Copy `operator/kit/CLAUDE.md` to the project's root, and fill in each `<...>` placeholder with what is true of the project.
 4. Write the factory's makefile, `factory/Makefile`, which both pipeline definitions name with `make_file: factory/Makefile`. Its first line is `include factory/kit.mk`. After it, the makefile defines the four targets the pipeline definition needs: `sync`, `lint`, `test` and `check`. Each of them opens its recipe with `$(start)` and ends it with `$(green)`, and `check` ends with `echo "check: green"`. A stack pack brings this makefile; [packs/README.md](../packs/README.md) says how kit and pack are assembled.
-5. If the repository has no root `Makefile` of its own, copy `operator/kit/root.Makefile` to the project's root as `Makefile`. It forwards every target to `factory/Makefile`, so `make check` works at the root, for a developer and for the agents. A repository that keeps a root `Makefile` of its own leaves it as it is, and picks the second wording of the `make` line under `## Checks` in `CLAUDE.md`: every target is run as `make -f factory/Makefile <target>`.
+5. If the repository has no root `Makefile` of its own, copy `operator/kit/root.Makefile` to the project's root as `Makefile`. It forwards every target to `factory/Makefile`, so `make check` works at the root, for a developer and for the agents. It forwards a target also when a file or a folder at the root has the target's name, such as `make test` beside a `test/` folder: its forwarding rule depends on a phony target, `factory-forward`, which is the forwarding makefile's own name and is not forwarded. A repository that keeps a root `Makefile` of its own leaves it as it is, and picks the second wording of the `make` line under `## Checks` in `CLAUDE.md`: every target is run as `make -f factory/Makefile <target>`.
 6. Fill the write paths. Each role's write path without a placeholder (such as `src/*` or `README.md`) must match at least one committed file. Change the paths in `factory/pipeline.yml` to fit the project.
 7. Commit, then run the conformance check on the project's folder:
 
@@ -70,7 +70,7 @@ check: lint test
 | `factory/pipeline.full.yml` | `factory/pipeline.yml`, for the full line | the project's own |
 | `factory/README.md` | `factory/README.md` | the project's own |
 | `CLAUDE.md` | `CLAUDE.md` | the project's own |
-| `root.Makefile` | `Makefile`, only when the repository has no root `Makefile` of its own | the project's own: it forwards every target to `factory/Makefile`, with `check` as its default goal |
+| `root.Makefile` | `Makefile`, only when the repository has no root `Makefile` of its own | the project's own: it forwards every target to `factory/Makefile`, also when a file or a folder at the root has the target's name, with `check` as its default goal; `factory-forward` is its own and is not forwarded |
 
 ### The variables of `kit.mk`
 
@@ -83,4 +83,4 @@ A project sets them in its makefile before the include line, or in the environme
 
 ### Tests
 
-`tests/operator_scripts/test_kit_files.py` checks the kit's files and a project assembled from them. `tests/operator_scripts/test_kit_makefile.py` runs make on `kit.mk`. `tests/operator_scripts/test_one_layout.py` checks the one layout: the definitions' `make_file`, a project assembled from the kit and each pack with and without a root `Makefile` of its own, the forwarding root `Makefile`, and the protection of `factory/Makefile` and `factory/kit.mk`. The assembling helper is `tests/support/kit_support.py`.
+`tests/operator_scripts/test_kit_files.py` checks the kit's files and a project assembled from them. `tests/operator_scripts/test_kit_makefile.py` runs make on `kit.mk`. `tests/operator_scripts/test_one_layout.py` checks the one layout: the definitions' `make_file`, a project assembled from the kit and each pack with and without a root `Makefile` of its own, the forwarding root `Makefile`, and the protection of `factory/Makefile` and `factory/kit.mk`. `tests/operator_scripts/test_root_makefile.py` runs make on the forwarding root `Makefile` with a file or a folder of a target's name at the root, a red target, an unknown target and the name `factory-forward`. The assembling helper is `tests/support/kit_support.py`.

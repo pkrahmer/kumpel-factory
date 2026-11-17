@@ -2,6 +2,8 @@
 assembled from them, and runs of make on it."""
 
 import os
+import re
+import shutil
 from datetime import timedelta
 from pathlib import Path
 from typing import Literal
@@ -24,6 +26,8 @@ KIT_FILES = (
 KIT_MAKEFILE = KIT / "factory" / "kit.mk"
 # The root makefile that forwards every target to `factory/Makefile`.
 ROOT_MAKEFILE = KIT / "root.Makefile"
+# A line of make's output that names the target `Makefile`, in either quoting make uses.
+MAKEFILE_TARGET = re.compile(r"[`']Makefile'")
 
 Line = Literal["thin", "full"]
 LINES: tuple[Line, ...] = ("thin", "full")
@@ -122,6 +126,17 @@ def pack_project_files(
         if path.is_file() and relative not in PACK_PAGES:
             files[f"factory/{relative}"] = path.read_text(encoding="utf-8")
     return files
+
+
+def forwarding_project(tmp_path: Path, factory_makefile: str) -> Path:
+    """A project in `tmp_path` with the kit's root makefile as `Makefile`, the kit's
+    `factory/kit.mk` and `factory_makefile` as `factory/Makefile`."""
+    project = tmp_path / "project"
+    (project / "factory").mkdir(parents=True)
+    shutil.copyfile(KIT_MAKEFILE, project / "factory" / "kit.mk")
+    shutil.copyfile(ROOT_MAKEFILE, project / "Makefile")
+    (project / "factory" / "Makefile").write_text(factory_makefile, encoding="utf-8")
+    return project
 
 
 def run_kit_make(
