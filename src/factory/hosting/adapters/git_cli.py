@@ -206,11 +206,15 @@ class GitCli(Git):
         return self._run(["cat-file", "blob", blob]).stdout
 
     def list_files(self, ref: str, directory: str) -> list[str]:
-        """The repository-relative paths of all files under `directory` at `ref`, sorted."""
+        """The repository-relative paths of all files under `directory` at `ref`, sorted.
+
+        `directory` `""` is the whole tree.
+        """
         check_git_argument(ref)
-        listing = self._run(["ls-tree", "-r", "-z", "--name-only", ref, "--", directory]).stdout
-        prefix = f"{directory}/"
-        return sorted(path for path in listing.split("\0") if path.startswith(prefix))
+        pathspec = [directory] if directory else []
+        listing = self._run(["ls-tree", "-r", "-z", "--name-only", ref, "--", *pathspec]).stdout
+        prefix = f"{directory}/" if directory else ""
+        return sorted(path for path in listing.split("\0") if path and path.startswith(prefix))
 
     def is_ancestor(self, ancestor: str, descendant: str) -> bool:
         """Whether `ancestor` is reachable from `descendant`."""

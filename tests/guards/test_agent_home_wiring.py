@@ -23,4 +23,4 @@ def test_the_agent_definition_reader_is_built_once_from_the_settings_agent_home(
         if isinstance(node, ast.Call) and _called_name(node) == READER
     ]
 
-    assert found == [("factory.entry.wiring", ["settings.agent_home"])]
+    assert found == [("factory.entry.wiring", ["agent_home"])]

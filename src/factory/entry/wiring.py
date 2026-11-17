@@ -16,7 +16,7 @@ from factory.agents.adapters.agent_files import FrontmatterAgentDefinitionReader
 from factory.agents.adapters.claude_runtime import ClaudeCodeRuntime
 from factory.agents.adapters.oauth_token import ClientCredentialsTokenSource
 from factory.agents.adapters.opencode_runtime import OpencodeRuntime
-from factory.agents.application.agent_runtime import AgentRuntime
+from factory.agents.application.agent_runtime import AgentDefinitionReader, AgentRuntime
 from factory.agents.application.project_agents import ProjectAgentDefinitions
 from factory.agents.application.tokens import TokenRefresher, TokenSource
 from factory.agents.domain.agent_runs import scrub_environment
@@ -81,6 +81,7 @@ from factory.pipeline.application.handlers.reject import RejectHandler
 from factory.pipeline.application.handlers.run import RunHandler
 from factory.pipeline.application.handlers.run_gate import RunGate
 from factory.pipeline.application.idle_shutdown import IdleShutdown
+from factory.pipeline.application.pipeline_loading import PIPELINE_REF
 from factory.pipeline.application.recovery import RecoveryHandler
 from factory.pipeline.application.stops import StopService
 from factory.pipeline.application.tick import HandlerFactory, IdleHandler, Tick
@@ -202,6 +203,13 @@ def build_work_item_reader() -> WorkItemReader:
 def build_pipeline_definition_reader() -> PipelineDefinitionReader:
     """Return the reader of the pipeline definition."""
     return RuamelPipelineDefinitionReader()
+
+
+def build_agent_definitions(
+    git: Git, agent_home: Path, ref: str = PIPELINE_REF
+) -> AgentDefinitionReader:
+    """Return the project's agents at `ref` through `git`, the installed ones in `agent_home`."""
+    return ProjectAgentDefinitions(git, FrontmatterAgentDefinitionReader(agent_home), ref)
 
 
 def git_environment(helper: str = CREDENTIAL_HELPER) -> dict[str, str]:
@@ -344,9 +352,7 @@ def build_boundaries(
         cost_reader=JsonLinesCostRecordReader(),
         cost_writer=JsonLinesCostRecordWriter(),
         pipeline_reader=RuamelPipelineDefinitionReader(),
-        agent_definitions=ProjectAgentDefinitions(
-            git, FrontmatterAgentDefinitionReader(settings.agent_home)
-        ),
+        agent_definitions=build_agent_definitions(git, settings.agent_home),
         clock=clock,
         log=log,
         health=health_store(state),

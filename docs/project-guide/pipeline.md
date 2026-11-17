@@ -160,6 +160,24 @@ One class loads the definition for the whole factory and raises or clears the st
 
 See also: *The tick* and *The stop records*.
 
+### The project check
+
+The project check judges whether a project's repository is ready for the factory, on the files of one commit. Read it when you change what a project must hold, or the command `factory-check-project`. The operator's side is *Checking a repository before the factory runs it* in [pipeline.md](../operator-guide/pipeline.md) of the operator guide.
+
+- [`factory.pipeline.domain.project_check`](../../src/factory/pipeline/domain/project_check.py) holds the pure rules: `POINT_NAMES` (the six points in their order), `ProjectPoint(name, faults, skipped)`, `MakefileInclude(path, optional)`, `makefile_targets`, `makefile_includes`, `target_faults`, `write_path_faults` (matched with `factory.agents.domain.write_paths.matches_any`, a pattern with `{` not judged), `report_lines` and `is_ready`.
+- [`factory.pipeline.application.project_check`](../../src/factory/pipeline/application/project_check.py) holds `ProjectCheck(git, pipeline_reader, agents, ref="HEAD").run()`, which returns the six points.
+- [`factory.entry.check_project`](../../src/factory/entry/check_project.py) is the command. It builds `GitCli` on the folder, the reader of `build_pipeline_definition_reader()` and the agents of `build_agent_definitions(git, agent_home, "HEAD")`, the project's own agents first, as in a stage.
+
+The rules:
+
+- The check reads commits, never the work tree: every file goes through `Git.show_file` at `ref`, and the tracked files through `Git.list_files(ref, "")`. The factory reads commits too, so an uncommitted fix must not make a repository look ready.
+- It starts no container and runs no project command. Building the image and running `make sync` and `make check` are not part of it.
+- It is a command of its own, not a preflight item (see the decision log, [decisions.md](../decisions.md)).
+- Without a valid definition, `makefile`, `agents` and `write paths` are `skipped`; `stage file` and `forms` are judged all the same.
+- The makefile is `Makefile` at the root. Its includes are followed breadth-first, each path normalised with `posixpath.normpath` and taken from the root of the repository, each file read once. A path that is absolute or leaves the root (`is_inside_checkout`) is never passed to git and counts as not committed. The commands are the definition's `project_commands`, and `sync` after them when they do not hold it.
+- The stage file is judged by `factory.machine.domain.stage_layer.stage_layer`; a missing `<project>/factory/stage.Containerfile` is no fault.
+- Tests: [`tests/pipeline/domain/test_project_check.py`](../../tests/pipeline/domain/test_project_check.py), [`tests/pipeline/application/test_project_check_run.py`](../../tests/pipeline/application/test_project_check_run.py) and [`tests/entry/test_check_project.py`](../../tests/entry/test_check_project.py), on real repositories in `tmp_path` built with [`tests/support/project_check_support.py`](../../tests/support/project_check_support.py).
+
 ## The prompt and the request for a stage
 
 Before a stage's agent runs, the factory writes it its first message and an `AgentRunRequest`. `TaskComposer` in [task.py](../../src/factory/pipeline/application/task.py) builds the request; the pure rules are in [prompts.py](../../src/factory/agents/domain/prompts.py).
@@ -845,7 +863,7 @@ See also: *The tick* and *The handlers of the events*.
   - The agent runtime that `settings.agent_runtime` names: `OpencodeRuntime` for `opencode`, otherwise `ClaudeCodeRuntime`. Both run in the stage's containers.
   - `RecordingProjectCommands(ContainerMakeCommands(...))` for the project commands.
   - The work item reader and writer, the cost record reader and writer and the pipeline reader.
-  - `ProjectAgentDefinitions(git, FrontmatterAgentDefinitionReader(settings.agent_home))`.
+  - `build_agent_definitions(git, settings.agent_home)`, which returns `ProjectAgentDefinitions(git, FrontmatterAgentDefinitionReader(agent_home), ref)` with the ref `PIPELINE_REF`. It is the one place that builds `FrontmatterAgentDefinitionReader` (`tests/guards/test_agent_home_wiring.py`); `factory.entry.check_project` calls it too, with its own agent home and the ref `HEAD`.
   - `JsonHealthStatusFile(<state directory>/health.json)`, built inside the `Boundaries(...)` call.
   - `checkout` and `settings`.
 - With `images`, the containers' `PATH` is read from the stage image. Without it, or when the image cannot be read, it is `SYSTEM_PATH`, and the preflight reports a missing image.

@@ -381,7 +381,7 @@ What the settings allow and deny:
 - `git add` and `git commit` are denied, because an agent leaves its changes in the working tree and the factory makes the result commit. An agent has no git identity of its own.
 - `git push`, `gh` and the commands that move or rewrite branches are denied, because the factory alone pushes.
 
-A new project starts from `operator/template/` in the factory's checkout: a pipeline definition, a `CLAUDE.md` and a `Makefile` whose `SOURCE` and `LAYERS` placeholders you fill in. The [story](../project-guide/glossary.md) and [feature](../project-guide/glossary.md) forms are yours to add, and every stage stops until `factory/story-form.md` exists.
+A new project starts from `operator/template/` in the factory's checkout: a pipeline definition, a `CLAUDE.md` and a `Makefile` whose `SOURCE` and `LAYERS` placeholders you fill in. The [story](../project-guide/glossary.md) and [feature](../project-guide/glossary.md) forms are yours to add, and every stage stops until `factory/story-form.md` exists. Once the project's first commit is made, `factory-check-project <folder>` says whether it is ready; see *Checking a repository before the factory runs it* in [pipeline.md](pipeline.md).
 
 The smoke tester has two ways out when it finds something:
 

@@ -1,6 +1,6 @@
 # The pipeline definition and the story check
 
-A topic of the [operator guide](README.md). It covers the file that configures your pipeline, `factory/pipeline.yml`, and the command that checks a [story](../project-guide/glossary.md) before the factory starts it.
+A topic of the [operator guide](README.md). It covers the file that configures your pipeline, `factory/pipeline.yml`, the command that checks whether a repository is ready for the factory, and the command that checks a [story](../project-guide/glossary.md) before the factory starts it.
 
 ## The pipeline definition
 
@@ -191,6 +191,83 @@ Further rules:
 - `human`, `factory` and `question` cannot be a stage name or a role name.
 - Every name in `checks` and `reports` must be a project command.
 - `sync` is a project command like the others (`sync: {time_limit: 5}` in the template). The [stage environment](../project-guide/glossary.md) reads its limit for the container that prepares the tools after a checkout. No stage lists it, so it never enters a lease. A definition without `sync` gives it 10 minutes.
+
+## Checking a repository before the factory runs it
+
+`factory-check-project <folder>` answers whether the git repository in `<folder>` is ready for the factory, before you start a story there. It reads the commit at `HEAD`, never the work tree, because the factory reads commits too: a fix you have not committed does not count. It starts no container and runs no project command, so `make check` and the stage image are not tried; it judges only the committed files.
+
+Until the command is installed as a console script, run it in the factory's own checkout as `uv run python -m factory.entry.check_project`, with the same arguments.
+
+1. Commit what you want checked in the project's repository.
+2. Run the command with the folder of that repository. Name the installed agents with `--agent-home <dir>`; without it the command takes the folder that `FACTORY_CLAUDE_HOME` names. In the factory's checkout the shipped agents are the folder `agents`.
+3. Read the lines it prints: one line per point, then the verdict. Fix every `FAIL`, commit, and run it again.
+
+The example builds a project from the template in a new folder `my-project`, with two slips: its `Makefile` has no `lint:` rule, and `factory/feature-form.md` is missing. It runs in the factory's checkout, where the shipped agents are the folder `agents`:
+
+```console
+$ git init -q my-project && mkdir -p my-project/factory my-project/src my-project/tests my-project/docs
+$ cp operator/template/factory/pipeline.yml factory/story-form.md my-project/factory/
+$ grep -v '^lint:' operator/template/Makefile > my-project/Makefile
+$ touch my-project/src/a.py my-project/tests/t.py my-project/docs/d.md my-project/README.md
+$ git -C my-project add -A && git -C my-project -c user.name=t -c user.email=t@example.com commit -q -m one
+$ python -m factory.entry.check_project --agent-home agents my-project
+pipeline definition: ok
+makefile: FAIL: no target lint
+stage file: ok
+agents: ok
+write paths: ok
+forms: FAIL: factory/feature-form.md is missing
+project: not ready (2 faults)
+```
+
+### The six points
+
+| Point | What it judges |
+|---|---|
+| `pipeline definition` | `factory/pipeline.yml` is there and the factory's reader accepts it. The fault is the reader's fault text, the same as in the stop `pipeline_definition_invalid`. |
+| `makefile` | `Makefile` at the root has a target for every project command the definition names under `project_commands`, and for `sync`. A target in a file the `Makefile` includes counts, through any depth of includes. |
+| `stage file` | `<project>/factory/stage.Containerfile`, when the project has one, follows the rules of a project's stage file (see *The project's stage file* in [machine.md](machine.md)). Without the file the project runs on the factory's stage image, which is no fault. |
+| `agents` | Every role of the definition has an agent: the project's own `factory/agents/<role>.md` at `HEAD`, else the installed one (see *A project's own agents* in [agent-runtime.md](agent-runtime.md)). |
+| `write paths` | Every write path of every role matches at least one tracked file. A write path with a placeholder such as `{work_item}` is not judged. |
+| `forms` | `factory/story-form.md` and `factory/feature-form.md` are there. |
+
+Without a valid pipeline definition the points `makefile`, `agents` and `write paths` cannot be judged: their lines read `skipped: no valid pipeline definition`. `stage file` and `forms` are judged all the same.
+
+### Reference
+
+The lines:
+
+- A point without a fault: `<point>: ok`.
+- A point with faults: `<point>: FAIL: <fault>; <fault>`.
+- A point not judged: `<point>: skipped: no valid pipeline definition`. It counts as no fault.
+- The last line: `project: ready`, or `project: not ready (<n> faults)` with the number of all faults (`(1 fault)` for one).
+
+The faults:
+
+| Fault | Point |
+|---|---|
+| `factory/pipeline.yml is missing` | `pipeline definition` |
+| the fault text of the definition's refusal | `pipeline definition` |
+| `Makefile is missing` | `makefile` |
+| `no target <name>` | `makefile` |
+| `<including file>: included file <path> is missing` | `makefile`; an `include` whose file is not committed, or lies outside the repository. A `-include` or `sinclude` whose file is missing is no fault. |
+| the reason the stage file is refused, such as two `FROM` lines | `stage file` |
+| `role <role>: no agent file` | `agents` |
+| `role <role>: <fault>` | `agents`; the agent file's fault, as in the stop `agent_definition_invalid` |
+| `role <role>: write path <pattern> matches no tracked file` | `write paths` |
+| `factory/story-form.md is missing`, `factory/feature-form.md is missing` | `forms` |
+
+How the makefile is read: a rule line starts at column 0 with one or more names of letters, digits, `_`, `.` and `-`, then `:` or `::`. An assignment (`X := 1`), an indented line, a comment and a pattern or variable rule (`%.o: %.c`, `$(T): u`) give no target. An include line starts at column 0 with `include`, `-include` or `sinclude`, then a space or a tab; a `#` ends its paths, and a path that holds `$` is left out. Every included path is taken from the root of the repository, and each file is read once, so an include cycle ends.
+
+The usage is `factory-check-project [--agent-home <dir>] <folder>`. `--agent-home` wins over `FACTORY_CLAUDE_HOME`.
+
+The exit status:
+
+| Status | Meaning |
+|---|---|
+| 0 | the project is ready: no point has a fault |
+| 1 | at least one point has a fault |
+| 2 | the command could not do its job. No folder or more than one was given, or no agent home is known, and it prints the usage line on standard error. Or the folder is no git repository or has no commit at `HEAD`, and it prints `cannot read <folder>: <reason>` on standard error. |
 
 ## Checking a story before it starts
 
