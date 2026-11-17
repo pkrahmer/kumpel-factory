@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 695
 comments_read: [6937495535]
 handed_over: null
-claim:
-  instance: self
-  stage: tests
-  started_at: '2026-11-17T03:48:02.399659Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -84,6 +80,12 @@ journal:
   kind: started
   at: '2026-11-17T03:48:02.399659Z'
   stage: tests
+- number: 14
+  speaker: tester
+  kind: result
+  at: '2026-11-17T03:48:50.646183Z'
+  stage: tests
+  run: 5ed569757a1c4cdd9989d7076a71f0e1
 ---
 
 # The stack packs
@@ -233,3 +235,26 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     Earlier tests:
     - `tests/operator_scripts/test_kit_files.py`: changed under the standing leave to move a shared test helper. `WRITTEN_FILES` moved to `tests/support/kit_support.py`, and every test keeps its name and what it checks.
 13. factory: started tests as self.
+14. tester: Answered the reviewer's two findings. I changed only this story's tests and the shared support modules, and moved the helpers under the standing leave to move a shared test helper.
+
+    - Finding 1 (`_faults` in `test_packs.py` copied `_check` in `test_kit_files.py`): added `project_faults(tmp_path, files)` to `tests/support/project_check_support.py`. It commits `files` under `tmp_path / "project"` and returns each project check point's faults, with agents from the shipped `AGENT_HOME`. `test_packs.py` drops `_faults` and calls `project_faults(tmp_path, {**files, **WRITTEN_FILES})` in `test_a_project_from_the_kit_and_a_pack_is_ready` and `test_a_brownfield_project_with_the_pack_makefile_under_factory_is_ready`. `tests/operator_scripts/test_kit_files.py` drops `_check` and calls `project_faults` in its two tests that used it, which keep their names and what they check.
+    - Finding 2 (`_section_texts` in `test_packs.py` copied `_without_trailing_blanks`): in `tests/support/kit_support.py`, renamed `_without_trailing_blanks` to the public `without_trailing_blanks` and added the public `section_texts(body)`, which is built on it. `pack_claude_md` now takes its replacements from `section_texts`, so it behaves as before. `test_each_pack_sections_replace_the_kit_sections_of_the_same_heading` uses `section_texts` and no longer has its own copy.
+
+    Earlier test file changed under the standing leave: `tests/operator_scripts/test_kit_files.py`.
+
+    Criterion → test is unchanged. All tests are in `tests/operator_scripts/test_packs.py`:
+    - criterion 1: `test_a_project_from_the_kit_and_a_pack_is_ready`
+    - criterion 2: `test_a_brownfield_project_with_the_pack_makefile_under_factory_is_ready`
+    - criterion 3: `test_each_pack_makefile_includes_the_kit_first_and_defines_only_the_stack_targets`
+    - criterion 4: `test_each_stage_file_keeps_the_layer_rule_and_checks_every_download`
+    - criterion 5: `test_each_pack_sections_replace_the_kit_sections_of_the_same_heading`
+    - criterion 6: `test_make_check_of_a_pack_is_green_only_when_its_tools_pass`
+    - criterion 7: `test_the_java_trust_store_script_is_a_posix_shell_script` and `test_the_java_sync_builds_the_trust_store_once_per_bundle`
+
+    Runs:
+    - `uv run pytest -q tests/operator_scripts/test_packs.py tests/operator_scripts/test_kit_files.py`: all 44 passed.
+    - `make lint`: lint: green (0.1 s). ruff removed the imports the moves left unused.
+
+    No file was created; every module imports. Not checked: I did not run `make types`. A direct `mypy --strict` call on the four files, run outside the project's configuration, gave `import-untyped` errors for `factory` modules, which says nothing about the code. The coder's `make check` covers types.
+
+    `lint`: lint: green (0.1 s)

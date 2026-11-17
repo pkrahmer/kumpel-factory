@@ -64,11 +64,22 @@ def kit_project_files(line: Line) -> dict[str, str]:
     return files
 
 
-def _without_trailing_blanks(lines: list[str]) -> list[str]:
+def without_trailing_blanks(lines: list[str]) -> list[str]:
+    """`lines` without the blank lines at their end."""
     end = len(lines)
     while end and not lines[end - 1].strip():
         end -= 1
     return lines[:end]
+
+
+def section_texts(body: str) -> dict[str, list[str]]:
+    """The lines of each `## ` section of `body`, heading line included, by heading, without the
+    blank lines at their end."""
+    lines = split_lines(body)
+    return {
+        section.heading: without_trailing_blanks(lines[section.start : section.end])
+        for section in sections(body)
+    }
 
 
 def pack_claude_md(pack: Pack) -> str:
@@ -76,18 +87,14 @@ def pack_claude_md(pack: Pack) -> str:
     kit's section of the same heading."""
     kit = (KIT / "CLAUDE.md").read_text(encoding="utf-8")
     pack_text = (PACKS_FOLDER / pack / PACK_SECTIONS).read_text(encoding="utf-8")
-    pack_lines = split_lines(pack_text)
-    replacements = {
-        section.heading: _without_trailing_blanks(pack_lines[section.start : section.end])
-        for section in sections(pack_text)
-    }
+    replacements = section_texts(pack_text)
     kit_lines = split_lines(kit)
     kit_sections = sections(kit)
     assembled = kit_lines[: kit_sections[0].start] if kit_sections else list(kit_lines)
     for section in kit_sections:
         own = kit_lines[section.start : section.end]
         if section.heading in replacements:
-            trailing = own[len(_without_trailing_blanks(own)) :]
+            trailing = own[len(without_trailing_blanks(own)) :]
             own = [*replacements[section.heading], *trailing]
         assembled.extend(own)
     return "\n".join(assembled) + "\n"

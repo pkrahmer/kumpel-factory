@@ -10,7 +10,7 @@ import pytest
 from factory.machine.domain.stage_layer import stage_layer
 from factory.pipeline.domain.project_check import makefile_targets
 from factory.shared.adapters.process import ProcessRequest, run_process
-from factory.shared.domain.sections import sections, split_lines
+from factory.shared.domain.sections import sections
 from support.kit_support import (
     KIT,
     LINES,
@@ -24,9 +24,9 @@ from support.kit_support import (
     pack_claude_md,
     pack_project_files,
     run_kit_make,
+    section_texts,
 )
-from support.project_check_support import committed_repository, run_project_check
-from support.shipped_agents import AGENT_HOME
+from support.project_check_support import committed_repository, project_faults
 from support.template_make_support import green_line
 
 STACK_TARGETS = ("sync", "lint", "test", "check")
@@ -53,11 +53,6 @@ MAKE_VARIABLES: dict[Pack, tuple[str, ...]] = {
     "java-gradle": (),
 }
 TRUST_STORE = ".cache/java-trust-store.p12"
-
-
-def _faults(tmp_path: Path, files: dict[str, str]) -> dict[str, list[str]]:
-    repository = committed_repository(tmp_path / "project", {**files, **WRITTEN_FILES})
-    return {point.name: point.faults for point in run_project_check(repository, AGENT_HOME)}
 
 
 def _stand_in(path: Path, log: Path, status: int) -> None:
@@ -111,21 +106,10 @@ def _instructions(text: str) -> list[str]:
     return instructions
 
 
-def _section_texts(body: str) -> dict[str, list[str]]:
-    lines = split_lines(body)
-    texts: dict[str, list[str]] = {}
-    for section in sections(body):
-        own = lines[section.start : section.end]
-        while own and not own[-1].strip():
-            own.pop()
-        texts[section.heading] = own
-    return texts
-
-
 @pytest.mark.parametrize("line", LINES)
 @pytest.mark.parametrize("pack", PACKS)
 def test_a_project_from_the_kit_and_a_pack_is_ready(tmp_path: Path, pack: Pack, line: Line) -> None:
-    faults = _faults(tmp_path, pack_project_files(pack, line))
+    faults = project_faults(tmp_path, {**pack_project_files(pack, line), **WRITTEN_FILES})
 
     assert faults == {name: [] for name in faults}
 
@@ -137,7 +121,7 @@ def test_a_brownfield_project_with_the_pack_makefile_under_factory_is_ready(
 ) -> None:
     files = pack_project_files(pack, line, brownfield=True)
 
-    faults = _faults(tmp_path, files)
+    faults = project_faults(tmp_path, {**files, **WRITTEN_FILES})
 
     assert "Makefile" not in files
     assert "make_file: factory/Makefile" in files["factory/pipeline.yml"].splitlines()
@@ -176,7 +160,7 @@ def test_each_pack_sections_replace_the_kit_sections_of_the_same_heading(pack: P
     kit = (KIT / "CLAUDE.md").read_text(encoding="utf-8")
     pack_text = (PACKS_FOLDER / pack / PACK_SECTIONS).read_text(encoding="utf-8")
     kit_headings = [section.heading for section in sections(kit)]
-    pack_sections = _section_texts(pack_text)
+    pack_sections = section_texts(pack_text)
 
     assembled = pack_claude_md(pack)
 
@@ -184,10 +168,10 @@ def test_each_pack_sections_replace_the_kit_sections_of_the_same_heading(pack: P
     assert set(pack_sections) <= set(kit_headings)
     headings = Counter(section.heading for section in sections(assembled))
     assert headings == Counter(kit_headings)
-    assembled_sections = _section_texts(assembled)
+    assembled_sections = section_texts(assembled)
     for heading, text in pack_sections.items():
         assert assembled_sections[heading] == text
-    kit_sections = _section_texts(kit)
+    kit_sections = section_texts(kit)
     for heading in KIT_KEPT_HEADINGS:
         assert assembled_sections[heading] == kit_sections[heading]
 

@@ -17,8 +17,8 @@ from support.kit_support import (
     kit_pipeline_text,
     kit_project_files,
 )
-from support.project_check_support import ROLES, committed_repository, run_project_check
-from support.shipped_agents import AGENT_HOME, ROOT
+from support.project_check_support import ROLES, project_faults
+from support.shipped_agents import ROOT
 
 STACK_WORDS = re.compile(r"\b(uv|gradle|pytest|cmake)\b", re.IGNORECASE)
 TEMPLATE_FILES = ("CLAUDE.md", "Makefile", "factory/pipeline.yml")
@@ -54,11 +54,6 @@ SECTIONS = (
     ("Smoke test", SMOKE),
     ("Journal", ""),
 )
-
-
-def _check(tmp_path: Path, files: dict[str, str]) -> dict[str, list[str]]:
-    repository = committed_repository(tmp_path / "project", files)
-    return {point.name: point.faults for point in run_project_check(repository, AGENT_HOME)}
 
 
 def _story(left_out: str | None) -> str:
@@ -105,7 +100,7 @@ def test_each_kit_pipeline_definition_loads_through_the_reader(
 def test_a_project_from_the_kit_alone_lacks_only_the_makefile_and_written_files(
     tmp_path: Path, line: Line
 ) -> None:
-    faults = _check(tmp_path, kit_project_files(line))
+    faults = project_faults(tmp_path, kit_project_files(line))
 
     assert {name: faults[name] for name in NO_FAULT_POINTS} == {
         name: [] for name in NO_FAULT_POINTS
@@ -123,7 +118,7 @@ def test_a_kit_project_with_its_makefile_and_written_files_is_ready(
 ) -> None:
     files = {**kit_project_files(line), "Makefile": KIT_PROJECT_MAKEFILE, **WRITTEN_FILES}
 
-    faults = _check(tmp_path, files)
+    faults = project_faults(tmp_path, files)
 
     assert faults == {name: [] for name in faults}
 
