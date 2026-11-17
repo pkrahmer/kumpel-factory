@@ -6,7 +6,7 @@ import pytest
 
 from factory.agents.application.write_paths import WritePathService
 from factory.agents.domain.agent_runs import WritePathSettings
-from factory.agents.domain.write_paths import PROTECTED_PATHS
+from factory.agents.domain.write_paths import protected_paths
 from factory.hosting.adapters.git_cli import GitCli
 from factory.pipeline.application.boundaries import Boundaries
 from factory.pipeline.application.claims import StageStart
@@ -24,6 +24,8 @@ WIDENED_YAML = PIPELINE_YAML.replace(
 BROKEN_NEXT_YAML = PIPELINE_YAML.replace(
     "intake: {role: intake, next: [tests]}", "intake: {role: intake, next: [nowhere]}"
 )
+MAKE_FILE = "factory/Makefile"
+MAKE_FILE_YAML = f"make_file: {MAKE_FILE}\n{PIPELINE_YAML}"
 FOREIGN_PLACEHOLDER_YAML = PIPELINE_YAML.replace(
     'tester: {write_paths: ["tests/*"]}', 'tester: {write_paths: ["{stage}/*"]}'
 )
@@ -31,7 +33,7 @@ FOREIGN_PLACEHOLDER_YAML = PIPELINE_YAML.replace(
 
 def _expected(boundaries: Boundaries, write_paths: list[str]) -> WritePathSettings:
     return WritePathSettings(
-        root=boundaries.checkout, write_paths=write_paths, protected_paths=list(PROTECTED_PATHS)
+        root=boundaries.checkout, write_paths=write_paths, protected_paths=protected_paths(None)
     )
 
 
@@ -46,7 +48,7 @@ def test_at_returns_the_role_write_paths_with_the_work_item_expanded(
 
     assert settings == _expected(boundaries, write_paths)
     assert settings.root == boundaries.checkout
-    assert settings.protected_paths == list(PROTECTED_PATHS)
+    assert settings.protected_paths == protected_paths(None)
 
 
 def test_at_expands_the_feature_to_the_feature_path(
@@ -152,3 +154,32 @@ def test_at_refuses_a_foreign_placeholder_in_the_role_write_paths(
 
     with pytest.raises(PipelineDefinitionInvalid, match=r"\{stage\}"):
         WritePathService(boundaries).at(stage_start(checkout, "tests"), PATH)
+
+
+@pytest.mark.parametrize(
+    ("committed", "work_tree", "expected"),
+    [
+        pytest.param(MAKE_FILE_YAML, None, protected_paths(MAKE_FILE), id="committed"),
+        pytest.param(PIPELINE_YAML, MAKE_FILE_YAML, protected_paths(None), id="work-tree-only"),
+        pytest.param(PIPELINE_YAML, None, protected_paths(None), id="without-the-key"),
+    ],
+)
+def test_at_protects_the_makefile_the_definition_at_the_commit_names(
+    boundaries: Boundaries,
+    checkout: GitCli,
+    human: HumanClone,
+    *,
+    committed: str,
+    work_tree: str | None,
+    expected: list[str],
+) -> None:
+    if committed != PIPELINE_YAML:
+        push_definition(human, checkout, committed)
+    start = stage_start(checkout, "tests")
+    if work_tree is not None:
+        (boundaries.checkout / PIPELINE_FILE).write_text(work_tree, encoding="utf-8")
+
+    settings = WritePathService(boundaries).at(start, PATH)
+
+    assert settings.protected_paths == expected
+    assert (MAKE_FILE in settings.protected_paths) is (committed == MAKE_FILE_YAML)

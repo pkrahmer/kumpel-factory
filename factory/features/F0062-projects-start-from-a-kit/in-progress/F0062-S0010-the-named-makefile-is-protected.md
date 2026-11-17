@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 700
 comments_read: [6939383328]
 handed_over: null
-claim:
-  instance: self
-  stage: tests
-  started_at: '2026-11-17T05:22:14.352379Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -51,6 +47,12 @@ journal:
   kind: started
   at: '2026-11-17T05:22:14.352379Z'
   stage: tests
+- number: 8
+  speaker: tester
+  kind: result
+  at: '2026-11-17T05:25:37.216044Z'
+  stage: tests
+  run: ecb5447af0a14177b5f2b359e905b144
 ---
 
 # The makefile a pipeline definition names, and the kit's `kit.mk`, are protected paths
@@ -128,3 +130,35 @@ Expect: `13 13`
 
    The route is `tests`, because the Interface changes `src/factory`.
 7. factory: started tests as self.
+8. tester: Tests written for every criterion. They are red because `protected_paths` and `KIT_MAKEFILE` do not exist yet.
+
+   - criterion 1: tests/agents/domain/test_write_paths.py::test_the_protected_paths_of_a_stage_add_the_kit_and_the_named_makefile_once. It has four rows: `None`, `"factory/Makefile"`, `"Makefile"` and `"factory/kit.mk"`, each giving the exact list from the Interface, with no duplicate. It also checks that `KIT_MAKEFILE == "factory/kit.mk"`.
+   - criterion 2: tests/agents/domain/test_write_paths.py::test_the_kit_and_the_named_makefile_are_refused_under_a_matching_write_path. The write paths are `["factory/*"]`. Rows:
+     - `factory/kit.mk` with `protected_paths(None)` is refused.
+     - `factory/other.mk` with `protected_paths(None)` gives `None`.
+     - `factory/Makefile` with `protected_paths("factory/Makefile")` is refused. This is the refusal for a named makefile that the Interface's test line asks for.
+   - criterion 3: tests/pipeline/application/test_write_paths.py::test_at_protects_the_makefile_the_definition_at_the_commit_names. Rows:
+     - committed: `make_file` is pushed in the definition.
+     - work-tree-only: the committed definition has no key, and the work tree copy has `make_file: factory/Makefile`.
+     - without-the-key.
+   - criterion 4: tests/pipeline/application/test_take_protected_makefiles.py::test_the_take_leaves_the_named_makefile_and_the_kit_makefile. The intake role's write paths are `["factory/*", "src/*"]`, and the stage-start commit's definition names `make_file: factory/Makefile`. The agent adds `factory/Makefile`, `factory/kit.mk` and `src/a.py`. Only `src/a.py` reaches the checkout, and `report.left == ["factory/Makefile", "factory/kit.mk"]`. Run alone, it fails today because `factory/Makefile` is taken.
+   - criteria 5 and 6: these are not test criteria (`make check` and docs).
+
+   Files:
+   - Created: tests/pipeline/application/test_take_protected_makefiles.py.
+   - Changed (this story's tests): tests/agents/domain/test_write_paths.py, which gains a `protected_paths`/`KIT_MAKEFILE` import and two tests.
+
+   Earlier tests changed under the human's leave (journal entry 4). Their only change is that the expected protected paths are now `protected_paths(None)` instead of `list(PROTECTED_PATHS)`:
+   - tests/pipeline/application/test_write_paths.py: `_expected` and `test_at_returns_the_role_write_paths_with_the_work_item_expanded`. I also added the new test above to this file, as the Interface names it.
+   - tests/agents/application/test_write_paths_guard.py: `test_a_tester_s_stage_gives_the_root_the_write_paths_and_the_protected_paths`. Its only failure would be the added `factory/kit.mk`.
+
+   Three modules the test run cannot import, because `protected_paths` is missing from `factory.agents.domain.write_paths`:
+   - tests/agents/domain/test_write_paths.py
+   - tests/pipeline/application/test_write_paths.py
+   - tests/agents/application/test_write_paths_guard.py
+
+   The `make test` tail also shows two errors in tests/guards/test_documents_marker.py, which compares collected test lists. I expect them to clear once those imports work, but I have not checked this, so the coder should confirm it.
+
+   `make lint` is green.
+
+   `lint`: lint: green (0.1 s)

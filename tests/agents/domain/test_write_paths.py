@@ -6,10 +6,12 @@ import pytest
 
 from factory.agents.domain.agent_runs import WritePathSettings
 from factory.agents.domain.write_paths import (
+    KIT_MAKEFILE,
     PROTECTED_PATHS,
     expand_write_paths,
     is_writable,
     matches_any,
+    protected_paths,
     refusal,
 )
 
@@ -168,3 +170,54 @@ def test_a_protected_path_is_refused_even_under_a_matching_write_path(path: str)
 )
 def test_an_unsafe_path_is_refused_before_anything_else(path: str, write_paths: list[str]) -> None:
     assert refusal(path, _guard(write_paths)) == f"{path} is not a path inside the checkout."
+
+
+@pytest.mark.parametrize(
+    ("make_file", "expected"),
+    [
+        pytest.param(None, [*PROTECTED_PATHS, "factory/kit.mk"], id="without-a-make-file"),
+        pytest.param(
+            "factory/Makefile",
+            [*PROTECTED_PATHS, "factory/kit.mk", "factory/Makefile"],
+            id="a-named-make-file",
+        ),
+        pytest.param("Makefile", [*PROTECTED_PATHS, "factory/kit.mk"], id="the-root-makefile"),
+        pytest.param("factory/kit.mk", [*PROTECTED_PATHS, "factory/kit.mk"], id="the-kit-makefile"),
+    ],
+)
+def test_the_protected_paths_of_a_stage_add_the_kit_and_the_named_makefile_once(
+    make_file: str | None, expected: list[str]
+) -> None:
+    paths = protected_paths(make_file)
+
+    assert KIT_MAKEFILE == "factory/kit.mk"
+    assert paths == expected
+    assert len(paths) == len(set(paths))
+
+
+@pytest.mark.parametrize(
+    ("path", "make_file", "expected"),
+    [
+        pytest.param(
+            "factory/kit.mk",
+            None,
+            "factory/kit.mk is owned by the human; a change there is a question.",
+            id="the-kit-makefile",
+        ),
+        pytest.param(
+            "factory/Makefile",
+            "factory/Makefile",
+            "factory/Makefile is owned by the human; a change there is a question.",
+            id="the-named-makefile",
+        ),
+        pytest.param("factory/other.mk", None, None, id="another-makefile"),
+    ],
+)
+def test_the_kit_and_the_named_makefile_are_refused_under_a_matching_write_path(
+    path: str, make_file: str | None, expected: str | None
+) -> None:
+    settings = WritePathSettings(
+        root=Path("/work"), write_paths=["factory/*"], protected_paths=protected_paths(make_file)
+    )
+
+    assert refusal(path, settings) == expected

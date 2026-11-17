@@ -2,7 +2,7 @@
 
 from factory.agents.application.write_paths import WritePathService
 from factory.agents.domain.agent_runs import WritePathSettings
-from factory.agents.domain.write_paths import PROTECTED_PATHS
+from factory.agents.domain.write_paths import protected_paths
 from factory.hosting.adapters.git_cli import GitCli
 from factory.pipeline.application.boundaries import Boundaries
 from support.write_path_support import stage_start
@@ -16,6 +16,6 @@ def test_a_tester_s_stage_gives_the_root_the_write_paths_and_the_protected_paths
     settings = WritePathService(boundaries).at(stage_start(checkout, "tests"), PATH)
 
     assert settings == WritePathSettings(
-        root=boundaries.checkout, write_paths=["tests/*"], protected_paths=list(PROTECTED_PATHS)
+        root=boundaries.checkout, write_paths=["tests/*"], protected_paths=protected_paths(None)
     )
     assert set(settings.model_dump()) == {"root", "write_paths", "protected_paths"}
