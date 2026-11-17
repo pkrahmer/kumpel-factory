@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 695
 comments_read: [6937495535]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: doing
+  started_at: '2026-11-17T03:48:56.116030Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -86,6 +90,11 @@ journal:
   at: '2026-11-17T03:48:50.646183Z'
   stage: tests
   run: 5ed569757a1c4cdd9989d7076a71f0e1
+- number: 15
+  speaker: factory
+  kind: started
+  at: '2026-11-17T03:48:56.116030Z'
+  stage: doing
 ---
 
 # The stack packs
@@ -258,3 +267,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     No file was created; every module imports. Not checked: I did not run `make types`. A direct `mypy --strict` call on the four files, run outside the project's configuration, gave `import-untyped` errors for `factory` modules, which says nothing about the code. The coder's `make check` covers types.
 
     `lint`: lint: green (0.1 s)
+15. factory: started doing as self.
