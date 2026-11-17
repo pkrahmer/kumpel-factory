@@ -1,5 +1,5 @@
 ---
-stage: docs
+stage: smoke-test
 blocked: null
 round: 1
 attempts: 1
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 696
 comments_read: [6937913187]
 handed_over: null
-claim:
-  instance: self
-  stage: docs
-  started_at: '2026-11-17T04:31:20.620266Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -146,6 +142,12 @@ journal:
   kind: started
   at: '2026-11-17T04:31:20.620266Z'
   stage: docs
+- number: 25
+  speaker: documenter
+  kind: result
+  at: '2026-11-17T04:33:27.436465Z'
+  stage: docs
+  run: cbf4b397e4b243e693295e55f384d140
 ---
 
 # The template goes
@@ -515,3 +517,20 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     - tests/support/shipped_agents.py: decision 25 (a test helper)
     - tests/support/template_make_support.py: decision 25 (a test helper)
 24. factory: started docs as self.
+25. documenter: Round 1 docs. There was nothing to rework, so I changed no file.
+
+    The coder's rework (entry 21) changed no file, and the reviewer (entry 23) had no findings. The documents I wrote in entry 14 are therefore still current against the branch.
+
+    What I checked:
+    - `git status --short` is empty: no change is waiting in the working tree.
+    - `git grep 'operator/template'` over `README.md`, `docs/operator-guide`, `docs/project-guide`, `operator`, `src`, `agents` and `tests` finds no hit in any document. The only other files that may name the folder are the two named guards, as criterion 1 allows.
+    - `make documents` printed `documents ok (47.1 s)`. The two "not run (vm)" lines it prints are the examples that need the VM, in `docs/operator-guide/records.md:53` and `docs/project-guide/pipeline.md:143`. Neither is from this story.
+    - I did not run `make check`, because I changed no file.
+
+    Cross-read and found current: the files changed in entry 14 (`operator/README.md`, `docs/operator-guide/agent-runtime.md`, `install.md` and `pipeline.md`, `docs/project-guide/README.md`, `agents.md`, `machine.md`, `operator.md` and `shared.md`, and `docs/decisions.md`), plus `README.md`. The reviewer checked each of these against the code in entry 23.
+
+    Stale, not mine to touch: `docs/brochure/README.md:459` still says a new project starts from the template. It is a dated record of v1.1, so whether to update it is the human's call. `demo/todo-service/README.md` belongs to the human.
+
+    `guides`: guides: green (9.4 s)
+    `secrets`: secrets: green (2.9 s)
+    `documents`: documents ok (47.2 s)
