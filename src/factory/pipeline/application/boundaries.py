@@ -9,6 +9,7 @@ from factory.agents.application.agent_runtime import AgentDefinitionReader, Agen
 from factory.hosting.application.git import Git
 from factory.hosting.application.hosting import HostingService
 from factory.machine.application.containers import ContainerRuns
+from factory.machine.application.make_file import MakeFileSource
 from factory.machine.application.project_commands import ProjectCommands
 from factory.machine.application.snapshots import Snapshots
 from factory.machine.domain.containers import SYSTEM_PATH
@@ -77,3 +78,5 @@ class Boundaries:
     stop_requested: Callable[[], bool] = lambda: False
     # The folder each run's transcript is kept in; `None` keeps none.
     transcripts: TranscriptStore | None = None
+    # The makefile the stage environment's sync runs; `None` is make's own default.
+    make_file: MakeFileSource | None = None

@@ -130,7 +130,7 @@
     }
   },
   "additionalProperties": false,
-  "description": "The whole pipeline definition; the order of `stages` is the pipeline's order.\n\nIts `contract` is 1.1 since a stage may carry `context`; a definition at 1.0 loads too.",
+  "description": "The whole pipeline definition; the order of `stages` is the pipeline's order.\n\nIts `contract` is 1.2 since it may name its `make_file`, and was 1.1 since a stage may carry\n`context`; a definition at 1.0 or 1.1 loads too. `make_file` is the makefile every project\ncommand runs with, from the root of the checkout; `None` is make's own default.",
   "properties": {
     "contract": {
       "title": "Contract",
@@ -187,6 +187,19 @@
       ],
       "default": null,
       "title": "Acceptance Stage"
+    },
+    "make_file": {
+      "anyOf": [
+        {
+          "pattern": "^[A-Za-z0-9_.][A-Za-z0-9_./-]*$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Make File"
     }
   },
   "required": [

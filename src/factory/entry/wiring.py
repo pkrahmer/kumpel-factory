@@ -81,6 +81,7 @@ from factory.pipeline.application.handlers.reject import RejectHandler
 from factory.pipeline.application.handlers.run import RunHandler
 from factory.pipeline.application.handlers.run_gate import RunGate
 from factory.pipeline.application.idle_shutdown import IdleShutdown
+from factory.pipeline.application.make_file_source import GitMakeFileSource
 from factory.pipeline.application.pipeline_loading import PIPELINE_REF
 from factory.pipeline.application.recovery import RecoveryHandler
 from factory.pipeline.application.stops import StopService
@@ -328,6 +329,8 @@ def build_boundaries(
     log = machine_log(state, clock)
     extra = extra_environment(settings, os.environ)
     path = SYSTEM_PATH if images is None else _image_path(settings, images)
+    pipeline_reader = RuamelPipelineDefinitionReader()
+    make_file = GitMakeFileSource(git, pipeline_reader)
     return Boundaries(
         git=git,
         hosting=hosting,
@@ -341,6 +344,7 @@ def build_boundaries(
                 extra_environment=extra,
                 ca_bundle=settings.ca_bundle,
                 path=path,
+                make_file=make_file,
             ),
             git,
             JsonLinesRecordLog(state / _COMMAND_RECORDS_PATH, CommandRecord),
@@ -351,7 +355,7 @@ def build_boundaries(
         work_item_writer=FrontmatterWorkItemWriter(),
         cost_reader=JsonLinesCostRecordReader(),
         cost_writer=JsonLinesCostRecordWriter(),
-        pipeline_reader=RuamelPipelineDefinitionReader(),
+        pipeline_reader=pipeline_reader,
         agent_definitions=build_agent_definitions(git, settings.agent_home),
         clock=clock,
         log=log,
@@ -372,6 +376,7 @@ def build_boundaries(
         transcripts=None
         if settings.transcript_dir is None
         else FileTranscriptStore(settings.transcript_dir),
+        make_file=make_file,
     )
 
 

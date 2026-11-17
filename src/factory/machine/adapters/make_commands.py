@@ -10,6 +10,7 @@ from pathlib import Path
 from factory.agents.adapters.agent_launch import SHELL_EXECUTABLE, Launch
 from factory.hosting.application.git import Git
 from factory.machine.application.containers import ContainerRuns
+from factory.machine.application.make_file import MakeFileSource, asked_make_file
 from factory.machine.application.project_commands import ProjectCommands
 from factory.machine.application.snapshots import Snapshots
 from factory.machine.application.stage_environment import SYNC_ENVIRONMENT
@@ -38,6 +39,9 @@ _CHECK_SCRIPT = '"$1" sync && "$1" --no-print-directory "$2"'
 # A start fact runs on the base the stage's start has just synced, so only its own output shows.
 _START_FACT_SCRIPT = '"$1" --no-print-directory "$2"'
 _CHECK_SCRIPT_NAME = "factory-check"
+# The same two with the makefile the pipeline definition names, an argument like the command.
+_NAMED_CHECK_SCRIPT = '"$1" -f "$3" sync && "$1" -f "$3" --no-print-directory "$2"'
+_NAMED_START_FACT_SCRIPT = '"$1" -f "$3" --no-print-directory "$2"'
 
 # An outer make (the tests run under `make check`) exports these, and an inner make that
 # sees them prints "Entering directory" lines that a run on its own would not.
@@ -114,12 +118,15 @@ class ContainerMakeCommands(ProjectCommands):
         extra_environment: Mapping[str, str] = {},
         ca_bundle: Path | None = None,
         path: str = SYSTEM_PATH,
+        make_file: MakeFileSource | None = None,
     ) -> None:
         """Reset the dataset of `snapshots`, copy in what differs from `HEAD` in `checkout`.
 
         The check's container gets `extra_environment` below its own, `path` (its image's) as
-        its `PATH`, and `ca_bundle` mounted read-only at its own path.
+        its `PATH`, and `ca_bundle` mounted read-only at its own path. make runs with the
+        makefile `make_file` names at each call, or with its own default.
         """
+        self._make_file = make_file
         self._snapshots = snapshots
         # The check's own names win: its `PATH` and home never come from the host.
         self._environment = {**extra_environment, **CHECK_ENVIRONMENT, "PATH": path}
@@ -134,17 +141,24 @@ class ContainerMakeCommands(ProjectCommands):
         A fault of the reset or of the container raises `ProjectCommandError`; a `GitError`
         or a `ValueError` of the copy propagates as it is.
         """
-        return self._run_script(_CHECK_SCRIPT, command, time_limit)
+        return self._run_script(_CHECK_SCRIPT, _NAMED_CHECK_SCRIPT, command, time_limit)
 
     def start_fact(self, command: str, *, time_limit: timedelta) -> CommandOutput:
         """Run `command` without `sync` in a container on the base with the host's changes.
 
         The faults are those of `run`.
         """
-        return self._run_script(_START_FACT_SCRIPT, command, time_limit)
+        return self._run_script(_START_FACT_SCRIPT, _NAMED_START_FACT_SCRIPT, command, time_limit)
 
-    def _run_script(self, script: str, command: str, time_limit: timedelta) -> CommandOutput:
+    def _run_script(
+        self, script: str, named_script: str, command: str, time_limit: timedelta
+    ) -> CommandOutput:
         _check_call(command, time_limit)
+        make_file = asked_make_file(self._make_file)
+        chosen = script if make_file is None else named_script
+        argv = [SHELL_EXECUTABLE, "-c", chosen, _CHECK_SCRIPT_NAME, "make", command]
+        if make_file is not None:
+            argv.append(make_file)
         try:
             self._snapshots.reset()
         except SnapshotError as exc:
@@ -157,7 +171,7 @@ class ContainerMakeCommands(ProjectCommands):
         )
         try:
             result = self._containers.run(
-                [SHELL_EXECUTABLE, "-c", script, _CHECK_SCRIPT_NAME, "make", command],
+                argv,
                 mounts=self._mounts,
                 environment=self._environment,
                 time_limit=time_limit,

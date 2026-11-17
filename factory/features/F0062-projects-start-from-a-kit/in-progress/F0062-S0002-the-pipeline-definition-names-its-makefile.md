@@ -1,17 +1,13 @@
 ---
 stage: doing
-blocked: null
+blocked: question
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 691
 comments_read: [6934588171]
 handed_over: null
-claim:
-  instance: self
-  stage: doing
-  started_at: '2026-11-17T01:15:30.218705Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -62,6 +58,13 @@ journal:
   kind: started
   at: '2026-11-17T01:15:30.218705Z'
   stage: doing
+- number: 10
+  speaker: coder
+  kind: question
+  at: '2026-11-17T01:24:26.140047Z'
+  stage: doing
+  run: 0b85ebc081ab42459f6598aec9207740
+  blocked: question
 ---
 
 # The pipeline definition names its makefile
@@ -193,3 +196,46 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
    `lint`: lint: green (0.1 s)
 9. factory: started doing as self.
+10. coder: Question: should the records contract's version rise to 4.6 for the new optional `make_file`? Raising it means changing three tests that earlier stories wrote, and the feature's leave does not cover that.
+
+    The story is otherwise built. `make check` and `make guides` are green with the version left at 4.5. Every test the tester named passes.
+
+    **The contradiction.** `make_file` is a field of `PipelineDefinition`, which `CONTRACT` names. So `uv run python -m factory.entry.contract` regenerated `src/factory/contract/pipeline-definition.schema.json`, and the new property is in it. The version rule in `docs/decisions.md` (records contract, "the minor for an added optional field or value") calls for 4.5 → 4.6. That is what `context` did with 4.4 → 4.5 (fd273e69d). I raised `RECORDS_CONTRACT` to 4.6 and regenerated. 17 tests then failed, because they pin "4.5":
+    - `tests/pipeline/domain/test_contract.py:54` (`assert parsed["x-records-contract"] == "4.5"`)
+    - `tests/shared/domain/test_contract_version_4.py:12,23`
+    - `tests/shared/domain/test_contract_version_4_2.py:12,23`
+
+    For example: `E AssertionError: assert '4.6' == '4.5'` at `tests/shared/domain/test_contract_version_4_2.py:12` in `_version`. Feature decision 5 allows changing only tests that pin the argv of the sync or check script. The standing leave in CLAUDE.md is only for moving shared helpers. So I set the version back to 4.5, and the working tree is green that way.
+
+    Options:
+    - (a) The records contract becomes 4.6. The tester changes "4.5" to "4.6" in those three files: `test_contract.py:54`, and lines 12 and 23 of both `test_contract_version_4*.py`. Then I set `RECORDS_CONTRACT = "4.6"` and regenerate the schemas.
+    - (b) The version stays at 4.5 even though the schema changed. The reviewer will likely count that as a finding against the version rule.
+
+    I would choose (a).
+
+    **Built** (in the working tree, nothing committed):
+    - `src/factory/pipeline/domain/pipeline_definition.py`:
+      - `MakeFilePath` is a pattern of letters, digits and `_./-`. It may not start with `-` or `/`.
+      - A new rule `_make_file_faults` refuses a `..` segment, using `is_inside_checkout`. Pattern faults name `make_file` through pydantic's location.
+      - `make_file: MakeFilePath | None = None`.
+      - The docstring says contract 1.2, and that 1.0 and 1.1 still load.
+    - `src/factory/machine/application/make_file.py`: the `MakeFileSource` ABC, plus `asked_make_file(source)` so both callers ask the source the same way.
+    - `src/factory/pipeline/application/make_file_source.py`: `GitMakeFileSource(git, pipeline_reader)`. It reads `PIPELINE_REF` at every call and returns `None` for a missing file, an invalid definition or a `GitError`.
+    - `src/factory/machine/adapters/make_commands.py`: `ContainerMakeCommands(make_file=...)`. With a path it uses its own scripts, `"$1" -f "$3" sync && "$1" -f "$3" --no-print-directory "$2"` and the start fact's `"$1" -f "$3" --no-print-directory "$2"`. The path is the extra argument `$3`. Without a path the argv is unchanged.
+    - `src/factory/machine/application/stage_environment.py`:
+      - `_SYNC_SCRIPT` is now `_SYNC_PREPARATION + "make sync\n"`. `_NAMED_SYNC` ends with `make -f "$7" sync`, the path being a seventh argument.
+      - `ContainerEnvironment(make_file=...)`.
+      - `stage_environment_of` passes `boundaries.make_file`.
+    - `src/factory/pipeline/application/boundaries.py`: new field `make_file: MakeFileSource | None = None`.
+    - `src/factory/entry/wiring.py`: builds one `GitMakeFileSource(git, pipeline_reader)` and passes it to `ContainerMakeCommands` and to `Boundaries`.
+    - `src/factory/pipeline/application/project_check.py`: the makefile point reads `definition.make_file or MAKEFILE` and names that path in its faults. Includes are still taken from the root.
+    - `src/factory/contract/pipeline-definition.schema.json`: regenerated.
+    - `pyproject.toml`: a per-file `PLR0913` ignore for `stage_environment.py`, as `make_commands.py` already has. The test pins `ContainerEnvironment(boundaries, snapshots, containers, make_file=...)`, and `tests/support/container_extra_support.py` passes `extra_environment` and `ca_bundle`, so all six arguments stay.
+
+    **Main choice.** The stage environment gets its source from a `Boundaries` field that wiring fills, rather than having `stage_environment_of` build `GitMakeFileSource` itself. That keeps wiring as the only place sources are built. With a path, the scripts are separate texts rather than one script with `${3:+-f "$3"}`, so every argv pinned today stays exactly as it was.
+
+    **Refactor.** I pulled the repeated "ask the source if there is one" into `asked_make_file`. Nothing else needed changing.
+
+    **Not touched.** The new modules are not added to the table in `tests/guards/test_areas.py`; that guard passes as it is. The docs are the documenter's.
+
+    The factory left out changes outside the write paths: pyproject.toml.

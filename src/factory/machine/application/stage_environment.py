@@ -11,6 +11,7 @@ from typing import override
 from factory.agents.domain.agent_runs import AgentRunRequest, AgentRunResult
 from factory.hosting.domain.git import CommitId
 from factory.machine.application.containers import ContainerRuns
+from factory.machine.application.make_file import MakeFileSource, asked_make_file
 from factory.machine.application.snapshots import Snapshots
 from factory.machine.domain.containers import (
     SYSTEM_PATH,
@@ -43,7 +44,7 @@ _SYNC_COMMAND = "sync"
 # put the work tree right. The host's branches come in as `origin/<branch>` too, as in a
 # clone of the host's repository: the project's commands read `origin/<working branch>`. The escaped
 # line end keeps the fetch on one line of the script.
-_SYNC_SCRIPT = """set -eu
+_SYNC_PREPARATION = """set -eu
 mkdir -p "$1" "$2"
 rm -rf "$2/.claude"
 cp -R "$4" "$2/.claude"
@@ -53,8 +54,10 @@ git fetch -q --prune --update-head-ok "$3" '+refs/heads/*:refs/heads/*' \
 '+refs/heads/*:refs/remotes/origin/*'
 git checkout -q -f "$5"
 git reset -q --hard "$6"
-make sync
 """
+_SYNC_SCRIPT = _SYNC_PREPARATION + "make sync\n"
+# The makefile the pipeline definition names comes as the seventh argument.
+_NAMED_SYNC = _SYNC_PREPARATION + 'make -f "$7" sync\n'
 
 
 class StageEnvironment(ABC):
@@ -101,13 +104,16 @@ class ContainerEnvironment(StageEnvironment):
         *,
         extra_environment: Mapping[str, str] = {},
         ca_bundle: Path | None = None,
+        make_file: MakeFileSource | None = None,
     ) -> None:
         """Prepare the dataset of `snapshots` through `containers`; take into the checkout.
 
         The sync's container gets `extra_environment` below its own, the `PATH` of the image the
-        boundaries name, and `ca_bundle` mounted read-only at its own path.
+        boundaries name, and `ca_bundle` mounted read-only at its own path. The sync runs the
+        makefile `make_file` names at that moment, or make's own default.
         """
         self._boundaries = boundaries
+        self._make_file = make_file
         # The sync's own names win: its `PATH` and home never come from the host.
         self._sync_environment = {
             **extra_environment,
@@ -177,19 +183,13 @@ class ContainerEnvironment(StageEnvironment):
 
     def _run_sync(self, commit: CommitId, branch: str, time_limit: timedelta) -> None:
         settings = self._boundaries.settings
+        make_file = asked_make_file(self._make_file)
+        script = _SYNC_SCRIPT if make_file is None else _NAMED_SYNC
+        arguments = [WORK_CHECKOUT, WORK_HOME, UPSTREAM, AGENT_FILES, branch, commit]
+        if make_file is not None:
+            arguments.append(make_file)
         result = self._containers.run(
-            [
-                SHELL,
-                "-c",
-                _SYNC_SCRIPT,
-                "factory-sync",
-                WORK_CHECKOUT,
-                WORK_HOME,
-                UPSTREAM,
-                AGENT_FILES,
-                branch,
-                commit,
-            ],
+            [SHELL, "-c", script, "factory-sync", *arguments],
             mounts=[
                 Mount(source=self._boundaries.checkout / ".git", target=UPSTREAM, read_only=True),
                 Mount(source=settings.agent_home, target=AGENT_FILES, read_only=True),
@@ -226,4 +226,5 @@ def stage_environment_of(boundaries: Boundaries) -> StageEnvironment:
         boundaries.containers,
         extra_environment=boundaries.container_extra_environment,
         ca_bundle=boundaries.settings.ca_bundle,
+        make_file=boundaries.make_file,
     )

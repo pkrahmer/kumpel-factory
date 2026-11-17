@@ -44,9 +44,10 @@ class _Makefiles:
         self.targets: set[str] = set()
         self.faults: list[str] = []
 
-    def read(self, root_text: str) -> None:
-        seen = {MAKEFILE}
-        pending = [(MAKEFILE, root_text)]
+    def read(self, root_path: str, root_text: str) -> None:
+        # make takes an included path from where it runs, the root, not from the makefile's folder.
+        seen = {root_path}
+        pending = [(root_path, root_text)]
         while pending:
             path, text = pending.pop(0)
             self.targets.update(makefile_targets(text))
@@ -114,11 +115,12 @@ class ProjectCheck:
         return definition, ProjectPoint(name=_PIPELINE)
 
     def _makefile_point(self, definition: PipelineDefinition) -> ProjectPoint:
-        text = self._show(MAKEFILE)
+        path = definition.make_file or MAKEFILE
+        text = self._show(path)
         if text is None:
-            return ProjectPoint(name=_MAKEFILE, faults=[f"{MAKEFILE} is missing"])
+            return ProjectPoint(name=_MAKEFILE, faults=[f"{path} is missing"])
         makefiles = _Makefiles(self._git, self._ref)
-        makefiles.read(text)
+        makefiles.read(path, text)
         commands = list(definition.project_commands)
         if SYNC_COMMAND not in commands:
             commands.append(SYNC_COMMAND)
