@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 693
 comments_read: [6936126509]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: tests
+  started_at: '2026-11-17T02:29:09.082028Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -42,6 +46,11 @@ journal:
   at: '2026-11-17T02:29:04.235495Z'
   stage: intake
   run: 495090b8960d49aea1413564509964ae
+- number: 7
+  speaker: factory
+  kind: started
+  at: '2026-11-17T02:29:09.082028Z'
+  stage: tests
 ---
 
 # The installed builder
@@ -188,3 +197,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    Docs criterion: it names what the reader must know: `builder`, that the thin line needs no agent file, that the replacement works file by file, the `## Review` section, the project guide's list, `agents/README.md` and the decision of 2026-11-16. It dictates no sentences.
    Architecture: the change is agent files plus tests and docs only. `ProjectAgentDefinitions` already resolves the project's file first, then the installed one. No layer moves.
    Scope: the story is within F0062: the installed agents become the default and kits copy no agent file. Its test changes are covered by leave 11 as extended in entry 4. Route: `tests`, because `agents/agents/` and tests change, which the documenter alone may not write.
+7. factory: started tests as self.
