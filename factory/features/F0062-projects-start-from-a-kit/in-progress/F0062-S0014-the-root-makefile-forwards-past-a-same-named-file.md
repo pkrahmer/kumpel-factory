@@ -1,5 +1,5 @@
 ---
-stage: smoke-test
+stage: approval
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 707
 comments_read: [6941636547]
 handed_over: null
-claim:
-  instance: self
-  stage: smoke-test
-  started_at: '2026-11-17T07:42:09.562230Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -128,6 +124,12 @@ journal:
   kind: started
   at: '2026-11-17T07:42:09.562230Z'
   stage: smoke-test
+- number: 22
+  speaker: smoke-tester
+  kind: result
+  at: '2026-11-17T07:44:27.354187Z'
+  stage: smoke-test
+  run: a0534528949c45c3b145ae9e2c6f2eb3
 ---
 
 # The root makefile forwards a target that a file at the root is named after
@@ -367,3 +369,28 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     `secrets`: secrets: green (1.5 s)
     `documents`: documents ok (48.8 s)
 21. factory: started smoke-test as self.
+22. smoke-tester: Smoke test run from the repository root, both blocks as written, in order. No findings.
+
+    Command 1 (a project with a `test/` folder at the root, `make test` through the kit's `root.Makefile`):
+    ```
+    test: green (N s)
+    ```
+    Exit 0 (wrapped in `bash -c` with `echo "exit=$?"` to read the status). Expect met: `test: green (N s)` printed, and no line `make: 'test' is up to date.`
+
+    Command 2 (`uv run pytest tests/operator_scripts/test_root_makefile.py tests/operator_scripts/test_one_layout.py`):
+    ```
+    ..................................                                       [100%]
+    34 passed in 0.45s
+    ```
+    Expect met: the summary line says only `passed`, with no `failed` or `error`.
+
+    Checked against the acceptance criteria:
+    - Criterion 1, folder row: shown directly by command 1. The other rows, and criteria 2 to 5, are covered by the passing `test_root_makefile.py`.
+    - Criterion 6: `make check` is the factory's own check after this stage. I did not run it.
+    - Criterion 7: `operator/kit/README.md` says in step 5 (line 26) and in the `root.Makefile` row of its Files table (line 73) that a target is forwarded also when a file or a folder at the root has its name. `docs/decisions.md:1791` has the entry "The forwarding root `Makefile` forwards a target past a file of its name".
+
+    The smoke test contradicts no criterion.
+
+    Findings: none.
+
+    `check`: check: green
