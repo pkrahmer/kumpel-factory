@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 710
 comments_read: [6942486584]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: docs
+  started_at: '2026-11-17T08:16:37.392275Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -97,6 +101,11 @@ journal:
   at: '2026-11-17T08:16:32.364023Z'
   stage: review
   run: 22700e4797a64bc3801d1e7cd461c4da
+- number: 17
+  speaker: factory
+  kind: started
+  at: '2026-11-17T08:16:37.392275Z'
+  stage: docs
 ---
 
 # Each pack's checks section keeps the line that names the factory's makefile
@@ -269,3 +278,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     Earlier tests:
     - `tests/agent_files/test_claude_files.py`: changed under the leave in the story's Interface, which the human wrote at creation (entry 1). `TEMPLATE_RULES_LINES` gains only the kit's line, and `test_template_rules_file_is_the_python_project_text` keeps its name and what it checks.
+17. factory: started docs as self.
