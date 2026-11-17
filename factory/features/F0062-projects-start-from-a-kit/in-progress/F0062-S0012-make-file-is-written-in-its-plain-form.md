@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 703
 comments_read: [6940217140]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: smoke-test
+  started_at: '2026-11-17T06:15:38.315771Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -86,6 +90,11 @@ journal:
   at: '2026-11-17T06:15:33.106262Z'
   stage: docs
   run: ac743a28e39a479bb005956efeaee974
+- number: 15
+  speaker: factory
+  kind: started
+  at: '2026-11-17T06:15:38.315771Z'
+  stage: smoke-test
 ---
 
 # A `make_file` is written in its plain form, or the definition refuses it
@@ -240,3 +249,4 @@ Expect: one line ending with `passed` and a time, with no `failed`.
     `guides`: guides: green (9.5 s)
     `secrets`: secrets: green (1.0 s)
     `documents`: documents ok (48.8 s)
+15. factory: started smoke-test as self.
