@@ -1,5 +1,5 @@
 ---
-stage: docs
+stage: smoke-test
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 707
 comments_read: [6941636547]
 handed_over: null
-claim:
-  instance: self
-  stage: docs
-  started_at: '2026-11-17T07:37:36.265472Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -117,6 +113,12 @@ journal:
   kind: started
   at: '2026-11-17T07:37:36.265472Z'
   stage: docs
+- number: 20
+  speaker: documenter
+  kind: result
+  at: '2026-11-17T07:42:04.168182Z'
+  stage: docs
+  run: 7c6977b374ac41b1b8a4aa4927bd1b4b
 ---
 
 # The root makefile forwards a target that a file at the root is named after
@@ -330,3 +332,28 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     - `tests/operator_scripts/test_one_layout.py`: changed under the standing leave to move a shared test helper. `MAKEFILE_TARGET` and the project setup moved to `tests/support/kit_support.py`. `test_the_root_makefile_forwards_every_target_to_the_factory_makefile` keeps its name, rows and assertions.
     - `tests/support/kit_support.py`: changed under the same leave. It is the shared place, and it only gained `MAKEFILE_TARGET` and `forwarding_project`.
 19. factory: started docs as self.
+20. documenter: Docs written for criterion 7. No findings: `operator/kit/root.Makefile` matches the Interface's text.
+
+    Changed:
+    - `operator/kit/README.md`:
+      - step 5 now says that the forwarding root `Makefile` forwards a target also when a file or a folder at the root has the target's name (for example `make test` beside `test/`). The reason is that its rule depends on the phony `factory-forward`, which is the makefile's own name and is not forwarded.
+      - the `root.Makefile` row of the Files table says the same.
+      - the Reference's *Tests* paragraph now names `tests/operator_scripts/test_root_makefile.py`.
+    - `docs/decisions.md`: a new entry after the one-layout entry, "The forwarding root `Makefile` forwards a target past a file of its name". Its Why is the `test/` folder false green taken from the Description. Its Rejected line is the `.PHONY` list of known targets, from the coder's entries 10 and 16. I left out the coder's other rejected option (`MAKECMDGOALS` tricks) because it was named only in passing.
+    - `docs/project-guide/operator.md`: the operator-scripts tests paragraph now names `test_root_makefile.py` beside `test_one_layout.py`.
+
+    Cross-read and found current:
+    - `docs/operator-guide/start-a-project.md` step 4 and `docs/operator-guide/pipeline.md:108`: both say the root makefile "forwards every target", which is still true.
+    - `README.md`.
+    - The rest of `operator/kit/README.md`.
+
+    Stale but not mine: none seen.
+
+    Checks:
+    - `make documents`: documents ok (49.1 s).
+    - `make check`: check: green. I ran it because `operator/kit/README.md` and `docs/project-guide/operator.md` are outside `README.md` plus `docs/` for the first file.
+    - I wrote no new runnable example.
+
+    `guides`: guides: green (9.5 s)
+    `secrets`: secrets: green (1.5 s)
+    `documents`: documents ok (48.8 s)
