@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 695
 comments_read: [6937495535]
 handed_over: null
-claim:
-  instance: self
-  stage: doing
-  started_at: '2026-11-17T03:48:56.116030Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -95,6 +91,12 @@ journal:
   kind: started
   at: '2026-11-17T03:48:56.116030Z'
   stage: doing
+- number: 16
+  speaker: coder
+  kind: result
+  at: '2026-11-17T03:51:27.952540Z'
+  stage: doing
+  run: b14aced5462b4e23b2aba011c5571784
 ---
 
 # The stack packs
@@ -268,3 +270,21 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     `lint`: lint: green (0.1 s)
 15. factory: started doing as self.
+16. coder: Round 1: the reviewer's two findings were test-helper copies, and the tester has already fixed both (entry 14). That left no code change for me. I ran the tests and the checks:
+    - `uv run pytest -q tests/operator_scripts/test_packs.py tests/operator_scripts/test_kit_files.py`: all passed.
+    - `make check guides`: `check: green` (`test: green (109.9 s)`) and `guides: green (9.3 s)`. This also covers `make types`, which the tester's entry left unchecked for the moved helpers in `tests/support/kit_support.py` and `tests/support/project_check_support.py`; types was green (4.9 s).
+
+    What I built is unchanged from entry 10:
+    - `operator/packs/python/`, `operator/packs/c-host/` and `operator/packs/java-gradle/` are byte-for-byte copies of `planning/packs-draft/`.
+    - The one exception is the `# SPDX-License-Identifier: Apache-2.0` line in `operator/packs/java-gradle/scripts/trust-store.sh`, which the licence guard requires.
+    - No file under `src/`, `planning/` or `tests/` was changed by me.
+
+    Main choice: I changed nothing this round. The findings were about test helpers, so they were the tester's to fix under the standing leave, and that is done.
+
+    Refactor: nothing to change. My part of the diff is copied files plus one header line.
+
+    The journal did not change the meaning of the task this round. The reviewer already corrected the Description for the licence header.
+
+    Noticed but not touched: the draft `planning/packs-draft/java-gradle/scripts/trust-store.sh` still has no licence header. `planning/` is the human's.
+
+    `duplicates`: duplicates: 8 new, 38 known, 5 gone
