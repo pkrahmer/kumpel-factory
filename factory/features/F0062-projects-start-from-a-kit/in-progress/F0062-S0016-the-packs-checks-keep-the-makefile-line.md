@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 710
 comments_read: [6942486584]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: smoke-test
+  started_at: '2026-11-17T08:23:02.607955Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -108,6 +112,11 @@ journal:
   at: '2026-11-17T08:22:57.212175Z'
   stage: docs
   run: e3d4e3da734344c4a75115a8c336b735
+- number: 19
+  speaker: factory
+  kind: started
+  at: '2026-11-17T08:23:02.607955Z'
+  stage: smoke-test
 ---
 
 # Each pack's checks section keeps the line that names the factory's makefile
@@ -309,3 +318,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     `guides`: guides: green (9.6 s)
     `secrets`: secrets: green (0.5 s)
     `documents`: documents ok (49.0 s)
+19. factory: started smoke-test as self.
