@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 695
 comments_read: [6937495535]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: doing
+  started_at: '2026-11-17T03:41:51.600290Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -52,6 +56,11 @@ journal:
   speaker: human
   kind: comment
   at: '2026-11-17T03:41:49.059254Z'
+  stage: doing
+- number: 9
+  speaker: factory
+  kind: started
+  at: '2026-11-17T03:41:51.600290Z'
   stage: doing
 ---
 
@@ -163,3 +172,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
    Main choice: copy the drafts unchanged, as the Interface asks. I rejected rewording line 8 myself, because that would break the byte-for-byte rule. I did not refactor, because the change is only copied files.
 8. 2026-11-17 human: Option 4. I reworded the line in the draft on `develop`: the bullet now says "`make secrets` (detect-secrets with the reviewed findings of its baseline file)". Copy `planning/packs-draft/python/CLAUDE.sections.md` again, byte for byte; no baseline entry, no marker, no exclusion.
+9. factory: started doing as self.
