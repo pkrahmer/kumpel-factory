@@ -1,5 +1,5 @@
 ---
-stage: docs
+stage: smoke-test
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 697
 comments_read: [6938616709, 6938770109]
 handed_over: null
-claim:
-  instance: self
-  stage: docs
-  started_at: '2026-11-17T04:53:48.253956Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -134,6 +130,12 @@ journal:
   kind: started
   at: '2026-11-17T04:53:48.253956Z'
   stage: docs
+- number: 23
+  speaker: documenter
+  kind: result
+  at: '2026-11-17T04:56:15.692904Z'
+  stage: docs
+  run: 67afd3f891f4458e964dad4d3a14dad7
 ---
 
 # The guide
@@ -343,3 +345,29 @@ Expect: two numbers, each at least 3 for the first and at least 2 for the second
     - `tests/support/check_documents_support.py`: the human's leave, journal entry 6.
     - `tests/shared/domain/test_documents_guide_files.py`: the human's leave, journal entry 6.
 22. factory: started docs as self.
+23. documenter: I fixed finding 1 (entries 14, 18 and 21) as the human's answer in entry 19 asks. Two VM examples now load `factory.local.env` after `factory.env` when it exists, as the unit does.
+
+    Files changed:
+    - `docs/operator-guide/start-a-project.md`:
+      - The VM `sh` block in *The live check on the machine* now runs `set -a`, then loads `factory.env`, then loads `/srv/factory/vm/factory.local.env` only if it exists, then `set +a`. It is still marked as an example for the VM, copied from the real run of 2026-11-17 on the Spring demo, which entry 19 says loaded both files.
+      - The sentence before the block says the two files are read in that order, links to *The environment file* in `machine.md`, and says that a Java project's Maven variables usually sit in `factory.local.env` (link to `site.md`, *A Java project*), so the point `sync` fails without that file.
+      - Step 8 of the walk names the same order of the two files.
+    - `docs/operator-guide/pipeline.md`, *The live part: `--run`*: the same change to the VM block and to the sentence before it (entry 19).
+
+    The other files this story changed (the page, `site.md`, the index, `README.md`, `docs/decisions.md`, `docs/checked-documents.txt`, `agent-runtime.md`) stay as they were written in entry 5.
+
+    Checks:
+    - `make documents`: `documents ok (48.3 s)`.
+    - `make guides`: `guides: green (9.3 s)`.
+    - I did not run `make check`, because only documents changed in this run. The coder's `make check guides` was green in entry 12, and the code and tests are unchanged since then.
+
+    Cross-read and found current:
+    - `docs/operator-guide/machine.md`: *The environment file*, and *The service*, which reads `factory.local.env` after `factory.env`.
+    - `docs/operator-guide/site.md`: *A Java project*.
+    - The rest of `pipeline.md` *The live part*.
+
+    Stale text I saw but did not touch: none.
+
+    `guides`: guides: green (9.4 s)
+    `secrets`: secrets: green (1.9 s)
+    `documents`: documents ok (48.4 s)

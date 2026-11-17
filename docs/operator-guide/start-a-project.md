@@ -29,7 +29,7 @@ The walk below takes a repository you already have and makes it ready for the fa
 5. **Fill `CLAUDE.md`.** Fill in each `<...>` placeholder of the kit's skeleton with what is true of the project. Replace the skeleton's sections `## Tests`, `## Checks`, `## Review` and `## Not without asking (end the stage with `question`)` with the pack's sections of the same headings from its `CLAUDE.sections.md`.
 6. **Commit.** The factory and its checks read commits, never the work tree.
 7. **Run `factory-check-project`** on the project's folder, with `--agent-home` naming the installed agents (in the factory's checkout, the folder `agents`). It prints one line per point and then `project: ready`, or a `FAIL` line for each point that is not ready. Read each `FAIL`: it names the missing target, the write path that matches no file, or the missing form. Fix it, commit, and run the check again. Each point and each fault is listed in *Checking a repository before the factory runs it* in [pipeline.md](pipeline.md).
-8. **Run it with `--run` on the machine.** On the VM, with the instance's environment loaded, `factory-check-project --run` also builds the project's image and runs `make sync` and `make check` in containers, as a stage does. Only this shows a tool that ignores `HOME` or a certificate the stack does not read. It ends with nine points `ok` and `project: ready`.
+8. **Run it with `--run` on the machine.** On the VM, with the instance's environment loaded (`factory.env`, then `factory.local.env` when it exists, as the unit reads them), `factory-check-project --run` also builds the project's image and runs `make sync` and `make check` in containers, as a stage does. Only this shows a tool that ignores `HOME` or a certificate the stack does not read. It ends with nine points `ok` and `project: ready`.
 9. **Write the first feature and story** by the forms the kit copied: a folder `factory/features/F0001-<slug>/` with `feature.md` after `factory/feature-form.md`, and a story `backlog/F0001-S0001-<slug>.md` in it after `factory/story-form.md`. Check the story with `factory-check-story <path>` (see *Checking a story before it starts* in [pipeline.md](pipeline.md)).
 10. **Start the story.** Move the story's file from the feature's `backlog/` to its `in-progress/` and push that commit to the working branch (`develop`). The factory takes the story on its next tick and opens a pull request for it.
 
@@ -83,11 +83,14 @@ project: ready
 
 ### The live check on the machine
 
-On the VM, run the check as `factory` with the instance's environment loaded. This is an example for the VM, where `/srv/factory/vm` is the instance's folder; it is the command of the runs below and is not run here:
+On the VM, run the check as `factory` with the instance's environment loaded: `factory.env`, then `factory.local.env` when it exists, as the unit reads them ([machine.md](machine.md), *The environment file*). A Java project's Maven variables usually live in `factory.local.env` (see [site.md](site.md), *A Java project*); without that file loaded, the point `sync` fails. This is an example for the VM, where `/srv/factory/vm` is the instance's folder; it is the command of the runs below and is not run here:
 
 ```sh
 sudo -iu factory
-set -a; . /srv/factory/vm/factory.env; set +a
+set -a
+. /srv/factory/vm/factory.env
+if [ -f /srv/factory/vm/factory.local.env ]; then . /srv/factory/vm/factory.local.env; fi
+set +a
 /srv/factory/vm/factory/.venv/bin/factory-check-project --run /path/to/my-project
 ```
 
