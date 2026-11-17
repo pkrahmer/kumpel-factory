@@ -1,17 +1,13 @@
 ---
 stage: intake
-blocked: null
+blocked: question
 round: 0
 attempts: 0
 crashes: 0
-pull_request: null
+pull_request: 696
 comments_read: []
 handed_over: null
-claim:
-  instance: self
-  stage: intake
-  started_at: '2026-11-17T04:03:34.955195Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -23,6 +19,13 @@ journal:
   kind: started
   at: '2026-11-17T04:03:34.955195Z'
   stage: intake
+- number: 3
+  speaker: intake
+  kind: question
+  at: '2026-11-17T04:04:06.473839Z'
+  stage: intake
+  run: 4b5bde2675474b14967e2e52d26008ba
+  blocked: question
 ---
 
 # The template goes
@@ -76,3 +79,17 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
 1. 2026-11-17 human: created.
 2. factory: started intake as self.
+3. intake: 1. Criterion 1 and the coder's green run conflict over `operator/README.md`. Criterion 1 says no tracked file under `operator/` may hold the text `operator/template`. The new guard `tests/guards/test_template_removed.py` will check that, and it runs in `make test`. But `operator/README.md` names the folder twice (line 19, and the table row at line 124), and that file is the documenter's (criterion 6, "`operator/README.md` has no entry for the template"). So when the coder removes the folder, its run cannot end with `make check guides` green: the new guard fails on `operator/README.md`, and so, most likely, does the folder-readme row in `make guides`, because the README lists a folder that is gone. The README is fixed only in the docs stage. This is the same situation decision 27 covers for S0005 and S0006 with `kit/` and `packs/`. I see three options:
+      (a) Extend decision 27's leave to S0007. The coder may end with the new guard red and the folder-readme row red, both only on `operator/README.md`'s naming of `operator/template`, and the docs stage fixes both.
+      (b) The guard of criterion 1 leaves out `operator/README.md`, and criterion 6 alone covers that file.
+      (c) The coder may delete the two lines in `operator/README.md` (a write outside its usual paths), and the documenter only checks them.
+      I would choose (a), because it matches decision 27 and keeps criterion 1 strict. If you agree, please add the leave to the story (or to `feature.md`) in those words.
+
+   For the record, the rest checked out:
+   - The format check passed.
+   - The Interface names the files to remove, what replaces each one, the new guard and leave 25.
+   - The criteria are testable, and criterion 2 asks the tester to compare the test names.
+   - The smoke tests can be run: `check_project` exists, and `addopts` already sets `-q`, which the pytest smoke test leaves out, so its summary line will print.
+   - The docs criterion says what the reader must know.
+   - The story is within the feature's scope.
+   - `operator/kit/README.md:5` names the template too. It is a shipped file under `operator/`, so the coder rewords it by the Interface's second line.
