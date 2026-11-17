@@ -2,7 +2,7 @@
 """The write paths of a stage, read from the pipeline definition at its stage-start commit."""
 
 from factory.agents.domain.agent_runs import WritePathSettings
-from factory.agents.domain.write_paths import PROTECTED_PATHS, expand_write_paths
+from factory.agents.domain.write_paths import expand_write_paths, protected_paths
 from factory.pipeline.application.boundaries import Boundaries
 from factory.pipeline.application.claims import StageStart
 from factory.pipeline.domain.pipeline_definition import PipelineDefinition, RoleDefinition
@@ -42,7 +42,7 @@ class WritePathService:
         return WritePathSettings(
             root=self._boundaries.checkout,
             write_paths=write_paths,
-            protected_paths=list(PROTECTED_PATHS),
+            protected_paths=protected_paths(definition.make_file),
         )
 
     def _definition_at(self, commit: str) -> PipelineDefinition:

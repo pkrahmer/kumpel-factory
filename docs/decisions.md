@@ -1771,3 +1771,10 @@ Date: 2026-11-17 (F0062-S0008).
 
 - Decision: the guide that leads from a fresh or an existing repository to its first story is a page of the operator guide, `docs/operator-guide/start-a-project.md`, not a part of the agents' project guide. `README.md` points to it as the place to begin with a repository of one's own.
 - Why: its reader is a person who sets a repository up, not an agent that changes the factory's code.
+
+## The makefile a definition names, and the kit's `kit.mk`, are protected paths
+
+Date: 2026-11-17 (F0062-S0010).
+
+- Decision: a stage's protected paths are `protected_paths(make_file)`: the twelve `PROTECTED_PATHS`, the kit's `factory/kit.mk` always, and the makefile the pipeline definition names under `make_file` when it names one, not added twice. `WritePathService.at` reads `make_file` from the definition at the stage-start commit, never from the work tree, as it reads the write paths. `PROTECTED_PATHS` keeps its twelve patterns, and the conformance check is unchanged: it judges write paths against tracked files, not against protected paths.
+- Why: since a definition may name its makefile, and every pack's makefile includes the kit's `factory/kit.mk`, the factory's targets and its green line can lie outside the root `Makefile`. They are the human's wherever the makefile lies, so a role whose write paths cover `factory/*` or `*` must not change them.

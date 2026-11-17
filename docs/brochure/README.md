@@ -359,7 +359,7 @@ After the run, the factory copies out the **take**: the changed files that the a
 
 *Figure 12. The take's filter: what a coder's run changed, what is dropped, what is left out and named, and what reaches the factory's clone.*
 
-Files outside the write paths, or under 12 protected patterns no definition can open, are refused, named in the journal, and wiped by the next reset. A commit the agent made inside never travels.
+Files outside the write paths, or under the protected paths no definition can open (12 fixed patterns, the kit's makefile and the makefile the definition names), are refused, named in the journal, and wiped by the next reset. A commit the agent made inside never travels.
 
 > **The story so far.** The story was about the reset itself. Until its merge, a hand-made wrapper on the machine dropped the cache for the stages building its replacement. The pull request's file list shows only files each role may write: the tester's tests, the coder's code and setup script, and the documenter's three documents. A slip of the coder's that ran stray lines in a shell stayed inside its throwaway container.
 

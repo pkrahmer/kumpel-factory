@@ -104,6 +104,7 @@ make_file: factory/Makefile
 - The factory reads `make_file` from the definition on the working branch at every call, so a merged change takes effect at the next check or sync.
 - A definition without `make_file` runs plain `make <command>`, as before. So does every call while the definition is missing or refused.
 - `factory-check-project` reads the named makefile instead of `Makefile` (see *The six points* below).
+- The named makefile is a protected path, like the root `Makefile` and the kit's `<project>/factory/kit.mk`: no role writes it, whatever its write paths say.
 - `make_file` came with the definition's contract 1.2; a definition at `'1.0'` or `'1.1'` may carry it too.
 
 The value must be a path inside the checkout made of letters, digits, `_`, `.`, `/` and `-`, which does not start with `-` or `/` and has no `..` segment. `make_file: Makefile`, `make_file: factory/Makefile` and `make_file: build/factory.mk` are accepted. An empty value, `-f`, `/etc/Makefile`, `../Makefile`, `a/../b`, `my file`, `a;b` and a number are refused, and the fault names `make_file`.
@@ -206,7 +207,7 @@ The keys of a project command:
 Further rules:
 
 - A write path may hold `{work_item}`, the [work item](../project-guide/glossary.md)'s own file, and `{feature}`, its [feature](../project-guide/glossary.md)'s path, such as `factory/features/<feature>`.
-- The protected paths are outside every write path: `factory/pipeline.yml`, the story and feature forms, every `feature.md`, `CLAUDE.md`, `Makefile`, `pyproject.toml`, `uv.lock`, `.claude/` and the project's `<project>/factory/agents/`.
+- The protected paths are outside every write path: `factory/pipeline.yml`, the story and feature forms, every `feature.md`, `CLAUDE.md`, `Makefile`, `pyproject.toml`, `uv.lock`, `.claude/`, the project's `<project>/factory/agents/`, the kit's `<project>/factory/kit.mk`, and the makefile the definition names under `make_file` (such as `make_file: factory/Makefile`). The named makefile is read from the definition at the commit the stage started from, as the write paths are.
 - Every limit and cap is a positive whole number.
 - `human`, `factory` and `question` cannot be a stage name or a role name.
 - Every name in `checks` and `reports` must be a project command.
