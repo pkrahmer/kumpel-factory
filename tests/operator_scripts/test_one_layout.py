@@ -23,6 +23,7 @@ from support.kit_support import (
     pack_project_files,
     run_kit_make,
 )
+from support.pack_make_support import stand_in_project, stand_in_trust_store
 from support.project_check_support import committed_repository, project_faults, run_project_check
 from support.shipped_agents import AGENT_HOME
 
@@ -38,12 +39,6 @@ OLD_ROOT_PATHS = (
     re.compile(r"(?<!factory/)scripts/trust-store\.sh"),
     re.compile(r"\.gitleaks\.toml"),
 )
-
-
-def _write_stand_in(path: Path, body: str) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(f"#!/bin/sh\n{body}", encoding="utf-8")
-    path.chmod(0o755)
 
 
 @pytest.mark.parametrize("line", LINES)
@@ -128,26 +123,10 @@ def test_the_root_makefile_forwards_every_target_to_the_factory_makefile(
 
 
 def test_the_java_pack_calls_its_files_under_factory(tmp_path: Path) -> None:
-    files = pack_project_files("java-gradle", "thin")
-    project = committed_repository(tmp_path / "project", {**files, **WRITTEN_FILES})
+    project, variables = stand_in_project(tmp_path, "java-gradle", 0)
+    trust_calls, bundle = stand_in_trust_store(tmp_path, project)
+    variables["SSL_CERT_FILE"] = str(bundle)
     calls = tmp_path / "calls"
-    stand_in = f'echo "$(basename "$0") $*" >> "{calls}"\n'
-    _write_stand_in(tmp_path / "bin" / "gitleaks", stand_in)
-    _write_stand_in(project / "gradlew", stand_in)
-    trust_calls = tmp_path / "trust-store-calls"
-    (project / "factory" / "scripts" / "trust-store.sh").write_text(
-        f'printf \'%s\\n\' "$*" >> "{trust_calls}"\nmkdir -p "$(dirname "$2")"\n: > "$2"\n',
-        encoding="utf-8",
-    )
-    bundle = tmp_path / "bundle.pem"
-    bundle.write_text("a bundle\n", encoding="utf-8")
-    home = tmp_path / "home"
-    home.mkdir()
-    variables = {
-        "PATH": f"{tmp_path / 'bin'}:/usr/bin:/bin",
-        "HOME": str(home),
-        "SSL_CERT_FILE": str(bundle),
-    }
 
     sync = run_kit_make(project, "sync", variables=variables)
     secrets = run_kit_make(project, "secrets", variables=variables)

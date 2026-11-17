@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 705
 comments_read: []
 handed_over: null
-claim:
-  instance: self
-  stage: tests
-  started_at: '2026-11-17T06:59:36.203635Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -89,6 +85,12 @@ journal:
   kind: started
   at: '2026-11-17T06:59:36.203635Z'
   stage: tests
+- number: 15
+  speaker: tester
+  kind: result
+  at: '2026-11-17T07:00:52.613415Z'
+  stage: tests
+  run: c5ed437ec8a546869d6e1718b47ad55f
 ---
 
 # One layout for every project
@@ -283,3 +285,40 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     Decision: `tests`. The one finding needs a change only to this story's tests and the helpers moved under the standing leave.
 14. factory: started tests as self.
+15. tester: Answered the reviewer's one finding (entry 13) by moving the shared test helpers, under the standing leave in `CLAUDE.md` to move a shared test helper. No criterion's test changed what it checks.
+
+    Finding 1 (copied stand-in helpers): answered by the new `tests/support/pack_make_support.py`, which holds:
+    - `PATH_TOOLS` and `PROJECT_TOOLS`, moved from `test_packs.py`.
+    - `stand_in`, which was `_stand_in` in `test_packs.py`.
+    - `stand_in_project`, which was `_stand_in_project`: a committed thin project of the pack, with tool stand-ins logging to `tmp_path / "calls"`, plus the PATH and HOME variables.
+    - `stand_in_trust_store`, new. It replaces the project's `factory/scripts/trust-store.sh` with a script that records its arguments and writes the store, and writes a certificate bundle. It returns the record's path and the bundle's.
+
+    Earlier test file changed under the standing leave:
+    - `tests/operator_scripts/test_packs.py`: removed `PATH_TOOLS`, `PROJECT_TOOLS`, `_stand_in` and `_stand_in_project`. Its tests now use `stand_in_project`. `test_the_java_sync_builds_the_trust_store_once_per_bundle` uses `stand_in_trust_store` instead of its inline stand-in and bundle. Every test keeps its name and what it checks.
+
+    This story's test changed:
+    - `tests/operator_scripts/test_one_layout.py`: removed `_write_stand_in`. `test_the_java_pack_calls_its_files_under_factory` now builds its project with `stand_in_project(tmp_path, "java-gradle", 0)` and `stand_in_trust_store`, then sets `SSL_CERT_FILE`. Its assertions are unchanged.
+
+    Criteria → tests (unchanged since entry 5):
+    - criterion 1: `tests/operator_scripts/test_one_layout.py::test_each_kit_pipeline_definition_names_the_factory_makefile`
+    - criterion 2: `tests/operator_scripts/test_one_layout.py::test_a_one_way_project_is_ready_with_only_claude_md_and_makefile_outside_factory`
+    - criterion 3: `tests/operator_scripts/test_one_layout.py::test_an_own_root_makefile_is_kept_byte_for_byte`
+    - criterion 4: `tests/operator_scripts/test_one_layout.py::test_the_root_makefile_forwards_every_target_to_the_factory_makefile`
+    - criterion 5: `tests/operator_scripts/test_one_layout.py::test_the_java_pack_calls_its_files_under_factory`
+    - criterion 6: `tests/operator_scripts/test_one_layout.py::test_the_factory_makefiles_are_protected_for_every_role`
+    - criteria 7 and 8: no test (`make check`, docs).
+
+    Files:
+    - Created: `tests/support/pack_make_support.py`.
+    - Changed: `tests/operator_scripts/test_packs.py` and `tests/operator_scripts/test_one_layout.py`.
+
+    Test run:
+    - `uv run pytest -q tests/operator_scripts/test_one_layout.py tests/operator_scripts/test_packs.py`: all passed, and every module imported.
+    - The layout and shared-helper guards also passed: `tests/guards/test_tests_layout.py`, `test_shared_imports.py`, `test_test_folder_readmes.py` and `test_shared_test_helpers.py`.
+    - I did not run `make test` or `make check`; the coder runs them next.
+
+    Open, for the documenter: `docs/project-guide/README.md` lists the shared test helpers, and it does not yet name `tests/support/pack_make_support.py`.
+
+    `lint`: lint: green (0.1 s)
+
+    `lint`: lint: green (0.1 s)
