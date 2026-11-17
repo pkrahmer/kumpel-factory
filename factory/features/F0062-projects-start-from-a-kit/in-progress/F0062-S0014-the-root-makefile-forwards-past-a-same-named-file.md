@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 707
 comments_read: [6941636547]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: tests
+  started_at: '2026-11-17T07:27:06.803288Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -42,6 +46,11 @@ journal:
   at: '2026-11-17T07:27:01.632336Z'
   stage: intake
   run: 3f921c8b067b4fe8b65e51f881cfee8c
+- number: 7
+  speaker: factory
+  kind: started
+  at: '2026-11-17T07:27:06.803288Z'
+  stage: tests
 ---
 
 # The root makefile forwards a target that a file at the root is named after
@@ -122,3 +131,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    - Architecture: one kit file copied from the human's draft (feature decision 18) and one new test module in `tests/operator_scripts/`. No earlier test changes, and the factory's own `make -f factory/Makefile` calls are not touched.
    - Scope: within F0062 (the kit, its one layout) and not in its Out of scope.
    - Route: `tests`, because the Interface changes `operator/kit/root.Makefile` and adds a test, which the documenter may not write.
+7. factory: started tests as self.
