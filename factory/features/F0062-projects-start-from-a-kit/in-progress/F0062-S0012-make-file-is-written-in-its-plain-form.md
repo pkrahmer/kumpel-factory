@@ -1,6 +1,5 @@
 # A `make_file` is written in its plain form, or the definition refuses it
 
-<!-- proposed by feature acceptance of 2026-11-17; refine before starting -->
 
 ## Description
 
