@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 708
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: docs-only
+  started_at: '2026-11-17T07:47:22.117221Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -25,6 +29,11 @@ journal:
   at: '2026-11-17T07:47:17.345058Z'
   stage: intake
   run: 58a833bd0df64c388bf4065d62ab95fd
+- number: 4
+  speaker: factory
+  kind: started
+  at: '2026-11-17T07:47:22.117221Z'
+  stage: docs-only
 ---
 
 # The guides catch up with the one layout and name every shared test helper
@@ -73,3 +82,4 @@ Expect: the single line `done`.
    - Docs criterion: it says what the reader must know (a kit project's make targets live in `factory/Makefile`, which the pipeline definition names; there is one way to assemble kit and pack; what each of the eight helpers holds) and dictates no sentences.
    - Architecture: the story changes documents only. The documenter keeps the project guide and the operator guide (CLAUDE.md, *Docs*), and no code or layer is touched.
    - Scope: within F0062's "The guide for a fresh start and for a brownfield repository". It brings the pages into line with S0013's one layout and does not touch the feature's "Out of scope". Every path it changes is under `docs/`, which the documenter may write, so the route is `docs-only`.
+4. factory: started docs-only as self.
