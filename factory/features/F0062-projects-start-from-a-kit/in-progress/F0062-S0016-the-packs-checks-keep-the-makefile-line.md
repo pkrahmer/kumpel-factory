@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 710
 comments_read: [6942486584]
 handed_over: null
-claim:
-  instance: self
-  stage: doing
-  started_at: '2026-11-17T08:13:26.494157Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -84,6 +80,12 @@ journal:
   kind: started
   at: '2026-11-17T08:13:26.494157Z'
   stage: doing
+- number: 14
+  speaker: coder
+  kind: result
+  at: '2026-11-17T08:15:58.640620Z'
+  stage: doing
+  run: 30af8e4a770243b5bc17f8aa365f20e1
 ---
 
 # Each pack's checks section keeps the line that names the factory's makefile
@@ -219,3 +221,23 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     `lint`: lint: green (0.1 s)
 13. factory: started doing as self.
+14. coder: The tester replaced the sha256 pin with expected line lists (entry 12), so I changed nothing in this run. The work is the three pack copies I made in entry 7. They are still byte-for-byte copies of `planning/packs-draft/<pack>/CLAUDE.sections.md`:
+    - `operator/packs/python/CLAUDE.sections.md`
+    - `operator/packs/c-host/CLAUDE.sections.md`
+    - `operator/packs/java-gradle/CLAUDE.sections.md`
+
+    Each copy differs from the earlier pack file only by the kit's `factory/Makefile` line, which is the second bullet of its `## Checks` section. No module under `src/factory/` changed.
+
+    Runs:
+    - `uv run pytest -q tests/operator_scripts/test_pack_checks_line.py`: 7 passed.
+    - `make check guides`: `check: green` (test: green, 109.3 s; coverage 99.14 %) and `guides: green` (9.4 s). `make secrets` is green now that the high-entropy hex values are gone, with no marker and no baseline entry, as the human answered in entry 8.
+
+    Main choice: copy the human's drafts unchanged. I rejected adding the line to each pack file by hand, because the packs are copies of the drafts (feature decision 23).
+
+    Refactor: the diff is three data-file copies, so there was nothing to change.
+
+    The journal did not change the meaning of the task: the human's answer (a) changed only how the test pins the other lines. The Description stays as it is.
+
+    Noticed but did not touch: the docs criterion (5), the edits to `docs/operator-guide/start-a-project.md` step 5 and `operator/packs/README.md` step 4. That is the documenter's work.
+
+    `duplicates`: duplicates: 8 new, 38 known, 5 gone
