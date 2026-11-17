@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 699
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: docs-review
+  started_at: '2026-11-17T05:15:14.415382Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -36,6 +40,11 @@ journal:
   at: '2026-11-17T05:15:09.194683Z'
   stage: docs-only
   run: 8af73bcc14a14ad99642663b7a91bc4f
+- number: 6
+  speaker: factory
+  kind: started
+  at: '2026-11-17T05:15:14.415382Z'
+  stage: docs-review
 ---
 
 # The conformance check's documents catch up with the console script and the live part
@@ -112,3 +121,4 @@ Expect: a number of at least 2.
    `guides`: guides: green (9.3 s)
    `secrets`: secrets: green (1.4 s)
    `documents`: documents ok (47.0 s)
+6. factory: started docs-review as self.
