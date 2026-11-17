@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 701
 comments_read: [6939751878]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: review
+  started_at: '2026-11-17T05:47:46.438331Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -64,6 +68,11 @@ journal:
   at: '2026-11-17T05:47:41.061161Z'
   stage: doing
   run: 098a73bb9afe49feace8d81e7efc09be
+- number: 11
+  speaker: factory
+  kind: started
+  at: '2026-11-17T05:47:46.438331Z'
+  stage: review
 ---
 
 # The feature's tests are tidied: one missing row, one weak check, one copy, and names that still say template
@@ -171,3 +180,4 @@ Expect: one line ending with `passed` and a time, with no `failed`.
     - `docs/project-guide/README.md:164` still names the Dockerfile reader `_instructions`. Its name is now `dockerfile_instructions`.
 
     `duplicates`: duplicates: 8 new, 38 known, 5 gone
+11. factory: started review as self.
