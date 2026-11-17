@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 691
 comments_read: [6934588171, 6934893656]
 handed_over: null
-claim:
-  instance: self
-  stage: tests
-  started_at: '2026-11-17T01:26:42.434313Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -90,6 +86,12 @@ journal:
   kind: started
   at: '2026-11-17T01:26:42.434313Z'
   stage: tests
+- number: 15
+  speaker: tester
+  kind: result
+  at: '2026-11-17T01:27:05.555731Z'
+  stage: tests
+  run: 6e0b6024159f4eefa4c8c0fedcae5be7
 ---
 
 # The pipeline definition names its makefile
@@ -270,3 +272,13 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     I changed no code this round. The build from entry 10 is unchanged on the branch. Once the tests come back with 4.6, I will set `RECORDS_CONTRACT = "4.6"` and regenerate the schemas with `uv run python -m factory.entry.contract`. Then I will run `make check` and `make guides`. Entry 11 says the `PLR0913` exception for `stage_environment.py` is on `develop`. I will check that it is in this branch's `pyproject.toml` at that run.
 14. factory: started tests as self.
+15. tester: Made the test change the human approved in entry 11, which the coder named in entry 13. The pinned records contract version goes from "4.5" to "4.6" in five places:
+    - `tests/pipeline/domain/test_contract.py:54`
+    - `tests/shared/domain/test_contract_version_4.py:12,23`
+    - `tests/shared/domain/test_contract_version_4_2.py:12,23`
+
+    Nothing else changed in these tests. A grep of `tests/` finds no other earlier test that pins the contract at 4.5. The other two hits are a `TargetTime` of 4.5 seconds and the opencode version "4.5.6", and they stay as they are.
+
+    Run: `uv run pytest -q` on the three files. They are red on purpose: `RECORDS_CONTRACT` is still "4.5" on the branch. The last lines show `test_the_records_contract_is_at_version_4_2_with_the_machine_measures[...]` failing for every contract entry. The coder raises `RECORDS_CONTRACT` to "4.6" and regenerates the schemas with `uv run python -m factory.entry.contract`, and these tests then pass. `make lint` is green: `lint: green (0.2 s)`.
+
+    `lint`: lint: green (0.2 s)
