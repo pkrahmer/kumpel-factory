@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 691
 comments_read: [6934588171, 6934893656]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: review
+  started_at: '2026-11-17T01:35:23.454455Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -136,6 +140,11 @@ journal:
   at: '2026-11-17T01:35:18.101324Z'
   stage: doing
   run: 9ad1698b33814ba3ad3db64b5a2ef7b1
+- number: 24
+  speaker: factory
+  kind: started
+  at: '2026-11-17T01:35:23.454455Z'
+  stage: review
 ---
 
 # The pipeline definition names its makefile
@@ -424,3 +433,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     Not touched: the docs, which are the documenter's work, and the area table in `tests/guards/test_areas.py`, which passes as it is.
 
     `duplicates`: duplicates: 7 new, 39 known, 4 gone
+24. factory: started review as self.
