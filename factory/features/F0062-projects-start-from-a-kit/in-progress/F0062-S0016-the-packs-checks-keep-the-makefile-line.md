@@ -1,5 +1,5 @@
 ---
-stage: docs
+stage: smoke-test
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 710
 comments_read: [6942486584]
 handed_over: null
-claim:
-  instance: self
-  stage: docs
-  started_at: '2026-11-17T08:16:37.392275Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -106,6 +102,12 @@ journal:
   kind: started
   at: '2026-11-17T08:16:37.392275Z'
   stage: docs
+- number: 18
+  speaker: documenter
+  kind: result
+  at: '2026-11-17T08:22:57.212175Z'
+  stage: docs
+  run: e3d4e3da734344c4a75115a8c336b735
 ---
 
 # Each pack's checks section keeps the line that names the factory's makefile
@@ -279,3 +281,31 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     Earlier tests:
     - `tests/agent_files/test_claude_files.py`: changed under the leave in the story's Interface, which the human wrote at creation (entry 1). `TEMPLATE_RULES_LINES` gains only the kit's line, and `test_template_rules_file_is_the_python_project_text` keeps its name and what it checks.
 17. factory: started docs as self.
+18. documenter: Wrote the docs criterion (5) into the two guide steps, and pointed the project guide to the new test.
+
+    Files changed:
+    - `docs/operator-guide/start-a-project.md`, step 5. The step now says to replace the skeleton's four sections first. It then says that the pack's `## Checks` section carries the kit's line about `<project>/factory/Makefile`, with both wordings, as its second bullet, so the replacement keeps it. The reader keeps the one wording that fits and deletes the other. The step also says why the line matters: it is the only place that tells the agents of a repository with its own root `Makefile` not to run the root's `make check`. The step no longer asks the reader to keep a line that the replacement removed.
+    - `operator/packs/README.md`, step 4. The old sentence "Keep the kit's line … under `## Checks`" is replaced: the pack's `## Checks` section holds the kit's line word for word as its second bullet and comes along with the section, and the reader keeps the wording that fits.
+    - `docs/project-guide/operator.md`, the `operator/packs/` paragraph. One sentence names `tests/operator_scripts/test_pack_checks_line.py` and what it checks.
+
+    The document check refused a bare `factory/Makefile` in backticks as a path that does not exist, so both docs pages write it as `<project>/factory/Makefile`, as the surrounding text already does.
+
+    Runs:
+    - `make documents`: `documents ok (50.0 s)`
+    - `make guides`: green
+    - `make check`: `check: green`, run because `operator/packs/README.md` is outside `docs/`
+
+    Cross-read and found current:
+    - `docs/operator-guide/start-a-project.md` line 87, the example of an existing firmware. It says its `CLAUDE.md` names `make -f factory/Makefile` under `## Checks`, which the packs now make true.
+    - `docs/project-guide/agents.md`, the kit entry.
+    - `docs/project-guide/README.md`, the `kit_support.py` entry.
+    - `docs/decisions.md`, the one-layout decision. It already says that a repository with its own root `Makefile` says so in `CLAUDE.md`.
+    - `README.md`
+
+    I added no decision-log entry: the story makes no new lasting decision, and the packs being copies of the drafts is already recorded as feature decision 23.
+
+    Stale text not mine to fix: none seen.
+
+    `guides`: guides: green (9.6 s)
+    `secrets`: secrets: green (0.5 s)
+    `documents`: documents ok (49.0 s)
