@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 697
 comments_read: [6938616709, 6938770109]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: smoke-test
+  started_at: '2026-11-17T04:56:21.000423Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -136,6 +140,11 @@ journal:
   at: '2026-11-17T04:56:15.692904Z'
   stage: docs
   run: 67afd3f891f4458e964dad4d3a14dad7
+- number: 24
+  speaker: factory
+  kind: started
+  at: '2026-11-17T04:56:21.000423Z'
+  stage: smoke-test
 ---
 
 # The guide
@@ -371,3 +380,4 @@ Expect: two numbers, each at least 3 for the first and at least 2 for the second
     `guides`: guides: green (9.4 s)
     `secrets`: secrets: green (1.9 s)
     `documents`: documents ok (48.4 s)
+24. factory: started smoke-test as self.
