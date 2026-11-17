@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 701
 comments_read: [6939751878]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: smoke-test
+  started_at: '2026-11-17T05:51:13.248563Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -86,6 +90,11 @@ journal:
   at: '2026-11-17T05:51:07.996258Z'
   stage: docs
   run: 04bb676732e8492db220a52a701e8991
+- number: 15
+  speaker: factory
+  kind: started
+  at: '2026-11-17T05:51:13.248563Z'
+  stage: smoke-test
 ---
 
 # The feature's tests are tidied: one missing row, one weak check, one copy, and names that still say template
@@ -240,3 +249,4 @@ Expect: one line ending with `passed` and a time, with no `failed`.
     `guides`: guides: green (9.5 s)
     `secrets`: secrets: green (1.0 s)
     `documents`: documents ok (48.9 s)
+15. factory: started smoke-test as self.
