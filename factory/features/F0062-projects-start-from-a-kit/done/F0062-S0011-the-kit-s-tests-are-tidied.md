@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 0
 attempts: 0
@@ -97,6 +97,11 @@ journal:
   at: '2026-11-17T05:53:29.773836Z'
   stage: smoke-test
   run: bc38654c1c5148bb93467e540470993d
+- number: 17
+  speaker: factory
+  kind: done
+  at: '2026-11-17T05:55:20.674826Z'
+  stage: approval
 ---
 
 # The feature's tests are tidied: one missing row, one weak check, one copy, and names that still say template
@@ -275,3 +280,4 @@ Expect: one line ending with `passed` and a time, with no `failed`.
     I did not run `make check` (criterion 6); the factory runs it after this stage.
 
     `check`: check: green
+17. factory: done (pull request merged); cost: 7 runs, 9.7 min, 46 turns, 167568 tokens in (1942062 more from cache), 24927 out, $1.72
