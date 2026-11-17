@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 1
 attempts: 0
@@ -135,6 +135,11 @@ journal:
   at: '2026-11-17T07:16:24.911723Z'
   stage: smoke-test
   run: 401bbda854414ecb9d08192e53f419c2
+- number: 24
+  speaker: factory
+  kind: done
+  at: '2026-11-17T07:17:14.446585Z'
+  stage: approval
 ---
 
 # One layout for every project
@@ -499,3 +504,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     I did not run `make check`; the factory runs it after this stage. I left no files behind: each block's temporary directory removed itself.
 
     `check`: check: green
+24. factory: done (pull request merged); cost: 11 runs, 24.1 min, 91 turns, 397613 tokens in (3968035 more from cache), 53467 out, $3.85
