@@ -1,5 +1,5 @@
 ---
-stage: review
+stage: docs
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 696
 comments_read: [6937913187]
 handed_over: null
-claim:
-  instance: self
-  stage: review
-  started_at: '2026-11-17T04:15:47.885465Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -73,6 +69,12 @@ journal:
   kind: started
   at: '2026-11-17T04:15:47.885465Z'
   stage: review
+- number: 12
+  speaker: reviewer
+  kind: result
+  at: '2026-11-17T04:17:08.808514Z'
+  stage: review
+  run: a9cea6aee6c34d8289836e2bac88ac51
 ---
 
 # The template goes
@@ -227,3 +229,50 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     `duplicates`: duplicates: 8 new, 38 known, 5 gone
 11. factory: started review as self.
+12. reviewer: no findings
+
+    What I checked against the code on the branch:
+    - Criterion 1:
+      - `operator/template` is gone.
+      - `git grep 'operator/template' -- src agents operator tests` finds only `operator/README.md:19` and `:124`. Leave 4 allows both, and the docs stage fixes them (criterion 6).
+      - The new guard `tests/guards/test_template_removed.py` searches the tracked files under the four folders and leaves out only itself and `test_root_operator_folders_removed.py`. It carries the marker `documents`, so it runs in `make guides`.
+      - I ran it: it fails only with `assert ['operator/README.md'] == []` (`tests/guards/test_template_removed.py:37`), which is within the leave.
+    - Criterion 2: I compared the sorted `^def test_` lines of every changed test file against `develop`. They are identical in all of them, and no test was deleted.
+    - Criterion 3, checked on the pack's `Makefile` with `kit.mk`:
+      - header: `test_template_makefile_header.py`, `test_template_makefile.py`
+      - `sync`: `test_template_sync.py`
+      - `secrets` beside the demo's: `test_demo_makefile_secrets.py`
+      - `mutants`: `test_claude_agent_texts_mutants.py`
+      - pins: `test_pins.py`, over the kit and the Python pack
+      - `template_project` copies `kit.mk` to `factory/kit.mk`, which the pack's makefile includes.
+    - Criterion 4:
+      - valid with the shipped roles: checked on `pipeline.full.yml` only, because the check depends on the seven roles. The thin line's roles are already checked against the shipped agents by `tests/operator_scripts/test_kit_files.py` (the `agents` point of `project_faults`, rows `thin` and `full`).
+      - tool paths: `test_pipeline_yaml_tool_paths.py` has rows for both lines.
+      - working branch: `test_working_branch_in_agent_texts.py` reads `operator/kit`, which holds both lines, and `operator/packs/python`.
+    - Criterion 5 and the run:
+      - The coder's entry says `make check` was green and `make guides` red only on the guard row the leave allows.
+      - I ran every changed test file plus the guard (`-m ''`): everything passed except that one expected row.
+    - Architecture and security: nothing under `src/` changed, the diff adds no silencing marker, and the one shipped text (`operator/kit/README.md:5`) loses only its sentence about the template, as the Interface's second line asks.
+    - Quality and other changes:
+      - The license-header guard now leaves out `operator/kit/` where it left out the template. The kit holds no script, and the packs stay in scope, so no file changes status.
+      - The folder-readme list test checks `operator/packs/python/README.md`, which, like the template, carries no README.
+    - Work item: the Description matches what was built. The docs criterion still says what the documenter must change: `README.md`, the operator guide, the project guide, `docs/decisions.md` and the two lines of `operator/README.md`.
+
+    Earlier tests (all `M`, all under the human's leave in `feature.md` decision 25, which the story's Interface quotes):
+    - tests/README.md: decision 25 (a docstring-like line naming the folder)
+    - tests/agent_files/__init__.py: decision 25
+    - tests/agent_files/test_claude_agent_texts_mutants.py: decision 25
+    - tests/agent_files/test_claude_files.py: decision 25
+    - tests/agent_files/test_demo_makefile_secrets.py: decision 25
+    - tests/agent_files/test_template_makefile.py: decision 25
+    - tests/agent_files/test_template_makefile_header.py: decision 25
+    - tests/agent_files/test_template_sync.py: decision 25
+    - tests/guards/test_license_headers.py: decision 25
+    - tests/guards/test_pins.py: decision 25
+    - tests/guards/test_root_operator_folders_removed.py: decision 25
+    - tests/guards/test_working_branch_in_agent_texts.py: decision 25
+    - tests/operator_scripts/test_kit_files.py: decision 25
+    - tests/pipeline/adapters/test_pipeline_yaml_tool_paths.py: decision 25
+    - tests/shared/domain/test_folder_readmes_list.py: decision 25
+    - tests/support/shipped_agents.py: decision 25 (a test helper)
+    - tests/support/template_make_support.py: decision 25 (a test helper)
