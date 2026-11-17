@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 0
 attempts: 0
@@ -119,6 +119,11 @@ journal:
   at: '2026-11-17T08:25:14.272230Z'
   stage: smoke-test
   run: 6a4bb33b2996486081eb4beb6ccd215c
+- number: 21
+  speaker: factory
+  kind: done
+  at: '2026-11-17T08:27:06.628007Z'
+  stage: approval
 ---
 
 # Each pack's checks section keeps the line that names the factory's makefile
@@ -352,3 +357,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     Findings: none.
 
     `check`: check: green
+21. factory: done (pull request merged); cost: 9 runs, 13.3 min, 55 turns, 195311 tokens in (1616304 more from cache), 21924 out, $1.74
