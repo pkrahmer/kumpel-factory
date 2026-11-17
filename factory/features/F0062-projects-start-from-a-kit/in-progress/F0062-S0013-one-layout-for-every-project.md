@@ -1,17 +1,13 @@
 ---
-stage: review
+stage: tests
 blocked: null
-round: 0
+round: 1
 attempts: 0
 crashes: 0
 pull_request: 705
 comments_read: []
 handed_over: null
-claim:
-  instance: self
-  stage: review
-  started_at: '2026-11-17T06:58:28.866442Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -78,6 +74,12 @@ journal:
   kind: started
   at: '2026-11-17T06:58:28.866442Z'
   stage: review
+- number: 13
+  speaker: reviewer
+  kind: result
+  at: '2026-11-17T06:59:31.091508Z'
+  stage: review
+  run: b76fc64198114b61876ac8587146944c
 ---
 
 # One layout for every project
@@ -240,3 +242,34 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     `duplicates`: duplicates: 8 new, 38 known, 5 gone
 12. factory: started review as self.
+13. reviewer: Reviewed `git diff develop...HEAD -- . ':!factory'` against the work item. I read the code myself, including the helpers the tests call (`tests/support/kit_support.py`, `src/factory/agents/domain/write_paths.py:22-58`) and `tests/operator_scripts/test_packs.py`. I also ran `diff -rq` against `planning/kit-draft/` and `planning/packs-draft/`. It shows only the two `README.md` files that exist only under `operator/`, and the SPDX licence line of `java-gradle/scripts/trust-store.sh`, which the Interface keeps. So the data files are the drafts, unchanged.
+
+    Findings:
+    1. `tests/operator_scripts/test_one_layout.py:42-46` (`_write_stand_in`) and `:128-151` (inside `test_the_java_pack_calls_its_files_under_factory`) copy existing test helpers:
+       - `_write_stand_in` copies `_stand_in` of `tests/operator_scripts/test_packs.py:58-63`: a `#!/bin/sh` script that logs `$(basename "$0") $*` and gets `chmod 0o755`.
+       - The Java project setup copies `_stand_in_project` of `test_packs.py:66-85`: a committed `java-gradle` thin project, `gitleaks` on a `bin` PATH, `gradlew` in the project, a `home` folder, and the PATH and HOME variables.
+       - The trust-store stand-in body and the bundle copy `test_the_java_sync_builds_the_trust_store_once_per_bundle` (`test_packs.py:190-200`).
+       - Fix, under CLAUDE.md's standing leave to move a shared test helper: move `_stand_in` and `_stand_in_project`, with `PATH_TOOLS`, `PROJECT_TOOLS` and a helper that writes the trust-store stand-in, into a support module, for example `tests/support/pack_make_support.py`. Use them from both test files. Every earlier test keeps its name and what it checks, and the tester's entry names `test_packs.py` as changed.
+
+    Everything else checked, with no finding:
+    - Group 1, criteria:
+      - Criterion 1: thin and full rows check both the value and the absence of a commented line.
+      - Criterion 2: 3 packs × 2 lines; all faults empty; only `CLAUDE.md` and `Makefile` outside `factory/`; `Makefile` is `root.Makefile`.
+      - Criterion 3: an own root makefile, read back from the committed repository byte for byte; no fault.
+      - Criterion 4: real runs for no target, `lint` and `nosuch`, with no line naming `'Makefile'` in any row. The forwarded `check` recipe echoes without `@`, so `^check: green$` matches only the output line, not the echoed command.
+      - Criterion 5: the stand-in sits only at `factory/scripts/trust-store.sh`, so a call to the old root path would fail the test. gitleaks is checked for `--config factory/gitleaks.toml`, and the refused side scans every pack file for both old paths.
+      - Criterion 6: `protected_paths(definition.make_file)` covers both files for both lines. The root `Makefile` stays protected through `PROTECTED_PATHS`.
+      - The assembly rule's other side (an own root makefile is kept) is criterion 3.
+      - The journal reports `make check` green after the coder (entry 11).
+    - Group 2, architecture: no module under `src/` changed. The diff holds only data files and tests.
+    - Group 3, security: no secrets, no silencing markers. The gitleaks rules file is a pure rename (similarity 100 %).
+    - Group 4, quality: beyond finding 1, the names fit and `kit_support.py`'s docstrings describe the one assembly.
+    - Group 5, hygiene: the journal names the main choice (whole-file copies of the drafts, hand edits rejected). The Description matches what was built. The docs criterion still names what the documenter must write.
+
+    Earlier tests (changed, not added):
+    - `tests/support/kit_support.py`: the human's leave in feature decision 36, quoted in the Interface (assembly moved to the one layout; `brownfield=` replaced by `own_root_makefile=`).
+    - `tests/operator_scripts/test_kit_files.py`: feature decision 36. Two assertions about the old commented `make_file` were removed because criterion 1 covers them. The other changed tests keep their names and what they check, with the makefile now at `factory/Makefile`.
+    - `tests/operator_scripts/test_packs.py`: feature decision 36. `test_a_brownfield_project_with_the_pack_makefile_under_factory_is_ready` was removed because criteria 2 and 3 cover it. The trust-store stand-in path moved to `factory/scripts/`.
+    - `tests/agent_files/test_claude_files.py`: feature decision 36, as asked in entry 7 and made in entry 9 (`root.Makefile` added to the kit listing). Its only failure was the new layout.
+
+    Decision: `tests`. The one finding needs a change only to this story's tests and the helpers moved under the standing leave.
