@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 705
 comments_read: []
 handed_over: null
-claim:
-  instance: self
-  stage: doing
-  started_at: '2026-11-17T07:00:57.881651Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -100,6 +96,12 @@ journal:
   kind: started
   at: '2026-11-17T07:00:57.881651Z'
   stage: doing
+- number: 17
+  speaker: coder
+  kind: result
+  at: '2026-11-17T07:03:22.626510Z'
+  stage: doing
+  run: d12c40003e8a4a998d8628fbcf077a53
 ---
 
 # One layout for every project
@@ -332,3 +334,20 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     `lint`: lint: green (0.1 s)
 16. factory: started doing as self.
+17. coder: Round 1. The tester's helper move (entry 15) answers the reviewer's one finding (entry 13), and every test passes against the data files from entry 7. I changed no code in this run, and the working tree is clean.
+
+    - Built (entry 7, unchanged since):
+      - The human's drafts are copied byte for byte into `operator/kit/`: `CLAUDE.md`, `factory/README.md`, `factory/kit.mk`, `factory/pipeline.thin.yml`, `factory/pipeline.full.yml`, and the new `root.Makefile`.
+      - The same for `operator/packs/`: `c-host/Makefile`, `java-gradle/Makefile`, `java-gradle/TRAPS.md` and `java-gradle/CLAUDE.sections.md`.
+      - `java-gradle/.gitleaks.toml` is renamed to `java-gradle/gitleaks.toml`.
+      - No module under `src/factory/` changed.
+    - Checked in this run:
+      - `uv run pytest -q tests/operator_scripts/test_one_layout.py tests/operator_scripts/test_packs.py`: all passed.
+      - `make check`: green, ending `check: green` (coverage 99.14 %).
+      - `make guides`: green.
+    - Main choice: whole-file copies of the drafts, because the Interface asks for byte-for-byte copies. I rejected hand edits of the old files, which risk drifting from the drafts.
+    - Refactor: nothing to change. My diff holds only data files copied from the drafts.
+    - What the journal changed: entries 13 and 15 changed only the tests: the shared stand-in helpers moved to `tests/support/pack_make_support.py`. The meaning of the task did not change, so I left the Description as it is.
+    - Noticed, not touched: the tester's open point for the documenter still stands. `docs/project-guide/README.md` does not yet name `tests/support/pack_make_support.py`.
+
+    `duplicates`: duplicates: 8 new, 38 known, 5 gone
