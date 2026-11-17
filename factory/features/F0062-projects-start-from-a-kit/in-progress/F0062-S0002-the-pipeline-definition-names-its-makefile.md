@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 691
 comments_read: [6934588171]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: tests
+  started_at: '2026-11-17T01:10:33.860407Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -42,6 +46,11 @@ journal:
   at: '2026-11-17T01:10:28.407312Z'
   stage: intake
   run: 0508575d6bee47dd8eb59f2c59c531f2
+- number: 7
+  speaker: factory
+  kind: started
+  at: '2026-11-17T01:10:33.860407Z'
+  stage: tests
 ---
 
 # The pipeline definition names its makefile
@@ -146,3 +155,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    - Docs criterion: it names what the reader must know in the operator guide, the project guide and the decision log, and it dictates no sentences.
    - Architecture: the ABC is in `machine.application`, the git-based implementation in `pipeline.application`, the adapters take the source optionally, and only `entry` wires. The `ProjectCommands` and `StageEnvironment` interfaces keep their signatures.
    - Scope: within F0062 (feature decisions 4, 5, 8 and 9). The template and `factory/pipeline.yml` are not changed.
+7. factory: started tests as self.
