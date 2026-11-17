@@ -1,5 +1,5 @@
 ---
-stage: review
+stage: docs
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 700
 comments_read: [6939383328]
 handed_over: null
-claim:
-  instance: self
-  stage: review
-  started_at: '2026-11-17T05:28:31.782149Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -73,6 +69,12 @@ journal:
   kind: started
   at: '2026-11-17T05:28:31.782149Z'
   stage: review
+- number: 12
+  speaker: reviewer
+  kind: result
+  at: '2026-11-17T05:29:19.933509Z'
+  stage: review
+  run: 99f4b7a0290c4567a94ba1dea729a302
 ---
 
 # The makefile a pipeline definition names, and the kit's `kit.mk`, are protected paths
@@ -205,3 +207,24 @@ Expect: `13 13`
 
     `duplicates`: duplicates: 8 new, 38 known, 5 gone
 11. factory: started review as self.
+12. reviewer: no findings
+
+    I read the diff (`git diff develop...HEAD -- . ':!factory'`) against the code on the branch and the work item.
+
+    - Acceptance criteria:
+      - Criterion 1: `tests/agents/domain/test_write_paths.py::test_the_protected_paths_of_a_stage_add_the_kit_and_the_named_makefile_once` checks the four exact lists the Interface names, in order and with no duplicate, and also pins `KIT_MAKEFILE`.
+      - Criterion 2: `test_the_kit_and_the_named_makefile_are_refused_under_a_matching_write_path` covers both sides. `factory/kit.mk` and the named makefile are refused; `factory/other.mk` gives `None`.
+      - Criterion 3: `tests/pipeline/application/test_write_paths.py::test_at_protects_the_makefile_the_definition_at_the_commit_names` has three rows: committed, work tree only (the failing side of "never from the work tree"), and without the key.
+      - Criterion 4: `tests/pipeline/application/test_take_protected_makefiles.py` runs the real `TakeService`. That path calls `WritePathService.at` (`src/factory/pipeline/application/take.py:76`) and `refusal` (`take.py:143`). The test checks that only `src/a.py` is taken and that `report.left` holds the two makefiles.
+      - Criterion 5: the coder's entry 10 reports `make check guides` green.
+    - Architecture: `protected_paths` is a pure function in `factory.agents.domain.write_paths`. `WritePathService.at` takes `make_file` from `_definition_at(stage_start.commit)`, so it reads the committed definition and never the work tree. `src/factory/agents/application/write_paths.py:45` is the only place in `src/factory` that uses the protected paths. No new tool, interface or dependency.
+    - Security: the diff adds no suppression marker and no new strings handed to a shell. `MakeFilePath` (`pipeline_definition.py:34`) allows no glob characters, so a named makefile cannot act as a wider pattern in `matches_any`.
+    - Quality: the names are clear and both functions are small. The exact-match duplicate rule follows the Interface's wording. The docstring is present ("and any `make_file`" means "when given").
+    - Hygiene: the coder's entry explains the main choice (an exact match, not `matches_any`) and what was rejected. The Description matches what was built. The docs criterion still names the pages and the reason.
+
+    Open, outside this story's Interface: `make_file` is appended exactly as written. A definition that spells it `./factory/Makefile` or `factory//Makefile` passes the definition's rules (`_make_file_faults` checks only `is_inside_checkout`), but would then not protect `factory/Makefile` as the take sees it. The human would have to write that spelling, since an agent cannot change the definition. Normalising the spelling, either in the definition or in `protected_paths`, would be a follow-up the human may want.
+
+    Earlier tests:
+    - tests/agents/application/test_write_paths_guard.py — the human's leave, journal entry 4 (the expected protected paths are now `protected_paths(None)`).
+    - tests/pipeline/application/test_write_paths.py — the human's leave, journal entry 4, for `_expected` and `test_at_returns_the_role_write_paths_with_the_work_item_expanded`. The new test and constants that were added leave every earlier test unchanged.
+    - tests/agents/domain/test_write_paths.py — none needed: it only adds tests and an import.
