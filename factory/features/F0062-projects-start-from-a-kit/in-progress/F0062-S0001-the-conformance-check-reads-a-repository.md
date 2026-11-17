@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 690
 comments_read: [6933812910, 6934072851]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: tests
+  started_at: '2026-11-17T00:44:52.004656Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -81,6 +85,11 @@ journal:
   at: '2026-11-17T00:44:46.939150Z'
   stage: doing
   run: 75b9bc44f959490d99d4ddfacf6a11af
+- number: 14
+  speaker: factory
+  kind: started
+  at: '2026-11-17T00:44:52.004656Z'
+  stage: tests
 ---
 
 # The conformance check reads a repository
@@ -289,3 +298,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     That place is `build_agent_definitions(git, agent_home, ref=PIPELINE_REF)` in `src/factory/entry/wiring.py`. `build_boundaries` calls it with `settings.agent_home`, and `src/factory/entry/check_project.py` calls it with the folder from `--agent-home` or `FACTORY_CLAUDE_HOME`.
 
     When the tests come back, I will run the guard and the story's three test files, do the refactor pass and finish with `make check` green. The smoke test has still not been run. The journal did not change the Description.
+14. factory: started tests as self.
