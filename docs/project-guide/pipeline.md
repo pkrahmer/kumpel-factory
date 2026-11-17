@@ -64,6 +64,7 @@ The project's [`factory/pipeline.yml`](../../factory/pipeline.yml) lists the sta
 | `attempts_cap` | attempts before the human is asked | 2 |
 | `crash_cap` | [crashes](glossary.md) before the human is asked | 2 |
 | `acceptance_stage` | the stage of the [feature](glossary.md) [acceptance](glossary.md) | none |
+| `make_file` | the makefile make runs with, a `MakeFilePath` (*The makefile source* below) | none |
 
 A stage has these fields:
 
@@ -112,7 +113,7 @@ Some rules look across keys, so they run only once every field is valid. This se
 
 `PipelineDefinition` has one validator that applies twelve rules, so every reader and every ref gets them. It collects the faults of all rules and refuses once. The faults are joined by `; `. They come in the order of the rules and, inside a rule, in the order of the stages or roles in the text. The reader reports the validator's message as the `fault`, without pydantic's `Value error, ` prefix.
 
-- **The contract.** `contract` is `<digits>.<digits>`. The major, compared as an integer, must be `CONTRACT_MAJOR` (1): `01.0` is read, `2.0`, `0.9` and `10.0` are not. Any minor is read (`1.0`, `1.7`, `1.10`). The format is at 1.1 since the stage key `context`; a definition at `1.0` loads too and may carry it.
+- **The contract.** `contract` is `<digits>.<digits>`. The major, compared as an integer, must be `CONTRACT_MAJOR` (1): `01.0` is read, `2.0`, `0.9` and `10.0` are not. Any minor is read (`1.0`, `1.7`, `1.10`). The format is at 1.1 since the stage key `context` and at 1.2 since the key `make_file`; a definition at `1.0` or `1.1` loads too and may carry both.
 - **The lease.** Take each stage with a role. The role's `time_limit` plus the `time_limit` of each command in the stage's `checks`, `reports` and `context` must be at most the role's `lease_duration`. A command listed twice counts twice. A name that is no project command counts nothing. A stage without a role, such as an approval or `done`, is not measured. A role used by two stages is measured at each. With the defaults, 40 + 10 for one check + 10 for one report = 60 fits the lease of 60. A stage with two checks and a report adds up to 70 and does not.
 - Rules 10 and 11 apply to every stage except `done`, and only when the stage `done` exists. Without it the end of the pipeline is unknown, and rule 3's fault is the one that matters. A stage with an empty `next` has nowhere to send a forward outcome or an approval. A stage with neither a role nor `approval: true` runs no agent and waits for no human. Rule 10's faults come before rule 11's, each in the order of the stages.
 - A stage no `next` names (such as `acceptance`) is accepted: there is no rule on reachability.
@@ -160,6 +161,17 @@ One class loads the definition for the whole factory and raises or clears the st
 
 See also: *The tick* and *The stop records*.
 
+### The makefile source
+
+A definition may name the makefile the factory runs (`make_file`). Read this when you change how make is called.
+
+- `MakeFilePath` in [pipeline_definition.py](../../src/factory/pipeline/domain/pipeline_definition.py) is a string of letters, digits, `_`, `.`, `/` and `-` that does not start with `-` or `/`; pydantic refuses any other at `make_file`. The rule `_make_file_faults` then refuses a path that is not `is_inside_checkout` (a `..` segment) with `make_file <path> must be a path inside the checkout`.
+- `MakeFileSource` in [make_file.py](../../src/factory/machine/application/make_file.py) (`factory.machine.application.make_file`) is the interface: `make_file() -> str | None`, `None` for make's own default. `asked_make_file(source)` asks it, and gives `None` without a source. The classes that call make ask at every call, never once, so a definition merged later takes effect at the next call.
+- `GitMakeFileSource(git, pipeline_reader)` in [make_file_source.py](../../src/factory/pipeline/application/make_file_source.py) (`factory.pipeline.application.make_file_source`) reads the definition at `PIPELINE_REF` (`origin/<working branch>`) through `Git.show_file` and the reader. A missing branch (`GitError`), a missing file and a refused definition give `None`: the tick stops for those on its own, and the preflight's probe then runs plain make.
+- `build_boundaries` in `factory.entry.wiring` builds one `GitMakeFileSource` and hands it to `ContainerMakeCommands(make_file=...)` and to `Boundaries.make_file`, which `stage_environment_of` passes to `ContainerEnvironment(make_file=...)`. The interfaces `ProjectCommands` and `StageEnvironment` keep their signatures.
+- The path is always an argument of the script, never part of its text (machine.md, *The checks* and *The sync script*).
+- Tests: [test_pipeline_definition_make_file.py](../../tests/pipeline/domain/test_pipeline_definition_make_file.py), [test_make_file_source.py](../../tests/pipeline/application/test_make_file_source.py) and the guard [test_make_file_wiring.py](../../tests/guards/test_make_file_wiring.py).
+
 ### The project check
 
 The project check judges whether a project's repository is ready for the factory, on the files of one commit. Read it when you change what a project must hold, or the command `factory-check-project`. The operator's side is *Checking a repository before the factory runs it* in [pipeline.md](../operator-guide/pipeline.md) of the operator guide.
@@ -174,9 +186,9 @@ The rules:
 - It starts no container and runs no project command. Building the image and running `make sync` and `make check` are not part of it.
 - It is a command of its own, not a preflight item (see the decision log, [decisions.md](../decisions.md)).
 - Without a valid definition, `makefile`, `agents` and `write paths` are `skipped`; `stage file` and `forms` are judged all the same.
-- The makefile is `Makefile` at the root. Its includes are followed breadth-first, each path normalised with `posixpath.normpath` and taken from the root of the repository, each file read once. A path that is absolute or leaves the root (`is_inside_checkout`) is never passed to git and counts as not committed. The commands are the definition's `project_commands`, and `sync` after them when they do not hold it.
+- The makefile is the one `make_file` names, else `Makefile` at the root; its faults name that file (`factory/Makefile is missing`, `factory/Makefile: included file common.mk is missing`). Its includes are followed breadth-first, each path normalised with `posixpath.normpath` and taken from the root of the repository, each file read once. A path that is absolute or leaves the root (`is_inside_checkout`) is never passed to git and counts as not committed. The commands are the definition's `project_commands`, and `sync` after them when they do not hold it.
 - The stage file is judged by `factory.machine.domain.stage_layer.stage_layer`; a missing `<project>/factory/stage.Containerfile` is no fault.
-- Tests: [`tests/pipeline/domain/test_project_check.py`](../../tests/pipeline/domain/test_project_check.py), [`tests/pipeline/application/test_project_check_run.py`](../../tests/pipeline/application/test_project_check_run.py) and [`tests/entry/test_check_project.py`](../../tests/entry/test_check_project.py), on real repositories in `tmp_path` built with [`tests/support/project_check_support.py`](../../tests/support/project_check_support.py).
+- Tests: [`tests/pipeline/domain/test_project_check.py`](../../tests/pipeline/domain/test_project_check.py), [`tests/pipeline/application/test_project_check_run.py`](../../tests/pipeline/application/test_project_check_run.py) [`tests/pipeline/application/test_project_check_make_file.py`](../../tests/pipeline/application/test_project_check_make_file.py) and [`tests/entry/test_check_project.py`](../../tests/entry/test_check_project.py), on real repositories in `tmp_path` built with [`tests/support/project_check_support.py`](../../tests/support/project_check_support.py).
 
 ## The prompt and the request for a stage
 

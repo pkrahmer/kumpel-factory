@@ -29,6 +29,9 @@ WritePath = Annotated[str, StringConstraints(pattern=r"\S")]
 
 PARENT_SEGMENT = ".."
 
+# A makefile's path is passed to make as an argument; it may not read as an option.
+MakeFilePath = Annotated[str, StringConstraints(pattern=r"^[A-Za-z0-9_.][A-Za-z0-9_./-]*$")]
+
 
 def is_inside_checkout(path: str) -> bool:
     """Whether `path` is relative, non-empty and holds no `..` segment."""
@@ -82,7 +85,9 @@ def _default_project_commands() -> dict[str, ProjectCommandDefinition]:
 class PipelineDefinition(BaseModel):
     """The whole pipeline definition; the order of `stages` is the pipeline's order.
 
-    Its `contract` is 1.1 since a stage may carry `context`; a definition at 1.0 loads too.
+    Its `contract` is 1.2 since it may name its `make_file`, and was 1.1 since a stage may carry
+    `context`; a definition at 1.0 or 1.1 loads too. `make_file` is the makefile every project
+    command runs with, from the root of the checkout; `None` is make's own default.
     """
 
     model_config = ConfigDict(frozen=True, extra="forbid", strict=True)
@@ -96,6 +101,7 @@ class PipelineDefinition(BaseModel):
     attempts_cap: PositiveInt = 2
     crash_cap: PositiveInt = 2
     acceptance_stage: Name | None = None
+    make_file: MakeFilePath | None = None
 
     @model_validator(mode="after")
     def _follows_the_rules(self) -> Self:
@@ -264,6 +270,13 @@ def _not_read_faults(definition: PipelineDefinition) -> list[str]:
     ]
 
 
+def _make_file_faults(definition: PipelineDefinition) -> list[str]:
+    path = definition.make_file
+    if path is None or is_inside_checkout(path):
+        return []
+    return [f"make_file {path} must be a path inside the checkout"]
+
+
 _RULES = (
     _contract_faults,
     _done_stage_faults,
@@ -276,4 +289,5 @@ _RULES = (
     _empty_next_faults,
     _unworked_stage_faults,
     _not_read_faults,
+    _make_file_faults,
 )

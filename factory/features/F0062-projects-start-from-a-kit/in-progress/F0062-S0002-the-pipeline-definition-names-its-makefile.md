@@ -1,3 +1,176 @@
+---
+stage: approval
+blocked: null
+round: 1
+attempts: 0
+crashes: 0
+pull_request: 691
+comments_read: [6934588171, 6934893656]
+handed_over: approval
+claim: null
+journal:
+- number: 1
+  speaker: human
+  kind: created
+  at: '2026-11-17T01:08:39.851444Z'
+  stage: intake
+- number: 2
+  speaker: factory
+  kind: started
+  at: '2026-11-17T01:08:39.858634Z'
+  stage: intake
+- number: 3
+  speaker: intake
+  kind: question
+  at: '2026-11-17T01:09:14.563663Z'
+  stage: intake
+  run: 69127c53d0de492b8c00c9907e2b72e6
+  blocked: question
+- number: 4
+  speaker: human
+  kind: comment
+  at: '2026-11-17T01:10:02.416640Z'
+  stage: intake
+- number: 5
+  speaker: factory
+  kind: started
+  at: '2026-11-17T01:10:05.309025Z'
+  stage: intake
+- number: 6
+  speaker: intake
+  kind: result
+  at: '2026-11-17T01:10:28.407312Z'
+  stage: intake
+  run: 0508575d6bee47dd8eb59f2c59c531f2
+- number: 7
+  speaker: factory
+  kind: started
+  at: '2026-11-17T01:10:33.860407Z'
+  stage: tests
+- number: 8
+  speaker: tester
+  kind: result
+  at: '2026-11-17T01:15:24.604809Z'
+  stage: tests
+  run: 1444c256ecff4b33989e488f616b04fd
+- number: 9
+  speaker: factory
+  kind: started
+  at: '2026-11-17T01:15:30.218705Z'
+  stage: doing
+- number: 10
+  speaker: coder
+  kind: question
+  at: '2026-11-17T01:24:26.140047Z'
+  stage: doing
+  run: 0b85ebc081ab42459f6598aec9207740
+  blocked: question
+- number: 11
+  speaker: human
+  kind: comment
+  at: '2026-11-17T01:26:14.880925Z'
+  stage: doing
+- number: 12
+  speaker: factory
+  kind: started
+  at: '2026-11-17T01:26:18.033795Z'
+  stage: doing
+- number: 13
+  speaker: coder
+  kind: result
+  at: '2026-11-17T01:26:36.706498Z'
+  stage: doing
+  run: b204540416f549a09b73a4486885bf40
+- number: 14
+  speaker: factory
+  kind: started
+  at: '2026-11-17T01:26:42.434313Z'
+  stage: tests
+- number: 15
+  speaker: tester
+  kind: result
+  at: '2026-11-17T01:27:05.555731Z'
+  stage: tests
+  run: 6e0b6024159f4eefa4c8c0fedcae5be7
+- number: 16
+  speaker: factory
+  kind: started
+  at: '2026-11-17T01:27:10.950071Z'
+  stage: doing
+- number: 17
+  speaker: coder
+  kind: result
+  at: '2026-11-17T01:29:46.851313Z'
+  stage: doing
+  run: bf569057e48f42d797f2fbab8cf4e06c
+- number: 18
+  speaker: factory
+  kind: started
+  at: '2026-11-17T01:29:51.901942Z'
+  stage: review
+- number: 19
+  speaker: reviewer
+  kind: result
+  at: '2026-11-17T01:31:21.027603Z'
+  stage: review
+  run: 3c3e18bd37ed4c818b6c6ee4fe7059a5
+- number: 20
+  speaker: factory
+  kind: started
+  at: '2026-11-17T01:31:26.166479Z'
+  stage: tests
+- number: 21
+  speaker: tester
+  kind: result
+  at: '2026-11-17T01:32:42.026352Z'
+  stage: tests
+  run: a8d8025ede64428aba15248fe298f370
+- number: 22
+  speaker: factory
+  kind: started
+  at: '2026-11-17T01:32:47.416455Z'
+  stage: doing
+- number: 23
+  speaker: coder
+  kind: result
+  at: '2026-11-17T01:35:18.101324Z'
+  stage: doing
+  run: 9ad1698b33814ba3ad3db64b5a2ef7b1
+- number: 24
+  speaker: factory
+  kind: started
+  at: '2026-11-17T01:35:23.454455Z'
+  stage: review
+- number: 25
+  speaker: reviewer
+  kind: result
+  at: '2026-11-17T01:36:12.158426Z'
+  stage: review
+  run: 1239a740b6f245aaa1039f919876fa93
+- number: 26
+  speaker: factory
+  kind: started
+  at: '2026-11-17T01:36:17.432382Z'
+  stage: docs
+- number: 27
+  speaker: documenter
+  kind: result
+  at: '2026-11-17T01:41:30.702502Z'
+  stage: docs
+  run: 5a8f4d6e0c1c4133bd71881353f21e2f
+- number: 28
+  speaker: factory
+  kind: started
+  at: '2026-11-17T01:41:36.083378Z'
+  stage: smoke-test
+- number: 29
+  speaker: smoke-tester
+  kind: result
+  at: '2026-11-17T01:43:59.332546Z'
+  stage: smoke-test
+  run: 1fba6fcfc9054b23b9ccea0fa764656b
+---
+
 # The pipeline definition names its makefile
 
 ## Description
@@ -28,7 +201,7 @@ class MakeFileSource(ABC):
 - `src/factory/entry/wiring.py` (`entry`): both get the source.
 - `src/factory/pipeline/domain/project_check.py` and `src/factory/pipeline/application/project_check.py`: the point `makefile` reads the file `make_file` names when the definition has one, and `Makefile` otherwise; its faults name that file (`factory/Makefile is missing`, `factory/Makefile: included file ... is missing`). Included paths are still taken from the root of the repository, as make takes them.
 - `operator/template/factory/pipeline.yml` and `factory/pipeline.yml` stay as they are.
-- Tests: `tests/pipeline/domain/test_pipeline_definition_make_file.py`, `tests/machine/adapters/test_make_commands_make_file.py`, `tests/machine/application/test_stage_environment_make_file.py`, `tests/pipeline/application/test_make_file_source.py`, `tests/pipeline/application/test_project_check_make_file.py`. `feature.md` gives this leave (decision 4): "S0001 to S0004 may add their new modules to the table of `tests/guards/test_areas.py`, and to any other guard table that lists every module or every entry command." And this one (decision 5): "S0002 may change earlier tests that pin the exact argument list of the sync script or of the check script, where their only failure is the added argument for the makefile."
+- Tests: `tests/pipeline/domain/test_pipeline_definition_make_file.py`, `tests/machine/adapters/test_make_commands_make_file.py`, `tests/machine/application/test_stage_environment_make_file.py`, `tests/pipeline/application/test_make_file_source.py`, `tests/pipeline/application/test_project_check_make_file.py`, `tests/guards/test_make_file_wiring.py`. `feature.md` gives this leave (decision 4): "S0001 to S0004 may add their new modules to the table of `tests/guards/test_areas.py`, and to any other guard table that lists every module or every entry command." And this one (decision 5): "S0002 may change earlier tests that pin the exact argument list of the sync script or of the check script, where their only failure is the added argument for the makefile."
 
 ## Acceptance criteria
 
@@ -40,8 +213,11 @@ class MakeFileSource(ABC):
 6. A real run, without a container, of the scripts' make calls on a checkout in `tmp_path` whose only makefile is `factory/Makefile` with the targets `sync` and `check`: the check's result is green and its last line is the one `factory/Makefile`'s `check` prints; without the source the same checkout's check is red.
 7. The source built on git returns the `make_file` of the definition at `origin/<working branch>`, the new value after that branch moved, and `None` for a missing file, an invalid definition and a definition without the key: rows of one parametrized test where they share a setup.
 8. `ProjectCheck.run` on a repository whose definition names `factory/Makefile`: no fault when that file holds every target and there is no root `Makefile`; the fault `factory/Makefile is missing` when it is not there, also when a root `Makefile` with every target exists.
-9. `make check` stays green.
-10. docs: the operator guide's page on the pipeline definition (`docs/operator-guide/pipeline.md`) explains `make_file`: what it is for (an existing repository keeps its own root `Makefile`), that every project command and the sync then run as `make -f <path>` from the root of the checkout, that paths inside that makefile are therefore still relative to the root, which values are refused, and that it is contract 1.2 while 1.0 and 1.1 still load; the project guide (`docs/project-guide/pipeline.md` and `docs/project-guide/machine.md`) names the source interface and the rule that the path is always an argument; `docs/decisions.md` records the decision of 2026-11-16 that the pipeline definition names the makefile and that make stays the one command runner for every stack.
+9. `ProjectCheck.run` on a repository whose definition names `factory/Makefile`, which includes `common.mk`: no fault when `common.mk` is at the root of the repository and holds the targets `factory/Makefile` lacks; the fault `factory/Makefile: included file common.mk is missing` when `common.mk` is only beside it at `factory/common.mk`: rows of one parametrized test.
+10. The project commands and the stage environment that `factory.entry.wiring` builds both read `make_file` from the pipeline definition at `origin/<working branch>`: on a wired instance whose definition names `factory/Makefile`, a check and a sync, read from the fake container runs, call make with `-f factory/Makefile` (a guard in the style of `tests/guards/test_agent_home_wiring.py` is an acceptable test).
+11. The source built on git returns `None` when `origin/<working branch>` does not exist at all (git refuses the ref), as it does for a missing definition.
+12. `make check` stays green.
+13. docs: the operator guide's page on the pipeline definition (`docs/operator-guide/pipeline.md`) explains `make_file`: what it is for (an existing repository keeps its own root `Makefile`), that every project command and the sync then run as `make -f <path>` from the root of the checkout, that paths inside that makefile are therefore still relative to the root, which values are refused, and that it is contract 1.2 while 1.0 and 1.1 still load; the project guide (`docs/project-guide/pipeline.md` and `docs/project-guide/machine.md`) names the source interface and the rule that the path is always an argument; `docs/decisions.md` records the decision of 2026-11-16 that the pipeline definition names the makefile and that make stays the one command runner for every stack.
 
 ## Smoke test
 
@@ -79,3 +255,315 @@ uv run pytest tests/pipeline/domain/test_pipeline_definition_make_file.py tests/
 Expect: a summary line with only `passed`, no `failed` or `error`.
 
 ## Journal
+
+1. 2026-11-17 human: created.
+2. factory: started intake as self.
+3. intake: Intake: the format check passed, and I read feature.md along with the modules the Interface names. Most of the story is buildable. MakeFilePath has both sides tested in criterion 2. Criteria 3 to 5 pin the container argv and keep the path out of the script's text. Criterion 7 covers the git-based source. The smoke test is runnable: pyproject's addopts already sets `-q`, so the third block prints its summary line. The docs criterion says what the reader must know without dictating sentences. Placement fits the architecture (an ABC in `machine.application`, the git-based implementation in `pipeline.application`, wiring in `entry`). The story is within the feature's scope (decisions 5, 8, 9). Three clauses of the Interface have no criterion. Lessons: "every clause of an Interface rule has its own criterion"; "every behaviour that the Description, the Interface or a decision of the feature states has its own criterion".
+
+   1. Project check, included files. The Interface says the point's faults name the named file for an include as well (`factory/Makefile: included file ... is missing`), and that "included paths are still taken from the root of the repository, as make takes them". Criterion 8 tests only `factory/Makefile is missing` and the passing case. Options: (a) add a criterion before the two closing ones: "`ProjectCheck.run` on a repository whose definition names `factory/Makefile`, which includes `common.mk`: no fault when `common.mk` is at the root and holds the targets `factory/Makefile` lacks; the fault `factory/Makefile: included file common.mk is missing` when `common.mk` is only beside it at `factory/common.mk`", written as rows of one parametrized test; (b) drop both sentences from the Interface. I would choose (a).
+
+   2. Wiring. The Interface says "`src/factory/entry/wiring.py`: both get the source", but no criterion checks that the wired `ContainerMakeCommands` and the container stage environment hold a source built on git. Neither the smoke test nor criteria 3 to 7 would catch wiring that leaves it out. Options: (a) add a criterion: "the project commands and the stage environment that `factory.entry.wiring` builds both read `make_file` from the pipeline definition at `origin/<working branch>`", tested on a wired instance whose definition names `factory/Makefile`, through the fake container runs; (b) accept that the wiring line is not tested and leave it to review. I would choose (a), with a guard in the style of `tests/guards/test_agent_home_wiring.py` as an acceptable test.
+
+   3. Plain make when there is no source. "When the definition is missing or not valid … the preflight's probe then runs plain make" is covered only through criteria 3 and 7 (a source returning `None` gives today's call). I take that to be enough and need no new criterion. Please confirm.
+4. 2026-11-17 human: 1: (a). 2: (a), and the guard in the style of `tests/guards/test_agent_home_wiring.py` is an acceptable test. 3: confirmed, no new criterion.
+5. factory: started intake as self.
+6. intake: accepted. I added the human's answers from journal entry 4 to the story. Criterion 9 is new and covers the included-file fault and that included paths are taken from the root, as rows of one parametrized test. That is answer 1 (a). Criterion 10 is new and checks that the project commands and the stage environment built by `factory.entry.wiring` both read `make_file` from the definition at `origin/<working branch>`. A guard in the style of `tests/guards/test_agent_home_wiring.py` is an acceptable test for it. That is answer 2 (a). Both go before the two closing criteria, which are now 11 and 12. The Interface's Tests line also names `tests/guards/test_make_file_wiring.py` for criterion 10. Answer 3 confirmed that no further criterion is needed.
+   - Interface: it names concrete modules and signatures: `MakeFilePath` on `PipelineDefinition`, the `MakeFileSource` ABC, the git-based source, the optional source on `ContainerMakeCommands` and on the container stage environment, the wiring, and the project check. It also lists the tests and the human's leave for test changes (feature decisions 4 and 5).
+   - Criteria: each one can be tested by a single test function, and each rule has its failing side. Criterion 2 covers the refused and accepted `make_file` values. Criteria 3 to 5 cover a source, no source and `None`, and keep the path out of the script text. Criterion 6 is a real run, red and green. Criterion 7 covers the moved branch, a missing file, an invalid definition and a definition without the key. Criteria 8 and 9 cover the missing-file fault and the included-file fault. Criterion 10 covers the wiring.
+   - Smoke test: the three blocks can be run, and each `Expect:` line can be checked against the output. The pytest block passes no `-q` because pyproject's addopts already sets it.
+   - Docs criterion: it names what the reader must know in the operator guide, the project guide and the decision log, and it dictates no sentences.
+   - Architecture: the ABC is in `machine.application`, the git-based implementation in `pipeline.application`, the adapters take the source optionally, and only `entry` wires. The `ProjectCommands` and `StageEnvironment` interfaces keep their signatures.
+   - Scope: within F0062 (feature decisions 4, 5, 8 and 9). The template and `factory/pipeline.yml` are not changed.
+7. factory: started tests as self.
+8. tester: Tests written for criteria 1 to 10. They are red on purpose because the modules under test do not exist yet. `make lint` is green.
+
+   Criterion → test:
+   - criterion 1: tests/pipeline/domain/test_pipeline_definition_make_file.py::test_the_definition_holds_its_make_file (contract 1.0, 1.1 and 1.2, and a definition without the key)
+   - criterion 2: tests/pipeline/domain/test_pipeline_definition_make_file.py::test_a_make_file_outside_its_characters_or_the_checkout_is_refused (8 refused rows, each fault naming `make_file`, and 3 accepted rows)
+   - criterion 3: tests/machine/adapters/test_make_commands_make_file.py::test_the_container_command_names_the_makefile_as_an_argument_only_when_the_source_gives_one (check and start fact × named, no source and `None`; today's exact argv for the last two)
+   - criterion 4: tests/machine/adapters/test_make_commands_make_file.py::test_the_source_is_asked_at_every_call
+   - criterion 5: tests/machine/application/test_stage_environment_make_file.py::test_the_sync_runs_the_makefile_the_source_names_as_an_argument (the root `Makefile` and `factory/Makefile` each leave their own marker, so the test shows which one the sync ran)
+   - criterion 6: tests/machine/adapters/test_make_commands_make_file.py::test_a_check_runs_the_named_makefile_s_sync_and_command (real make through FakeContainerRuns; the base's only makefile is `factory/Makefile`; green with its last line when there is a source, red without one)
+   - criterion 7: tests/pipeline/application/test_make_file_source.py::test_the_source_returns_the_make_file_of_the_definition_at_the_working_ref (rows: named, invalid definition, invalid `make_file`, no key), plus ::test_the_source_returns_none_for_a_missing_definition and ::test_the_source_reads_the_new_value_after_the_branch_moved. The last two need a setup of their own.
+   - criterion 8: tests/pipeline/application/test_project_check_make_file.py::test_the_makefile_point_reads_the_named_makefile
+   - criterion 9: tests/pipeline/application/test_project_check_make_file.py::test_the_named_makefile_s_includes_are_taken_from_the_root. In the row where `common.mk` sits beside the named makefile, the missing include also leaves `lint` and `sync` missing. So the test asserts that the include fault is among the faults, not that it is the only one.
+   - criterion 10: tests/guards/test_make_file_wiring.py::test_the_wiring_builds_the_git_source_and_both_users_get_a_source. This is an AST guard in the style of test_agent_home_wiring.py, which the human accepted. It checks three things: `factory.entry.wiring` builds the git-based source class; `ContainerMakeCommands` is built only there, with a `make_file=` that is not None; every `ContainerEnvironment(...)` in src passes a `make_file=` that is not None.
+
+   Files created: the six test files above and tests/support/make_file_support.py (`git_make_file_source_class()`, shared by test_make_file_source.py and the guard).
+
+   Assumptions for the coder, where the Interface leaves a name open:
+   - The git-based source class has no name in the Interface. The tests find it as the one concrete subclass of `MakeFileSource` in a module under `factory.pipeline.application`, and build it as `cls(git, pipeline_reader)`, positionally, in that order.
+   - `ContainerEnvironment.__init__` takes its source as the keyword `make_file`, the same name `ContainerMakeCommands` uses ("the same optional source").
+   - The stage environment is built by `stage_environment_of(boundaries)`, not in wiring. That call must therefore pass `make_file=` (for example from Boundaries) for the guard to pass. How the source reaches it is left to the coder.
+   - New modules go in the table of tests/guards/test_areas.py under feature decision 4. I did not touch it, because `make_file.py` does not exist yet. If the coder needs that table changed, it is a test change for the tester.
+
+   `make test` result: the 7 new modules (the domain test included) could not be imported, because `factory.machine.application.make_file` and `MakeFileSource` are missing. The domain test's red is the missing `make_file` key on `PipelineDefinition`. The two tests in tests/guards/test_documents_marker.py also errored, because the suite's collection failed on those imports. They should pass again once the imports resolve.
+
+   `lint`: lint: green (0.1 s)
+9. factory: started doing as self.
+10. coder: Question: should the records contract's version rise to 4.6 for the new optional `make_file`? Raising it means changing three tests that earlier stories wrote, and the feature's leave does not cover that.
+
+    The story is otherwise built. `make check` and `make guides` are green with the version left at 4.5. Every test the tester named passes.
+
+    **The contradiction.** `make_file` is a field of `PipelineDefinition`, which `CONTRACT` names. So `uv run python -m factory.entry.contract` regenerated `src/factory/contract/pipeline-definition.schema.json`, and the new property is in it. The version rule in `docs/decisions.md` (records contract, "the minor for an added optional field or value") calls for 4.5 → 4.6. That is what `context` did with 4.4 → 4.5 (fd273e69d). I raised `RECORDS_CONTRACT` to 4.6 and regenerated. 17 tests then failed, because they pin "4.5":
+    - `tests/pipeline/domain/test_contract.py:54` (`assert parsed["x-records-contract"] == "4.5"`)
+    - `tests/shared/domain/test_contract_version_4.py:12,23`
+    - `tests/shared/domain/test_contract_version_4_2.py:12,23`
+
+    For example: `E AssertionError: assert '4.6' == '4.5'` at `tests/shared/domain/test_contract_version_4_2.py:12` in `_version`. Feature decision 5 allows changing only tests that pin the argv of the sync or check script. The standing leave in CLAUDE.md is only for moving shared helpers. So I set the version back to 4.5, and the working tree is green that way.
+
+    Options:
+    - (a) The records contract becomes 4.6. The tester changes "4.5" to "4.6" in those three files: `test_contract.py:54`, and lines 12 and 23 of both `test_contract_version_4*.py`. Then I set `RECORDS_CONTRACT = "4.6"` and regenerate the schemas.
+    - (b) The version stays at 4.5 even though the schema changed. The reviewer will likely count that as a finding against the version rule.
+
+    I would choose (a).
+
+    **Built** (in the working tree, nothing committed):
+    - `src/factory/pipeline/domain/pipeline_definition.py`:
+      - `MakeFilePath` is a pattern of letters, digits and `_./-`. It may not start with `-` or `/`.
+      - A new rule `_make_file_faults` refuses a `..` segment, using `is_inside_checkout`. Pattern faults name `make_file` through pydantic's location.
+      - `make_file: MakeFilePath | None = None`.
+      - The docstring says contract 1.2, and that 1.0 and 1.1 still load.
+    - `src/factory/machine/application/make_file.py`: the `MakeFileSource` ABC, plus `asked_make_file(source)` so both callers ask the source the same way.
+    - `src/factory/pipeline/application/make_file_source.py`: `GitMakeFileSource(git, pipeline_reader)`. It reads `PIPELINE_REF` at every call and returns `None` for a missing file, an invalid definition or a `GitError`.
+    - `src/factory/machine/adapters/make_commands.py`: `ContainerMakeCommands(make_file=...)`. With a path it uses its own scripts, `"$1" -f "$3" sync && "$1" -f "$3" --no-print-directory "$2"` and the start fact's `"$1" -f "$3" --no-print-directory "$2"`. The path is the extra argument `$3`. Without a path the argv is unchanged.
+    - `src/factory/machine/application/stage_environment.py`:
+      - `_SYNC_SCRIPT` is now `_SYNC_PREPARATION + "make sync\n"`. `_NAMED_SYNC` ends with `make -f "$7" sync`, the path being a seventh argument.
+      - `ContainerEnvironment(make_file=...)`.
+      - `stage_environment_of` passes `boundaries.make_file`.
+    - `src/factory/pipeline/application/boundaries.py`: new field `make_file: MakeFileSource | None = None`.
+    - `src/factory/entry/wiring.py`: builds one `GitMakeFileSource(git, pipeline_reader)` and passes it to `ContainerMakeCommands` and to `Boundaries`.
+    - `src/factory/pipeline/application/project_check.py`: the makefile point reads `definition.make_file or MAKEFILE` and names that path in its faults. Includes are still taken from the root.
+    - `src/factory/contract/pipeline-definition.schema.json`: regenerated.
+    - `pyproject.toml`: a per-file `PLR0913` ignore for `stage_environment.py`, as `make_commands.py` already has. The test pins `ContainerEnvironment(boundaries, snapshots, containers, make_file=...)`, and `tests/support/container_extra_support.py` passes `extra_environment` and `ca_bundle`, so all six arguments stay.
+
+    **Main choice.** The stage environment gets its source from a `Boundaries` field that wiring fills, rather than having `stage_environment_of` build `GitMakeFileSource` itself. That keeps wiring as the only place sources are built. With a path, the scripts are separate texts rather than one script with `${3:+-f "$3"}`, so every argv pinned today stays exactly as it was.
+
+    **Refactor.** I pulled the repeated "ask the source if there is one" into `asked_make_file`. Nothing else needed changing.
+
+    **Not touched.** The new modules are not added to the table in `tests/guards/test_areas.py`; that guard passes as it is. The docs are the documenter's.
+
+    The factory left out changes outside the write paths: pyproject.toml.
+11. 2026-11-17 human: (a). The records contract becomes 4.6. Leave given: the tester may change 4.5 to 4.6 in `tests/pipeline/domain/test_contract.py`, `tests/shared/domain/test_contract_version_4.py` and `tests/shared/domain/test_contract_version_4_2.py`, and in any other earlier test whose only failure is that version. The `PLR0913` exception for `src/factory/machine/application/stage_environment.py` is on `develop` now, in `pyproject.toml`.
+12. factory: started doing as self.
+13. coder: Test change for the tester, as the human allowed in entry 11. In `tests/pipeline/domain/test_contract.py:54`, `tests/shared/domain/test_contract_version_4.py:12,23` and `tests/shared/domain/test_contract_version_4_2.py:12,23`, change the pinned records contract version from "4.5" to "4.6". A grep of `tests/` finds no other earlier test that pins "4.5" as the contract version. The other two hits are an opencode version and a time, and they stay as they are.
+
+    I changed no code this round. The build from entry 10 is unchanged on the branch. Once the tests come back with 4.6, I will set `RECORDS_CONTRACT = "4.6"` and regenerate the schemas with `uv run python -m factory.entry.contract`. Then I will run `make check` and `make guides`. Entry 11 says the `PLR0913` exception for `stage_environment.py` is on `develop`. I will check that it is in this branch's `pyproject.toml` at that run.
+14. factory: started tests as self.
+15. tester: Made the test change the human approved in entry 11, which the coder named in entry 13. The pinned records contract version goes from "4.5" to "4.6" in five places:
+    - `tests/pipeline/domain/test_contract.py:54`
+    - `tests/shared/domain/test_contract_version_4.py:12,23`
+    - `tests/shared/domain/test_contract_version_4_2.py:12,23`
+
+    Nothing else changed in these tests. A grep of `tests/` finds no other earlier test that pins the contract at 4.5. The other two hits are a `TargetTime` of 4.5 seconds and the opencode version "4.5.6", and they stay as they are.
+
+    Run: `uv run pytest -q` on the three files. They are red on purpose: `RECORDS_CONTRACT` is still "4.5" on the branch. The last lines show `test_the_records_contract_is_at_version_4_2_with_the_machine_measures[...]` failing for every contract entry. The coder raises `RECORDS_CONTRACT` to "4.6" and regenerates the schemas with `uv run python -m factory.entry.contract`, and these tests then pass. `make lint` is green: `lint: green (0.2 s)`.
+
+    `lint`: lint: green (0.2 s)
+16. factory: started doing as self.
+17. coder: I finished the build after the tester's version change (entry 15). Following the human's answer (a) in entry 11, I raised `RECORDS_CONTRACT` in `src/factory/shared/domain/contract.py` from "4.5" to "4.6". I then regenerated the schemas with `uv run python -m factory.entry.contract`. All five schemas under `src/factory/contract/` were rewritten with the new `x-records-contract`. `pipeline-definition.schema.json` also carries the optional `make_file` property.
+
+    Run:
+    - The three test files that pin the version (`tests/pipeline/domain/test_contract.py`, `tests/shared/domain/test_contract_version_4.py`, `tests/shared/domain/test_contract_version_4_2.py`) now pass.
+    - `make check guides`: `check: green` and `guides: green`. Coverage is 99.18 %.
+    - The `PLR0913` exception for `stage_environment.py` is in this branch's `pyproject.toml`.
+
+    What was built (from entry 10, unchanged in this round):
+    - `src/factory/pipeline/domain/pipeline_definition.py`: `MakeFilePath`, a rule that refuses a `..` segment through `is_inside_checkout`, and the field `make_file`.
+    - `src/factory/machine/application/make_file.py`: the `MakeFileSource` ABC and `asked_make_file`.
+    - `src/factory/pipeline/application/make_file_source.py`: `GitMakeFileSource`, which reads `PIPELINE_REF` at every call and returns `None` for a missing or invalid definition.
+    - `src/factory/machine/adapters/make_commands.py`: with a path, separate scripts that take the path as the argument `$3`; without one, the old argv.
+    - `src/factory/machine/application/stage_environment.py`: `make -f "$7" sync`, with the path as the seventh argument.
+    - `src/factory/pipeline/application/boundaries.py`: a new field `make_file`.
+    - `src/factory/entry/wiring.py`: builds one source and hands it to both users.
+    - `src/factory/pipeline/application/project_check.py`: reads the named makefile; includes are still taken from the root.
+
+    Main choice: the stage environment gets its source through a `Boundaries` field that the wiring fills, so the wiring stays the only place that builds a source. I rejected having `stage_environment_of` build `GitMakeFileSource` itself. A path gets its own script text instead of `${3:+-f "$3"}`, so every argv pinned today stays exactly the same.
+
+    Refactor: entry 10 already went through the diff (it pulled out `asked_make_file`). The version change needed no further refactor.
+
+    Not touched: the new modules are not in the table of `tests/guards/test_areas.py`, and that guard passes as it is. The docs are the documenter's. The journal changed no meaning of the Description: the version rise follows the contract's rule.
+
+    `duplicates`: duplicates: 7 new, 39 known, 4 gone
+18. factory: started review as self.
+19. reviewer: Review, round 0. I read the code on the branch against criteria 1 to 10 and the Interface. The code under `src/` holds:
+    - `MakeFilePath` and `_make_file_faults` refuse every listed value, and the faults name `make_file`.
+    - With a path, the path is always an argument (`$3`, `$7`) and never part of a script's text.
+    - `GitMakeFileSource` reads `PIPELINE_REF` at every call.
+    - The project check reads the named file and takes includes from the root.
+    - The records contract rose to 4.6 under the human's answer in entry 11, with the schemas regenerated.
+    - Architecture: the ABC is in `machine.application` with a docstring-only abstract method. The git-based implementation is in `pipeline.application`. Only `entry.wiring` builds the source. Every import goes downward or sideways between application layers.
+    - Security: the path is validated at the boundary and passed only as an argument. No silencing markers.
+    - No documents are changed.
+
+    Every finding below needs a change to this story's tests only, so the work item goes to the tester.
+
+    Findings:
+    1. criterion 11 added: it needs its test. `src/factory/pipeline/application/make_file_source.py:30-32` returns `None` when `show_file` raises `GitError`, which happens when `origin/<working branch>` does not exist. No test reaches that branch: the missing-definition test removes the file, so `show_file` returns `None` instead. Fix: in `tests/pipeline/application/test_make_file_source.py`, a test of a checkout without the working branch, expecting `None`.
+    2. `tests/guards/test_make_file_wiring.py:35-45` does not fully test criterion 10 for the stage environment. The guard only checks that `ContainerEnvironment(...)` gets `make_file=boundaries.make_file`, which is not the literal `None`. A wiring that leaves `make_file=` out of `Boundaries(...)` in `src/factory/entry/wiring.py:334-380` keeps the guard green while the wired stage environment has no source. Fix: also assert that the `Boundaries(...)` call in `factory.entry.wiring` passes `make_file=` with a value that is not `None` (ideally the same name it passes to `ContainerMakeCommands`), or test a wired instance as criterion 10 describes.
+    3. `tests/guards/test_make_file_wiring.py:10-15`: `_called_name` is a copy of `_called_name` in `tests/guards/test_agent_home_wiring.py:10-15`. Fix: under the standing leave, move it to `tests/support/source_search.py` and use it from there in both guards.
+    4. `AnsweringSource` is written twice:
+       - `tests/machine/adapters/test_make_commands_make_file.py:42-52` (answers in turn, repeats the last)
+       - `tests/machine/application/test_stage_environment_make_file.py:21-30` (one answer, which the first one already covers)
+
+       Fix: keep the first in `tests/support/make_file_support.py` and use it in both test files.
+
+    Earlier tests changed by the diff:
+    - `tests/pipeline/domain/test_contract.py`: the human's leave in journal entry 11 (version 4.5 → 4.6 only).
+    - `tests/shared/domain/test_contract_version_4.py`: the human's leave in journal entry 11 (version 4.5 → 4.6 only).
+    - `tests/shared/domain/test_contract_version_4_2.py`: the human's leave in journal entry 11 (version 4.5 → 4.6 only).
+20. factory: started tests as self.
+21. tester: I answered the reviewer's four findings from round 0 (entry 19). The changes are in tests only, and no code changed.
+
+    - Finding 1 (criterion 11): `tests/pipeline/application/test_make_file_source.py::test_the_source_returns_none_when_the_definition_or_its_branch_is_missing` now has two rows. `missing-definition` is the earlier test, folded in. `missing-working-branch` is new: it deletes `refs/remotes/origin/<working branch>` in the checkout with `run_git(... "update-ref", "-d", ...)`, so `show_file` raises `GitError`, and it expects `None`. The two rows share their setup, as criterion 7 asks, so they are one parametrized test. The old test `test_the_source_returns_none_for_a_missing_definition` is gone; it is now the first row.
+    - Finding 2 (criterion 10): `tests/guards/test_make_file_wiring.py::test_the_wiring_builds_the_git_source_and_both_users_get_a_source` now also checks the `Boundaries(...)` calls in `factory.entry.wiring`. There must be at least one, and each must pass the same `make_file=` expression that the wiring passes to `ContainerMakeCommands`. A wiring that leaves `make_file=` out of `Boundaries(...)` now fails the guard.
+    - Finding 3: under the standing leave in CLAUDE.md (*Tests*), I moved `_called_name` to `tests/support/source_search.py` as `called_name`. Both guards now import it from there. I changed one earlier test file: `tests/guards/test_agent_home_wiring.py`. Its test keeps its name and checks the same thing.
+    - Finding 4: `AnsweringSource` (answers in turn, then repeats the last) now lives in `tests/support/make_file_support.py`. `tests/machine/adapters/test_make_commands_make_file.py` and `tests/machine/application/test_stage_environment_make_file.py` both import it from there. The single-answer copy is gone, since `AnsweringSource(answer)` behaves the same.
+
+    Criterion → test (unchanged except for criteria 7 and 11):
+    - criterion 7: `tests/pipeline/application/test_make_file_source.py::test_the_source_returns_the_make_file_of_the_definition_at_the_working_ref`, `::test_the_source_returns_none_when_the_definition_or_its_branch_is_missing[missing-definition]` and `::test_the_source_reads_the_new_value_after_the_branch_moved`
+    - criterion 11: `tests/pipeline/application/test_make_file_source.py::test_the_source_returns_none_when_the_definition_or_its_branch_is_missing[missing-working-branch]`
+
+    Files changed: the seven files named above, comprising four of this story's test files, two support modules and the earlier guard. I created no new files, and every module imported.
+
+    Run: `uv run pytest -q` on the five affected test files passed all 21 tests. `make types` is green. Lint: `lint: green (0.1 s)`.
+
+    `lint`: lint: green (0.1 s)
+22. factory: started doing as self.
+23. coder: Round 1. The reviewer's four findings in entry 19 needed test changes only, and the tester made them in entry 21. I changed no code this round.
+
+    Run:
+    - The five test files the tester named all pass (21 tests): `tests/pipeline/application/test_make_file_source.py`, `tests/guards/test_make_file_wiring.py`, `tests/guards/test_agent_home_wiring.py`, `tests/machine/adapters/test_make_commands_make_file.py` and `tests/machine/application/test_stage_environment_make_file.py`.
+    - `make check guides` is green: `check: green` and `guides: green`, with coverage at 99.20 %.
+    - The new row `missing-working-branch` covers criterion 11. It reaches the `GitError` branch in `src/factory/pipeline/application/make_file_source.py`, which was already built and returns `None`.
+    - The wiring guard now also checks that `Boundaries(...)` gets the same `make_file=` source as `ContainerMakeCommands`. It passes against `src/factory/entry/wiring.py` as it stands.
+
+    What was built is unchanged from entries 10 and 17:
+    - `MakeFilePath` and the `..` rule in `src/factory/pipeline/domain/pipeline_definition.py`
+    - the `MakeFileSource` ABC and `asked_make_file` in `src/factory/machine/application/make_file.py`
+    - `GitMakeFileSource` in `src/factory/pipeline/application/make_file_source.py`
+    - the path as a script argument (`$3`, `$7`) in `src/factory/machine/adapters/make_commands.py` and `src/factory/machine/application/stage_environment.py`
+    - the `Boundaries.make_file` field
+    - the source, built once in `src/factory/entry/wiring.py`
+    - the named makefile in `src/factory/pipeline/application/project_check.py`
+    - `RECORDS_CONTRACT` at 4.6, with the schemas regenerated
+
+    Main choice, unchanged: the stage environment gets its source through `Boundaries`, which the wiring fills, so the wiring is the only place that builds a source. I rejected having `stage_environment_of` build it itself.
+
+    Refactor: I had nothing new to refactor, because this round's diff has no code.
+
+    The journal did not change what the Description means.
+
+    Not touched: the docs, which are the documenter's work, and the area table in `tests/guards/test_areas.py`, which passes as it is.
+
+    `duplicates`: duplicates: 7 new, 39 known, 4 gone
+24. factory: started review as self.
+25. reviewer: Review, round 1. I read the diff of `develop...HEAD` (generated schemas excluded except to check they carry 4.6 and the `make_file` property) against criteria 1 to 13 and the Interface.
+
+    no findings
+
+    What I checked:
+    - Criteria 1 and 2: `tests/pipeline/domain/test_pipeline_definition_make_file.py`. Contracts 1.0, 1.1 and 1.2 all load, and `_contract_faults` checks only the major version. The 8 refused rows and 3 accepted rows are one parametrized test, and each refused row's fault must name `make_file`. `MakeFilePath` (`src/factory/pipeline/domain/pipeline_definition.py:33`) refuses a leading `-` or `/` and any character outside the set. `_make_file_faults` refuses a `..` segment through `is_inside_checkout`.
+    - Criteria 3 to 6: `tests/machine/adapters/test_make_commands_make_file.py` and `tests/machine/application/test_stage_environment_make_file.py`.
+      - In `src/factory/machine/adapters/make_commands.py`, the path is always an argument (`$3`). `asked_make_file` asks the source at every `_run_script` call. With no source, or a source that returns `None`, the argv is unchanged, and the test pins it exactly.
+      - In `src/factory/machine/application/stage_environment.py`, the sync's path is the argument `$7`.
+      - The real-make row (criterion 6) is green with the source and red without it.
+    - Criteria 7 and 11: `tests/pipeline/application/test_make_file_source.py`. The `missing-working-branch` row reaches the `GitError` branch of `src/factory/pipeline/application/make_file_source.py:30-32`.
+    - Criteria 8 and 9: `tests/pipeline/application/test_project_check_make_file.py`. `src/factory/pipeline/application/project_check.py` reads `definition.make_file or MAKEFILE`, names that path in its faults, and still takes includes from the root.
+    - Criterion 10: `tests/guards/test_make_file_wiring.py` now also checks that the `Boundaries(...)` call in `factory.entry.wiring` passes the same `make_file` as `ContainerMakeCommands`. `wiring.py` builds one `GitMakeFileSource` and passes it to both. `ContainerEnvironment` is built only in `stage_environment_of`, from `boundaries.make_file`.
+    - Architecture: the ABC is in `machine.application` (its abstract method has a docstring as its only body), the git-based implementation is in `pipeline.application`, and only `entry` wires. No layer imports upward.
+    - Security: the path is validated when the definition loads and is passed only as a script argument. No silencing markers.
+    - Quality: docstrings are present. `make duplicates` (7 new, 39 known, 4 gone) has no new finding in any file this diff touches.
+    - Records contract: 4.6, with every schema regenerated, as the human answered in entry 11.
+    - Hygiene: the journal explains the main choices (the source reaches the stage environment through `Boundaries`; a named path gets its own script text). The Description matches what was built. The docs criterion still says what the reader needs.
+
+    Notes:
+    - `tests/machine/adapters/test_make_commands_make_file.py:74-82`: `_assert_named` checks only that `-f` appears somewhere in the script or its arguments, not that it is passed for both the sync and the command. Criterion 6's real run covers the sync side, because the base has no root `Makefile`.
+
+    Earlier tests changed:
+    - `tests/pipeline/domain/test_contract.py`: the human's leave in journal entry 11 (version 4.5 → 4.6 only).
+    - `tests/shared/domain/test_contract_version_4.py`: the human's leave in journal entry 11 (version 4.5 → 4.6 only).
+    - `tests/shared/domain/test_contract_version_4_2.py`: the human's leave in journal entry 11 (version 4.5 → 4.6 only).
+    - `tests/guards/test_agent_home_wiring.py`: the standing leave to move a shared test helper (`_called_name` moved to `tests/support/source_search.py` as `called_name`; the test keeps its name and checks the same thing).
+26. factory: started docs as self.
+27. documenter: Docs for `make_file`, written from the diff `develop...HEAD`. I read the code on the branch first: `pipeline_definition.py`, `make_file.py`, `make_file_source.py`, `make_commands.py`, `stage_environment.py`, `project_check.py`, the wiring and `boundaries.py`. `make documents` ends `documents ok (45.8 s)`. I changed only documents, so I did not run `make check`.
+
+    Files changed:
+    - `docs/operator-guide/pipeline.md`:
+      - New section "Name the makefile". It says what `make_file` is for (an existing repository keeps its own root `Makefile`). Every check, report, start fact and the sync then run as `make -f <path>` from the root, so paths inside that makefile, includes among them, stay relative to the root. The value is read at every call, a missing or refused definition gives plain make, and `factory-check-project` reads the named file. It lists the accepted and refused values and says the key came with contract 1.2 while 1.0 and 1.1 still load.
+      - Also in that file: a `make_file` row in the keys table, the `makefile` point and its fault `<makefile> is missing` in the project check's tables, and a note that includes are taken from the root also for a named makefile in a folder.
+    - `docs/project-guide/pipeline.md`: new section "The makefile source" covers:
+      - `MakeFilePath` and `_make_file_faults` with their fault text
+      - the `MakeFileSource` interface and `asked_make_file`
+      - `GitMakeFileSource`, which reads `PIPELINE_REF` and returns `None` for a missing branch, a missing file or an invalid definition
+      - the wiring through `Boundaries.make_file`
+      - the rule that the path is always an argument, and the tests
+
+      Also: a `make_file` row in the keys table, the contract rule (1.2, with 1.0 and 1.1 still loading), and the project check's line on which makefile it reads and the faults that name it.
+    - `docs/project-guide/machine.md`: the `make_file=None` keyword on `ContainerEnvironment` and `ContainerMakeCommands`. The named check script, with the path as `$3`, and the start fact. The sync script: `_NAMED_SYNC`, the path as `$7`, and step 6 `make -f "$7" sync`. The two new test files.
+    - `docs/decisions.md`: new entry "The pipeline definition names its makefile; make stays the one command runner", dated 2026-11-16. It covers the decision, the path always passed as an argument and asked for at every call, the unchanged interfaces, pipeline contract 1.2 and records contract 4.6. The Why comes from the Description. The entry has no "Rejected" line, because the story names no rejected option.
+    - `docs/operator-guide/records.md`: the records contract version was stale at `4.5`; it now reads `4.6`.
+
+    Examples run: the story's first two smoke blocks, which match their Expect lines. `make_file: factory/Makefile` loads at contract 1.2. The fault texts quoted in the project guide came from that run (`make_file ../Makefile must be a path inside the checkout`, and pydantic's pattern message for `-f`). The document check reads backticked paths like `factory/Makefile` as files of this repository, so the examples are written as `make_file: factory/Makefile` or `<checkout>/factory/Makefile`.
+
+    Cross-read and found current: `README.md`, the rest of `docs/operator-guide/` (`agent-runtime.md`, whose template paragraph still holds, `install.md`, `machine.md`, `stops.md`), `docs/project-guide/README.md` and the sync command section of `machine.md`. Nothing else in `docs/` names the sync or check argv.
+
+    Stale or open, not mine to fix:
+    - The protected paths (`PROTECTED_PATHS` in `src/factory/agents/domain/write_paths.py`) list `Makefile` but not the makefile that `make_file` names. A role whose write paths cover `factory/*` could therefore edit the factory's targets. This was not in the story's scope; the human may want a story for it.
+
+    `guides`: guides: green (9.2 s)
+    `secrets`: secrets: green (2.6 s)
+    `documents`: documents ok (46.2 s)
+28. factory: started smoke-test as self.
+29. smoke-tester: Smoke test, round 1. I ran the three blocks under `## Smoke test` exactly as written, in order, from the repository root. All three matched their `Expect:` lines. No finding.
+
+    Command 1 (project check with the named makefile, then the same check after moving it to the root):
+    ```
+    Bytecode compiled 4164 files in 85ms
+    pipeline definition: ok
+    makefile: ok
+    stage file: ok
+    agents: ok
+    write paths: ok
+    forms: ok
+    project: ready
+    status 0
+    Bytecode compiled 4164 files in 55ms
+    pipeline definition: ok
+    makefile: FAIL: factory/Makefile is missing
+    stage file: ok
+    agents: ok
+    write paths: ok
+    forms: ok
+    project: not ready (1 fault)
+    status 1
+    ```
+    Met. The first report has six lines ending in `: ok`, then `project: ready` and `status 0`. The second report has `makefile: FAIL: factory/Makefile is missing`, `project: not ready (1 fault)` and `status 1`. The `Bytecode compiled` lines come from uv and are not part of the factory's output.
+
+    Command 2 (the reader parses `make_file`):
+    ```
+    Bytecode compiled 4164 files in 55ms
+    None build/factory.mk
+    refused True
+    ```
+    Met: the two lines `None build/factory.mk` and `refused True`.
+
+    Command 3 (the story's five test files):
+    ```
+    Bytecode compiled 4164 files in 52ms
+    ......................................                                   [100%]
+    38 passed in 0.83s
+    ```
+    Met: the summary line shows only `passed`.
+
+    Criteria check: nothing in the output contradicts any criterion.
+    - The first block checks criterion 8 on both sides: the named file is read, and a root `Makefile` does not stand in for it.
+    - The second block checks criteria 1 and 2 through the real reader.
+    - The third block runs the tests for criteria 1 to 9 and 11. Criterion 10's guard is not in the smoke test's list. The reviewer and the coder's `make check` covered it.
+    - The smoke test reads no document, so it gives no evidence on the docs criterion (13).
+
+    The factory runs `make check` after this stage. I did not run it.
+
+    No temporary files are left: the shell's `trap` removed the directory.
+
+    `check`: check: green

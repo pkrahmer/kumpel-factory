@@ -191,7 +191,9 @@ See also: *The container environment*, *The take* and *Starting a stage* in [pip
 
 The container environment is the one real stage environment. The agent works on the dataset of `Snapshots`, the sync runs in a container of `ContainerRuns`, and the take copies back what the role may write. It runs steps 2 to 4 and 6 of the cycle. The agent's own container (step 5) is not here: `run_agent` runs the request through the boundaries' runtime, which starts the container itself (*The agent's container*).
 
-    ContainerEnvironment(boundaries, snapshots, containers, *, extra_environment={}, ca_bundle=None)
+    ContainerEnvironment(boundaries, snapshots, containers, *, extra_environment={}, ca_bundle=None, make_file=None)
+
+`make_file` is a `MakeFileSource` (*The makefile source* in [pipeline.md](pipeline.md)); `stage_environment_of` passes `boundaries.make_file`. The sync asks it at every `prepare`.
 
 It is in `stage_environment.py`, beside the interface.
 
@@ -247,6 +249,7 @@ Tests:
 
 - [test_container_environment.py](../../tests/machine/application/test_container_environment.py) covers `prepare` and `run_agent`.
 - [test_container_environment_take.py](../../tests/pipeline/application/test_container_environment_take.py) covers the take, the timing line and a whole stage through `StageRunner` with the host's project commands.
+- [test_make_commands_make_file.py](../../tests/machine/adapters/test_make_commands_make_file.py) and [test_stage_environment_make_file.py](../../tests/machine/application/test_stage_environment_make_file.py) cover the named makefile in the check, the start fact and the sync; one row runs real make on a checkout whose only makefile is `<checkout>/factory/Makefile`.
 - [test_container_stage_checks.py](../../tests/pipeline/application/test_container_stage_checks.py) runs a whole stage through the check container. `ContainerMakeCommands` runs the sync container and one check container per check on the taken result. The next `prepare` starts from the pushed head with nothing left over.
 - [test_checks_last_line.py](../../tests/pipeline/domain/test_checks_last_line.py) and [test_make_last_line_shared.py](../../tests/pipeline/adapters/test_make_last_line_shared.py) cover the last-line rule.
 
@@ -307,9 +310,10 @@ See also: *The seven steps of the take* in the *Reference*, and *The take's rule
 
 The stage's checks see the taken result on a clean base. `ContainerMakeCommands` in [make_commands.py](../../src/factory/machine/adapters/make_commands.py) (`factory.machine.adapters.make_commands`) does it for every project command.
 
-    ContainerMakeCommands(..., extra_environment={}, ca_bundle=None)
+    ContainerMakeCommands(..., extra_environment={}, ca_bundle=None, make_file=None)
 
-- It rolls the dataset back to the base, copies in the files the take brought into the host's work tree, and runs `make sync && make <command>` in a container with the command's time limit. `start_fact` does the same without the `sync`: the stage's `prepare` has just synced that base, and the sync's lines would only fill the start fact.
+- It rolls the dataset back to the base, copies in the files the take brought into the host's work tree, and runs `make sync && make <command>` in a container with the command's time limit.
+- `make_file` is a `MakeFileSource` (*The makefile source* in [pipeline.md](pipeline.md)), asked at every `run` and `start_fact`. With a path the script is `"$1" -f "$3" sync && "$1" -f "$3" --no-print-directory "$2"` (the start fact only its second half), and the path is the script's third argument after `make` and the command. With no source, or `None`, the argument list is the one without `-f`. The path is always an argument, never part of the script's text. `start_fact` does the same without the `sync`: the stage's `prepare` has just synced that base, and the sync's lines would only fill the start fact.
 - The container gets `{**extra_environment, **CHECK_ENVIRONMENT, "PATH": path}`. The constants and the image's `path` win.
 - `ca_bundle` is mounted read-only at its own path. `build_boundaries` hands it the same extras as the sync and the agent.
 - A file a check makes stays in its container's dataset and is reset away by the next run. It never reaches the host.
@@ -652,7 +656,7 @@ The preflight reads a missing `podman` from this error. The line helpers (`first
 
 ### The sync script
 
-The script of `prepare` is one literal, `_SYNC_SCRIPT`. The sync container runs:
+The script of `prepare` is `_SYNC_SCRIPT`, or `_NAMED_SYNC` when the environment's `MakeFileSource` names a makefile. The sync container runs:
 
     containers.run(["/bin/sh", "-c", <script>, "factory-sync", "/work/checkout", "/work/home", "/upstream", "/etc/factory/agents", branch, commit], ...)
 
@@ -661,14 +665,14 @@ The script of `prepare` is one literal, `_SYNC_SCRIPT`. The sync container runs:
 - The CA bundle, when `ca_bundle` is set, is a third read-only mount at its own path.
 - The time limit is `sync_time_limit` and the working directory is `/work`. `/work` is the dataset, so `/work/checkout` and `/work/home` are its two folders.
 
-Every container path reaches the script as an argument (`$1` checkout, `$2` home, `$3` upstream, `$4` agent files, `$5` branch, `$6` commit), and none is written in its text, so that `FakeContainerRuns`, which maps paths in the command words, can play it on the host. With `set -eu` it stops at the first failure and:
+Every container path reaches the script as an argument (`$1` checkout, `$2` home, `$3` upstream, `$4` agent files, `$5` branch, `$6` commit, and `$7` the named makefile, only when there is one), and none is written in its text, so that `FakeContainerRuns`, which maps paths in the command words, can play it on the host. With `set -eu` it stops at the first failure and:
 
 1. makes `$1` and `$2` when missing;
 2. replaces `$2/.claude` with a copy of `$4`. The copy replaces the folder, it does not merge, so an agent file removed on the host is gone in the next stage and one run cannot widen the tools of the next. The factory process copies no files itself;
 3. in `$1`, runs `git init -q` when there is no `.git`;
 4. fetches `+refs/heads/*:refs/heads/*` and `+refs/heads/*:refs/remotes/origin/*` from `$3` in one `git fetch` with `--prune` and `--update-head-ok`;
 5. runs `git checkout -q -f "$5"` and `git reset -q --hard "$6"`, so `HEAD` is on the branch at the stage-start commit and never detached;
-6. runs `make sync` (*The sync command*).
+6. runs `make sync` (*The sync command*), or `make -f "$7" sync` with a named makefile.
 
 Why the fetch is so wide:
 
