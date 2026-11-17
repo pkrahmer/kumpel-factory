@@ -1,4 +1,4 @@
-"""The seven agents the factory ships: their front matter values and the opening of their bodies."""
+"""The eight agents the factory ships: their front matter values and the opening of their bodies."""
 
 import re
 from decimal import Decimal
@@ -17,6 +17,29 @@ SYSTEM_PROMPT_FILE = AGENT_HOME / "system-prompt.md"
 TEMPLATE_PIPELINE = ROOT / "operator" / "template" / "factory" / "pipeline.yml"
 
 WITHOUT_ROLE = {"intake", "smoke-tester"}
+
+# The project's review points, from their heading to the next heading, which a later story added.
+REVIEW_POINTS_SUBSECTION = re.compile(
+    r"^### The project's review points\n(?:(?!#).*\n|\n)*", re.MULTILINE
+)
+
+# The roles only the thin line has; the template's pipeline definition is the full line.
+THIN_LINE_ONLY = {"builder"}
+
+THIN_LINE_PIPELINE = """\
+contract: "1.1"
+project_commands:
+  check: {time_limit: 10}
+  sync: {time_limit: 5}
+roles:
+  builder: {write_paths: ["src/*"]}
+  reviewer: {write_paths: ["{work_item}"]}
+stages:
+  doing: {role: builder, next: [review], checks: [check]}
+  review: {role: reviewer, next: [approval, doing], round_cap: 3}
+  approval: {approval: true, next: [done, doing]}
+  done: {}
+"""
 
 _ALL_TOOLS = ["Read", "Grep", "Glob", "Edit", "Bash", "Write", "Skill"]
 
@@ -129,6 +152,21 @@ SHIPPED_AGENTS = [
             "propose, then has one line for each item you judged."
         ),
     ),
+    ShippedAgent(
+        name="builder",
+        model="opus",
+        effort="medium",
+        budget_usd=Decimal("6"),
+        tools=_ALL_TOOLS,
+        boundary=(
+            "Never change the build files, the makefile or `factory/`; a story that needs a change "
+            "there is a question."
+        ),
+        entry=(
+            "Your entry says what you built (the paths), the decisions you took where the story "
+            "left something open, and what you noticed but did not touch."
+        ),
+    ),
 ]
 
 SHIPPED_NAMES = [agent.name for agent in SHIPPED_AGENTS]
@@ -168,6 +206,16 @@ def stage_section(name: str) -> str:
 def template_definition() -> PipelineDefinition:
     """The pipeline definition the template ships, parsed by the factory's reader."""
     return RuamelPipelineDefinitionReader().parse(TEMPLATE_PIPELINE.read_text(encoding="utf-8"))
+
+
+def thin_line_definition() -> PipelineDefinition:
+    """The pipeline definition of the thin line, one builder and one reviewer, parsed."""
+    return RuamelPipelineDefinitionReader().parse(THIN_LINE_PIPELINE)
+
+
+def full_line_names() -> list[str]:
+    """The shipped agents the template's full line uses: all but the thin line's own."""
+    return [name for name in SHIPPED_NAMES if name not in THIN_LINE_ONLY]
 
 
 def shared_rules() -> str:

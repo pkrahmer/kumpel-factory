@@ -371,9 +371,21 @@ Only Claude Code's runs are given the `Skill` tool. An opencode run leaves it ou
 
 The checkout ships them in its `agents/` folder: `agents/agents/<role>.md`, `agents/settings.json` and `agents/system-prompt.md`, the common system prompt every role's run gets. The system prompt holds a short orientation and then the `## Rules` every role shares; each agent file holds only its own role's instructions, which reach the run in the `<role-instructions>` block of its first message. The stage image copies the folder to `/etc/factory/agents`. The files are in Claude Code's format and the opencode runtime translates them per run, so the folder carries no runtime's name. The setting `FACTORY_CLAUDE_HOME` names this folder for both runtimes.
 
-The folder holds seven agents (`intake`, `tester`, `coder`, `reviewer`, `documenter`, `smoke-tester`, `acceptance-reviewer`) `settings.json` and `system-prompt.md`. A folder without `system-prompt.md`, such as one installed before the file was shipped, makes every run fall back to the built-in common system prompt, the same text; a file there that cannot be read ends the run with an `AgentRuntimeError` naming it. Each agent's `tools` ends with `Skill`, and the settings allow it in `permissions.allow`, right after `Grep`.
+The folder holds eight agents (`intake`, `tester`, `coder`, `reviewer`, `documenter`, `smoke-tester`, `acceptance-reviewer`, `builder`), `settings.json` and `system-prompt.md`. A folder without `system-prompt.md`, such as one installed before the file was shipped, makes every run fall back to the built-in common system prompt, the same text; a file there that cannot be read ends the run with an `AgentRuntimeError` naming it. Each agent's `tools` ends with `Skill`, and the settings allow it in `permissions.allow`, right after `Grep`.
 
 The instance reads them from `FACTORY_CLAUDE_HOME` (`/srv/factory/<instance>/factory/agents`, the `agents/` folder of the factory's own clone). Change the files in the repository: a change reaches the instance by a merge and the steps of "The rebuild after a merge" in [machine.md](machine.md).
+
+**The two lines.** The full line is the starting pipeline definition, `operator/template/factory/pipeline.yml`: its roles are the first seven agents. The thin line has two roles, `builder` and `reviewer`, and the stages `doing`, `review`, `approval` and `done`. The builder writes a story's tests, code and documents alone and ends with `review`; it names no stack. A thin-line project therefore needs no agent file of its own: the installed agents are the default, and what is special about the project's stack goes into its `CLAUDE.md`. A project's own file under `<project>/factory/agents/` still replaces the installed one, file by file (see *A project's own agents*).
+
+**The project's review points.** The reviewer of either line checks the points a project writes in the section `## Review` of its root `CLAUDE.md`. Each point is a checklist item of every review, and a broken one is a finding that names the point. Without that section the reviewer checks nothing more. For example:
+
+```markdown
+## Review
+- Every public C function has a test in `tests/`.
+- No header includes a source file.
+```
+
+To check that a thin-line project is ready with the installed agents alone, run `factory-check-project` on it (see *Checking a repository before the factory runs it* in [pipeline.md](pipeline.md)); its point `agents` passes without `<project>/factory/agents/`.
 
 What the settings allow and deny:
 

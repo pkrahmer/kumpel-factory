@@ -8,12 +8,14 @@ from factory.shared.domain.sections import section_text
 from support.shipped_agents import (
     SHIPPED_AGENTS,
     SHIPPED_NAMES,
+    THIN_LINE_ONLY,
     WITHOUT_ROLE,
     ShippedAgent,
     agent_body,
     headings,
     shared_rules,
     template_definition,
+    thin_line_definition,
 )
 
 _FIRST_LESSON = (
@@ -41,6 +43,12 @@ _TIME_LIMIT_LESSON = (
 )
 
 LESSONS = {
+    "builder": [
+        _FIRST_LESSON,
+        _SECOND_LESSON,
+        "- Before you write a helper, search the code and the tests for one that does the same, "
+        "and reuse or extend it.",
+    ],
     "intake": [
         _FIRST_LESSON,
         _SECOND_LESSON,
@@ -117,6 +125,10 @@ LESSONS = {
 }
 
 ROLE_AND_STAGE_ANCHORS = {
+    "builder": [
+        "You build the whole story alone: its tests, its code and its documents",
+        "Write the tests for every criterion, then the code, until `make check` is green.",
+    ],
     "intake": ["Check that the story is buildable before anyone spends tokens on it."],
     "tester": ["You write tests, not code.", "Run `make test 2>&1 | tail -5` once"],
     "coder": ["You make the failing tests pass without changing them", "Refactor, once."],
@@ -149,7 +161,7 @@ _BANNED_WORDS = re.compile(
 
 
 def _decisions(role: str) -> list[str]:
-    definition = template_definition()
+    definition = thin_line_definition() if role in THIN_LINE_ONLY else template_definition()
     stages = [stage for stage in definition.stages.values() if stage.role == role]
     assert len(stages) == 1
     return [*stages[0].next, "question"]

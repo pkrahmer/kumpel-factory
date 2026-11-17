@@ -8,6 +8,7 @@ from support.shipped_agents import AGENT_HOME
 SAME_TOOLS = ["Read", "Grep", "Glob", "Edit", "Bash", "Write", "Skill"]
 SHIPPED = sorted(path.stem for path in (AGENT_HOME / "agents").glob("*.md"))
 EFFORTS = {
+    "builder": "medium",
     "intake": "medium",
     "tester": "medium",
     "coder": "medium",

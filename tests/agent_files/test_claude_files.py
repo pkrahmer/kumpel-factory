@@ -15,6 +15,7 @@ from support.shipped_agents import (
     SHIPPED_NAMES,
     ShippedAgent,
     front_matter_and_body,
+    full_line_names,
 )
 
 TEMPLATE = ROOT / "operator" / "template"
@@ -185,7 +186,7 @@ def test_template_pipeline_definition_is_valid_with_the_shipped_roles() -> None:
 
     definition = RuamelPipelineDefinitionReader().parse(text)
 
-    assert sorted(definition.roles) == sorted(SHIPPED_NAMES)
+    assert sorted(definition.roles) == sorted(full_line_names())
 
 
 def test_template_holds_only_the_rules_file_the_makefile_and_the_pipeline_definition() -> None:

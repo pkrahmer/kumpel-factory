@@ -1,3 +1,137 @@
+---
+stage: approval
+blocked: null
+round: 1
+attempts: 0
+crashes: 0
+pull_request: 693
+comments_read: [6936126509]
+handed_over: approval
+claim: null
+journal:
+- number: 1
+  speaker: human
+  kind: created
+  at: '2026-11-17T02:25:48.924110Z'
+  stage: intake
+- number: 2
+  speaker: factory
+  kind: started
+  at: '2026-11-17T02:25:48.931095Z'
+  stage: intake
+- number: 3
+  speaker: intake
+  kind: question
+  at: '2026-11-17T02:26:51.270261Z'
+  stage: intake
+  run: ba8d80ed90db4e33a8a27f9049a0d235
+  blocked: question
+- number: 4
+  speaker: human
+  kind: comment
+  at: '2026-11-17T02:28:39.782462Z'
+  stage: intake
+- number: 5
+  speaker: factory
+  kind: started
+  at: '2026-11-17T02:28:42.279205Z'
+  stage: intake
+- number: 6
+  speaker: intake
+  kind: result
+  at: '2026-11-17T02:29:04.235495Z'
+  stage: intake
+  run: 495090b8960d49aea1413564509964ae
+- number: 7
+  speaker: factory
+  kind: started
+  at: '2026-11-17T02:29:09.082028Z'
+  stage: tests
+- number: 8
+  speaker: tester
+  kind: result
+  at: '2026-11-17T02:35:21.326828Z'
+  stage: tests
+  run: 86142f22a5964ec8a1358ec89afc5f9f
+- number: 9
+  speaker: factory
+  kind: started
+  at: '2026-11-17T02:35:28.741326Z'
+  stage: doing
+- number: 10
+  speaker: coder
+  kind: result
+  at: '2026-11-17T02:38:42.559238Z'
+  stage: doing
+  run: 753fd95047b5433f9ab721bfd8f82eb8
+- number: 11
+  speaker: factory
+  kind: started
+  at: '2026-11-17T02:38:48.311041Z'
+  stage: review
+- number: 12
+  speaker: reviewer
+  kind: result
+  at: '2026-11-17T02:39:39.418589Z'
+  stage: review
+  run: e92c960c46854719a2b19879e1f29392
+- number: 13
+  speaker: factory
+  kind: started
+  at: '2026-11-17T02:39:45.169023Z'
+  stage: tests
+- number: 14
+  speaker: tester
+  kind: result
+  at: '2026-11-17T02:40:18.386544Z'
+  stage: tests
+  run: 5b1290fb2abb46eb823ded521f49e3f1
+- number: 15
+  speaker: factory
+  kind: started
+  at: '2026-11-17T02:40:24.061381Z'
+  stage: doing
+- number: 16
+  speaker: coder
+  kind: result
+  at: '2026-11-17T02:42:51.688521Z'
+  stage: doing
+  run: f2e07c4a11884461b30b1c3c94538bfd
+- number: 17
+  speaker: factory
+  kind: started
+  at: '2026-11-17T02:42:57.242378Z'
+  stage: review
+- number: 18
+  speaker: reviewer
+  kind: result
+  at: '2026-11-17T02:43:19.347175Z'
+  stage: review
+  run: 0366877c5b1f49c9bb2912e0483d736f
+- number: 19
+  speaker: factory
+  kind: started
+  at: '2026-11-17T02:43:24.613607Z'
+  stage: docs
+- number: 20
+  speaker: documenter
+  kind: result
+  at: '2026-11-17T02:51:27.462465Z'
+  stage: docs
+  run: a8ad34b872cf4e9aaf5e27ec53c47ce2
+- number: 21
+  speaker: factory
+  kind: started
+  at: '2026-11-17T02:51:32.813101Z'
+  stage: smoke-test
+- number: 22
+  speaker: smoke-tester
+  kind: result
+  at: '2026-11-17T02:53:58.605468Z'
+  stage: smoke-test
+  run: 51d66de9420146a69d4befa16154c7c6
+---
+
 # The installed builder
 
 ## Description
@@ -15,6 +149,8 @@ effort: medium
 budget_usd: 6
 tools: [Read, Grep, Glob, Edit, Bash, Write, Skill]
 ---
+Never change the build files, the makefile or `factory/`; a story that needs a change there is a question.
+
 Your entry says what you built (the paths), the decisions you took where the story left something open, and what you noticed but did not touch.
 
 ## Role
@@ -31,7 +167,7 @@ You build the whole story alone: its tests, its code and its documents, inside t
 
 ## Stage
 
-1. Read the work item: its Description, Interface, criteria and smoke test. `CLAUDE.md` is already in your context. Read the code and documents the story touches; not other work items, not `feature.md`, not `factory/`, not `.claude/`. If the prompt's round is greater than 0, address exactly the findings in the reviewer's latest entry, nothing more.
+1. The work item is in your first message: its Description, Interface, criteria and smoke test. `CLAUDE.md` is already in your context. Read the code and documents the story touches; not other work items, not `feature.md`, not `factory/`, not `.claude/`. If the prompt's round is greater than 0, address exactly the findings in the reviewer's latest entry, nothing more.
 2. Write the tests for every criterion, then the code, until `make check` is green.
 3. Update the documents the docs criterion names.
 4. Run the smoke test's commands as written and check each against its `Expect:` line. A command that does not meet its line is work still to do, not a remark.
@@ -55,7 +191,7 @@ When the project's `CLAUDE.md` holds a section `## Review`, each of its points i
 
 - Where another shipped file lists the installed agents or the roles by name (the system prompt `agents/system-prompt.md`, `agents/README.md` is the documenter's), the coder adds `builder` only where the list claims to be complete.
 - No module under `src/factory/` changes: `ProjectAgentDefinitions` already reads a project's file first and the installed one otherwise.
-- Tests: `tests/agent_files/test_installed_builder.py`. `feature.md` gives this leave (decision 11): "S0004 may change earlier tests under `tests/agent_files/`, and any other earlier test, that pin the list or the number of the shipped agents or the text or a checksum of `reviewer.md`, where their only failure is the eighth agent `builder` or the reviewer's new part."
+- Tests: `tests/agent_files/test_installed_builder.py`. `feature.md` gives this leave (decision 11): "S0004 may change earlier tests under `tests/agent_files/`, and any other earlier test, that pin the list or the number of the shipped agents or the text or a checksum of `reviewer.md`, where their only failure is the eighth agent `builder` or the reviewer's new part." Journal entry 4 extends it: the tester may add rows for `builder` to the per-agent tables of `tests/support/shipped_agents.py` and of the tests under `tests/agent_files/` (boundary, anchors, lessons, efforts, the pinned role lists), and may take the builder's stage and decisions from a thin-line pipeline definition written in the test instead of `operator/template/factory/pipeline.yml`. Every earlier test keeps its name and still checks the seven agents as before.
 
 ## Acceptance criteria
 
@@ -113,3 +249,265 @@ uv run pytest tests/agent_files/
 Expect: a summary line with only `passed`, no `failed` or `error`.
 
 ## Journal
+
+1. 2026-11-17 human: created.
+2. factory: started intake as self.
+3. intake: Questions before the tests stage. The format check passed. The Interface, the placement (agents/agents/, no change under src/factory/), the scope against feature.md, the smoke tests (runnable; pytest is called without `-q`, which `addopts` already sets, so the summary line is printed) and the docs criterion (it names what the reader must know) are all fine. Two points block the build, because the exact builder text in the Interface cannot pass criterion 6 under leave 11 as it is worded now:
+
+   1. The builder's step 1 reads "1. Read the work item: its Description, Interface, …". `tests/agent_files/test_no_agent_file_reads_its_work_item_first_and_each_finds_it_in_the_first_message` (test_first_message_agent_files.py) fails any shipped agent that matches `^\d+\. Read (the work item|the story)\b`. The step also goes against the shared rule R6: the work item is in the first message and is not read first. This failure is about the text, not about the list or the number of agents, so leave 11 does not cover it. Options: (a) reword step 1 in the Interface, for example "1. The work item is in your first message: its Description, Interface, criteria and smoke test. `CLAUDE.md` is already in your context. Read the code and documents the story touches; …". (b) Add a leave that excludes `builder` from that test. I would choose (a).
+
+   2. The per-agent tables in `tests/support/shipped_agents.py` and `tests/agent_files/` need more than a new name for `builder`:
+      - Every `ShippedAgent` has a `boundary` sentence. `test_body_starts_with_the_boundary_and_the_entry_sentence` (test_claude_files.py) and `test_body_still_opens_with_the_boundary_and_the_entry_sentence` (test_claude_agent_texts.py) both require the body to open with "<boundary>\n\n<entry>". The builder text opens with its entry sentence and has no boundary sentence.
+      - `test_body_names_every_decision_of_its_stage_in_inline_code` looks up each role's stage in `operator/template/factory/pipeline.yml` and asserts exactly one. The template has no `builder` stage, so the test fails.
+      - Builder rows are also needed in `ROLE_AND_STAGE_ANCHORS`, `LESSONS` and `EFFORTS`. The pinned role list of `test_template_pipeline_definition_is_valid_with_the_shipped_roles` would also change.
+
+      Does leave 11 cover these changes? Options: (a) Add a boundary line to the builder's Interface text, for example "You build the story; what you cannot decide you ask." Extend leave 11 so the tester may add builder rows to those tables and take builder's decisions (`review`, `question`) from a thin-line definition in the test, not from the template. (b) Leave the builder text as it is, and let the tester make the boundary optional, with builder's row having none. I would choose (a): the builder then follows the same shape as the seven agents, and the tests change only by data rows and the source of one role's decisions.
+4. 2026-11-17 human: 1: (a), with your wording of step 1. 2: (a). The builder's text opens with this boundary sentence, a blank line, then its entry sentence: "Never change the build files, the makefile or `factory/`; a story that needs a change there is a question." Leave 11 is extended: the tester may add rows for `builder` to the per-agent tables of `tests/support/shipped_agents.py` and of the tests under `tests/agent_files/` (boundary, anchors, lessons, efforts, the pinned role lists), and may take the builder's stage and decisions from a thin-line pipeline definition written in the test instead of `operator/template/factory/pipeline.yml`. Every earlier test keeps its name and still checks the seven agents as before.
+5. factory: started intake as self.
+6. intake: accepted
+   I carried the human's answer from journal entry 4 into the story. I made no other edits.
+   - The builder text in the Interface now opens with the boundary sentence "Never change the build files, the makefile or `factory/`; a story that needs a change there is a question." Then come a blank line and the entry sentence.
+   - Step 1 of the builder text is reworded to "1. The work item is in your first message: its Description, Interface, criteria and smoke test. …". This is the wording from option (a) of question 1.
+   - The Tests line of the Interface now carries the extended leave 11. The tester may add rows for `builder` to the per-agent tables of `tests/support/shipped_agents.py` and `tests/agent_files/` (boundary, anchors, lessons, efforts, pinned role lists). The tester may take the builder's stage and decisions from a thin-line definition written in the test. Every earlier test keeps its name and still checks the seven agents.
+
+   Interface: it names concrete files: `agents/agents/builder.md` with its exact text, and the exact section added to `agents/agents/reviewer.md`. Nothing under `src/factory/` changes. The test file is named, and the system prompt adds `builder` only where a list claims to be complete. With the reworded step 1 and the boundary sentence, the builder text now fits the existing shape tests.
+   Criteria: each one can be tested by one test function. Criterion 5 has both rows: the project's file is read when it exists, the installed one when it does not. Criterion 2 covers both sides of the stack-word rule. Criterion 4 covers the thin line on a repository with no agent files. Criterion 6 is now coverable under the extended leave.
+   Smoke test: the commands can be run. Each Expect line can be checked: `True 8`, `read`, `1`, `agents: ok` / `project: ready`, and a pytest summary with only `passed`. pytest is called without `-q`.
+   Docs criterion: it names what the reader must know: `builder`, that the thin line needs no agent file, that the replacement works file by file, the `## Review` section, the project guide's list, `agents/README.md` and the decision of 2026-11-16. It dictates no sentences.
+   Architecture: the change is agent files plus tests and docs only. `ProjectAgentDefinitions` already resolves the project's file first, then the installed one. No layer moves.
+   Scope: the story is within F0062: the installed agents become the default and kits copy no agent file. Its test changes are covered by leave 11 as extended in entry 4. Route: `tests`, because `agents/agents/` and tests change, which the documenter alone may not write.
+7. factory: started tests as self.
+8. tester: Tests for the installed builder are written. Each criterion maps to a test:
+   - criterion 1: tests/agent_files/test_installed_builder.py::test_the_installed_agents_name_and_read_the_builder
+   - criterion 2: tests/agent_files/test_installed_builder.py::test_the_builder_has_role_stage_and_lessons_and_ends_its_stage_with_review and ::test_the_builder_names_no_stack (one row each for gradle, pytest and cmake, compared without case)
+   - criterion 3: tests/agent_files/test_installed_builder.py::test_the_installed_reviewer_checks_the_projects_review_points
+   - criterion 4: tests/agent_files/test_installed_builder.py::test_the_thin_line_loads_with_the_installed_agents_alone (`PipelineLoader` with `ProjectAgentDefinitions` over the repository's `agents/`) and ::test_the_thin_line_without_agent_files_passes_the_agents_point (`ProjectCheck.run` on a committed repository that has no `factory/agents/`)
+   - criterion 5: tests/agent_files/test_installed_builder.py::test_a_projects_builder_wins_over_the_installed_one, with the rows project-builder and installed-builder
+   - criterion 6: the earlier tests under tests/agent_files and tests/agents/adapters/test_shipped_agents_effect.py now carry the builder through `SHIPPED_AGENTS`. Each one keeps its name.
+   - criteria 7 and 8: no test from me; `make check` and the docs stage cover them.
+
+   Files created: tests/agent_files/test_installed_builder.py.
+
+   Support changed (leave 11 as extended in entry 4): tests/support/shipped_agents.py.
+   - New `ShippedAgent` row for `builder`, with the boundary and entry sentences from the Interface.
+   - New `THIN_LINE_ONLY = {"builder"}`.
+   - New `THIN_LINE_PIPELINE`, the smoke test's thin-line definition, and `thin_line_definition()` to parse it.
+   - New `full_line_names()`, the seven agents of the template's full line.
+   - The module docstring now says eight agents.
+
+   Earlier test files I changed, all under leave 11 as extended in entry 4. Every test keeps its name and still checks the seven agents as before.
+   - tests/agent_files/test_claude_files.py: `test_template_pipeline_definition_is_valid_with_the_shipped_roles` now compares the template's roles with `full_line_names()`, because the template is the full line and has no builder.
+   - tests/agent_files/test_claude_agent_texts.py:
+     - `_decisions` takes the builder's stage from `thin_line_definition()`.
+     - New builder rows in `LESSONS` (the three lessons of the Interface) and in `ROLE_AND_STAGE_ANCHORS` (two sentences of its Role and Stage).
+   - tests/agent_files/test_shared_start_agent_files.py: new `builder: medium` row in `EFFORTS`.
+   - tests/agent_files/test_shared_rules_system_prompt.py: `test_every_agent_file_keeps_its_own_sections_word_for_word_in_order`
+     - It now runs only over the agents in `PARTS_BEFORE`. Those checksums record each file before the shared rules moved, and the builder did not exist then.
+     - It strips the reviewer's new subsection `### The project's review points` before taking the checksum.
+   - tests/agent_files/test_claude_agent_texts_review_groups.py: `test_the_rest_of_the_reviewer_body_is_unchanged` strips the same new subsection, the way it already strips `### docs-review`.
+
+   How I checked them:
+   - In a throwaway copy of the repository I added `agents/agents/builder.md` and the reviewer's new part, both exactly as the Interface gives them. Without my test changes, these 8 tests failed there and nothing else did (I ran tests/agent_files, tests/agents, tests/guards and tests/entry/test_tick_shipped_agent_file.py): the template role list, the builder's decisions, anchors and lessons, `PARTS_BEFORE` for reviewer and builder, the reviewer CRC, and `EFFORTS`.
+   - With my changes, all of tests/agent_files passed in that copy, the new file included.
+   - In the copy, `mypy` could not resolve the `factory` package, so the type check of these tests is left to the coder's `make check`.
+
+   Red on the branch on purpose: `make test` fails because `agents/agents/builder.md` does not exist. That includes the fixture of tests/agents/adapters/test_shipped_agents_effect.py, which copies every shipped agent, so all of its rows error with FileNotFoundError. The reviewer's earlier checksum tests and the review-points test fail until the new part is added to `agents/agents/reviewer.md`.
+
+   `make lint`: green.
+
+   No module failed to import.
+
+   The throwaway copy is still in a `mktemp -d` directory under /tmp: removing it was refused, and it goes with the stage.
+
+   `lint`: lint: green (0.2 s)
+9. factory: started doing as self.
+10. coder: I added the installed builder and the reviewer's review points. `make check guides` is green.
+
+    Built:
+    - New `agents/agents/builder.md`. Its front matter and text are exactly as the Interface gives them: it opens with the boundary sentence from entry 4, and step 1 is reworded as entry 4 decided.
+    - `agents/agents/reviewer.md`: the subsection `### The project's review points` now sits directly before `## Lessons`, after `### docs-review`, with the Interface's wording.
+    - No module under `src/factory/` changed. I changed no tests.
+
+    Checked:
+    - The tester's files, `uv run pytest -q tests/agent_files/ tests/agents/adapters/test_shipped_agents_effect.py`: all pass.
+    - `make check guides`: lint, types, layers, sast, secrets, licenses and test are each green, then `check: green` and `guides: green`.
+
+    Smoke test, all three blocks run as written:
+    - The reader prints `True 8`, then `read`. The `grep -c` gives `1`.
+    - The thin-line project, checked with `check_project --agent-home agents`, prints `agents: ok` and `project: ready`.
+    - `pytest tests/agent_files/` passed, part of the run above.
+
+    Main choice: I put the reviewer's new part as the last subsection before `## Lessons`, as the Interface says. I rejected putting it inside the Role's checklist, because the Interface fixes its place and the tester's checksum tests strip it as one block.
+
+    The Interface asks to add `builder` to the system prompt only where a list there claims to be complete. `agents/system-prompt.md` has no such list (it names roles only in passing, in R9 and R13), so I left it unchanged.
+
+    Not touched: the documents of criterion 8 (`docs/operator-guide/`, `docs/project-guide/agents.md`, `agents/README.md`, `docs/decisions.md`). They belong to the documenter.
+
+    Refactor: nothing to change. The diff is one new agent file and one inserted subsection, both fixed word for word by the Interface.
+
+    `duplicates`: duplicates: 8 new, 38 known, 5 gone
+11. factory: started review as self.
+12. reviewer: Review, round 0: one finding, and it touches only this story's tests. So the work item goes to `tests`.
+
+    I read the diff against every criterion and the Interface:
+    - `agents/agents/builder.md` matches the Interface word for word: the front matter, the boundary sentence and the reworded step 1 from entry 4.
+    - `agents/agents/reviewer.md` has the new subsection as its last part before `## Lessons`, word for word.
+    - Nothing under `src/` changed.
+    - Criteria 1 to 5 each have a test that checks what the criterion says. Criterion 4 is checked twice: through `PipelineLoader` on the `remote` fixture, whose `REMOTE_FILES` hold no `factory/agents/`, and through `ProjectCheck.run` on a committed repository with no `factory/agents/`. Criterion 5 is two rows of one parametrized test.
+    - The coder reports `make check guides` green (entry 10).
+
+    I found no architecture, security or hygiene problem.
+    - The system prompt has no complete list of roles, so leaving it unchanged is right.
+    - The Description and the docs criterion still describe what was built.
+
+    Findings:
+    1. `tests/agent_files/test_claude_agent_texts_review_groups.py:29` and `tests/agent_files/test_shared_rules_system_prompt.py:84`: the same regex `_REVIEW_POINTS_SUBSECTION` (`^### The project's review points\n(?:(?!#).*\n|\n)*`) is written twice. That is a second copy of one helper. Fix: define it once in `tests/support/shipped_agents.py`, with the comment of the first file, and import it in both test files.
+
+    Notes:
+    - `tests/agent_files/test_installed_builder.py:65`: the first assertion (the heading in `f"\n{body}\n"`) adds nothing to the next one, which finds the heading in the `## Stage` section. One of them could go.
+
+    Earlier tests changed:
+    - `tests/agent_files/test_claude_agent_texts.py`: entry 4. It adds builder rows to `LESSONS` and `ROLE_AND_STAGE_ANCHORS`, and takes the builder's decisions from the thin-line definition.
+    - `tests/agent_files/test_claude_agent_texts_review_groups.py`: leave 11 of feature.md, as the Interface cites it. The test strips the reviewer's new part before its checksum.
+    - `tests/agent_files/test_claude_files.py`: entry 4. The template's pinned role list is now `full_line_names()`.
+    - `tests/agent_files/test_shared_rules_system_prompt.py`: leave 11 and entry 4. It strips the reviewer's new part, and its rows stay the seven agents of `PARTS_BEFORE`.
+    - `tests/agent_files/test_shared_start_agent_files.py`: entry 4. A `builder` row in `EFFORTS`.
+    - `tests/support/shipped_agents.py`: entry 4. A builder `ShippedAgent` row, plus `THIN_LINE_ONLY`, `THIN_LINE_PIPELINE`, `thin_line_definition()` and `full_line_names()`.
+13. factory: started tests as self.
+14. tester: Round 1: I fixed the reviewer's one finding from entry 12. It needed changes to the tests only.
+
+    Finding 1 (the regex `_REVIEW_POINTS_SUBSECTION` was written twice). It is now defined once in `tests/support/shipped_agents.py` as `REVIEW_POINTS_SUBSECTION`, with the comment from the first file. Both tests that used it now import it from there:
+    - `tests/agent_files/test_claude_agent_texts_review_groups.py::test_the_rest_of_the_reviewer_body_is_unchanged`: its local copy is gone and it uses the shared one.
+    - `tests/agent_files/test_shared_rules_system_prompt.py::test_every_agent_file_keeps_its_own_sections_word_for_word_in_order`: its local copy is gone and it uses the shared one. Its old comment now sits above the parametrize: the agents `PARTS_BEFORE` lists predate the builder and the reviewer's review points.
+    Every test keeps its name and checks the same thing. This uses leave 11 as extended in entry 4, and this story's own earlier changes to these files.
+
+    I left the reviewer's note on `tests/agent_files/test_installed_builder.py:65` (two assertions that check the same heading) as it is. It is a note, not a finding.
+
+    Files created: none. Files changed: `tests/support/shipped_agents.py`, `tests/agent_files/test_claude_agent_texts_review_groups.py`, `tests/agent_files/test_shared_rules_system_prompt.py`.
+
+    Checked:
+    - `uv run pytest -q` on those two test files and `tests/agent_files/test_installed_builder.py`: all 44 passed.
+    - `make lint`: lint: green (0.1 s).
+    - I did not run the type check. When I ran `mypy` on these files alone, it could not analyse the `factory` package (`import-untyped`), so the coder's `make check` covers types.
+
+    Every test module imported.
+
+    `lint`: lint: green (0.2 s)
+15. factory: started doing as self.
+16. coder: Round 1: no code change was needed. The reviewer's one finding (entry 12) was the copied regex in the tests. The tester has fixed it (entry 14) by moving it to `REVIEW_POINTS_SUBSECTION` in `tests/support/shipped_agents.py`.
+
+    Checked:
+    - I ran the tester's named files with `uv run pytest -q tests/agent_files/test_claude_agent_texts_review_groups.py tests/agent_files/test_shared_rules_system_prompt.py tests/agent_files/test_installed_builder.py`. All 44 passed.
+    - `make check guides`: every target is green, ending with `check: green` and `guides: green`. Coverage is 99.14 %. Types now cover the tester's changed files, which the tester could not check alone.
+
+    Built: nothing new this round. `agents/agents/builder.md` and the reviewer's subsection in `agents/agents/reviewer.md` are unchanged since entry 10. I changed no tests and no module under `src/factory/`.
+
+    Main choice: I left the agent files as they are. The finding touched only the tests. I rejected touching the reviewer's note on `tests/agent_files/test_installed_builder.py:65`: it is a note, and the file is a test.
+
+    Refactor: nothing to change. The diff outside the tests is still the two agent files, whose wording the Interface fixes word for word.
+
+    Not touched: the documents of criterion 8 (`docs/operator-guide/`, `docs/project-guide/agents.md`, `agents/README.md`, `docs/decisions.md`). They belong to the documenter.
+
+    `duplicates`: duplicates: 8 new, 38 known, 5 gone
+17. factory: started review as self.
+18. reviewer: Review, round 1: no findings.
+
+    My one finding from round 0 (entry 12) is fixed. The regex now exists once, as `REVIEW_POINTS_SUBSECTION` in `tests/support/shipped_agents.py`, and keeps its comment. `tests/agent_files/test_claude_agent_texts_review_groups.py::test_the_rest_of_the_reviewer_body_is_unchanged` and `tests/agent_files/test_shared_rules_system_prompt.py::test_every_agent_file_keeps_its_own_sections_word_for_word_in_order` both import it, and neither keeps a local copy.
+
+    I read the whole diff again:
+    1. Acceptance criteria:
+       - Criteria 1 to 5 each have a test that checks what the criterion says. Criterion 2's stack words are rows of one parametrized test. Criterion 4 is tested twice, through `PipelineLoader` and through `ProjectCheck.run`, both without `factory/agents/`. Criterion 5's project and installed cases are rows of one parametrized test.
+       - Criterion 6: the earlier tests carry the builder through `SHIPPED_AGENTS` and the data rows that entry 4 allows.
+       - Entry 16 says `make check guides` is green.
+    2. Architecture: no module under `src/` changed. The diff is two agent files, the tests and their support module.
+    3. Security: there are no secrets and no silencing markers.
+    4. Quality:
+       - `agents/agents/builder.md` matches the Interface word for word.
+       - The reviewer's new subsection is the last part before `## Lessons` and matches the Interface word for word.
+       - The new support helpers have docstrings.
+    5. Work item hygiene:
+       - The journal explains the main choice and what was rejected.
+       - The Description matches what was built.
+       - The docs criterion still names what the documenter must write.
+       - The system prompt has no complete list of roles, so leaving it unchanged is right.
+
+    Notes:
+    - `tests/agent_files/test_installed_builder.py:65`: two assertions check the same heading. The first one (in `f"\n{body}\n"`) adds nothing to the next one, which finds the heading in the `## Stage` section. One of them could go. This is unchanged from round 0, and it is a note on a test file this diff adds.
+
+    Earlier tests changed:
+    - `tests/agent_files/test_claude_agent_texts.py`: the human's answer in entry 4. It adds builder rows to `LESSONS` and `ROLE_AND_STAGE_ANCHORS` and takes the builder's decisions from the thin-line definition.
+    - `tests/agent_files/test_claude_agent_texts_review_groups.py`: leave 11 of feature.md, as the Interface cites it. The test strips the reviewer's new part before its checksum, using the shared `REVIEW_POINTS_SUBSECTION`.
+    - `tests/agent_files/test_claude_files.py`: entry 4. The template's pinned role list is now `full_line_names()`.
+    - `tests/agent_files/test_shared_rules_system_prompt.py`: leave 11 and entry 4. It strips the reviewer's new part, and its rows stay the seven agents of `PARTS_BEFORE`.
+    - `tests/agent_files/test_shared_start_agent_files.py`: entry 4. It adds a `builder` row to `EFFORTS`.
+    - `tests/support/shipped_agents.py`: entry 4. It adds the builder's `ShippedAgent` row, `THIN_LINE_ONLY`, `THIN_LINE_PIPELINE`, `thin_line_definition()` and `full_line_names()`. Under the standing leave to move a shared test helper, it also takes over the regex `REVIEW_POINTS_SUBSECTION` from the two test files above.
+19. factory: started docs as self.
+20. documenter: Docs, round 1: I wrote what criterion 8 asks for. `make documents` ends with `documents ok (45.8 s)`. I also changed `agents/README.md`, which is outside `docs/`, so I ran `make guides check`: every target is green, ending with `guides: green` and `check: green`.
+
+    Files changed:
+    - `docs/operator-guide/agent-runtime.md`, *The shipped agents and settings*:
+      - The folder now holds eight agents, `builder` included.
+      - New paragraph *The two lines*. The full line is the template's seven roles. The thin line has the roles `builder` and `reviewer` and the stages `doing`, `review`, `approval` and `done`. A thin-line project needs no agent file, because the installed agents are the default and what is special about its stack goes into `CLAUDE.md`. A project's own file under `<project>/factory/agents/` still replaces the installed one, file by file.
+      - New paragraph *The project's review points*: a project gives the reviewer its points in the section `## Review` of `CLAUDE.md`, with an example of that section.
+      - A pointer to `factory-check-project`, whose point `agents` passes without the project's agent folder. The coder's smoke run in entry 10 showed `agents: ok` for that case.
+    - `docs/project-guide/agents.md`:
+      - The heading *The seven agents* is now *The eight agents*, and the effort sentence now says six agents run at medium.
+      - The table has a `builder` row: opus, medium, 6, the seven tools.
+      - New paragraph on what the builder does and on the reviewer's `### The project's review points`, with a link to `test_installed_builder.py`.
+      - *The template* now says its roles are every agent except `builder`, because the template is the full line.
+    - `agents/README.md`: the `agents/` line now names `builder.md`. My first try listed every file on separate lines, and `tests/guards/test_folder_readmes.py` refused them as "no part of the form". The README now keeps its one-sentence subfolder line.
+    - `docs/decisions.md`: new entry *The installed agents are the default; a kit copies no agent file*, dated 2026-11-16. It has a Decision and a Why, both from the Description. It has no "Rejected" line, because the story names no rejected option.
+
+    Cross-read and found current:
+    - In `docs/operator-guide/agent-runtime.md`: *The agent files* and *A project's own agents*. Read first, then installed, file by file, as `ProjectAgentDefinitions` does.
+    - The other operator-guide pages: `pipeline.md` (the conformance check and its point `agents`), `stops.md` (`agent is not installed`), `health.md` and `install.md`.
+    - The rest of `docs/project-guide/agents.md` (*A project's own agents*, the docs route, the lessons list), and `README.md`.
+
+    Example: the `## Review` block in `agent-runtime.md` is a sample of a `CLAUDE.md` section, not a command, so there was nothing to run. The `factory-check-project` claim rests on the command's real output from the coder's smoke run (entry 10).
+
+    Stale text I noticed but did not touch: none that relates to this story.
+
+    No findings.
+
+    `guides`: guides: green (9.3 s)
+    `secrets`: secrets: green (1.9 s)
+    `documents`: documents ok (46.4 s)
+21. factory: started smoke-test as self.
+22. smoke-tester: Smoke test, round 1: I ran all three blocks as written from the repository root. Each one met its `Expect:` line. There are no findings.
+
+    Block 1, the installed agents' reader and the reviewer's new heading:
+    ```
+    True 8
+    read
+    1
+    ```
+    Met: `True 8`, then `read`, then `1`. (uv's line "Bytecode compiled …" is left out.)
+
+    Block 2, a thin-line project with no `factory/agents/`, checked with `check_project --agent-home agents`:
+    ```
+    agents: ok
+    project: ready
+    ```
+    Met: `agents: ok` and `project: ready`. To run the block in one shell, I wrapped it in `bash -c`; the commands inside are unchanged. Its temporary directory removed itself through the trap.
+
+    Block 3, `uv run pytest tests/agent_files/` (tail):
+    ```
+    ........................................................................ [ 99%]
+    .                                                                        [100%]
+    433 passed in 3.79s
+    ```
+    Met: the summary line shows only `passed`, with no `failed` and no `error`.
+
+    Criteria read again against what I saw:
+    - 1: the smoke test confirms `builder` is among the 8 agents and reads.
+    - 3: the heading is in `agents/agents/reviewer.md`.
+    - 4: the thin line passes the `agents` point without any agent file.
+    - 6: every test under `tests/agent_files/` passes with the eighth agent.
+    - 8: I read the documents.
+      - `docs/operator-guide/agent-runtime.md` names `builder` and the thin line. It says a thin-line project needs no agent file, that a project file replaces the installed one file by file, and that review points go in `## Review` of `CLAUDE.md`.
+      - `docs/project-guide/agents.md` has the `builder` row.
+      - `agents/README.md` names `builder.md`.
+      - `docs/decisions.md` has the entry dated 2026-11-16 for F0062-S0004.
+    - No criterion is contradicted.
+
+    `check`: check: green

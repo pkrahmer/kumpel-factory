@@ -6,7 +6,7 @@ import zlib
 import pytest
 
 from support.shared_rules_support import RULES_BEFORE
-from support.shipped_agents import SHIPPED_NAMES, agent_body
+from support.shipped_agents import REVIEW_POINTS_SUBSECTION, SHIPPED_NAMES, agent_body
 
 _ALL_GROUPS = (
     "Checklist, in this order. Go through all of groups 1 to 5 in every review, also when an "
@@ -51,7 +51,9 @@ def test_the_rest_of_the_reviewer_body_is_unchanged() -> None:
     with_rules = agent_body("reviewer").replace(
         "\n## Role\n", "\n## Rules\n\n" + "\n\n".join(RULES_BEFORE) + "\n\n## Role\n", 1
     )
-    body = _DOCUMENTS_ITEM.sub("", _DOCS_REVIEW_SUBSECTION.sub("", with_rules))
+    body = _DOCUMENTS_ITEM.sub(
+        "", _DOCS_REVIEW_SUBSECTION.sub("", REVIEW_POINTS_SUBSECTION.sub("", with_rules))
+    )
     assert body.count(_ALL_GROUPS) == 1
 
     untested_side_is_a_note = (

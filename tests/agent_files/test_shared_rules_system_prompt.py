@@ -26,6 +26,7 @@ from support.shared_rules_support import (
 )
 from support.shipped_agents import (
     AGENT_HOME,
+    REVIEW_POINTS_SUBSECTION,
     SHIPPED_NAMES,
     SYSTEM_PROMPT_FILE,
     WITHOUT_ROLE,
@@ -80,9 +81,10 @@ def test_no_shipped_agent_file_holds_the_shared_rules(name: str) -> None:
     assert _RULE_LINE.findall(text) == []
 
 
-@pytest.mark.parametrize("name", SHIPPED_NAMES)
+# The agents PARTS_BEFORE lists predate the builder and the reviewer's review points.
+@pytest.mark.parametrize("name", [name for name in SHIPPED_NAMES if name in PARTS_BEFORE])
 def test_every_agent_file_keeps_its_own_sections_word_for_word_in_order(name: str) -> None:
-    body = agent_body(name)
+    body = REVIEW_POINTS_SUBSECTION.sub("", agent_body(name) + "\n").strip()
     expected = ["## Stage", "## Lessons"]
     if name not in WITHOUT_ROLE:
         expected.insert(0, "## Role")
