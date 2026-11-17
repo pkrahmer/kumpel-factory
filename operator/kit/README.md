@@ -2,7 +2,7 @@
 
 The kit is the small set of files that every project the factory builds needs, whatever its stack. They belong to the factory's contract: a pipeline definition, the two forms, the factory's part of the makefile and the skeleton of `CLAUDE.md`. None of them names a language, a build tool or a test framework. A stack adds its own part on top of the kit: the makefile's targets, and the files under the write paths.
 
-The kit is one of three layers. A stack pack adds what one stack needs, and a starter is a repository of its own, built from the kit and a pack. The kit and the packs live in this repository; the starters do not. The decision log has the reasons, in [decisions.md](../../docs/decisions.md) (*A project starts from a kit, a stack pack and a starter*). Until the Python pack exists, `operator/template/` stays beside the kit as the Python example.
+The kit is one of three layers. A stack pack adds what one stack needs, and a starter is a repository of its own, built from the kit and a pack. The kit and the packs live in this repository; the starters do not. The decision log has the reasons, in [decisions.md](../../docs/decisions.md) (*A project starts from a kit, a stack pack and a starter*). The packs are in [`operator/packs/`](../packs/README.md); `operator/template/`, the older Python example, still stays beside them until it is removed.
 
 ## Assembling a project by hand
 
@@ -22,7 +22,7 @@ Choose a line first. The thin line has one builder and one reviewer before the h
    ```
 
 3. Copy `operator/kit/CLAUDE.md` to the project's root, and fill in each `<...>` placeholder with what is true of the project.
-4. Write the project's makefile. Its first line is `include factory/kit.mk`. After it, the makefile defines the four targets the pipeline definition needs: `sync`, `lint`, `test` and `check`. Each of them opens its recipe with `$(start)` and ends it with `$(green)`, and `check` ends with `echo "check: green"`. A stack pack brings these targets.
+4. Write the project's makefile. Its first line is `include factory/kit.mk`. After it, the makefile defines the four targets the pipeline definition needs: `sync`, `lint`, `test` and `check`. Each of them opens its recipe with `$(start)` and ends it with `$(green)`, and `check` ends with `echo "check: green"`. A stack pack brings these targets; [packs/README.md](../packs/README.md) says how kit and pack are assembled.
 5. Fill the write paths. Each role's write path without a placeholder (such as `src/*` or `README.md`) must match at least one committed file. Change the paths in `factory/pipeline.yml` to fit the project.
 6. Commit, then run the conformance check on the project's folder:
 

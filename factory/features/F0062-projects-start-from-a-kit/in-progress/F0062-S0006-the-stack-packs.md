@@ -1,5 +1,5 @@
 ---
-stage: docs
+stage: smoke-test
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 695
 comments_read: [6937495535]
 handed_over: null
-claim:
-  instance: self
-  stage: docs
-  started_at: '2026-11-17T03:52:16.781675Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -117,6 +113,12 @@ journal:
   kind: started
   at: '2026-11-17T03:52:16.781675Z'
   stage: docs
+- number: 20
+  speaker: documenter
+  kind: result
+  at: '2026-11-17T03:58:44.887478Z'
+  stage: docs
+  run: 472ef1c5c94e463da18f10032c9f4d3b
 ---
 
 # The stack packs
@@ -341,3 +343,36 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     Earlier tests:
     - `tests/operator_scripts/test_kit_files.py`: changed under the standing leave to move a shared test helper. `WRITTEN_FILES` moved to `tests/support/kit_support.py`, and `_check` was replaced by `project_faults` in `tests/support/project_check_support.py`. Both tests that used it keep their names and what they check.
 19. factory: started docs as self.
+20. documenter: Wrote the docs criterion's documents. Before each statement I read the code it describes: the three pack makefiles and their `check:` lines, the stage files, `.gitleaks.toml`, `trust-store.sh` and the Java `sync` recipe, `PACKS` and `pack_project_files` in `tests/support/kit_support.py`, and `STAGE_FILE` in `src/factory/machine/domain/stage_layer.py`.
+
+    Files changed:
+    - `operator/packs/README.md` (new). It says:
+      - what a pack is and what it is not: no application source, because that belongs to a starter;
+      - the three packs and the 2026-11-17 `factory-check-project --run` of the C and the Java pack;
+      - that `TRAPS.md` is read before the first story;
+      - how kit and pack are assembled, for a fresh start and for an existing repository (`factory/Makefile` plus `make_file`);
+      - how a new stack gets a pack: add it to `Pack`/`PACKS` in `kit_support.py` so that `test_packs.py` covers it, then run `--run`.
+
+      Its *Reference* has a table of the files: which packs carry each, its path in the project, what it is for, and that all are the project's own once copied. A second table gives each pack's `check` prerequisites and tools.
+    - `operator/README.md`: the opening sentence and the folder list name `packs/`. The Files table has an `operator/packs/` row. The template's line and row now say it goes in a later story, because the Python pack now exists.
+    - `operator/kit/README.md`: the sentence "Until the Python pack exists…" was stale and now points to `operator/packs/`. Step 4 links to the packs README for the assembly.
+    - `docs/project-guide/operator.md`, so that the guide names the packs and their test:
+      - the layout block has an `operator/packs/` line;
+      - a new bullet says the packs are copies of `planning/packs-draft/`, with the one licence-header exception, and what `test_packs.py` checks;
+      - the template bullet is updated;
+      - the *Test modules by script* table has rows for the kit (`test_kit_files.py`, `test_kit_makefile.py`, which were missing) and for the packs (`test_packs.py`).
+
+    Checks:
+    - `make documents` first failed because of a code-span path to `trust-store.sh`, which it reads as a missing file. I turned it into a link, and the run then ended with `documents ok (47.5 s)`.
+    - Some files I changed are outside `README.md`/`docs/`, so I also ran `make check guides`: it ended with `check: green` and `guides: green (9.3 s)`.
+    - The new texts have no runnable examples. The only commands they show are the kit README's, which I did not change.
+
+    Cross-read and found current: `README.md`, `docs/decisions.md` (*A project starts from a kit, a stack pack and a starter*), `docs/operator-guide/machine.md` (*The project's stage file*), the kit README's assembly steps, and `docs/operator-guide/pipeline.md` on `make_file`.
+
+    Not mine to fix (unrelated to this story, or for S0007): `docs/operator-guide/agent-runtime.md:396`, `docs/operator-guide/pipeline.md:52-73, 224-229` and `docs/operator-guide/install.md:241-247` still say a new project starts from `operator/template/`. That stays true until the next story removes the template, so it is that story's docs work. `operator/packs/README.md` is not on `docs/checked-documents.txt`, the same as `operator/kit/README.md`; that list is outside my write paths.
+
+    No findings.
+
+    `guides`: guides: green (9.4 s)
+    `secrets`: secrets: green (0.6 s)
+    `documents`: documents ok (47.7 s)
