@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 1
 attempts: 1
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 696
 comments_read: [6937913187]
 handed_over: null
-claim:
-  instance: self
-  stage: doing
-  started_at: '2026-11-17T04:25:55.108186Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -124,6 +120,12 @@ journal:
   kind: started
   at: '2026-11-17T04:25:55.108186Z'
   stage: doing
+- number: 21
+  speaker: coder
+  kind: result
+  at: '2026-11-17T04:30:19.759296Z'
+  stage: doing
+  run: 1c44b054eab644bcaf1574afd7910b99
 ---
 
 # The template goes
@@ -420,3 +422,15 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     Not run: the smoke test (per the stage's rule after a `check_red` stall) and the whole `make check` (the factory runs it after this stage).
 20. factory: started doing as self.
+21. coder: Rework round 1: the smoke tester's one finding (entry 19) was that `layers` crashed with exit 139 (a segfault) in the factory's `make check` after the smoke-test stage. I changed no code, because there is nothing in the code to fix.
+
+    What I did:
+    - I ran `make check` twice on this branch in the foreground. Both runs were green, ending `check: green`. The second run printed `Contracts: 4 kept, 0 broken.` and `layers: green (0.2 s)`, and every other target was green too: lint, types, sast, secrets, licenses, and test (108.5 s, coverage 99.14 %).
+    - `make guides`: green (9.2 s). It includes `tests/guards/test_template_removed.py`, which now passes because the documenter fixed `operator/README.md`.
+    - `git status --short` was empty: the working tree holds no change from me.
+
+    Why no change: the crash did not happen again in three runs (the smoke tester's run by hand and my two). This story's diff touches nothing under `src/`, no import contract and no configuration that import-linter reads. That points to a one-time crash of the import-linter process, which the story did not cause. Rejected: asking the human now. As entry 19 says, a question is only due if exit 139 comes back.
+
+    Open: if `layers` segfaults again in the factory's check, the cause is in the tool or the machine (import-linter or the Python build that uv runs), and that is the human's question. `docs/brochure/README.md:459` still names the template, as the documenter noted; I did not touch it. The journal changed nothing in the task's meaning, so the Description stays as it is.
+
+    `duplicates`: duplicates: 8 new, 38 known, 5 gone
