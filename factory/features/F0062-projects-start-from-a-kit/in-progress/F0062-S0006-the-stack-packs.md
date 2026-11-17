@@ -1,17 +1,13 @@
 ---
 stage: doing
-blocked: null
+blocked: question
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 695
 comments_read: []
 handed_over: null
-claim:
-  instance: self
-  stage: doing
-  started_at: '2026-11-17T03:36:58.715956Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -45,6 +41,13 @@ journal:
   kind: started
   at: '2026-11-17T03:36:58.715956Z'
   stage: doing
+- number: 7
+  speaker: coder
+  kind: question
+  at: '2026-11-17T03:39:59.769254Z'
+  stage: doing
+  run: 5d8ac46f33484314bb5cf6a916521746
+  blocked: question
 ---
 
 # The stack packs
@@ -137,3 +140,20 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
    `lint`: lint: green (0.2 s)
 6. factory: started doing as self.
+7. coder: Stopped before `review`: `make secrets` is red because of a false positive in a draft that has to be copied byte for byte. Fixing it needs a baseline entry or a pragma, and `CLAUDE.md` lists both under "Not without asking".
+
+   What I did:
+   - Copied the three drafts unchanged from `planning/packs-draft/` into `operator/packs/` (`python/`, `c-host/` and `java-gradle/`, including `.gitleaks.toml` and `scripts/trust-store.sh`). `diff -r planning/packs-draft operator/packs` shows no difference. The copies are in the working tree, and no file under `planning/` or `src/` changed.
+   - All 28 tests of `uv run pytest -q tests/operator_scripts/test_packs.py` pass.
+   - `make lint`, `types`, `layers`, `licenses` and `test` are green (`test: green (109.5 s)`). `make guides` is green too (the folder-readme row did not fail).
+   - `make check` is red only on `make secrets`: detect-secrets reports `Secret Type: Secret Keyword`, `Location: operator/packs/python/CLAUDE.sections.md:8`. That line is the Python pack's `## Checks` bullet, ``make secrets` (detect-secrets against `.secrets.baseline`)``. It is not a secret. The same wording in `operator/template/CLAUDE.md:25` passes because more text follows `.secrets.baseline` there. I ran `detect-secrets-hook` against the baseline on every file under `operator/packs/`, and this is the only hit.
+
+   Options:
+   1. Add an entry for that finding to `.secrets.baseline`, with `is_secret: false`. Run detect-secrets with `--baseline .secrets.baseline` over the file so the baseline is updated by the tool, not by hand. The pack stays byte for byte, and nothing extra reaches the projects that copy the pack. **I would choose this.**
+   2. Add `# pragma: allowlist secret` to that line, as the "a guard asks more of a file" clause allows. But the marker would then be copied into every Python project's `CLAUDE.md`, and the pack's own `## Review` section counts such a marker as a finding.
+   3. Add `^operator/packs/.*` to the baseline's `should_exclude_file` pattern. This is broader: secrets in future pack files would no longer be checked.
+   4. You reword the draft and the pack, for example the way the template words it.
+
+   Which one? If it is option 1 or 3, also confirm that `.secrets.baseline` is within the coder's write paths for this change.
+
+   Main choice: copy the drafts unchanged, as the Interface asks. I rejected rewording line 8 myself, because that would break the byte-for-byte rule. I did not refactor, because the change is only copied files.
