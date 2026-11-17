@@ -1,5 +1,5 @@
 ---
-stage: smoke-test
+stage: approval
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 703
 comments_read: [6940217140]
 handed_over: null
-claim:
-  instance: self
-  stage: smoke-test
-  started_at: '2026-11-17T06:15:38.315771Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -95,6 +91,12 @@ journal:
   kind: started
   at: '2026-11-17T06:15:38.315771Z'
   stage: smoke-test
+- number: 16
+  speaker: smoke-tester
+  kind: result
+  at: '2026-11-17T06:17:57.120051Z'
+  stage: smoke-test
+  run: ab75d19b0ff7433d9837788c883aa56d
 ---
 
 # A `make_file` is written in its plain form, or the definition refuses it
@@ -250,3 +252,33 @@ Expect: one line ending with `passed` and a time, with no `failed`.
     `secrets`: secrets: green (1.0 s)
     `documents`: documents ok (48.8 s)
 15. factory: started smoke-test as self.
+16. smoke-tester: I ran the three smoke-test commands exactly as written, from the repository root and in order. All three met their `Expect:` lines. No findings.
+
+    1. The reader with `make_file: ./factory/Makefile`:
+    ```text
+    factory.shared.domain.errors.PipelineDefinitionInvalid: make_file ./factory/Makefile must be written as factory/Makefile
+    ```
+    Met: the last line is the `PipelineDefinitionInvalid` error, and it holds the expected fault.
+
+    2. The reader with `make_file: factory/Makefile`:
+    ```text
+    factory/Makefile
+    ```
+    Met.
+
+    3. `uv run pytest tests/pipeline/domain/test_pipeline_definition_make_file.py 2>&1 | tail -1`:
+    ```text
+    23 passed in 0.04s
+    ```
+    Met: the line ends with `passed` and a time, and there is no `failed`.
+
+    I read the criteria again against what I saw:
+    - Criteria 1 and 2: smoke test 1 and the passing test file match them.
+    - Criterion 3: the smoke test does not run `factory-check-project`, so it does not contradict this criterion. The tester's test covers it, and the reviewer checked that test.
+    - Criterion 4: `git diff --stat origin/develop -- src/factory/contract/` is empty.
+    - Criterion 5: I did not run `make check`. The factory runs it after this stage.
+    - Criterion 6: `docs/operator-guide/pipeline.md:112` (*Name the makefile*) names the rule and its fault, with `./factory/Makefile` among the refused values. `docs/project-guide/pipeline.md:168` names the rule beside the existing `make_file` rules.
+
+    I left nothing in `/tmp`.
+
+    `check`: check: green
