@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 705
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: tests
+  started_at: '2026-11-17T06:55:32.572249Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -47,6 +51,11 @@ journal:
   at: '2026-11-17T06:55:26.918099Z'
   stage: doing
   run: 33c2c3c901d64cebbc76d7ae434ceb36
+- number: 8
+  speaker: factory
+  kind: started
+  at: '2026-11-17T06:55:32.572249Z'
+  stage: tests
 ---
 
 # One layout for every project
@@ -181,3 +190,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    Change asked of the tester: in `tests/agent_files/test_claude_files.py`, `test_template_holds_only_the_rules_file_the_makefile_and_the_pipeline_definition`, add `"root.Makefile"` to the expected kit listing, after `"factory/story-form.md"` (the list is sorted). The test fails only because of the new layout, so feature decision 36's leave covers the change; the tester's entry had left this file out because it uses only `pack_claude_md`, but this test lists the kit's files.
 
    Noticed, not touched: nothing else.
+8. factory: started tests as self.
