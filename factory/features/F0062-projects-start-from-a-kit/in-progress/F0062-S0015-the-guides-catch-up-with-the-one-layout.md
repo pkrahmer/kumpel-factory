@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 708
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: docs-only
+  started_at: '2026-11-17T07:53:04.000708Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -47,6 +51,11 @@ journal:
   at: '2026-11-17T07:52:58.565317Z'
   stage: docs-review
   run: 739ecc2a1a654bb384f3afead1ef314d
+- number: 8
+  speaker: factory
+  kind: started
+  at: '2026-11-17T07:53:04.000708Z'
+  stage: docs-only
 ---
 
 # The guides catch up with the one layout and name every shared test helper
@@ -130,3 +139,4 @@ Expect: the single line `done`.
    4. `docs/project-guide/README.md:232`, the `project_run_support.py` bullet:
       - Its one sentence holds three parentheses (`(SeenRun)`, `(with make_file=)`, `(GREEN_SYNC, GREEN_CHECK, NAMED_MAKEFILE)`). Fix: split it into sentences of one parenthesis at most.
       - It counts `NAMED_MAKEFILE` among "the outputs and constants of a green sync and check". `NAMED_MAKEFILE` is the path `"factory/Makefile"` (`tests/support/project_run_support.py:25`) and belongs to neither. Fix: name it apart, as the makefile path a definition names.
+8. factory: started docs-only as self.
