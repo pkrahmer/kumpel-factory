@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 703
 comments_read: [6940217140]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: review
+  started_at: '2026-11-17T06:10:56.532448Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -64,6 +68,11 @@ journal:
   at: '2026-11-17T06:10:50.920059Z'
   stage: doing
   run: 6fa5fbe7020e4178a994238647bbd96f
+- number: 11
+  speaker: factory
+  kind: started
+  at: '2026-11-17T06:10:56.532448Z'
+  stage: review
 ---
 
 # A `make_file` is written in its plain form, or the definition refuses it
@@ -178,3 +187,4 @@ Expect: one line ending with `passed` and a time, with no `failed`.
     - Noticed but not touched: the docs criterion (operator guide *Name the makefile* and the project guide's pipeline-definition page) is the documenter's.
 
     `duplicates`: duplicates: 8 new, 38 known, 5 gone
+11. factory: started review as self.
