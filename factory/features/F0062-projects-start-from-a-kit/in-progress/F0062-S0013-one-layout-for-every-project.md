@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 705
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: tests
+  started_at: '2026-11-17T06:47:59.401485Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -25,6 +29,11 @@ journal:
   at: '2026-11-17T06:47:54.215861Z'
   stage: intake
   run: 6e9fb6e9f50a4ce592a37ad4cda26e18
+- number: 4
+  speaker: factory
+  kind: started
+  at: '2026-11-17T06:47:59.401485Z'
+  stage: tests
 ---
 
 # One layout for every project
@@ -94,3 +103,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    - Docs criterion: names what the reader must know (the one layout, the pack files in `factory/`, root.Makefile and when to copy it, running a target by hand, the `CLAUDE.md` line for `make -f factory/Makefile`, the decision with its price and gain); it dictates no sentences, and its files are in the documenter's write paths.
    - Architecture: the changes are data files under `operator/kit/` and `operator/packs/` (coder's write paths), tests under `tests/` (tester's) and documents (documenter's); `make_file` and its protection are already built, so no layer or wrapper is touched.
    - Scope: within F0062 and exactly its decision 36 (one layout, story S0013); nothing from its Out of scope. Route `tests`, since the coder must write `operator/kit/` and `operator/packs/`.
+4. factory: started tests as self.
