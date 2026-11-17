@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 696
 comments_read: [6937913187]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: review
+  started_at: '2026-11-17T04:15:47.885465Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -64,6 +68,11 @@ journal:
   at: '2026-11-17T04:15:42.814590Z'
   stage: doing
   run: 601939443edd49a5997799dc3b0a60c4
+- number: 11
+  speaker: factory
+  kind: started
+  at: '2026-11-17T04:15:47.885465Z'
+  stage: review
 ---
 
 # The template goes
@@ -217,3 +226,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     - `demo/todo-service/README.md` is the human's.
 
     `duplicates`: duplicates: 8 new, 38 known, 5 gone
+11. factory: started review as self.
