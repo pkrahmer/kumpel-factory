@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 707
 comments_read: [6941636547]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: doing
+  started_at: '2026-11-17T07:30:00.044010Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -53,6 +57,11 @@ journal:
   at: '2026-11-17T07:29:54.872193Z'
   stage: tests
   run: cba05b7a76c14b0082ad22e782e3efc2
+- number: 9
+  speaker: factory
+  kind: started
+  at: '2026-11-17T07:30:00.044010Z'
+  stage: doing
 ---
 
 # The root makefile forwards a target that a file at the root is named after
@@ -155,3 +164,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    `make lint` is green. I deviated from the procedure once: after `make test` I also ran the new file alone with pytest to read the failure reasons. The helper functions are named `with_*` so that pytest does not collect them as tests.
 
    `lint`: lint: green (0.1 s)
+9. factory: started doing as self.
