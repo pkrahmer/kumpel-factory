@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 693
 comments_read: [6936126509]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: tests
+  started_at: '2026-11-17T02:39:45.169023Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -75,6 +79,11 @@ journal:
   at: '2026-11-17T02:39:39.418589Z'
   stage: review
   run: e92c960c46854719a2b19879e1f29392
+- number: 13
+  speaker: factory
+  kind: started
+  at: '2026-11-17T02:39:45.169023Z'
+  stage: tests
 ---
 
 # The installed builder
@@ -318,3 +327,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     - `tests/agent_files/test_shared_rules_system_prompt.py`: leave 11 and entry 4. It strips the reviewer's new part, and its rows stay the seven agents of `PARTS_BEFORE`.
     - `tests/agent_files/test_shared_start_agent_files.py`: entry 4. A `builder` row in `EFFORTS`.
     - `tests/support/shipped_agents.py`: entry 4. A builder `ShippedAgent` row, plus `THIN_LINE_ONLY`, `THIN_LINE_PIPELINE`, `thin_line_definition()` and `full_line_names()`.
+13. factory: started tests as self.
