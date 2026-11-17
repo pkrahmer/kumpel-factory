@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 692
 comments_read: [6935336014, 6935606286]
 handed_over: null
-claim:
-  instance: self
-  stage: tests
-  started_at: '2026-11-17T02:10:25.493578Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -134,6 +130,12 @@ journal:
   kind: started
   at: '2026-11-17T02:10:25.493578Z'
   stage: tests
+- number: 23
+  speaker: tester
+  kind: result
+  at: '2026-11-17T02:11:20.253407Z'
+  stage: tests
+  run: ea9d45b94ba04b53a1de05771c79c607
 ---
 
 # The conformance check runs a repository
@@ -376,3 +378,18 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     Noticed, not touched: as finding 2 also says, the entry tests monkeypatch `build_project_run`. So the real wiring of `extra_environment` and `ca_bundle` is still reached by no test.
 22. factory: started tests as self.
+23. tester: Round 1: I made the test changes for reviewer findings 1 and 2 (entry 19), as the coder listed them in entry 21. These test files are my own story's, so no other leave was needed. Finding 3 needs no test.
+
+    - Finding 2 (the image is picked twice): `tests/support/project_run_support.py`, `ScriptedContainerRuns.at` now has the pinned signature `at(workspace: Path, image: str) -> ContainerRuns`. This means `ProjectRun`'s `containers` is now `Callable[[Path, str], ContainerRuns]`, called with the work folder and the image the use case chose. Each `SeenRun` now records that `image`. The tests that check it:
+      - criterion 1, `tests/machine/application/test_project_run.py::test_live_points_of_a_ready_repository_without_a_stage_file`: both runs ran in the stage image.
+      - criterion 2, `tests/machine/application/test_project_run.py::test_a_stage_file_is_built_under_the_check_tag` (row `built`): both runs ran in `<stage image>-check`.
+      The entry tests pass `runs.at` unchanged, so they now follow the new signature too.
+    - Finding 1 (`Images.path` raises): there is a new stand-in, `UninspectableImages(FakeImages)` in `tests/support/project_run_support.py`. Its `path` raises `ContainerError("podman", "no such image: <image>")`. Criterion 4's test `tests/machine/application/test_project_run.py::test_faults_of_the_sync_and_the_check` has a new column, `images` (a factory of the `Images` to use; `FakeImages` in the earlier rows), and a new row, `sync-image-not-inspected`. In that row `sync` has the fault `could not start: ...`, the fault contains `no such image`, `check` is not run and no container is run.
+
+    Files changed: `tests/support/project_run_support.py` and `tests/machine/application/test_project_run.py`. I changed no earlier test of another story and no other file.
+
+    Run: `uv run pytest -q tests/machine/application/test_project_run.py tests/entry/test_check_project_run.py` is red, and it fails for the right reason. Every failing test fails at `src/factory/machine/application/project_run.py:109` with `TypeError: ScriptedContainerRuns.at() missing 1 required positional argument: 'image'`, because the use case still calls `containers(workspace)`. The coder's change from entry 21 fixes this: pass the chosen image, update `build_project_run`, drop `checkout_has_stage_file`. No module failed to import.
+
+    `lint`: lint: green (0.2 s)
+
+    `lint`: lint: green (0.1 s)

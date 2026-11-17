@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from datetime import timedelta
 from pathlib import Path
 
+from factory.machine.adapters.fake_images import FakeImages
 from factory.machine.application.containers import ContainerRuns
 from factory.machine.domain.containers import (
     ContainerLaunch,
@@ -14,6 +15,7 @@ from factory.machine.domain.containers import (
 )
 from factory.pipeline.adapters.pipeline_yaml import RuamelPipelineDefinitionReader
 from factory.pipeline.domain.pipeline_definition import PipelineDefinition
+from factory.shared.domain.errors import ContainerError
 from support.git_support import PIPELINE_YAML
 
 GREEN_SYNC = "Resolved 3 packages\nsync: green (1.0 s)\n"
@@ -53,6 +55,7 @@ class SeenRun:
     time_limit: timedelta
     working_directory: str
     workspace: Path
+    image: str
     files: dict[str, str]
 
 
@@ -60,14 +63,16 @@ class ScriptedContainerRuns(ContainerRuns):
     """Runs nothing: each `run` takes the next outcome, a result to return or an error to raise."""
 
     def __init__(self, outcomes: Sequence[Outcome]) -> None:
-        """Play `outcomes` in order; `at` names the folder mounted at `/work`."""
+        """Play `outcomes` in order; `at` names the folder mounted at `/work` and the image."""
         self._outcomes = list(outcomes)
         self.workspaces: list[Path] = []
+        self.images: list[str] = []
         self.runs: list[SeenRun] = []
 
-    def at(self, workspace: Path) -> ContainerRuns:
-        """These runs, with `workspace` as the folder mounted at `/work`."""
+    def at(self, workspace: Path, image: str) -> ContainerRuns:
+        """These runs, with `workspace` as the folder mounted at `/work`, in `image`."""
         self.workspaces.append(workspace)
+        self.images.append(image)
         return self
 
     def launch(
@@ -104,6 +109,7 @@ class ScriptedContainerRuns(ContainerRuns):
                 time_limit=time_limit,
                 working_directory=working_directory,
                 workspace=workspace,
+                image=self.images[-1],
                 files=_checkout_files(workspace / "checkout"),
             )
         )
@@ -111,6 +117,14 @@ class ScriptedContainerRuns(ContainerRuns):
         if isinstance(outcome, Exception):
             raise outcome
         return outcome
+
+
+class UninspectableImages(FakeImages):
+    """Fake images whose `PATH` cannot be read: `path` raises a `ContainerError`."""
+
+    def path(self, image: str) -> str:
+        """Raise as `podman image inspect` does for a missing image."""
+        raise ContainerError("podman", f"no such image: {image}")
 
 
 def _checkout_files(checkout: Path) -> dict[str, str]:

@@ -1,5 +1,6 @@
 """The live part of the conformance check: the image, the sync and the check in containers."""
 
+from collections.abc import Callable
 from datetime import timedelta
 from pathlib import Path
 
@@ -7,7 +8,7 @@ import pytest
 
 from factory.hosting.adapters.git_cli import GitCli
 from factory.machine.adapters.fake_images import FakeImages
-from factory.machine.application.images import IMAGE_BUILD_TIME_LIMIT, ImageBuild
+from factory.machine.application.images import IMAGE_BUILD_TIME_LIMIT, ImageBuild, Images
 from factory.machine.application.project_run import ProjectRun
 from factory.machine.domain.containers import (
     CA_BUNDLE_NAMES,
@@ -32,6 +33,7 @@ from support.project_run_support import (
     SYNC_MINUTES,
     Outcome,
     ScriptedContainerRuns,
+    UninspectableImages,
     definition,
     result,
 )
@@ -48,7 +50,7 @@ FAILED_BUILD = ImageBuild(
 def _live(
     folder: Path,
     runs: ScriptedContainerRuns,
-    images: FakeImages,
+    images: Images,
     pipeline: PipelineDefinition | None = None,
     *,
     environment: dict[str, str] | None = None,
@@ -88,6 +90,7 @@ def test_live_points_of_a_ready_repository_without_a_stage_file(ready: Path) -> 
     assert images.builds == []
     assert len(runs.runs) == 2
     assert all(run.environment["PATH"] == IMAGE_PATH for run in runs.runs)
+    assert [run.image for run in runs.runs] == [STAGE_IMAGE, STAGE_IMAGE]
 
 
 @pytest.mark.parametrize("passed", [pytest.param(True, id="built"), pytest.param(False, id="red")])
@@ -115,6 +118,7 @@ def test_a_stage_file_is_built_under_the_check_tag(staged: Path, passed: bool) -
         assert points == [ProjectPoint(name=name) for name in LIVE_POINT_NAMES]
         assert len(runs.runs) == 2
         assert all(run.environment["PATH"] == IMAGE_PATH for run in runs.runs)
+        assert [run.image for run in runs.runs] == [check_tag, check_tag]
     else:
         assert points == [
             ProjectPoint(name="image", faults=["the image does not build: Error: no such package"])
@@ -154,64 +158,83 @@ _CHECK_LAST = "make: *** [Makefile:2: check] Error 2"
 
 
 @pytest.mark.parametrize(
-    ("outcomes", "point", "expected"),
+    ("outcomes", "point", "expected", "images"),
     [
+        pytest.param(
+            [],
+            "sync",
+            "could not start: ",
+            UninspectableImages,
+            id="sync-image-not-inspected",
+        ),
         pytest.param(
             [ContainerError("podman", "no such image")],
             "sync",
             "could not start: ",
+            FakeImages,
             id="sync-not-started",
         ),
         pytest.param(
             [result("Resolved\n", None, timed_out=True)],
             "sync",
             f"timed out after {SYNC_MINUTES} min",
+            FakeImages,
             id="sync-timed-out",
         ),
         pytest.param(
             [result(f"Resolved\n{_SYNC_LAST}\n", 2)],
             "sync",
             f"exit status 2: {_SYNC_LAST}",
+            FakeImages,
             id="sync-red",
         ),
         pytest.param(
             [result("Resolved 3 packages\n")],
             "sync",
             'no line "sync: green (<seconds> s)"',
+            FakeImages,
             id="sync-without-green-line",
         ),
         pytest.param(
             [result(GREEN_SYNC), ContainerError("podman", "no such image")],
             "check",
             "could not start: ",
+            FakeImages,
             id="check-not-started",
         ),
         pytest.param(
             [result(GREEN_SYNC), result("lint: green (0.5 s)\n", None, timed_out=True)],
             "check",
             f"timed out after {CHECK_MINUTES} min",
+            FakeImages,
             id="check-timed-out",
         ),
         pytest.param(
             [result(GREEN_SYNC), result(f"sync: green (1.0 s)\n{_CHECK_LAST}\n", 2)],
             "check",
             f"exit status 2: {_CHECK_LAST}",
+            FakeImages,
             id="check-red",
         ),
         pytest.param(
             [result(GREEN_SYNC), result("sync: green (1.0 s)\nall done\n")],
             "check",
             'the last line is not "check: green": all done',
+            FakeImages,
             id="check-without-green-line",
         ),
     ],
 )
 def test_faults_of_the_sync_and_the_check(
-    ready: Path, outcomes: list[Outcome], point: str, expected: str
+    ready: Path,
+    outcomes: list[Outcome],
+    point: str,
+    expected: str,
+    images: Callable[[], Images],
 ) -> None:
     runs = ScriptedContainerRuns(outcomes)
 
-    points = _live(ready, runs, FakeImages())
+    points = _live(ready, runs, images())
 
     names = [each.name for each in points]
     assert names == list(LIVE_POINT_NAMES[: LIVE_POINT_NAMES.index(point) + 1])
