@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 691
 comments_read: [6934588171, 6934893656]
 handed_over: null
-claim:
-  instance: self
-  stage: doing
-  started_at: '2026-11-17T01:27:10.950071Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -101,6 +97,12 @@ journal:
   kind: started
   at: '2026-11-17T01:27:10.950071Z'
   stage: doing
+- number: 17
+  speaker: coder
+  kind: result
+  at: '2026-11-17T01:29:46.851313Z'
+  stage: doing
+  run: bf569057e48f42d797f2fbab8cf4e06c
 ---
 
 # The pipeline definition names its makefile
@@ -292,3 +294,27 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     `lint`: lint: green (0.2 s)
 16. factory: started doing as self.
+17. coder: I finished the build after the tester's version change (entry 15). Following the human's answer (a) in entry 11, I raised `RECORDS_CONTRACT` in `src/factory/shared/domain/contract.py` from "4.5" to "4.6". I then regenerated the schemas with `uv run python -m factory.entry.contract`. All five schemas under `src/factory/contract/` were rewritten with the new `x-records-contract`. `pipeline-definition.schema.json` also carries the optional `make_file` property.
+
+    Run:
+    - The three test files that pin the version (`tests/pipeline/domain/test_contract.py`, `tests/shared/domain/test_contract_version_4.py`, `tests/shared/domain/test_contract_version_4_2.py`) now pass.
+    - `make check guides`: `check: green` and `guides: green`. Coverage is 99.18 %.
+    - The `PLR0913` exception for `stage_environment.py` is in this branch's `pyproject.toml`.
+
+    What was built (from entry 10, unchanged in this round):
+    - `src/factory/pipeline/domain/pipeline_definition.py`: `MakeFilePath`, a rule that refuses a `..` segment through `is_inside_checkout`, and the field `make_file`.
+    - `src/factory/machine/application/make_file.py`: the `MakeFileSource` ABC and `asked_make_file`.
+    - `src/factory/pipeline/application/make_file_source.py`: `GitMakeFileSource`, which reads `PIPELINE_REF` at every call and returns `None` for a missing or invalid definition.
+    - `src/factory/machine/adapters/make_commands.py`: with a path, separate scripts that take the path as the argument `$3`; without one, the old argv.
+    - `src/factory/machine/application/stage_environment.py`: `make -f "$7" sync`, with the path as the seventh argument.
+    - `src/factory/pipeline/application/boundaries.py`: a new field `make_file`.
+    - `src/factory/entry/wiring.py`: builds one source and hands it to both users.
+    - `src/factory/pipeline/application/project_check.py`: reads the named makefile; includes are still taken from the root.
+
+    Main choice: the stage environment gets its source through a `Boundaries` field that the wiring fills, so the wiring stays the only place that builds a source. I rejected having `stage_environment_of` build `GitMakeFileSource` itself. A path gets its own script text instead of `${3:+-f "$3"}`, so every argv pinned today stays exactly the same.
+
+    Refactor: entry 10 already went through the diff (it pulled out `asked_make_file`). The version change needed no further refactor.
+
+    Not touched: the new modules are not in the table of `tests/guards/test_areas.py`, and that guard passes as it is. The docs are the documenter's. The journal changed no meaning of the Description: the version rise follows the contract's rule.
+
+    `duplicates`: duplicates: 7 new, 39 known, 4 gone
