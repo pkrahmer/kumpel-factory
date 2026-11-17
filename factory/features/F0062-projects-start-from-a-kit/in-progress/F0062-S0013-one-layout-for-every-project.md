@@ -1,5 +1,5 @@
 ---
-stage: review
+stage: docs
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 705
 comments_read: []
 handed_over: null
-claim:
-  instance: self
-  stage: review
-  started_at: '2026-11-17T07:03:28.170331Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -111,6 +107,12 @@ journal:
   kind: started
   at: '2026-11-17T07:03:28.170331Z'
   stage: review
+- number: 19
+  speaker: reviewer
+  kind: result
+  at: '2026-11-17T07:04:12.225506Z'
+  stage: review
+  run: 2065d595e37d40268e15b8e70d6c7959
 ---
 
 # One layout for every project
@@ -361,3 +363,31 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     `duplicates`: duplicates: 8 new, 38 known, 5 gone
 18. factory: started review as self.
+19. reviewer: Round 1 review of `git diff develop...HEAD -- . ':!factory'`. I read the diff against the work item and the code the tests call: `tests/support/kit_support.py` (`run_kit_make` at :127-142 runs with `merge_stderr=True`), `tests/support/kit_make_support.py` (`green_line`), the new `tests/support/pack_make_support.py`, and `src/factory/agents/domain/write_paths.py:22-58`. I also ran `diff -rq` against `planning/kit-draft/` and `planning/packs-draft/`. It shows only the two `README.md` files that exist only under `operator/`, and `java-gradle/scripts/trust-store.sh`, which differs only by the licence header line the Interface keeps.
+
+    no findings
+
+    Round 0's finding 1 (copied stand-in helpers) is answered. `_stand_in`, `_stand_in_project`, `PATH_TOOLS` and `PROJECT_TOOLS` moved to `tests/support/pack_make_support.py`, and a shared `stand_in_trust_store` was added there. Both `test_packs.py` and `test_one_layout.py` use them, and no copy is left in either file.
+
+    Checked, with no finding:
+    - Group 1, acceptance criteria:
+      - Criterion 1: thin and full rows check both the value `factory/Makefile` and that no line is a commented `make_file`.
+      - Criterion 2: 3 packs × 2 lines. All faults are empty, the only files outside `factory/` are `CLAUDE.md` and `Makefile`, and `Makefile` is `root.Makefile`.
+      - Criterion 3: the own root `Makefile` is read back from the committed repository byte for byte, and there is no fault.
+      - Criterion 4: real runs for no target, `lint` and `nosuch`. stderr is merged into the output, so a "No rule to make target 'Makefile'" from a remake through `%:` would be caught by `MAKEFILE_TARGET`. The echoed `check` recipe line does not match the anchored `^check: green$`.
+      - Criterion 5: the trust-store stand-in exists only at `factory/scripts/trust-store.sh`, so a call to the old root path would fail. gitleaks is checked for `--config factory/gitleaks.toml`. The refused side scans every pack file for both old paths, and `\.gitleaks\.toml` does not match `factory/gitleaks.toml`.
+      - Criterion 6: `factory/kit.mk` is protected through `KIT_MAKEFILE` and `factory/Makefile` through `make_file`, for both lines. `protected_paths` is one list for every role, so the row per line covers every role.
+      - Journal entry 17 reports `make check` green after the coder.
+    - Group 2, architecture: no module under `src/` changed. The diff holds only data files and tests.
+    - Group 3, security: no secrets and no silencing markers. The gitleaks rules file is a pure rename (R100).
+    - Group 4, quality: names and docstrings of the new support module fit, and there is no dead code.
+    - Group 5, work item hygiene: the journal names the main choice (whole-file copies of the drafts; hand edits rejected). The Description matches what was built, and the docs criterion still names what the documenter must write.
+    - Documents: the diff changes no document the documenter writes. The kit's `CLAUDE.md` and `factory/README.md` are kit data and are the drafts unchanged.
+
+    Open point for the documenter (from entries 15 and 17; not a finding): `docs/project-guide/README.md` does not yet name `tests/support/pack_make_support.py` among the shared test helpers.
+
+    Earlier tests (changed, not added):
+    - `tests/agent_files/test_claude_files.py`: feature decision 36 (the human's leave quoted in the Interface), asked for in entry 7 and made in entry 9. `root.Makefile` was added to the kit listing; the new layout was its only failure.
+    - `tests/operator_scripts/test_kit_files.py`: feature decision 36. Two assertions about the old commented `make_file` were removed because criterion 1 covers them. The makefile is now at `factory/Makefile`, and the tests keep their names and what they check.
+    - `tests/operator_scripts/test_packs.py`: feature decision 36 removed `test_a_brownfield_project_with_the_pack_makefile_under_factory_is_ready`, which criteria 2 and 3 cover. The standing leave to move a shared test helper covers the move of `PATH_TOOLS`, `PROJECT_TOOLS`, `_stand_in`, `_stand_in_project` and the trust-store stand-in to `tests/support/pack_make_support.py`. Every remaining test keeps its name and what it checks.
+    - `tests/support/kit_support.py`: feature decision 36 (one assembly; `brownfield=` replaced by `own_root_makefile=`).
