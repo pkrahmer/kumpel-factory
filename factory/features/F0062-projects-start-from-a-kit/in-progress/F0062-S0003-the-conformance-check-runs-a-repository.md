@@ -1,5 +1,5 @@
 ---
-stage: intake
+stage: tests
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 692
 comments_read: [6935336014]
 handed_over: null
-claim:
-  instance: self
-  stage: intake
-  started_at: '2026-11-17T01:48:01.841639Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -40,6 +36,12 @@ journal:
   kind: started
   at: '2026-11-17T01:48:01.841639Z'
   stage: intake
+- number: 6
+  speaker: intake
+  kind: result
+  at: '2026-11-17T01:48:45.236246Z'
+  stage: intake
+  run: 45a10d58120d41cab0c75356d02b40fa
 ---
 
 # The conformance check runs a repository
@@ -51,13 +53,13 @@ The static conformance check says that a repository's files fit the factory; it 
 ## Interface
 
 - `src/factory/entry/check_project.py` (`entry`): usage `factory-check-project [--agent-home <dir>] [--run] <folder>`.
-  - With `--run` the command reads the instance's settings from the environment, as `factory-run` does; a fault of the settings is one line on standard error, `cannot run: <fault>`, and status 2, before anything is printed or started. The agent home then comes from the settings unless `--agent-home` is given.
+  - With `--run` the command reads the instance's settings from the environment, as `factory-run` does; a fault of the settings is one line on standard error, `cannot run: <fault>`, and status 2, before anything is printed or started. The agent home then comes from the settings unless `--agent-home` is given; it serves only the static part's point `agents` (the installed agents): the live part does not use it and mounts no agent files.
   - The static part's lines are printed first. When the static part has a fault, the live part does not run, and the output and the status are those of the command without `--run`.
 - A use case in `src/factory/machine/application/project_run.py` (`application`) does the live part through the interfaces `Images`, `ContainerRuns` and `Git`; the wiring of the concrete classes is in `src/factory/entry/`. It returns `ProjectPoint`s (`factory.pipeline.domain.project_check`), named `image`, `sync` and `check`, in this order; `LIVE_POINT_NAMES` in the domain module holds the three names.
   - The work folder: a new temporary directory with `checkout/` (a clone of `<folder>` at its `HEAD` commit) and `home/`, mounted at `/work` as a stage's dataset is. It is removed at the end, after a fault too.
   - `image`: without `factory/stage.Containerfile` the containers run in the instance's stage image and the point has no fault. Otherwise the stage file is built on the stage image under the tag `<stage image>-check`, never under the tag of the instance's own project image, with the time limit a stage's build has; a build that does not pass is the fault `the image does not build: <the last line of the build's output>`.
-  - `sync`: one container that does what a stage's sync does after its checkout: started in `/work`, it changes into `/work/checkout` and runs `make sync`, or `make -f <path> sync` when the definition names a makefile, with the environment, the `PATH`, the site's variables (`FACTORY_CONTAINER_ENV`) and the CA bundle of a stage's sync, and the time limit of the definition's `sync` command.
-  - `check`: a second container that does what a stage's check does: started in `/work/checkout`, it runs the sync and then `check`, as `ContainerMakeCommands.run` does, with the time limit of the definition's `check` command.
+  - `sync`: one container that does what a stage's sync does after its checkout: started in `/work`, it changes into `/work/checkout` and runs `make sync`, or `make -f <path> sync` when the definition names a makefile, with the environment, the `PATH`, the site's variables (`FACTORY_CONTAINER_ENV`) and the CA bundle of a stage's sync, and the time limit of the definition's `sync` command. The make part of the stage's sync script (`make sync`, and `make -f <path> sync`) becomes public constants in `src/factory/machine/application/stage_environment.py`, which the stage's sync script (after its preparation) and the use case both use; the live sync runs only that part.
+  - `check`: a second container that does what a stage's check does: started in `/work/checkout`, it runs the sync and then `check`, as `ContainerMakeCommands.run` does, with the time limit of the definition's `check` command. The two check scripts and `CHECK_ENVIRONMENT` move from `src/factory/machine/adapters/make_commands.py` to a public place in `factory.machine.application` (`project_commands.py`), and `make_commands.py` imports them from there.
   - The faults of `sync` and of `check`, the first that applies: `could not start: <reason>` for a `ContainerError`; `timed out after <n> min`; `exit status <n>: <the last line of the output>`; and, for a run that ended with status 0, `no line "sync: green (<seconds> s)"` when the sync's output holds no such line, or `the last line is not "check: green": <the last line>` for the check.
   - A point after a live point with a fault is not run and not printed.
   - The scripts and the environment are those the stage uses, reused from their modules and not copied.
@@ -67,15 +69,16 @@ The static conformance check says that a repository's files fit the factory; it 
 ## Acceptance criteria
 
 1. On a ready repository without a stage file, with fakes whose sync prints `sync: green (1.0 s)` and whose check ends with `check: green`, the live part returns the three points without a fault, no image is built, and both containers ran in the stage image.
-2. With a stage file, the image is built on the stage image under `<stage image>-check`, and both containers run in that image; a build that does not pass gives `image` the fault `the image does not build: <last line>`, and `sync` and `check` are not run.
+2. With a stage file, the image is built on the stage image under `<stage image>-check`, and both containers run in that image; the build gets `IMAGE_BUILD_TIME_LIMIT` (`src/factory/machine/application/images.py`); a build that does not pass gives `image` the fault `the image does not build: <last line>`, and `sync` and `check` are not run.
 3. The sync container starts in `/work` and runs `make sync` in `/work/checkout`; the check container starts in `/work/checkout` and runs the sync, then `check`; with `make_file: factory/Makefile` in the definition both call make with `-f factory/Makefile`. Each gets the time limit of its command in the definition.
 4. The faults of a run, as rows of one parametrized test for `sync` and for `check`: a container that could not start; a run that reached its time limit; exit status 2 with a last line; status 0 without the green line (for the check: with another last line). A fault of `sync` leaves `check` unrun.
 5. The work folder holds the commit at `HEAD` and not an uncommitted change of the work tree, and it is gone after a green run, after a fault and after an exception of a container run.
 6. The containers get the variables that the settings name in `FACTORY_CONTAINER_ENV` and the CA bundle's mount and names, as a stage's sync does.
 7. `main` with `--run` and incomplete settings returns 2, prints `cannot run: ...` on standard error and nothing on standard output; with `--run` on a repository with a static fault it prints exactly what it prints without `--run` and returns 1, and starts no container and no build.
-8. `main` with `--run`, complete settings and faked containers on a ready repository prints the six static lines, `image: ok`, `sync: ok`, `check: ok` and `project: ready`, and returns 0; with a red check it prints `check: FAIL: exit status 2: ...`, `project: not ready (1 fault)` and returns 1.
-9. `make check` stays green.
-10. docs: the operator guide, where it explains `factory-check-project`, says what `--run` adds and needs (an instance's environment, podman and the stage image; no dataset), that it works on a temporary clone of the commit at `HEAD` and builds its image under `<stage image>-check`, so it may run beside a working instance and for another repository, how to run it on the VM as the factory's user with the instance's environment (an example marked for the VM), and what each of the faults means; the project guide (`docs/project-guide/machine.md`) names the use case and the rule that it reuses the stage's scripts.
+8. `main` with `--run`, complete settings and faked containers on a ready repository prints the six static lines, `image: ok`, `sync: ok`, `check: ok` and `project: ready`, and returns 0; with a red check it prints `check: FAIL: exit status 2: ...`, `project: not ready (1 fault)` and returns 1; with a build that does not pass it prints the six static lines, `image: FAIL: the image does not build: ...` and `project: not ready (1 fault)`, with no `sync` or `check` line, and returns 1.
+9. With `--run`, as rows of one parametrized test: without `--agent-home` the static point `agents` reads the agent home of the settings; with `--agent-home <dir>` it reads the given folder. In both rows no container gets a mount of the agent home.
+10. `make check` stays green.
+11. docs: the operator guide, where it explains `factory-check-project`, says what `--run` adds and needs (an instance's environment, podman and the stage image; no dataset), that it works on a temporary clone of the commit at `HEAD` and builds its image under `<stage image>-check`, so it may run beside a working instance and for another repository, how to run it on the VM as the factory's user with the instance's environment (an example marked for the VM), and what each of the faults means; the project guide (`docs/project-guide/machine.md`) names the use case and the rule that it reuses the stage's scripts.
 
 ## Smoke test
 
@@ -115,3 +118,11 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    5. **"Not printed" is only tested where the check fails.** The rule is that a point after a failed live point is not printed. Criterion 8 only covers a failing check, which is the last point, so nothing is left out. I propose a row in criterion 8: when the build fails, `main` prints the six static lines, `image: FAIL: the image does not build: …` and `project: not ready (1 fault)`, with no `sync` or `check` line, and returns 1.
 4. 2026-11-17 human: 1: (b). Under `--run` the agent home serves only the static part's point `agents` (the installed agents); the live part does not use it and mounts no agent files. 2: (a), the story may move the two check scripts and `CHECK_ENVIRONMENT` to a public place in `factory.machine.application`. 3: add the criterion with the two rows, for the static part's agents. 4: add it. 5: add the row.
 5. factory: started intake as self.
+6. intake: accepted
+   I added the human's answers from journal entry 4 to the story. Interface: the agent home under `--run` is used only by the static point `agents`, and the live part mounts no agent files (answers 1 and 3). The make part of the stage's sync script becomes public constants in `stage_environment.py`, and both the stage's script and the use case use them (answer 1, option b). The two check scripts and `CHECK_ENVIRONMENT` move from `make_commands.py` to `factory.machine.application.project_commands`, and `make_commands.py` imports them from there (answer 2, option a). Criteria: criterion 2 now says the build gets `IMAGE_BUILD_TIME_LIMIT` (answer 4). Criterion 8 has a new row for a failed build (answer 5). New criterion 9 has two rows for where the agent home comes from, and says no container mounts it (answer 3). It sits before the two closing criteria, which are now 10 and 11.
+   - Interface: it names concrete modules (`entry/check_project.py`, `machine/application/project_run.py`, `pipeline/domain/project_check.py`), the usage line, the point names and order, the work folder layout, the image tag, each fault's exact text, and where the reused scripts live. Keep two names so earlier tests pass unchanged: `_SYNC_SCRIPT` in `stage_environment.py` (`tests/pipeline/application/test_container_sync_origin.py` reads it) and `CHECK_ENVIRONMENT` importable from `make_commands.py` (`tests/machine/application/test_container_environment_extra.py` imports it). Both survive the split and the move as the answers describe them.
+   - Criteria: each can be tested by one test function. Every rule has its failing side: settings fault (7), static fault (7), build failure (2, 8), every fault of sync and check (4), a later point not run or printed (2, 4, 8), work folder removed after an exception (5), agent home from the settings or the option (9).
+   - Smoke test: both blocks run. The first checks status 2, empty output and the `cannot run:` prefix, and the settings fault comes before the static part. The second passes no `-q` because `addopts` already sets it, and its summary line can be checked.
+   - Docs criterion: it names what the reader must know (what `--run` adds and needs, the temporary clone, the `-check` tag, a VM example, the meaning of each fault, and the use case and its reuse rule in `machine.md`). It dictates no sentences.
+   - Architecture: the use case sits in `machine.application` and works only through the `Images`, `ContainerRuns` and `Git` interfaces. Its domain point type is in `pipeline.domain`, and the wiring is in `entry`. Moving the check scripts to `application` keeps the import-linter layers intact, since `application` cannot import from `adapters`.
+   - Scope: this is the feature's S0003 (the live check), within decisions 12 and 13. Decision 4 gives leave to add the new modules to the guard tables. Nothing here is in Out of scope.
