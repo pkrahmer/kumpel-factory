@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 695
 comments_read: []
 handed_over: null
-claim:
-  instance: self
-  stage: tests
-  started_at: '2026-11-17T03:31:47.953725Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -34,6 +30,12 @@ journal:
   kind: started
   at: '2026-11-17T03:31:47.953725Z'
   stage: tests
+- number: 5
+  speaker: tester
+  kind: result
+  at: '2026-11-17T03:36:52.736072Z'
+  stage: tests
+  run: ade89571e3a145f1b6e3a76479c6c11c
 ---
 
 # The stack packs
@@ -97,3 +99,31 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    - Architecture: only operator files and tests are added. No code under `src/` changes, and the assembly helper extends the shared `tests/support/kit_support.py` as the test rules require.
    - Scope: within F0062: the packs are in its scope, and S0006 is the story for them. Decisions 3, 23 and 24 are respected: no application source in a pack, the drafts copied unchanged, and the emulator not in the Java pack. Starters and the removal of `operator/template/` stay out (S0007 removes the template).
 4. factory: started tests as self.
+5. tester: Wrote the tests of the stack packs. They are red on purpose: every one fails with `FileNotFoundError` on `operator/packs/<pack>/…`, which does not exist yet.
+
+   Criterion → test (all in `tests/operator_scripts/test_packs.py`):
+   - criterion 1: `test_a_project_from_the_kit_and_a_pack_is_ready` (3 packs × thin/full, plus one file under every write path, committed, `ProjectCheck.run` with no fault)
+   - criterion 2: `test_a_brownfield_project_with_the_pack_makefile_under_factory_is_ready` (3 packs × thin/full; the makefile is at `factory/Makefile`, the kit's commented `# make_file: factory/Makefile` line is uncommented, there is no root `Makefile`)
+   - criterion 3: `test_each_pack_makefile_includes_the_kit_first_and_defines_only_the_stack_targets` (uses `makefile_targets` per line to find the first rule)
+   - criterion 4: `test_each_stage_file_keeps_the_layer_rule_and_checks_every_download` (`stage_layer(text, "base")`; joins continuation lines into instructions, and after each `curl ` in an instruction there must be a `sha256sum -c` before the next one)
+   - criterion 5: `test_each_pack_sections_replace_the_kit_sections_of_the_same_heading`
+   - criterion 6: `test_make_check_of_a_pack_is_green_only_when_its_tools_pass` (3 packs × stand-ins ending with 0 or with 1)
+   - criterion 7: `test_the_java_trust_store_script_is_a_posix_shell_script` (shebang `#!/bin/sh`, then `sh -n`) and `test_the_java_sync_builds_the_trust_store_once_per_bundle`
+   - criteria 8 and 9: no test (`make check`, docs).
+
+   Files:
+   - Created `tests/operator_scripts/test_packs.py`.
+   - Extended `tests/support/kit_support.py` as the Interface says: `PACKS_FOLDER`, `Pack`, `PACKS`, `pack_claude_md` (each pack section replaces the kit section with the same heading; trailing blank lines are kept from the kit) and `pack_project_files(pack, line, brownfield=…)`. The pack's other files except `TRAPS.md` (`.gitleaks.toml`, `scripts/`) go to the same path from the root.
+   - Under the standing leave to move a shared test helper, I moved `WRITTEN_FILES` from `tests/operator_scripts/test_kit_files.py` into `tests/support/kit_support.py`. `test_kit_files.py` now imports it; its tests keep their names and checks.
+
+   Choices the coder should know (all within the criteria):
+   - For criterion 6, the project is a committed git repository: the Python pack's `secrets` recipe fails outside one. The stand-ins are shell scripts that record their name and arguments in `tmp_path/calls`. `PATH` is `tmp_path/bin:/usr/bin:/bin`, and `HOME` is a folder in `tmp_path`. The Java `gradlew` stand-in sits in the project, since the makefile calls `./gradlew`.
+   - The Python licence check runs `sed` on the file that `uv export` writes. A stand-in writes nothing, so the test creates an empty `.reports/licenses-requirements.txt` beforehand. The make command line sets `SOURCE=src/app` and `LAYERS=uv run lint-imports`.
+   - Which targets need a green line is read from the pack makefile's `check:` line. The test also checks that the stand-ins were called on both sides.
+   - For criterion 7, the project's `scripts/trust-store.sh` is replaced by a recording stand-in that also creates the store file. The test runs `make sync` twice with `SSL_CERT_FILE` naming a bundle, and expects exactly one call with `<bundle> <HOME>/.cache/java-trust-store.p12`.
+
+   Checked against the drafts: copying them into `operator/packs/` was refused, so I loaded a throwaway pytest plugin from a `mktemp` folder that pointed `PACKS_FOLDER` at `planning/packs-draft/`. With that, all 28 tests of `test_packs.py` passed. This means a byte-for-byte copy of the drafts should turn them green. No file under `operator/` or `planning/` was changed.
+
+   The one `make test` run: 28 failures, all in `test_packs.py` and all `FileNotFoundError` on the missing pack files. The JUnit report shows no other failure. `make lint` is green. Every module the tests import exists; the runner could import all of them, only the pack files are missing.
+
+   `lint`: lint: green (0.2 s)

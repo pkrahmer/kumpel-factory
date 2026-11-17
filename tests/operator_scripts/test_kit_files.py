@@ -8,7 +8,15 @@ import pytest
 from factory.pipeline.adapters.pipeline_yaml import RuamelPipelineDefinitionReader
 from factory.work.domain.story_form import check_story_form
 from factory.work.domain.work_item import WorkItemDocument
-from support.kit_support import KIT, KIT_FILES, LINES, Line, kit_pipeline_text, kit_project_files
+from support.kit_support import (
+    KIT,
+    KIT_FILES,
+    LINES,
+    WRITTEN_FILES,
+    Line,
+    kit_pipeline_text,
+    kit_project_files,
+)
 from support.project_check_support import ROLES, committed_repository, run_project_check
 from support.shipped_agents import AGENT_HOME, ROOT
 
@@ -21,7 +29,6 @@ KIT_PROJECT_MAKEFILE = (
     "test:\n\t$(start)\n\t$(green)\n"
     'check: lint test\n\techo "check: green"\n'
 )
-WRITTEN_FILES = {"src/a": "", "tests/a": "", "docs/a": "", "README.md": "# R\n"}
 UNMATCHED_WRITE_PATHS: dict[Line, list[tuple[str, str]]] = {
     "thin": [
         ("builder", "src/*"),
