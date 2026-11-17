@@ -1,11 +1,11 @@
 ---
 stage: intake
-blocked: question
+blocked: null
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 700
-comments_read: []
+comments_read: [6939383328]
 handed_over: null
 claim: null
 journal:
@@ -26,6 +26,11 @@ journal:
   stage: intake
   run: c7464a2d0e96478a8cc67a292470fb54
   blocked: question
+- number: 4
+  speaker: human
+  kind: comment
+  at: '2026-11-17T05:21:37.434920Z'
+  stage: intake
 ---
 
 # The makefile a pipeline definition names, and the kit's `kit.mk`, are protected paths
@@ -88,3 +93,4 @@ Expect: `13 13`
    1. The leave to change an earlier test is only proposed. The Interface says the human gives it "when refining this story (proposed wording)", and the story still holds the comment `<!-- proposed by feature acceptance of 2026-11-17; refine before starting -->`. No journal entry and no decision in `feature.md` grants it. Without it, `test_at_returns_the_role_write_paths_with_the_work_item_expanded` (it asserts `settings.protected_paths == list(PROTECTED_PATHS)`, line 49) fails once `factory/kit.mk` is added, and the tester may not change it (CLAUDE.md, *Not without asking*). Options: (a) grant the leave as worded: "the tester may change the expected `protected_paths` in `tests/pipeline/application/test_write_paths.py::test_at_returns_the_role_write_paths_with_the_work_item_expanded`, and in any other earlier test whose only failure is the added `factory/kit.mk`, to `protected_paths(None)`"; (b) narrow it to that one test. I recommend (a). I will carry it into the story and remove the "refine before starting" comment.
 
    2. `protected_paths("Makefile")`: the Interface says only that it "holds `Makefile` once". Criterion 1 says it returns "the list the Interface names", and the smoke test expects a length of 13. So the exact list, and its order, is not stated. Options: (a) state that `protected_paths("Makefile")` is `[*PROTECTED_PATHS, KIT_MAKEFILE]`: a `make_file` already in the list is not added again, and the same holds for `"factory/kit.mk"`. Criterion 1 then checks that exact list, and a row for `"factory/kit.mk"` is added. (b) Keep "holds once" and test only the count of `Makefile` and the length. I recommend (a), so that two coders cannot both pass with different orders.
+4. 2026-11-17 human: 1: (a), the leave is granted as worded. 2: (a).
