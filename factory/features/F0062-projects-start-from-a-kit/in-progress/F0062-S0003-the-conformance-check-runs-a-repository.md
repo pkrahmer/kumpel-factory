@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 692
 comments_read: [6935336014, 6935606286]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: review
+  started_at: '2026-11-17T02:14:20.459909Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -147,6 +151,11 @@ journal:
   at: '2026-11-17T02:14:14.851380Z'
   stage: doing
   run: 102f002edcb843858b7335556d7e7f6e
+- number: 26
+  speaker: factory
+  kind: started
+  at: '2026-11-17T02:14:20.459909Z'
+  stage: review
 ---
 
 # The conformance check runs a repository
@@ -421,3 +430,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     Noticed, not touched: the entry tests still monkeypatch `build_project_run`. So the real wiring of `extra_environment` and `ca_bundle` in `src/factory/entry/check_project.py` is reached by no test. The use case's handling of both is tested, under criterion 6.
 
     `duplicates`: duplicates: 8 new, 38 known, 5 gone
+26. factory: started review as self.
