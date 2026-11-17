@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 703
 comments_read: [6940217140]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: doing
+  started_at: '2026-11-17T06:08:13.094165Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -53,6 +57,11 @@ journal:
   at: '2026-11-17T06:08:07.999870Z'
   stage: tests
   run: b5e1a497e6b74b79b2622dba4c517519
+- number: 9
+  speaker: factory
+  kind: started
+  at: '2026-11-17T06:08:13.094165Z'
+  stage: doing
 ---
 
 # A `make_file` is written in its plain form, or the definition refuses it
@@ -150,3 +159,4 @@ Expect: one line ending with `passed` and a time, with no `failed`.
    No created files, and every module the test run needed imported.
 
    `lint`: lint: green (0.1 s)
+9. factory: started doing as self.
