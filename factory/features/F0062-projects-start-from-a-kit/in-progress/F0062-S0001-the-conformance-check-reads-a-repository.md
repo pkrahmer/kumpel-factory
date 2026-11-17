@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 690
 comments_read: [6933812910, 6934072851]
 handed_over: null
-claim:
-  instance: self
-  stage: doing
-  started_at: '2026-11-17T00:45:16.722515Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -101,6 +97,12 @@ journal:
   kind: started
   at: '2026-11-17T00:45:16.722515Z'
   stage: doing
+- number: 17
+  speaker: coder
+  kind: result
+  at: '2026-11-17T00:47:58.979195Z'
+  stage: doing
+  run: c816242047a44e3dafe69695f8f6de75
 ---
 
 # The conformance check reads a repository
@@ -322,3 +324,25 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     `lint`: lint: green (0.1 s)
 16. factory: started doing as self.
+17. coder: The tester's guard change from entry 15 is in. `tests/guards/test_agent_home_wiring.py` passes, and so do the story's three test files: 57 tests together with the guard. `make check guides` is green: `check: green`, coverage 99.19 %, `guides: green`. I changed no code this round.
+
+    What I built, from round 0 and unchanged since:
+    - `src/factory/pipeline/domain/project_check.py`: `POINT_NAMES`, `MAKEFILE`, `SYNC_COMMAND`, `ProjectPoint`, `MakefileInclude`, `makefile_targets`, `makefile_includes`, `target_faults`, `write_path_faults`, `report_lines` and `is_ready`.
+      - A rule line is one regex, and a lookahead refuses `:=` and `::=`.
+      - Include lines drop a trailing `#` comment and leave out paths that hold `$`.
+    - `src/factory/pipeline/application/project_check.py`: `ProjectCheck`. It reads every file through `Git.show_file` at the ref. A private `_Makefiles` follows includes breadth-first and keeps a set of the paths it has seen, so an include cycle ends.
+    - `src/factory/entry/check_project.py`: `main`. It parses the arguments by hand. I rejected argparse because it writes the usage and the error on two stderr lines, and the Interface asks for one. `cannot read <folder>: <reason>` covers a `GitError` or `OSError` from `resolve("HEAD")`, and a repository without a commit.
+    - `src/factory/entry/wiring.py`: `build_agent_definitions(git, agent_home, ref=PIPELINE_REF)` is now the one place that builds `FrontmatterAgentDefinitionReader`. Both `build_boundaries` and the new command use it, which is option A from the human's answer in entry 11.
+    - `src/factory/hosting/adapters/git_cli.py` and the `Git` docstring in `src/factory/hosting/application/git.py`: `list_files(ref, "")` now lists the whole tree. Before, it returned `[]`. I rejected adding a new `Git` operation instead, because that would grow the interface. No existing caller passes `""`.
+
+    Refactor pass: I read the diff again and found nothing to rename, simplify or remove.
+
+    Open:
+    - The smoke test is still not run. The shell refused it again, so the smoke-test stage has to run it.
+
+    Noticed but not touched:
+    - `_Makefiles.read` uses `list.pop(0)` as its queue. That is fine for the few files a makefile includes.
+
+    The journal did not change the Description.
+
+    `duplicates`: duplicates: 7 new, 39 known, 4 gone
