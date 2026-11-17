@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 705
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: doing
+  started_at: '2026-11-17T06:56:00.642017Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -58,6 +62,11 @@ journal:
   at: '2026-11-17T06:55:55.324565Z'
   stage: tests
   run: 50ccfa35122e498aa2a0df4dab8b8104
+- number: 10
+  speaker: factory
+  kind: started
+  at: '2026-11-17T06:56:00.642017Z'
+  stage: doing
 ---
 
 # One layout for every project
@@ -204,3 +213,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    `lint`: lint: green (0.1 s)
 
    `lint`: lint: green (0.1 s)
+10. factory: started doing as self.
