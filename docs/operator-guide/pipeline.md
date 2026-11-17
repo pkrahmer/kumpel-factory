@@ -220,7 +220,7 @@ Further rules:
 2. Run the command with the folder of that repository. Name the installed agents with `--agent-home <dir>`; without it the command takes the folder that `FACTORY_CLAUDE_HOME` names. In the factory's checkout the shipped agents are the folder `agents`.
 3. Read the lines it prints: one line per point, then the verdict. Fix every `FAIL`, commit, and run it again.
 
-The example builds a project from the kit's full line and the Python pack in a new folder `my-project`, with two slips: its `Makefile` has no `lint:` rule, and `factory/feature-form.md` is missing. It runs in the factory's checkout, where the shipped agents are the folder `agents`. The example runs `python -m factory.entry.check_project`, which is the same command as the installed console script `factory-check-project`, with the same arguments: the document check runs the page's examples in the factory's own checkout, where the module is reachable whether or not the console script is on the path.
+The example builds a project from the kit's full line and the Python pack in a new folder `my-project`, with two slips: its `Makefile` has no `lint:` rule, and `factory/feature-form.md` is missing. It runs in the factory's checkout, where the shipped agents are the folder `agents`. The example runs `python -m factory.entry.check_project`, which is the same command as the installed console script `factory-check-project`, with the same arguments. It runs the module because the document check runs the page's examples in the factory's own checkout, where the module is reachable whether or not the console script is on the path.
 
 ```console
 $ git init -q my-project && mkdir -p my-project/factory my-project/src my-project/tests my-project/docs

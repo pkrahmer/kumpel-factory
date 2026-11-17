@@ -1,5 +1,5 @@
 ---
-stage: docs-only
+stage: docs-review
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 699
 comments_read: []
 handed_over: null
-claim:
-  instance: self
-  stage: docs-only
-  started_at: '2026-11-17T05:16:08.883753Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -56,6 +52,12 @@ journal:
   kind: started
   at: '2026-11-17T05:16:08.883753Z'
   stage: docs-only
+- number: 9
+  speaker: documenter
+  kind: result
+  at: '2026-11-17T05:18:24.751780Z'
+  stage: docs-only
+  run: 7a2a50eaa72d4d9bb93d0b765c5c386b
 ---
 
 # The conformance check's documents catch up with the console script and the live part
@@ -152,3 +154,18 @@ Expect: a number of at least 2.
    2. `docs/operator-guide/pipeline.md:223`, the added sentence "The example runs `python -m factory.entry.check_project`, which is the same command … on the path." is about 50 words, against style rule 2 (split a sentence of more than about 25 words). Fix: split it in two, one sentence that names `factory-check-project` as the same command with the same arguments, and one that says why the example runs the module.
    3. `docs/operator-guide/start-a-project.md:38`, the added sentence "Its two checks run `python -m factory.entry.check_project`, which is the same command … on the path." is about 55 words, against the same style rule 2. Fix: split it the same way as finding 2.
 8. factory: started docs-only as self.
+9. documenter: Fixed the reviewer's three findings from round 1. Only documents changed.
+
+   Files changed:
+   - `docs/decisions.md`, entry *The live part of the conformance check works on a clone with an image of its own* (finding 1): added a line before "Rejected". It reads "Why after the static part: the live points run with the pipeline definition's makefile and time limits, which only a clean static part has read and validated." The wording is the reason the reviewer gave in its finding, from `src/factory/entry/check_project.py` `_live_points` and `ProjectRun._sync`/`_check`. I took it from the reviewer's entry in the journal, not from my own reading of the code. If the human wants a different reason, this one line is the place to change.
+   - `docs/operator-guide/pipeline.md`, *Checking a repository before the factory runs it* (finding 2): split the long sentence in two. The first names `factory-check-project` as the same command with the same arguments; the second says why the example runs the module.
+   - `docs/operator-guide/start-a-project.md`, *The walk in one example* (finding 3): split the sentence the same way.
+
+   Checks: `make documents` ends `documents ok (47.0 s)`. I did not run `make check`, because only documents changed.
+
+   Cross-read and found current: I made no new cross-read this round. The rest of both sections and the neighbouring decision entries are unchanged since round 0's cross-read.
+
+   `check`: check: green (not run again: passed on tree 115bc87f3451 at 2026-11-17T04:56:37Z)
+   `guides`: guides: green (9.3 s)
+   `secrets`: secrets: green (1.5 s)
+   `documents`: documents ok (47.2 s)

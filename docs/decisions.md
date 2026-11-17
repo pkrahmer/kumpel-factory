@@ -1731,6 +1731,7 @@ Date: 2026-11-17 (F0062-S0003).
 - When it runs: the live points run only when the static part has no fault, and a live point after a failed one is neither run nor printed.
 - It widens *The conformance check is a command of its own, not a preflight item*: that entry's check starts no container and runs no project command, and stays so without `--run`.
 - Why a clone and an image of its own: so the live part can run beside a working instance and for another repository than the instance's.
+- Why after the static part: the live points run with the pipeline definition's makefile and time limits, which only a clean static part has read and validated.
 - Rejected: running the live points on the instance's dataset or under its project image, which a working instance uses.
 
 ## The pipeline definition names its makefile; make stays the one command runner
