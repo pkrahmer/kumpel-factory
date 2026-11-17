@@ -14,4 +14,4 @@
 - Javadoc: one sentence per public type, and per public method where its signature does not say it all.
 
 ## Not without asking (end the stage with `question`)
-- A new dependency or plugin, a new version, a change to `build.gradle`, `settings.gradle`, `gradle/`, the makefile or `factory/`, a new top-level package, a change to a test another story wrote, a new entry in `.gitleaks.toml`.
+- A new dependency or plugin, a new version, a change to `build.gradle`, `settings.gradle`, `gradle/`, the makefile or `factory/`, a new top-level package, a change to a test another story wrote, a new entry in `factory/gitleaks.toml`.

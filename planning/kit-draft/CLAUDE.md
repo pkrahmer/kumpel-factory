@@ -19,7 +19,8 @@
 
 ## Checks
 - `make check` must be green before any stage reports done. It runs <the targets, each with what it checks>. Each target ends with the line `<target>: green (<seconds> s)`; `make check` ends with `check: green`.
-- Run `make check` and every other make target in the foreground and read its output.
+- The factory's targets are in `factory/Makefile`. <Either: the root `Makefile` forwards every target to it, so `make check` works at the root. Or: the root `Makefile` is this repository's own, and every target the agents' instructions name is run as `make -f factory/Makefile <target>`, `make check` as `make -f factory/Makefile check`.>
+- Run every make target in the foreground and read its output.
 
 ## Review
 - <The stack's review points, one bullet each: what the reviewer checks in every diff of this project beyond its general checklist.>

@@ -34,7 +34,7 @@ lint:
 	$(green)
 
 # Secrets in the working tree, by gitleaks with its own rules; a project with exceptions adds
-# `--config .gitleaks.toml`.
+# `--config factory/gitleaks.toml`.
 secrets:
 	$(start)
 	gitleaks dir . --no-banner --redact --log-level error
