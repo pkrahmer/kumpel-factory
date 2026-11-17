@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 700
 comments_read: [6939383328]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: docs
+  started_at: '2026-11-17T05:29:25.176747Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -75,6 +79,11 @@ journal:
   at: '2026-11-17T05:29:19.933509Z'
   stage: review
   run: 99f4b7a0290c4567a94ba1dea729a302
+- number: 13
+  speaker: factory
+  kind: started
+  at: '2026-11-17T05:29:25.176747Z'
+  stage: docs
 ---
 
 # The makefile a pipeline definition names, and the kit's `kit.mk`, are protected paths
@@ -228,3 +237,4 @@ Expect: `13 13`
     - tests/agents/application/test_write_paths_guard.py — the human's leave, journal entry 4 (the expected protected paths are now `protected_paths(None)`).
     - tests/pipeline/application/test_write_paths.py — the human's leave, journal entry 4, for `_expected` and `test_at_returns_the_role_write_paths_with_the_work_item_expanded`. The new test and constants that were added leave every earlier test unchanged.
     - tests/agents/domain/test_write_paths.py — none needed: it only adds tests and an import.
+13. factory: started docs as self.
