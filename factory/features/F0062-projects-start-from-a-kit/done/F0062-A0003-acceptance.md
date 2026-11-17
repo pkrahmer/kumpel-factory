@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 0
 attempts: 0
@@ -30,8 +30,13 @@ journal:
   at: '2026-11-17T06:24:33.761413Z'
   stage: acceptance
   run: 9c6aa22531794ae3bf874e62496396da
+- number: 5
+  speaker: factory
+  kind: done
+  at: '2026-11-17T06:25:22.770269Z'
+  stage: done
 stories: [F0062-S0001, F0062-S0002, F0062-S0003, F0062-S0004, F0062-S0005, F0062-S0006, F0062-S0007, F0062-S0008, F0062-S0009, F0062-S0010, F0062-S0011, F0062-S0012]
-outcome: null
+outcome: accepted
 ---
 
 # Acceptance of Projects start from a kit and a stack pack
@@ -348,3 +353,4 @@ None. S0012 closed the second acceptance's one finding. What remains (the `make_
      - Earlier tests changed in S0012: none.
    7 Slow checks: nothing offered beyond `make check`, which is green (11331 cases, test 106.6 s, coverage 99.14 %). Slowest test: `test_documents_marker`, 20.6 s. The feature's 487 cases take 19.3 s together. Disk unchanged since the start (71.2 GB free, 1.2 GB used).
    8 Cost: 122 runs, 236.2 min, $39.53, about $3.29 a story. S0012 cost $1.11 and had no rework round. S0003 still stands out at $6.53 (two leaves, a `PLR0913` exception, a test rework). 15 questions answered, 2.0 h waited. S0001 needed the human most (two questions, 102 min overnight). Most questions over the feature asked for a leave to change an earlier test.
+5. factory: done (pull request merged); cost: 1 runs, 4.4 min, 14 turns, 57319 tokens in (569321 more from cache), 16481 out, $0.73
