@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 693
 comments_read: [6936126509]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: doing
+  started_at: '2026-11-17T02:35:28.741326Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -53,6 +57,11 @@ journal:
   at: '2026-11-17T02:35:21.326828Z'
   stage: tests
   run: 86142f22a5964ec8a1358ec89afc5f9f
+- number: 9
+  speaker: factory
+  kind: started
+  at: '2026-11-17T02:35:28.741326Z'
+  stage: doing
 ---
 
 # The installed builder
@@ -243,3 +252,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    The throwaway copy is still in a `mktemp -d` directory under /tmp: removing it was refused, and it goes with the stage.
 
    `lint`: lint: green (0.2 s)
+9. factory: started doing as self.
