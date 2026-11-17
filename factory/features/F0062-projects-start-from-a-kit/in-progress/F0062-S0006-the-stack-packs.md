@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 695
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: tests
+  started_at: '2026-11-17T03:31:47.953725Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -25,6 +29,11 @@ journal:
   at: '2026-11-17T03:31:42.680454Z'
   stage: intake
   run: e7624172905e494187529fc95a6caf25
+- number: 4
+  speaker: factory
+  kind: started
+  at: '2026-11-17T03:31:47.953725Z'
+  stage: tests
 ---
 
 # The stack packs
@@ -87,3 +96,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    - Docs criterion: it names what the reader must know (what a pack is and what it is not, its files and who owns them, the fresh and the existing-repository assembly, `TRAPS.md`, the run on 2026-11-17, how a new stack gets a pack, the listing in `operator/README.md` and in the project guide). It dictates no sentences.
    - Architecture: only operator files and tests are added. No code under `src/` changes, and the assembly helper extends the shared `tests/support/kit_support.py` as the test rules require.
    - Scope: within F0062: the packs are in its scope, and S0006 is the story for them. Decisions 3, 23 and 24 are respected: no application source in a pack, the drafts copied unchanged, and the emulator not in the Java pack. Starters and the removal of `operator/template/` stay out (S0007 removes the template).
+4. factory: started tests as self.
