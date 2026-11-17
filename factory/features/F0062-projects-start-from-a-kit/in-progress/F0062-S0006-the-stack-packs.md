@@ -1,5 +1,5 @@
 ---
-stage: smoke-test
+stage: approval
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 695
 comments_read: [6937495535]
 handed_over: null
-claim:
-  instance: self
-  stage: smoke-test
-  started_at: '2026-11-17T03:58:50.411681Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -128,6 +124,12 @@ journal:
   kind: started
   at: '2026-11-17T03:58:50.411681Z'
   stage: smoke-test
+- number: 22
+  speaker: smoke-tester
+  kind: result
+  at: '2026-11-17T04:01:05.775972Z'
+  stage: smoke-test
+  run: fd732736433b485a9230174d309cfaa0
 ---
 
 # The stack packs
@@ -386,3 +388,29 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     `secrets`: secrets: green (0.6 s)
     `documents`: documents ok (47.7 s)
 21. factory: started smoke-test as self.
+22. smoke-tester: Ran both smoke-test commands from the repository root, exactly as written. Both met their `Expect:` lines, and neither contradicts an acceptance criterion.
+
+    Command 1 (assemble a thin-line project from the kit and each pack, then run `check_project`):
+    ```
+    Bytecode compiled 4164 files in 86ms
+    python project: ready
+    Bytecode compiled 4164 files in 44ms
+    c-host project: ready
+    Bytecode compiled 4164 files in 51ms
+    java-gradle project: ready
+    ```
+    Met: `python project: ready`, `c-host project: ready` and `java-gradle project: ready` each appear once. The `Bytecode compiled` lines are printed by `uv`, outside the `$(…)` that `tail -1` trims. The temporary directory was removed by the `trap`.
+
+    Command 2 (`uv run pytest tests/operator_scripts/test_packs.py`):
+    ```
+    Bytecode compiled 4164 files in 49ms
+    ............................                                             [100%]
+    28 passed in 0.48s
+    ```
+    Met: the summary says only `passed`, with no `failed` and no `error`.
+
+    Checked against the criteria: command 1 is the same assembly as criterion 1's thin line with the pack makefile at the root, and every pack came out ready, which agrees with it. The 28 tests that passed cover criteria 1 to 7. Criterion 8 (`make check`) is the factory's gate after this stage. For criterion 9, entry 20 records the docs stage's checks as green.
+
+    No findings.
+
+    `check`: check: green
