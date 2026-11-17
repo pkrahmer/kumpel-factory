@@ -28,25 +28,14 @@ from support.kit_support import (
     run_kit_make,
     section_texts,
 )
-from support.project_check_support import committed_repository, project_faults
+from support.pack_make_support import stand_in_project, stand_in_trust_store
+from support.project_check_support import project_faults
 
 STACK_TARGETS = ("sync", "lint", "test", "check")
 KIT_TARGETS = ("facts-diff", "facts-changes", "facts-files")
 PACK_HEADINGS = ("Tests", "Checks", "Review", "Not without asking (end the stage with `question`)")
 KIT_KEPT_HEADINGS = ("Language", "Architecture")
 STAGE_FILE_PACKS: tuple[Pack, ...] = ("c-host", "java-gradle")
-# The stand-ins on the PATH for each stack's tools; the Java pack's Gradle wrapper sits in the
-# project, since its makefile calls `./gradlew`.
-PATH_TOOLS: dict[Pack, tuple[str, ...]] = {
-    "python": ("uv",),
-    "c-host": ("cmake", "ctest", "clang-format", "gitleaks"),
-    "java-gradle": ("gitleaks",),
-}
-PROJECT_TOOLS: dict[Pack, tuple[str, ...]] = {
-    "python": (),
-    "c-host": (),
-    "java-gradle": ("gradlew",),
-}
 # The Python pack's placeholders, which the project sets.
 MAKE_VARIABLES: dict[Pack, tuple[str, ...]] = {
     "python": ("SOURCE=src/app", "LAYERS=uv run lint-imports"),
@@ -54,35 +43,6 @@ MAKE_VARIABLES: dict[Pack, tuple[str, ...]] = {
     "java-gradle": (),
 }
 TRUST_STORE = ".cache/java-trust-store.p12"
-
-
-def _stand_in(path: Path, log: Path, status: int) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
-        f'#!/bin/sh\necho "$(basename "$0") $*" >> "{log}"\nexit {status}\n', encoding="utf-8"
-    )
-    path.chmod(0o755)
-
-
-def _stand_in_project(tmp_path: Path, pack: Pack, status: int) -> tuple[Path, dict[str, str]]:
-    """A committed project of `pack` with its tools' stand-ins ending with `status`, and the
-    variables a run of make in it needs."""
-    project = committed_repository(
-        tmp_path / "project", {**pack_project_files(pack, "thin"), **WRITTEN_FILES}
-    )
-    log = tmp_path / "calls"
-    for tool in PATH_TOOLS[pack]:
-        _stand_in(tmp_path / "bin" / tool, log, status)
-    for tool in PROJECT_TOOLS[pack]:
-        _stand_in(project / tool, log, status)
-    # The licence check reads the file `uv export` writes; the stand-in writes none.
-    reports = project / ".reports"
-    reports.mkdir()
-    (reports / "licenses-requirements.txt").write_text("", encoding="utf-8")
-    home = tmp_path / "home"
-    home.mkdir()
-    variables = {"PATH": f"{tmp_path / 'bin'}:/usr/bin:/bin", "HOME": str(home)}
-    return project, variables
 
 
 def _check_prerequisites(pack: Pack) -> list[str]:
@@ -97,20 +57,6 @@ def _check_prerequisites(pack: Pack) -> list[str]:
 def test_a_project_from_the_kit_and_a_pack_is_ready(tmp_path: Path, pack: Pack, line: Line) -> None:
     faults = project_faults(tmp_path, {**pack_project_files(pack, line), **WRITTEN_FILES})
 
-    assert faults == {name: [] for name in faults}
-
-
-@pytest.mark.parametrize("line", LINES)
-@pytest.mark.parametrize("pack", PACKS)
-def test_a_brownfield_project_with_the_pack_makefile_under_factory_is_ready(
-    tmp_path: Path, pack: Pack, line: Line
-) -> None:
-    files = pack_project_files(pack, line, brownfield=True)
-
-    faults = project_faults(tmp_path, {**files, **WRITTEN_FILES})
-
-    assert "Makefile" not in files
-    assert "make_file: factory/Makefile" in files["factory/pipeline.yml"].splitlines()
     assert faults == {name: [] for name in faults}
 
 
@@ -171,7 +117,7 @@ def test_each_pack_sections_replace_the_kit_sections_of_the_same_heading(pack: P
 def test_make_check_of_a_pack_is_green_only_when_its_tools_pass(
     tmp_path: Path, pack: Pack, status: int, green: bool
 ) -> None:
-    project, variables = _stand_in_project(tmp_path, pack, status)
+    project, variables = stand_in_project(tmp_path, pack, status)
 
     result = run_kit_make(project, "check", *MAKE_VARIABLES[pack], variables=variables)
 
@@ -202,14 +148,8 @@ def test_the_java_trust_store_script_is_a_posix_shell_script(tmp_path: Path) -> 
 
 
 def test_the_java_sync_builds_the_trust_store_once_per_bundle(tmp_path: Path) -> None:
-    project, variables = _stand_in_project(tmp_path, "java-gradle", 0)
-    record = tmp_path / "trust-store-calls"
-    (project / "scripts" / "trust-store.sh").write_text(
-        f'printf \'%s\\n\' "$*" >> "{record}"\nmkdir -p "$(dirname "$2")"\n: > "$2"\n',
-        encoding="utf-8",
-    )
-    bundle = tmp_path / "bundle.pem"
-    bundle.write_text("a bundle\n", encoding="utf-8")
+    project, variables = stand_in_project(tmp_path, "java-gradle", 0)
+    record, bundle = stand_in_trust_store(tmp_path, project)
     variables["SSL_CERT_FILE"] = str(bundle)
 
     first = run_kit_make(project, "sync", variables=variables)

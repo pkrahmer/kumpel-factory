@@ -22,6 +22,8 @@ KIT_FILES = (
     "factory/README.md",
 )
 KIT_MAKEFILE = KIT / "factory" / "kit.mk"
+# The root makefile that forwards every target to `factory/Makefile`.
+ROOT_MAKEFILE = KIT / "root.Makefile"
 
 Line = Literal["thin", "full"]
 LINES: tuple[Line, ...] = ("thin", "full")
@@ -31,9 +33,8 @@ Pack = Literal["python", "c-host", "java-gradle"]
 PACKS: tuple[Pack, ...] = ("python", "c-host", "java-gradle")
 PACK_STAGE_FILE = "stage.Containerfile"
 PACK_SECTIONS = "CLAUDE.sections.md"
-# The pack's files that do not go to the same path in the project.
-_PACK_PLACED_FILES = {"Makefile", PACK_STAGE_FILE, PACK_SECTIONS, "TRAPS.md"}
-_MAKE_FILE_LINE = "make_file: factory/Makefile"
+# The pack's pages a person reads, which do not go into the project's `factory/`.
+PACK_PAGES = {PACK_SECTIONS, "TRAPS.md"}
 
 # One file under every write path of both kit lines.
 WRITTEN_FILES = {"src/a": "", "tests/a": "", "docs/a": "", "README.md": "# R\n"}
@@ -51,7 +52,8 @@ def kit_project_files(line: Line) -> dict[str, str]:
     """The files of a project assembled from the kit alone for `line`, by their project paths.
 
     The files of `operator/kit/factory/` go to `factory/`, the chosen line's pipeline
-    definition as `pipeline.yml` and the other line's not at all; `CLAUDE.md` goes to the root.
+    definition as `pipeline.yml` and the other line's not at all; `CLAUDE.md` goes to the root,
+    and `root.Makefile` to the root as `Makefile`.
     """
     files: dict[str, str] = {}
     for relative in KIT_FILES:
@@ -61,6 +63,7 @@ def kit_project_files(line: Line) -> dict[str, str]:
                 files["factory/pipeline.yml"] = text
             continue
         files[relative] = text
+    files["Makefile"] = ROOT_MAKEFILE.read_text(encoding="utf-8")
     return files
 
 
@@ -100,35 +103,24 @@ def pack_claude_md(pack: Pack) -> str:
     return "\n".join(assembled) + "\n"
 
 
-def pack_project_files(pack: Pack, line: Line, *, brownfield: bool = False) -> dict[str, str]:
+def pack_project_files(
+    pack: Pack, line: Line, *, own_root_makefile: str | None = None
+) -> dict[str, str]:
     """The files of a project assembled from the kit's `line` and `pack`, by their project paths.
 
-    The pack's `Makefile` goes to the root, or with `brownfield` to `factory/Makefile` with
-    `make_file: factory/Makefile` in the pipeline definition; its stage file to `factory/`; its
-    sections into the kit's `CLAUDE.md`; its other files but `TRAPS.md` to the same path.
+    Every file of the pack but its two pages goes to `factory/` at the same path; its sections
+    go into the kit's `CLAUDE.md`. The root `Makefile` is the kit's forwarding one, or
+    `own_root_makefile`, the repository's own, when it has one.
     """
     folder = PACKS_FOLDER / pack
     files = kit_project_files(line)
     files["CLAUDE.md"] = pack_claude_md(pack)
-    makefile = (folder / "Makefile").read_text(encoding="utf-8")
-    if brownfield:
-        files["factory/Makefile"] = makefile
-        pipeline = files["factory/pipeline.yml"].splitlines()
-        files["factory/pipeline.yml"] = (
-            "\n".join(
-                _MAKE_FILE_LINE if text == f"# {_MAKE_FILE_LINE}" else text for text in pipeline
-            )
-            + "\n"
-        )
-    else:
-        files["Makefile"] = makefile
-    stage_file = folder / PACK_STAGE_FILE
-    if stage_file.exists():
-        files[f"factory/{PACK_STAGE_FILE}"] = stage_file.read_text(encoding="utf-8")
+    if own_root_makefile is not None:
+        files["Makefile"] = own_root_makefile
     for path in sorted(folder.rglob("*")):
         relative = path.relative_to(folder).as_posix()
-        if path.is_file() and relative not in _PACK_PLACED_FILES:
-            files[relative] = path.read_text(encoding="utf-8")
+        if path.is_file() and relative not in PACK_PAGES:
+            files[f"factory/{relative}"] = path.read_text(encoding="utf-8")
     return files
 
 

@@ -5,8 +5,8 @@ contract: "1.2"
 attempts_cap: 2
 crash_cap: 2
 acceptance_stage: acceptance
-# An existing repository that keeps its own root Makefile names the factory's makefile here:
-# make_file: factory/Makefile
+# The factory's makefile. By hand, a target runs from the root as `make -f factory/Makefile <target>`.
+make_file: factory/Makefile
 project_commands:
   check: {time_limit: 10}
   lint: {time_limit: 5}

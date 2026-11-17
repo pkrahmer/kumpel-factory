@@ -1,5 +1,6 @@
-# The factory's part of a project's makefile (kumpel-factory's kit). The project's makefile includes
-# it as its first line, `include factory/kit.mk`, and then defines `sync`, `lint`, `test` and `check`.
+# The factory's part of a project's makefile (kumpel-factory's kit). `factory/Makefile` includes it
+# as its first line, `include factory/kit.mk`, and then defines `sync`, `lint`, `test` and `check`.
+# make runs from the root of the repository, so every path in both files is taken from the root.
 # This file is the kit's: an upgrade of the kit replaces it, so a project does not edit it.
 
 # One shell per recipe, stopped by its first failing line, so that a recipe can time itself.

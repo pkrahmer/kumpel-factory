@@ -92,7 +92,7 @@ The full rules are under *Start facts* in [the project guide's pipeline.md](../p
 
 ### Name the makefile
 
-The factory runs every project command, and the sync before every agent run, as `make <command>` in the root of the checkout. make then reads the root `Makefile`. An existing repository often has a root `Makefile` of its own, or none and no wish for one. It can keep it: put the factory's targets in another makefile and name it in the definition.
+The factory runs every project command, and the sync before every agent run, as `make <command>` in the root of the checkout. Without more, make then reads the root `Makefile`. A project from the kit keeps the factory's targets in `<project>/factory/Makefile` instead, for a fresh start and an existing repository alike, and both of the kit's pipeline definitions name it:
 
 ```yaml
 contract: '1.2'
@@ -105,6 +105,7 @@ make_file: factory/Makefile
 - A definition without `make_file` runs plain `make <command>`, as before. So does every call while the definition is missing or refused.
 - `factory-check-project` reads the named makefile instead of `Makefile` (see *The six points* below).
 - The named makefile is a protected path, like the root `Makefile` and the kit's `<project>/factory/kit.mk`: no role writes it, whatever its write paths say.
+- A target is run by hand from the root as `make -f factory/Makefile <target>`. A repository without a root `Makefile` of its own copies the kit's `operator/kit/root.Makefile` as `Makefile`: it forwards every target to `<project>/factory/Makefile`, with `check` as its default goal, so `make check` works at the root too. A repository with a root `Makefile` of its own keeps it, and its `CLAUDE.md` says under `## Checks` that the agents run every target as `make -f factory/Makefile <target>`. *An existing repository* in [start-a-project.md](start-a-project.md) walks through both.
 - `make_file` came with the definition's contract 1.2; a definition at `'1.0'` or `'1.1'` may carry it too.
 
 The value must be a path inside the checkout made of letters, digits, `_`, `.`, `/` and `-`, which does not start with `-` or `/` and has no `..` segment. `make_file: Makefile`, `make_file: factory/Makefile` and `make_file: build/factory.mk` are accepted. An empty value, `-f`, `/etc/Makefile`, `../Makefile`, `a/../b`, `my file`, `a;b` and a number are refused, and the fault names `make_file`.
@@ -223,13 +224,13 @@ Further rules:
 2. Run the command with the folder of that repository. Name the installed agents with `--agent-home <dir>`; without it the command takes the folder that `FACTORY_CLAUDE_HOME` names. In the factory's checkout the shipped agents are the folder `agents`.
 3. Read the lines it prints: one line per point, then the verdict. Fix every `FAIL`, commit, and run it again.
 
-The example builds a project from the kit's full line and the Python pack in a new folder `my-project`, with two slips: its `Makefile` has no `lint:` rule, and `factory/feature-form.md` is missing. It runs in the factory's checkout, where the shipped agents are the folder `agents`. The example runs `python -m factory.entry.check_project`, which is the same command as the installed console script `factory-check-project`, with the same arguments. It runs the module because the document check runs the page's examples in the factory's own checkout, where the module is reachable whether or not the console script is on the path.
+The example builds a project from the kit's full line and the Python pack in a new folder `my-project`, with two slips: its `<project>/factory/Makefile`, the one the full line's `make_file` names, has no `lint:` rule, and `factory/feature-form.md` is missing. It runs in the factory's checkout, where the shipped agents are the folder `agents`. The example runs `python -m factory.entry.check_project`, which is the same command as the installed console script `factory-check-project`, with the same arguments. It runs the module because the document check runs the page's examples in the factory's own checkout, where the module is reachable whether or not the console script is on the path.
 
 ```console
 $ git init -q my-project && mkdir -p my-project/factory my-project/src my-project/tests my-project/docs
 $ cp operator/kit/factory/kit.mk operator/kit/factory/story-form.md my-project/factory/
 $ cp operator/kit/factory/pipeline.full.yml my-project/factory/pipeline.yml
-$ grep -v '^lint:' operator/packs/python/Makefile > my-project/Makefile
+$ grep -v '^lint:' operator/packs/python/Makefile > my-project/factory/Makefile
 $ touch my-project/src/a.py my-project/tests/t.py my-project/docs/d.md my-project/README.md
 $ git -C my-project add -A && git -C my-project -c user.name=t -c user.email=t@example.com commit -q -m one
 $ python -m factory.entry.check_project --agent-home agents my-project

@@ -180,6 +180,7 @@ def test_template_holds_only_the_rules_file_the_makefile_and_the_pipeline_defini
         "factory/pipeline.full.yml",
         "factory/pipeline.thin.yml",
         "factory/story-form.md",
+        "root.Makefile",
     ]
     assert pack == ["CLAUDE.sections.md", "Makefile", "TRAPS.md"]
     assert (KIT / "CLAUDE.md").is_file()
