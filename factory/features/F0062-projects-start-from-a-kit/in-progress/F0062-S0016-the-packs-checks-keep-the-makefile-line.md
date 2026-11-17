@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 710
 comments_read: [6942486584]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: review
+  started_at: '2026-11-17T08:16:04.712005Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -86,6 +90,11 @@ journal:
   at: '2026-11-17T08:15:58.640620Z'
   stage: doing
   run: 30af8e4a770243b5bc17f8aa365f20e1
+- number: 15
+  speaker: factory
+  kind: started
+  at: '2026-11-17T08:16:04.712005Z'
+  stage: review
 ---
 
 # Each pack's checks section keeps the line that names the factory's makefile
@@ -241,3 +250,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     Noticed but did not touch: the docs criterion (5), the edits to `docs/operator-guide/start-a-project.md` step 5 and `operator/packs/README.md` step 4. That is the documenter's work.
 
     `duplicates`: duplicates: 8 new, 38 known, 5 gone
+15. factory: started review as self.
