@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 707
 comments_read: [6941636547]
 handed_over: null
-claim:
-  instance: self
-  stage: doing
-  started_at: '2026-11-17T07:30:00.044010Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -62,6 +58,12 @@ journal:
   kind: started
   at: '2026-11-17T07:30:00.044010Z'
   stage: doing
+- number: 10
+  speaker: coder
+  kind: result
+  at: '2026-11-17T07:32:33.830935Z'
+  stage: doing
+  run: a8712e58926a459cb50723f0b1d36130
 ---
 
 # The root makefile forwards a target that a file at the root is named after
@@ -165,3 +167,17 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
    `lint`: lint: green (0.1 s)
 9. factory: started doing as self.
+10. coder: I copied `planning/kit-draft/root.Makefile` into `operator/kit/root.Makefile`, and the two are now identical. The forwarding rule `%:` now depends on the phony, empty target `factory-forward` (declared as `.PHONY: factory-forward` and `factory-forward: ;`). Because the prerequisite is phony, make always runs the forwarding recipe, even when a file or folder of the target's name exists at the root. `.DEFAULT_GOAL := check` and `Makefile: ;` are unchanged. That was the only change. No code under `src/` and no test was touched.
+
+    Main choice: I copied the human's draft as it is, following feature decision 18 and the Interface's whole-file text. I rejected two alternatives: `.PHONY` on a list of known target names, because the root makefile cannot know a project's targets; and `MAKECMDGOALS` tricks, which the GNU make manual's idiom makes unnecessary.
+
+    Checks:
+    - Before the change, 5 of the tester's tests in `tests/operator_scripts/test_root_makefile.py` failed, for the reasons the tester gave.
+    - After the change, that file passes together with `tests/operator_scripts/test_one_layout.py` (34 passed).
+    - `make check guides` is green: `check: green`, `guides: green`.
+
+    Refactor: there is nothing to refactor, because the diff is the human's draft word for word. The journal changed the meaning of the Description only by adding criterion 5, which intake already carried in, so I made no Description rewrite.
+
+    Noticed but not touched: nothing.
+
+    `duplicates`: duplicates: 8 new, 38 known, 5 gone
