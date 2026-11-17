@@ -1,17 +1,13 @@
 ---
 stage: intake
-blocked: null
+blocked: question
 round: 0
 attempts: 0
 crashes: 0
-pull_request: null
+pull_request: 707
 comments_read: []
 handed_over: null
-claim:
-  instance: self
-  stage: intake
-  started_at: '2026-11-17T07:25:19.507875Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -23,6 +19,13 @@ journal:
   kind: started
   at: '2026-11-17T07:25:19.507875Z'
   stage: intake
+- number: 3
+  speaker: intake
+  kind: question
+  at: '2026-11-17T07:25:51.598570Z'
+  stage: intake
+  run: 0bc5fe6427e7426798199c0da7cef2d8
+  blocked: question
 ---
 
 # The root makefile forwards a target that a file at the root is named after
@@ -83,3 +86,6 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
 1. 2026-11-17 human: created.
 2. factory: started intake as self.
+3. intake: 1. The Interface states the rule "the name `factory-forward` is the forwarding makefile's own and is not forwarded", but no criterion tests it, on either side, so a coder could forward that name too and every test would still pass. Options: (a) add a criterion before the two closing ones, for example: "5. In the same project, with a target `factory-forward` in `factory/Makefile` whose recipe prints `forwarded`, `make factory-forward` exits 0 and prints no line `forwarded`"; (b) take the rule out of the Interface, since it only records what the given makefile text does anyway and is not a promise to the project. I would choose (a), because the rule says that a project must not use that name, and a test makes that visible.
+
+   Everything else checks out and needs no change. The Interface's text matches `planning/kit-draft/root.Makefile` exactly. Criteria 1 to 4 cover the other four rules on both sides: forwarding with nothing, a folder or a file of the target's name at the root; the default goal; a red target and an unknown target; no `Makefile` remake. Both smoke tests run as written: `kit.mk` has `.ONESHELL`, `$(start)` and `$(green)`; pytest gets `-q` from `addopts`, and the command passes none. Docs criterion 6 names what the reader must know without dictating sentences. The architecture fits: a kit file plus a new test in `tests/operator_scripts/` on `ROOT_MAKEFILE` of `tests/support/kit_support.py`, and no earlier test changes. Scope: within F0062 (kit, decision 18) and not in its Out of scope. If the human answers (a), the route is `tests`.
