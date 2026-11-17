@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 1
 attempts: 0
@@ -130,6 +130,11 @@ journal:
   at: '2026-11-17T02:53:58.605468Z'
   stage: smoke-test
   run: 51d66de9420146a69d4befa16154c7c6
+- number: 23
+  speaker: factory
+  kind: done
+  at: '2026-11-17T02:55:49.684534Z'
+  stage: approval
 ---
 
 # The installed builder
@@ -511,3 +516,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     - No criterion is contradicted.
 
     `check`: check: green
+23. factory: done (pull request merged); cost: 10 runs, 21.8 min, 95 turns, 308115 tokens in (4090477 more from cache), 45285 out, $3.26
