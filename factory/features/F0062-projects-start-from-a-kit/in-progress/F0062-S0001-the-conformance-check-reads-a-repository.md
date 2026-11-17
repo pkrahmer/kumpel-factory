@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 690
 comments_read: [6933812910, 6934072851]
 handed_over: null
-claim:
-  instance: self
-  stage: doing
-  started_at: '2026-11-17T00:55:39.968066Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -145,6 +141,12 @@ journal:
   kind: started
   at: '2026-11-17T00:55:39.968066Z'
   stage: doing
+- number: 25
+  speaker: coder
+  kind: result
+  at: '2026-11-17T00:58:07.291909Z'
+  stage: doing
+  run: ff2e417776954ef5b74bb323798ec328
 ---
 
 # The conformance check reads a repository
@@ -450,3 +452,28 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     `lint`: lint: green (0.1 s)
 24. factory: started doing as self.
+25. coder: Round 1, after the tester's new rows (entry 23). Both test files from that entry pass: `tests/pipeline/domain/test_project_check.py` and `tests/pipeline/application/test_project_check_run.py`. They include the three criterion 9 rows for finding 1 (`include ../common.mk`, `-include ../common.mk`, `include ./factory/kit.mk`) and the criterion 2 row for finding 2 (`include a.mk # b.mk`). `make check guides` is green: `check: green`, coverage 99.19 %, `guides: green`.
+
+    I changed no code this round. Entry 21 already fixed finding 1 in `src/factory/pipeline/application/project_check.py` (`_Makefiles`):
+    - Every include path goes through `posixpath.normpath`.
+    - A path that is absolute or leaves the root counts as not committed. The check uses the existing `is_inside_checkout`, and such a path never reaches `Git.show_file`.
+    - Rejected: catching `GitError` around `show_file`, because that would also hide real git failures as missing includes.
+
+    Finding 2 needed only its test row, which the tester added.
+
+    What the story built, unchanged from rounds 0 and 1:
+    - `src/factory/pipeline/domain/project_check.py`
+    - `src/factory/pipeline/application/project_check.py`
+    - `src/factory/entry/check_project.py`
+    - `src/factory/entry/wiring.py`: `build_agent_definitions` is the one place that builds the reader.
+    - `src/factory/hosting/adapters/git_cli.py` and `src/factory/hosting/application/git.py`: `list_files(ref, "")` lists the whole tree.
+
+    Refactor pass: nothing to change.
+
+    Noticed but not touched:
+    - The reviewer's note about a definition that already names `sync` still has no row. It was a note, not a finding.
+    - The smoke test has not been run by this stage; the smoke-test stage runs it.
+
+    The journal did not change the Description.
+
+    `duplicates`: duplicates: 7 new, 39 known, 4 gone
