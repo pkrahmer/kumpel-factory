@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 707
 comments_read: [6941636547]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: review
+  started_at: '2026-11-17T07:32:39.378059Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -64,6 +68,11 @@ journal:
   at: '2026-11-17T07:32:33.830935Z'
   stage: doing
   run: a8712e58926a459cb50723f0b1d36130
+- number: 11
+  speaker: factory
+  kind: started
+  at: '2026-11-17T07:32:39.378059Z'
+  stage: review
 ---
 
 # The root makefile forwards a target that a file at the root is named after
@@ -181,3 +190,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     Noticed but not touched: nothing.
 
     `duplicates`: duplicates: 8 new, 38 known, 5 gone
+11. factory: started review as self.
