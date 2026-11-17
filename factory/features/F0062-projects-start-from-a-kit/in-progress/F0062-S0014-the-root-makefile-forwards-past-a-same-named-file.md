@@ -1,5 +1,5 @@
 ---
-stage: intake
+stage: tests
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 707
 comments_read: [6941636547]
 handed_over: null
-claim:
-  instance: self
-  stage: intake
-  started_at: '2026-11-17T07:26:39.694476Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -40,6 +36,12 @@ journal:
   kind: started
   at: '2026-11-17T07:26:39.694476Z'
   stage: intake
+- number: 6
+  speaker: intake
+  kind: result
+  at: '2026-11-17T07:27:01.632336Z'
+  stage: intake
+  run: 3f921c8b067b4fe8b65e51f881cfee8c
 ---
 
 # The root makefile forwards a target that a file at the root is named after
@@ -78,8 +80,9 @@ factory-forward: ;
 2. In the same project with a folder `check/` at the root, `make` without a target prints the green lines of `lint` and `test` and ends with `check: green`.
 3. In the same project with a folder `test/` at the root and a `test` recipe that ends with `exit 3`, `make test` exits with a non-zero status: a red target is not hidden by the folder.
 4. `make nosuch` exits non-zero, and in every row of criteria 1 to 3 no output line names a target `Makefile` (`'Makefile'` or `` `Makefile' ``).
-5. `make check` stays green.
-6. docs: `operator/kit/README.md` (the `root.Makefile` row of its Files table, or the paragraph on the forwarding makefile) says that the forwarding makefile forwards a target also when a file or a folder at the root has the target's name; `docs/decisions.md` records, beside the one-layout entry, why the forwarding rule depends on a phony target (a `test/` folder made `make test` a false green).
+5. In the same project, with a target `factory-forward` in `factory/Makefile` whose recipe prints `forwarded`, `make factory-forward` exits 0 and prints no line `forwarded`.
+6. `make check` stays green.
+7. docs: `operator/kit/README.md` (the `root.Makefile` row of its Files table, or the paragraph on the forwarding makefile) says that the forwarding makefile forwards a target also when a file or a folder at the root has the target's name; `docs/decisions.md` records, beside the one-layout entry, why the forwarding rule depends on a phony target (a `test/` folder made `make test` a false green).
 
 ## Smoke test
 
@@ -105,3 +108,17 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    Everything else checks out and needs no change. The Interface's text matches `planning/kit-draft/root.Makefile` exactly. Criteria 1 to 4 cover the other four rules on both sides: forwarding with nothing, a folder or a file of the target's name at the root; the default goal; a red target and an unknown target; no `Makefile` remake. Both smoke tests run as written: `kit.mk` has `.ONESHELL`, `$(start)` and `$(green)`; pytest gets `-q` from `addopts`, and the command passes none. Docs criterion 6 names what the reader must know without dictating sentences. The architecture fits: a kit file plus a new test in `tests/operator_scripts/` on `ROOT_MAKEFILE` of `tests/support/kit_support.py`, and no earlier test changes. Scope: within F0062 (kit, decision 18) and not in its Out of scope. If the human answers (a), the route is `tests`.
 4. 2026-11-17 human: (a), with your wording of criterion 5.
 5. factory: started intake as self.
+6. intake: accepted
+   - Human's answer carried in: following journal entry 4 ("(a), with your wording of criterion 5"), I added criterion 5 word for word as intake proposed it in entry 3. It goes before the two closing criteria, which are now 6 (`make check`) and 7 (`docs:`). The Description's meaning is unchanged.
+   - Interface: names the whole new text of `operator/kit/root.Makefile`, which matches `planning/kit-draft/root.Makefile`. It states five rules, and it names the new test file `tests/operator_scripts/test_root_makefile.py`, built on `ROOT_MAKEFILE` of `tests/support/kit_support.py`.
+   - Criteria: each can be tested by one test function. Every rule is tested on both sides:
+     - forwarding when nothing, a folder or a file of the target's name is at the root (1);
+     - the default goal past a `check/` folder (2);
+     - a red target is not hidden by a folder (3);
+     - an unknown target ends red, and nothing tries to remake `Makefile` (4);
+     - `factory-forward` is not forwarded (5): an explicit empty phony rule, so it exits 0 and prints nothing from `factory/Makefile`.
+   - Smoke test: both blocks can be run as written. `kit.mk` provides `.ONESHELL`, `$(start)` and `$(green)`. The pytest command passes no `-q`, because `addopts` already sets it. Each `Expect:` line names output that can be checked.
+   - Docs criterion: names what the reader of `operator/kit/README.md` and `docs/decisions.md` must know, and dictates no sentences.
+   - Architecture: one kit file copied from the human's draft (feature decision 18) and one new test module in `tests/operator_scripts/`. No earlier test changes, and the factory's own `make -f factory/Makefile` calls are not touched.
+   - Scope: within F0062 (the kit, its one layout) and not in its Out of scope.
+   - Route: `tests`, because the Interface changes `operator/kit/root.Makefile` and adds a test, which the documenter may not write.
