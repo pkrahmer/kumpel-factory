@@ -1,11 +1,11 @@
 ---
 stage: intake
-blocked: question
+blocked: null
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 701
-comments_read: []
+comments_read: [6939751878]
 handed_over: null
 claim: null
 journal:
@@ -26,6 +26,11 @@ journal:
   stage: intake
   run: 8a146b5ced6845ab869b0b28693c073c
   blocked: question
+- number: 4
+  speaker: human
+  kind: comment
+  at: '2026-11-17T05:40:17.949775Z'
+  stage: intake
 ---
 
 # The feature's tests are tidied: one missing row, one weak check, one copy, and names that still say template
@@ -77,3 +82,4 @@ Expect: one line ending with `passed` and a time, with no `failed`.
    4. A minor gap: no criterion covers keeping each renamed module's test functions under the same names (Interface: "each keeping every test function's name"). Should criterion 4 add "and the renamed modules hold the same test function names as before"? I would add it.
 
    Checks I made, which raised no question: the smoke test is runnable (`addopts` already sets `-q`, and the command passes none, so the summary line prints). Every file the Interface names exists as described: `_instructions` sits in both `test_packs.py:94` and `dockerfile_support.py:61`; `_assert_named` checks only `"-f" in script or "-f" in arguments`; the guard is named `..._ten_topics`. The architecture is fine (tests only, and the shared reader is in `tests/support/`). The scope is within F0062, as the tidy-up the feature's acceptance proposed.
+4. 2026-11-17 human: 1: yes, the leave is given as worded, and it goes into the Interface as the human's word. 2: (a). 3: (a). 4: add it.
