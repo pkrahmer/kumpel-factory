@@ -1,3 +1,30 @@
+---
+stage: intake
+blocked: null
+round: 0
+attempts: 0
+crashes: 0
+pull_request: null
+comments_read: []
+handed_over: null
+claim:
+  instance: self
+  stage: intake
+  started_at: '2026-11-17T08:06:54.237439Z'
+  lease_duration: 60
+journal:
+- number: 1
+  speaker: human
+  kind: created
+  at: '2026-11-17T08:06:54.230208Z'
+  stage: intake
+- number: 2
+  speaker: factory
+  kind: started
+  at: '2026-11-17T08:06:54.237439Z'
+  stage: intake
+---
+
 # Each pack's checks section keeps the line that names the factory's makefile
 
 
@@ -37,3 +64,6 @@ uv run pytest tests/operator_scripts/test_pack_checks_line.py tests/operator_scr
 Expect: a summary line with only `passed`, no `failed` or `error`.
 
 ## Journal
+
+1. 2026-11-17 human: created.
+2. factory: started intake as self.
