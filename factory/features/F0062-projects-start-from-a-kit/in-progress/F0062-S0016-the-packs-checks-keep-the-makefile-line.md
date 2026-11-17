@@ -1,11 +1,11 @@
 ---
 stage: doing
-blocked: question
+blocked: null
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 710
-comments_read: []
+comments_read: [6942486584]
 handed_over: null
 claim: null
 journal:
@@ -48,6 +48,11 @@ journal:
   stage: doing
   run: 2cb1bb3ea7974de390c3a9d8c5701a2f
   blocked: question
+- number: 8
+  speaker: human
+  kind: comment
+  at: '2026-11-17T08:12:05.662885Z'
+  stage: doing
 ---
 
 # Each pack's checks section keeps the line that names the factory's makefile
@@ -147,3 +152,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    (c) Add the three findings to `.secrets.baseline`.
 
    I would choose (a): it keeps the test readable, needs no secrets exception, and matches what criterion 2 already allows. On an answer of (a), I end the next run with `tests` naming that change.
+8. 2026-11-17 human: (a). No marker and no baseline entry.
