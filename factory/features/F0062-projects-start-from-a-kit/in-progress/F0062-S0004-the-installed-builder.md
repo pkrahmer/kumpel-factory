@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 693
 comments_read: [6936126509]
 handed_over: null
-claim:
-  instance: self
-  stage: doing
-  started_at: '2026-11-17T02:40:24.061381Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -95,6 +91,12 @@ journal:
   kind: started
   at: '2026-11-17T02:40:24.061381Z'
   stage: doing
+- number: 16
+  speaker: coder
+  kind: result
+  at: '2026-11-17T02:42:51.688521Z'
+  stage: doing
+  run: f2e07c4a11884461b30b1c3c94538bfd
 ---
 
 # The installed builder
@@ -359,3 +361,18 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     `lint`: lint: green (0.2 s)
 15. factory: started doing as self.
+16. coder: Round 1: no code change was needed. The reviewer's one finding (entry 12) was the copied regex in the tests. The tester has fixed it (entry 14) by moving it to `REVIEW_POINTS_SUBSECTION` in `tests/support/shipped_agents.py`.
+
+    Checked:
+    - I ran the tester's named files with `uv run pytest -q tests/agent_files/test_claude_agent_texts_review_groups.py tests/agent_files/test_shared_rules_system_prompt.py tests/agent_files/test_installed_builder.py`. All 44 passed.
+    - `make check guides`: every target is green, ending with `check: green` and `guides: green`. Coverage is 99.14 %. Types now cover the tester's changed files, which the tester could not check alone.
+
+    Built: nothing new this round. `agents/agents/builder.md` and the reviewer's subsection in `agents/agents/reviewer.md` are unchanged since entry 10. I changed no tests and no module under `src/factory/`.
+
+    Main choice: I left the agent files as they are. The finding touched only the tests. I rejected touching the reviewer's note on `tests/agent_files/test_installed_builder.py:65`: it is a note, and the file is a test.
+
+    Refactor: nothing to change. The diff outside the tests is still the two agent files, whose wording the Interface fixes word for word.
+
+    Not touched: the documents of criterion 8 (`docs/operator-guide/`, `docs/project-guide/agents.md`, `agents/README.md`, `docs/decisions.md`). They belong to the documenter.
+
+    `duplicates`: duplicates: 8 new, 38 known, 5 gone
