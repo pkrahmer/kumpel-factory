@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 691
 comments_read: [6934588171, 6934893656]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: tests
+  started_at: '2026-11-17T01:26:42.434313Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -81,6 +85,11 @@ journal:
   at: '2026-11-17T01:26:36.706498Z'
   stage: doing
   run: b204540416f549a09b73a4486885bf40
+- number: 14
+  speaker: factory
+  kind: started
+  at: '2026-11-17T01:26:42.434313Z'
+  stage: tests
 ---
 
 # The pipeline definition names its makefile
@@ -260,3 +269,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 13. coder: Test change for the tester, as the human allowed in entry 11. In `tests/pipeline/domain/test_contract.py:54`, `tests/shared/domain/test_contract_version_4.py:12,23` and `tests/shared/domain/test_contract_version_4_2.py:12,23`, change the pinned records contract version from "4.5" to "4.6". A grep of `tests/` finds no other earlier test that pins "4.5" as the contract version. The other two hits are an opencode version and a time, and they stay as they are.
 
     I changed no code this round. The build from entry 10 is unchanged on the branch. Once the tests come back with 4.6, I will set `RECORDS_CONTRACT = "4.6"` and regenerate the schemas with `uv run python -m factory.entry.contract`. Then I will run `make check` and `make guides`. Entry 11 says the `PLR0913` exception for `stage_environment.py` is on `develop`. I will check that it is in this branch's `pyproject.toml` at that run.
+14. factory: started tests as self.
