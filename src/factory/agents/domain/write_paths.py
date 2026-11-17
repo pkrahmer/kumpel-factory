@@ -34,6 +34,8 @@ PROTECTED_PATHS: tuple[str, ...] = (
     f"{PROJECT_AGENTS_DIRECTORY}/*",
 )
 
+KIT_MAKEFILE: str = "factory/kit.mk"
+
 _PLACEHOLDER = re.compile(r"\{[a-z_]+\}")
 _KNOWN_PLACEHOLDERS = (WORK_ITEM_PLACEHOLDER, FEATURE_PLACEHOLDER)
 
@@ -46,6 +48,14 @@ def matches_any(path: str, patterns: Sequence[str]) -> bool:
 def is_writable(path: str, write_paths: Sequence[str]) -> bool:
     """Whether `path` is inside the checkout and matches one of `write_paths`."""
     return is_inside_checkout(path) and matches_any(path, write_paths)
+
+
+def protected_paths(make_file: str | None) -> list[str]:
+    """The protected paths of a stage: `PROTECTED_PATHS`, `KIT_MAKEFILE`, and any `make_file`."""
+    paths = [*PROTECTED_PATHS, KIT_MAKEFILE]
+    if make_file is not None and make_file not in paths:
+        paths.append(make_file)
+    return paths
 
 
 def expand_write_paths(

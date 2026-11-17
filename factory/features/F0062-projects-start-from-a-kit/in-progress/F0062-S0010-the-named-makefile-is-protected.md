@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 700
 comments_read: [6939383328]
 handed_over: null
-claim:
-  instance: self
-  stage: doing
-  started_at: '2026-11-17T05:25:42.091087Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -62,6 +58,12 @@ journal:
   kind: started
   at: '2026-11-17T05:25:42.091087Z'
   stage: doing
+- number: 10
+  speaker: coder
+  kind: result
+  at: '2026-11-17T05:28:26.235524Z'
+  stage: doing
+  run: 6c023cf2f750440d86dca3a43647967c
 ---
 
 # The makefile a pipeline definition names, and the kit's `kit.mk`, are protected paths
@@ -172,3 +174,24 @@ Expect: `13 13`
 
    `lint`: lint: green (0.1 s)
 9. factory: started doing as self.
+10. coder: I built `KIT_MAKEFILE` and `protected_paths(make_file)`, and connected them to the take. `make check guides` is green.
+
+    - `src/factory/agents/domain/write_paths.py`:
+      - `KIT_MAKEFILE = "factory/kit.mk"`.
+      - `protected_paths(make_file)` returns `[*PROTECTED_PATHS, KIT_MAKEFILE]`. It appends `make_file` only when one is given and the list doesn't already hold it, so `"Makefile"` and `"factory/kit.mk"` are not added twice.
+      - `PROTECTED_PATHS` is unchanged.
+    - `src/factory/agents/application/write_paths.py`: `WritePathService.at` now sets `protected_paths=protected_paths(definition.make_file)`. The definition comes from the existing `_definition_at(stage_start.commit)`, which reads it through `git.show_file` at the stage-start commit, never from the work tree. So I needed no new read.
+
+    **Main choice:** the duplicate check is an exact string match against the list (`make_file not in paths`). I rejected testing `make_file` against the patterns with `matches_any`. That would also skip a `make_file` already covered by a wildcard such as `.claude/*`. The Interface asks only that "a `make_file` already in the list is not added again", and an exact match keeps the returned list predictable.
+
+    **Tests:**
+    - The four test files the tester named pass when run alone.
+    - The two errors in `tests/guards/test_documents_marker.py` that the tester expected to clear have cleared: `make test` is green inside `make check`.
+
+    **Refactor:** I read the diff, which is two small edits. Nothing needed changing beyond shortening the new docstring to fit the line limit.
+
+    **Description:** the journal changed nothing that needed a rewrite. Intake had already carried the human's answers from journal entry 4 into the Description.
+
+    **Noticed, not touched:** none.
+
+    `duplicates`: duplicates: 8 new, 38 known, 5 gone
