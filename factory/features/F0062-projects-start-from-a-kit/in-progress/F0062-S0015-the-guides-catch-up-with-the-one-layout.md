@@ -1,17 +1,13 @@
 ---
-stage: docs-review
+stage: docs-only
 blocked: null
-round: 0
+round: 1
 attempts: 0
 crashes: 0
 pull_request: 708
 comments_read: []
 handed_over: null
-claim:
-  instance: self
-  stage: docs-review
-  started_at: '2026-11-17T07:52:00.414052Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -45,6 +41,12 @@ journal:
   kind: started
   at: '2026-11-17T07:52:00.414052Z'
   stage: docs-review
+- number: 7
+  speaker: reviewer
+  kind: result
+  at: '2026-11-17T07:52:58.565317Z'
+  stage: docs-review
+  run: 739ecc2a1a654bb384f3afead1ef314d
 ---
 
 # The guides catch up with the one layout and name every shared test helper
@@ -110,3 +112,21 @@ Expect: the single line `done`.
    `secrets`: secrets: green (0.6 s)
    `documents`: documents ok (48.8 s)
 6. factory: started docs-review as self.
+7. reviewer: Reviewed `git diff develop...HEAD -- README.md docs operator/README.md` (three files) against the code on the branch and against `docs/project-guide/style.md`.
+
+   Facts: everything the diff says is true of the branch.
+   - The assembly in the `operator/packs/` bullet matches `operator/packs/README.md`, *Assembling a project from the kit and a pack*, and `pack_project_files`.
+   - The make-target sentence in install.md matches *Name the makefile* in `docs/operator-guide/pipeline.md`, and the link anchor exists.
+   - I checked each of the eight new bullets against the module's docstrings and top-level names, with one slip in finding 3.
+   - Criteria 1 to 3 hold: the smoke-test blocks print `0`, `0` and `done`. Criterion 2's `make_file` and `factory/Makefile` are both named. The docs criterion is met in content.
+
+   Findings, all against style.md's rule 2 for all documents ("Split a sentence of more than about 25 words. Use at most one parenthesis per sentence"):
+
+   1. `docs/operator-guide/install.md:230`, *The project's make targets*: the second sentence ("It calls four targets, which … pipeline.md:") runs to about 50 words, and a semicolon joins the "see" clause onto it. Fix: split it. One sentence says the targets are in the makefile the definition names with `make_file`, else in the root `Makefile`. One says a project assembled from the kit names `<project>/factory/Makefile` (`make_file: factory/Makefile`). The pointer to *Name the makefile* gets its own sentence.
+   2. `docs/project-guide/operator.md:25`, the `operator/packs/` bullet: the new sentence ("[Its README] says what each file is for and how kit and pack are assembled, the one way … `make_file: factory/Makefile`.") runs to about 55 words with three ideas. Fix: keep "says what each file is for and how kit and pack are assembled" as one sentence. Then say in one short sentence that there is one way, for a fresh start and an existing repository alike. Then one sentence on where the pack's files go and how the kit's definition names the makefile.
+   3. `docs/project-guide/README.md:229`, the `kit_support.py` bullet:
+      - The third sentence ("`kit_project_files` and `pack_project_files` give … and `run_kit_make` runs make in it.") runs to about 50 words. Fix: split it, for example the two `*_project_files` functions in one sentence and `pack_claude_md`, `forwarding_project` and `run_kit_make` in the next.
+      - "It names their files and folders (… `LINES`, `PACKS`)" lists `LINES`, which is the kit's two lines `("thin", "full")` (`tests/support/kit_support.py:33`), not a file or folder. Fix: say it names the kit's lines and packs, or drop `LINES` from the parenthesis.
+   4. `docs/project-guide/README.md:232`, the `project_run_support.py` bullet:
+      - Its one sentence holds three parentheses (`(SeenRun)`, `(with make_file=)`, `(GREEN_SYNC, GREEN_CHECK, NAMED_MAKEFILE)`). Fix: split it into sentences of one parenthesis at most.
+      - It counts `NAMED_MAKEFILE` among "the outputs and constants of a green sync and check". `NAMED_MAKEFILE` is the path `"factory/Makefile"` (`tests/support/project_run_support.py:25`) and belongs to neither. Fix: name it apart, as the makefile path a definition names.
