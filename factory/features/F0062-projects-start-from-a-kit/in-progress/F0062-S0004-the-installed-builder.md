@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 693
 comments_read: [6936126509]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: review
+  started_at: '2026-11-17T02:38:48.311041Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -64,6 +68,11 @@ journal:
   at: '2026-11-17T02:38:42.559238Z'
   stage: doing
   run: 753fd95047b5433f9ab721bfd8f82eb8
+- number: 11
+  speaker: factory
+  kind: started
+  at: '2026-11-17T02:38:48.311041Z'
+  stage: review
 ---
 
 # The installed builder
@@ -280,3 +289,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     Refactor: nothing to change. The diff is one new agent file and one inserted subsection, both fixed word for word by the Interface.
 
     `duplicates`: duplicates: 8 new, 38 known, 5 gone
+11. factory: started review as self.
