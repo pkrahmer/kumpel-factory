@@ -1,5 +1,5 @@
 ---
-stage: review
+stage: docs
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 693
 comments_read: [6936126509]
 handed_over: null
-claim:
-  instance: self
-  stage: review
-  started_at: '2026-11-17T02:42:57.242378Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -106,6 +102,12 @@ journal:
   kind: started
   at: '2026-11-17T02:42:57.242378Z'
   stage: review
+- number: 18
+  speaker: reviewer
+  kind: result
+  at: '2026-11-17T02:43:19.347175Z'
+  stage: review
+  run: 0366877c5b1f49c9bb2912e0483d736f
 ---
 
 # The installed builder
@@ -386,3 +388,34 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     `duplicates`: duplicates: 8 new, 38 known, 5 gone
 17. factory: started review as self.
+18. reviewer: Review, round 1: no findings.
+
+    My one finding from round 0 (entry 12) is fixed. The regex now exists once, as `REVIEW_POINTS_SUBSECTION` in `tests/support/shipped_agents.py`, and keeps its comment. `tests/agent_files/test_claude_agent_texts_review_groups.py::test_the_rest_of_the_reviewer_body_is_unchanged` and `tests/agent_files/test_shared_rules_system_prompt.py::test_every_agent_file_keeps_its_own_sections_word_for_word_in_order` both import it, and neither keeps a local copy.
+
+    I read the whole diff again:
+    1. Acceptance criteria:
+       - Criteria 1 to 5 each have a test that checks what the criterion says. Criterion 2's stack words are rows of one parametrized test. Criterion 4 is tested twice, through `PipelineLoader` and through `ProjectCheck.run`, both without `factory/agents/`. Criterion 5's project and installed cases are rows of one parametrized test.
+       - Criterion 6: the earlier tests carry the builder through `SHIPPED_AGENTS` and the data rows that entry 4 allows.
+       - Entry 16 says `make check guides` is green.
+    2. Architecture: no module under `src/` changed. The diff is two agent files, the tests and their support module.
+    3. Security: there are no secrets and no silencing markers.
+    4. Quality:
+       - `agents/agents/builder.md` matches the Interface word for word.
+       - The reviewer's new subsection is the last part before `## Lessons` and matches the Interface word for word.
+       - The new support helpers have docstrings.
+    5. Work item hygiene:
+       - The journal explains the main choice and what was rejected.
+       - The Description matches what was built.
+       - The docs criterion still names what the documenter must write.
+       - The system prompt has no complete list of roles, so leaving it unchanged is right.
+
+    Notes:
+    - `tests/agent_files/test_installed_builder.py:65`: two assertions check the same heading. The first one (in `f"\n{body}\n"`) adds nothing to the next one, which finds the heading in the `## Stage` section. One of them could go. This is unchanged from round 0, and it is a note on a test file this diff adds.
+
+    Earlier tests changed:
+    - `tests/agent_files/test_claude_agent_texts.py`: the human's answer in entry 4. It adds builder rows to `LESSONS` and `ROLE_AND_STAGE_ANCHORS` and takes the builder's decisions from the thin-line definition.
+    - `tests/agent_files/test_claude_agent_texts_review_groups.py`: leave 11 of feature.md, as the Interface cites it. The test strips the reviewer's new part before its checksum, using the shared `REVIEW_POINTS_SUBSECTION`.
+    - `tests/agent_files/test_claude_files.py`: entry 4. The template's pinned role list is now `full_line_names()`.
+    - `tests/agent_files/test_shared_rules_system_prompt.py`: leave 11 and entry 4. It strips the reviewer's new part, and its rows stay the seven agents of `PARTS_BEFORE`.
+    - `tests/agent_files/test_shared_start_agent_files.py`: entry 4. It adds a `builder` row to `EFFORTS`.
+    - `tests/support/shipped_agents.py`: entry 4. It adds the builder's `ShippedAgent` row, `THIN_LINE_ONLY`, `THIN_LINE_PIPELINE`, `thin_line_definition()` and `full_line_names()`. Under the standing leave to move a shared test helper, it also takes over the regex `REVIEW_POINTS_SUBSECTION` from the two test files above.
