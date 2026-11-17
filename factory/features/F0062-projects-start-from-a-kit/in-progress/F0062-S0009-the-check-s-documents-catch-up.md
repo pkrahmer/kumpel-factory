@@ -1,3 +1,30 @@
+---
+stage: intake
+blocked: null
+round: 0
+attempts: 0
+crashes: 0
+pull_request: null
+comments_read: []
+handed_over: null
+claim:
+  instance: self
+  stage: intake
+  started_at: '2026-11-17T05:10:26.392628Z'
+  lease_duration: 60
+journal:
+- number: 1
+  speaker: human
+  kind: created
+  at: '2026-11-17T05:10:26.386168Z'
+  stage: intake
+- number: 2
+  speaker: factory
+  kind: started
+  at: '2026-11-17T05:10:26.392628Z'
+  stage: intake
+---
+
 # The conformance check's documents catch up with the console script and the live part
 
 <!-- proposed by feature acceptance of 2026-11-17; refine before starting -->
@@ -35,3 +62,6 @@ grep -c -e '<stage image>-check' -e 'temporary clone' docs/decisions.md
 Expect: a number of at least 2.
 
 ## Journal
+
+1. 2026-11-17 human: created.
+2. factory: started intake as self.
