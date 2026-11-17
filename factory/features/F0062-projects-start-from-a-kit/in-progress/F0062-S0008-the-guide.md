@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 697
 comments_read: [6938616709]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: doing
+  started_at: '2026-11-17T04:50:20.787784Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -86,6 +90,11 @@ journal:
   at: '2026-11-17T04:50:12.893927Z'
   stage: review
   run: fce76f7e52ce4eef9a7700ded96ae719
+- number: 15
+  speaker: factory
+  kind: started
+  at: '2026-11-17T04:50:20.787784Z'
+  stage: doing
 ---
 
 # The guide
@@ -237,3 +246,4 @@ Expect: two numbers, each at least 3 for the first and at least 2 for the second
     Earlier tests changed:
     - `tests/support/check_documents_support.py`: the human's leave, journal entry 6 (adds `start-a-project.md` to `TOPIC_FILES`).
     - `tests/shared/domain/test_documents_guide_files.py`: the human's leave, journal entry 6 (the pinned list of guide paths gains the page; the test keeps its name).
+15. factory: started doing as self.
