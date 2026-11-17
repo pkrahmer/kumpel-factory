@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 693
 comments_read: [6936126509]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: doing
+  started_at: '2026-11-17T02:40:24.061381Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -86,6 +90,11 @@ journal:
   at: '2026-11-17T02:40:18.386544Z'
   stage: tests
   run: 5b1290fb2abb46eb823ded521f49e3f1
+- number: 15
+  speaker: factory
+  kind: started
+  at: '2026-11-17T02:40:24.061381Z'
+  stage: doing
 ---
 
 # The installed builder
@@ -349,3 +358,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     Every test module imported.
 
     `lint`: lint: green (0.2 s)
+15. factory: started doing as self.
