@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 690
 comments_read: [6933812910]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: doing
+  started_at: '2026-11-17T00:36:59.687217Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -53,6 +57,11 @@ journal:
   at: '2026-11-17T00:36:54.547685Z'
   stage: tests
   run: 445ed7c542a84cdabee463cd059c3c7a
+- number: 9
+  speaker: factory
+  kind: started
+  at: '2026-11-17T00:36:59.687217Z'
+  stage: doing
 ---
 
 # The conformance check reads a repository
@@ -221,3 +230,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    Modules the test run could not import: factory.pipeline.domain.project_check, factory.pipeline.application.project_check, factory.entry.check_project.
 
    `lint`: lint: green (0.1 s)
+9. factory: started doing as self.
