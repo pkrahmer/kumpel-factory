@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 692
 comments_read: [6935336014]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: tests
+  started_at: '2026-11-17T01:48:50.421574Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -42,6 +46,11 @@ journal:
   at: '2026-11-17T01:48:45.236246Z'
   stage: intake
   run: 45a10d58120d41cab0c75356d02b40fa
+- number: 7
+  speaker: factory
+  kind: started
+  at: '2026-11-17T01:48:50.421574Z'
+  stage: tests
 ---
 
 # The conformance check runs a repository
@@ -126,3 +135,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    - Docs criterion: it names what the reader must know (what `--run` adds and needs, the temporary clone, the `-check` tag, a VM example, the meaning of each fault, and the use case and its reuse rule in `machine.md`). It dictates no sentences.
    - Architecture: the use case sits in `machine.application` and works only through the `Images`, `ContainerRuns` and `Git` interfaces. Its domain point type is in `pipeline.domain`, and the wiring is in `entry`. Moving the check scripts to `application` keeps the import-linter layers intact, since `application` cannot import from `adapters`.
    - Scope: this is the feature's S0003 (the live check), within decisions 12 and 13. Decision 4 gives leave to add the new modules to the guard tables. Nothing here is in Out of scope.
+7. factory: started tests as self.
