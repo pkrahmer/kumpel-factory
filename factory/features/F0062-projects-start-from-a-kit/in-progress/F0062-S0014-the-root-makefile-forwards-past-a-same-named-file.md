@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 707
 comments_read: [6941636547]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: intake
+  started_at: '2026-11-17T07:26:39.694476Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -30,6 +34,11 @@ journal:
   speaker: human
   kind: comment
   at: '2026-11-17T07:26:37.207177Z'
+  stage: intake
+- number: 5
+  speaker: factory
+  kind: started
+  at: '2026-11-17T07:26:39.694476Z'
   stage: intake
 ---
 
@@ -95,3 +104,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
    Everything else checks out and needs no change. The Interface's text matches `planning/kit-draft/root.Makefile` exactly. Criteria 1 to 4 cover the other four rules on both sides: forwarding with nothing, a folder or a file of the target's name at the root; the default goal; a red target and an unknown target; no `Makefile` remake. Both smoke tests run as written: `kit.mk` has `.ONESHELL`, `$(start)` and `$(green)`; pytest gets `-q` from `addopts`, and the command passes none. Docs criterion 6 names what the reader must know without dictating sentences. The architecture fits: a kit file plus a new test in `tests/operator_scripts/` on `ROOT_MAKEFILE` of `tests/support/kit_support.py`, and no earlier test changes. Scope: within F0062 (kit, decision 18) and not in its Out of scope. If the human answers (a), the route is `tests`.
 4. 2026-11-17 human: (a), with your wording of criterion 5.
+5. factory: started intake as self.
