@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 691
 comments_read: [6934588171]
 handed_over: null
-claim:
-  instance: self
-  stage: tests
-  started_at: '2026-11-17T01:10:33.860407Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -51,6 +47,12 @@ journal:
   kind: started
   at: '2026-11-17T01:10:33.860407Z'
   stage: tests
+- number: 8
+  speaker: tester
+  kind: result
+  at: '2026-11-17T01:15:24.604809Z'
+  stage: tests
+  run: 1444c256ecff4b33989e488f616b04fd
 ---
 
 # The pipeline definition names its makefile
@@ -156,3 +158,28 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    - Architecture: the ABC is in `machine.application`, the git-based implementation in `pipeline.application`, the adapters take the source optionally, and only `entry` wires. The `ProjectCommands` and `StageEnvironment` interfaces keep their signatures.
    - Scope: within F0062 (feature decisions 4, 5, 8 and 9). The template and `factory/pipeline.yml` are not changed.
 7. factory: started tests as self.
+8. tester: Tests written for criteria 1 to 10. They are red on purpose because the modules under test do not exist yet. `make lint` is green.
+
+   Criterion → test:
+   - criterion 1: tests/pipeline/domain/test_pipeline_definition_make_file.py::test_the_definition_holds_its_make_file (contract 1.0, 1.1 and 1.2, and a definition without the key)
+   - criterion 2: tests/pipeline/domain/test_pipeline_definition_make_file.py::test_a_make_file_outside_its_characters_or_the_checkout_is_refused (8 refused rows, each fault naming `make_file`, and 3 accepted rows)
+   - criterion 3: tests/machine/adapters/test_make_commands_make_file.py::test_the_container_command_names_the_makefile_as_an_argument_only_when_the_source_gives_one (check and start fact × named, no source and `None`; today's exact argv for the last two)
+   - criterion 4: tests/machine/adapters/test_make_commands_make_file.py::test_the_source_is_asked_at_every_call
+   - criterion 5: tests/machine/application/test_stage_environment_make_file.py::test_the_sync_runs_the_makefile_the_source_names_as_an_argument (the root `Makefile` and `factory/Makefile` each leave their own marker, so the test shows which one the sync ran)
+   - criterion 6: tests/machine/adapters/test_make_commands_make_file.py::test_a_check_runs_the_named_makefile_s_sync_and_command (real make through FakeContainerRuns; the base's only makefile is `factory/Makefile`; green with its last line when there is a source, red without one)
+   - criterion 7: tests/pipeline/application/test_make_file_source.py::test_the_source_returns_the_make_file_of_the_definition_at_the_working_ref (rows: named, invalid definition, invalid `make_file`, no key), plus ::test_the_source_returns_none_for_a_missing_definition and ::test_the_source_reads_the_new_value_after_the_branch_moved. The last two need a setup of their own.
+   - criterion 8: tests/pipeline/application/test_project_check_make_file.py::test_the_makefile_point_reads_the_named_makefile
+   - criterion 9: tests/pipeline/application/test_project_check_make_file.py::test_the_named_makefile_s_includes_are_taken_from_the_root. In the row where `common.mk` sits beside the named makefile, the missing include also leaves `lint` and `sync` missing. So the test asserts that the include fault is among the faults, not that it is the only one.
+   - criterion 10: tests/guards/test_make_file_wiring.py::test_the_wiring_builds_the_git_source_and_both_users_get_a_source. This is an AST guard in the style of test_agent_home_wiring.py, which the human accepted. It checks three things: `factory.entry.wiring` builds the git-based source class; `ContainerMakeCommands` is built only there, with a `make_file=` that is not None; every `ContainerEnvironment(...)` in src passes a `make_file=` that is not None.
+
+   Files created: the six test files above and tests/support/make_file_support.py (`git_make_file_source_class()`, shared by test_make_file_source.py and the guard).
+
+   Assumptions for the coder, where the Interface leaves a name open:
+   - The git-based source class has no name in the Interface. The tests find it as the one concrete subclass of `MakeFileSource` in a module under `factory.pipeline.application`, and build it as `cls(git, pipeline_reader)`, positionally, in that order.
+   - `ContainerEnvironment.__init__` takes its source as the keyword `make_file`, the same name `ContainerMakeCommands` uses ("the same optional source").
+   - The stage environment is built by `stage_environment_of(boundaries)`, not in wiring. That call must therefore pass `make_file=` (for example from Boundaries) for the guard to pass. How the source reaches it is left to the coder.
+   - New modules go in the table of tests/guards/test_areas.py under feature decision 4. I did not touch it, because `make_file.py` does not exist yet. If the coder needs that table changed, it is a test change for the tester.
+
+   `make test` result: the 7 new modules (the domain test included) could not be imported, because `factory.machine.application.make_file` and `MakeFileSource` are missing. The domain test's red is the missing `make_file` key on `PipelineDefinition`. The two tests in tests/guards/test_documents_marker.py also errored, because the suite's collection failed on those imports. They should pass again once the imports resolve.
+
+   `lint`: lint: green (0.1 s)
