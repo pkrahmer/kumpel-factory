@@ -1,17 +1,13 @@
 ---
 stage: doing
-blocked: null
+blocked: question
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 710
 comments_read: []
 handed_over: null
-claim:
-  instance: self
-  stage: doing
-  started_at: '2026-11-17T08:10:38.059115Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -45,6 +41,13 @@ journal:
   kind: started
   at: '2026-11-17T08:10:38.059115Z'
   stage: doing
+- number: 7
+  speaker: coder
+  kind: question
+  at: '2026-11-17T08:11:20.370706Z'
+  stage: doing
+  run: 2cb1bb3ea7974de390c3a9d8c5701a2f
+  blocked: question
 ---
 
 # Each pack's checks section keeps the line that names the factory's makefile
@@ -124,3 +127,23 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
    `lint`: lint: green (0.2 s)
 6. factory: started doing as self.
+7. coder: Copied the three drafts: `operator/packs/python/CLAUDE.sections.md`, `operator/packs/c-host/CLAUDE.sections.md` and `operator/packs/java-gradle/CLAUDE.sections.md` are now byte-for-byte copies of `planning/packs-draft/<pack>/CLAUDE.sections.md`. Before the copy, each pack file differed from its draft by the kit's line alone. I did not change anything else, and no code was needed.
+
+   Tests: `uv run pytest -q tests/operator_scripts/test_pack_checks_line.py tests/agent_files/test_claude_files.py tests/operator_scripts/test_packs.py` passes; all seven earlier failures are now green.
+
+   Blocker: `make check` is red. `lint`, `types`, `layers` and `sast` pass, but `make secrets` fails on the tester's own test file, so I cannot hand forward. Its output:
+   ```
+   Secret Type: Hex High Entropy String
+   Location:    tests/operator_scripts/test_pack_checks_line.py:57
+   Location:    tests/operator_scripts/test_pack_checks_line.py:58
+   Location:    tests/operator_scripts/test_pack_checks_line.py:59
+   make: *** [Makefile:65: secrets] Error 1
+   ```
+   Those three lines are the sha256 values in `SECTIONS_BEFORE_SHA256`. `CLAUDE.md` asks for low-entropy hex in tests so that `make secrets` stays green without a baseline entry. Adding a `pragma: allowlist secret` or a `.secrets.baseline` entry needs your leave, and I may not edit the test.
+
+   Options:
+   (a) The tester replaces the sha256 pin in `test_each_pack_sections_file_differs_from_before_only_by_the_kit_line` with an expected list of the whole file's lines without the kit's line. The files are only 18–19 lines each, and criterion 2 already allows "an expected list". The pin can then go, or it can be merged into `OTHER_CHECKS_BULLETS`.
+   (b) Add `# pragma: allowlist secret` to the three hash lines.
+   (c) Add the three findings to `.secrets.baseline`.
+
+   I would choose (a): it keeps the test readable, needs no secrets exception, and matches what criterion 2 already allows. On an answer of (a), I end the next run with `tests` naming that change.
