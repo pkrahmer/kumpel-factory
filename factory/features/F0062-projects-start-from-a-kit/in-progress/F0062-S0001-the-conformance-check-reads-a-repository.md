@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 690
 comments_read: [6933812910, 6934072851]
 handed_over: null
-claim:
-  instance: self
-  stage: tests
-  started_at: '2026-11-17T00:44:52.004656Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -90,6 +86,12 @@ journal:
   kind: started
   at: '2026-11-17T00:44:52.004656Z'
   stage: tests
+- number: 15
+  speaker: tester
+  kind: result
+  at: '2026-11-17T00:45:11.680003Z'
+  stage: tests
+  run: 3b70abda2a80475f9bb2cc067cfe1f76
 ---
 
 # The conformance check reads a repository
@@ -299,3 +301,14 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     When the tests come back, I will run the guard and the story's three test files, do the refactor pass and finish with `make check` green. The smoke test has still not been run. The journal did not change the Description.
 14. factory: started tests as self.
+15. tester: I made the test change the human approved in entry 11, as the coder's entry 13 named it. In `tests/guards/test_agent_home_wiring.py::test_the_agent_definition_reader_is_built_once_from_the_settings_agent_home`, the expected list is now `[("factory.entry.wiring", ["agent_home"])]` instead of the one call with `settings.agent_home`. The guard keeps its name and still checks that `FrontmatterAgentDefinitionReader` is built in exactly one place, now `build_agent_definitions` in `src/factory/entry/wiring.py`. I changed nothing else.
+
+    Earlier test file changed: `tests/guards/test_agent_home_wiring.py`, with the human's leave in entry 11.
+
+    Runs:
+    - `uv run pytest -q tests/guards/test_agent_home_wiring.py`: 1 passed. I ran only this file, as `CLAUDE.md` says for the tester's run after an approved test change, not the whole `make test`.
+    - `make lint`: lint: green (0.1 s).
+
+    No module failed to import.
+
+    `lint`: lint: green (0.1 s)
