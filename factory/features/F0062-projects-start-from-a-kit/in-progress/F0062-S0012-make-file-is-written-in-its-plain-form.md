@@ -1,3 +1,30 @@
+---
+stage: intake
+blocked: null
+round: 0
+attempts: 0
+crashes: 0
+pull_request: null
+comments_read: []
+handed_over: null
+claim:
+  instance: self
+  stage: intake
+  started_at: '2026-11-17T06:03:43.320645Z'
+  lease_duration: 60
+journal:
+- number: 1
+  speaker: human
+  kind: created
+  at: '2026-11-17T06:03:43.313600Z'
+  stage: intake
+- number: 2
+  speaker: factory
+  kind: started
+  at: '2026-11-17T06:03:43.320645Z'
+  stage: intake
+---
+
 # A `make_file` is written in its plain form, or the definition refuses it
 
 
@@ -51,3 +78,6 @@ uv run pytest -q tests/pipeline/domain/test_pipeline_definition_make_file.py 2>&
 Expect: one line ending with `passed` and a time, with no `failed`.
 
 ## Journal
+
+1. 2026-11-17 human: created.
+2. factory: started intake as self.
