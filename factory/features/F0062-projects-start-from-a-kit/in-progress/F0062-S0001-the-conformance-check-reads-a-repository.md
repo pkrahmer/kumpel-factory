@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 690
 comments_read: [6933812910]
 handed_over: null
-claim:
-  instance: self
-  stage: tests
-  started_at: '2026-11-17T00:32:36.179283Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -51,6 +47,12 @@ journal:
   kind: started
   at: '2026-11-17T00:32:36.179283Z'
   stage: tests
+- number: 8
+  speaker: tester
+  kind: result
+  at: '2026-11-17T00:36:54.547685Z'
+  stage: tests
+  run: 445ed7c542a84cdabee463cd059c3c7a
 ---
 
 # The conformance check reads a repository
@@ -189,3 +191,33 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    - Scope: within F0062 (decisions 2, 4, 6 and 7). The live check and the makefile a pipeline definition names are left to later stories, as the Description says. The guard table change has the feature's leave (decision 4).
    Route: tests, because the Interface adds code under `src/`.
 7. factory: started tests as self.
+8. tester: Wrote the tests for every criterion against the Interface. `make lint` is green. `make test` is red for the intended reason: the three new test modules cannot import `factory.pipeline.domain.project_check`, `factory.pipeline.application.project_check` and `factory.entry.check_project`, which do not exist yet. Two tests in `tests/guards/test_documents_marker.py` also error in the same run. They collect the whole suite, so the import errors break them; they should pass again once the modules exist.
+
+   Criterion → test:
+   - criterion 1: tests/pipeline/domain/test_project_check.py::test_makefile_targets_are_the_names_of_rule_lines
+   - criterion 2: tests/pipeline/domain/test_project_check.py::test_makefile_includes_are_the_paths_of_include_lines
+   - criterion 3: tests/pipeline/domain/test_project_check.py::test_target_faults_name_each_command_without_a_target
+   - criterion 4: tests/pipeline/domain/test_project_check.py::test_write_path_faults_name_write_paths_that_match_no_tracked_file. The definition is `PIPELINE_YAML`, so the `{work_item}` and `{feature}/backlog/*` paths are in every row and never judged.
+   - criterion 5: tests/pipeline/domain/test_project_check.py::test_report_lines_name_each_point_and_end_with_the_verdict
+   - criterion 6: tests/pipeline/application/test_project_check_run.py::test_a_ready_repository_has_six_points_without_a_fault
+   - criterion 7: tests/pipeline/application/test_project_check_run.py::test_each_fault_turns_its_point_and_no_other. The expected fault of the refused definition comes from `pipeline_outcome`, and the two-`FROM` reason from `stage_layer`. For the project agent without front matter, the test checks exactly one fault that starts with `role coder: ` and is not `no agent file`; the reader's own words after that prefix are not pinned.
+   - criterion 8: tests/pipeline/application/test_project_check_run.py::test_without_a_valid_definition_three_points_are_skipped_and_two_judged, with a missing and a refused definition as rows.
+   - criterion 9: tests/pipeline/application/test_project_check_run.py::test_targets_count_through_included_files
+   - criterion 10: tests/pipeline/application/test_project_check_run.py::test_a_project_agent_counts_only_when_committed
+   - criterion 11: tests/entry/test_check_project.py::test_main_prints_the_report_or_one_error_and_returns_its_status. The usage row checks that the single stderr line contains `factory-check-project [--agent-home <dir>] <folder>`; any prefix such as `usage: ` is the coder's choice.
+   - criterion 12: `make check`, run by the coder.
+   - criterion 13: docs, for the docs stage.
+
+   Fixtures used by the tests: `PIPELINE_YAML`, which has no `sync` command. The ready repository's `Makefile` therefore holds `check`, `lint`, `test` and `sync`, plus `src/a.py`, `tests/t.py`, `docs/d.md`, `README.md` and both forms. The agent home holds an installed agent for each of the seven roles.
+
+   Files created:
+   - tests/pipeline/domain/test_project_check.py
+   - tests/pipeline/application/test_project_check_run.py
+   - tests/entry/test_check_project.py
+   - tests/support/project_check_support.py: the ready repository and the agent home, shared by the application and entry tests.
+
+   File changed: tests/guards/test_areas.py now lists `domain.project_check` and `application.project_check` under `pipeline`, with the leave of the feature's decision 4.
+
+   Modules the test run could not import: factory.pipeline.domain.project_check, factory.pipeline.application.project_check, factory.entry.check_project.
+
+   `lint`: lint: green (0.1 s)
