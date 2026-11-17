@@ -80,9 +80,15 @@ def test_no_shipped_agent_file_holds_the_shared_rules(name: str) -> None:
     assert _RULE_LINE.findall(text) == []
 
 
-@pytest.mark.parametrize("name", SHIPPED_NAMES)
+# A later story added the reviewer's last subsection; the agents it lists predate the builder.
+_REVIEW_POINTS_SUBSECTION = re.compile(
+    r"^### The project's review points\n(?:(?!#).*\n|\n)*", re.MULTILINE
+)
+
+
+@pytest.mark.parametrize("name", [name for name in SHIPPED_NAMES if name in PARTS_BEFORE])
 def test_every_agent_file_keeps_its_own_sections_word_for_word_in_order(name: str) -> None:
-    body = agent_body(name)
+    body = _REVIEW_POINTS_SUBSECTION.sub("", agent_body(name) + "\n").strip()
     expected = ["## Stage", "## Lessons"]
     if name not in WITHOUT_ROLE:
         expected.insert(0, "## Role")

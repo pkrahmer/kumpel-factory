@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 693
 comments_read: [6936126509]
 handed_over: null
-claim:
-  instance: self
-  stage: tests
-  started_at: '2026-11-17T02:29:09.082028Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -51,6 +47,12 @@ journal:
   kind: started
   at: '2026-11-17T02:29:09.082028Z'
   stage: tests
+- number: 8
+  speaker: tester
+  kind: result
+  at: '2026-11-17T02:35:21.326828Z'
+  stage: tests
+  run: 86142f22a5964ec8a1358ec89afc5f9f
 ---
 
 # The installed builder
@@ -198,3 +200,46 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    Architecture: the change is agent files plus tests and docs only. `ProjectAgentDefinitions` already resolves the project's file first, then the installed one. No layer moves.
    Scope: the story is within F0062: the installed agents become the default and kits copy no agent file. Its test changes are covered by leave 11 as extended in entry 4. Route: `tests`, because `agents/agents/` and tests change, which the documenter alone may not write.
 7. factory: started tests as self.
+8. tester: Tests for the installed builder are written. Each criterion maps to a test:
+   - criterion 1: tests/agent_files/test_installed_builder.py::test_the_installed_agents_name_and_read_the_builder
+   - criterion 2: tests/agent_files/test_installed_builder.py::test_the_builder_has_role_stage_and_lessons_and_ends_its_stage_with_review and ::test_the_builder_names_no_stack (one row each for gradle, pytest and cmake, compared without case)
+   - criterion 3: tests/agent_files/test_installed_builder.py::test_the_installed_reviewer_checks_the_projects_review_points
+   - criterion 4: tests/agent_files/test_installed_builder.py::test_the_thin_line_loads_with_the_installed_agents_alone (`PipelineLoader` with `ProjectAgentDefinitions` over the repository's `agents/`) and ::test_the_thin_line_without_agent_files_passes_the_agents_point (`ProjectCheck.run` on a committed repository that has no `factory/agents/`)
+   - criterion 5: tests/agent_files/test_installed_builder.py::test_a_projects_builder_wins_over_the_installed_one, with the rows project-builder and installed-builder
+   - criterion 6: the earlier tests under tests/agent_files and tests/agents/adapters/test_shipped_agents_effect.py now carry the builder through `SHIPPED_AGENTS`. Each one keeps its name.
+   - criteria 7 and 8: no test from me; `make check` and the docs stage cover them.
+
+   Files created: tests/agent_files/test_installed_builder.py.
+
+   Support changed (leave 11 as extended in entry 4): tests/support/shipped_agents.py.
+   - New `ShippedAgent` row for `builder`, with the boundary and entry sentences from the Interface.
+   - New `THIN_LINE_ONLY = {"builder"}`.
+   - New `THIN_LINE_PIPELINE`, the smoke test's thin-line definition, and `thin_line_definition()` to parse it.
+   - New `full_line_names()`, the seven agents of the template's full line.
+   - The module docstring now says eight agents.
+
+   Earlier test files I changed, all under leave 11 as extended in entry 4. Every test keeps its name and still checks the seven agents as before.
+   - tests/agent_files/test_claude_files.py: `test_template_pipeline_definition_is_valid_with_the_shipped_roles` now compares the template's roles with `full_line_names()`, because the template is the full line and has no builder.
+   - tests/agent_files/test_claude_agent_texts.py:
+     - `_decisions` takes the builder's stage from `thin_line_definition()`.
+     - New builder rows in `LESSONS` (the three lessons of the Interface) and in `ROLE_AND_STAGE_ANCHORS` (two sentences of its Role and Stage).
+   - tests/agent_files/test_shared_start_agent_files.py: new `builder: medium` row in `EFFORTS`.
+   - tests/agent_files/test_shared_rules_system_prompt.py: `test_every_agent_file_keeps_its_own_sections_word_for_word_in_order`
+     - It now runs only over the agents in `PARTS_BEFORE`. Those checksums record each file before the shared rules moved, and the builder did not exist then.
+     - It strips the reviewer's new subsection `### The project's review points` before taking the checksum.
+   - tests/agent_files/test_claude_agent_texts_review_groups.py: `test_the_rest_of_the_reviewer_body_is_unchanged` strips the same new subsection, the way it already strips `### docs-review`.
+
+   How I checked them:
+   - In a throwaway copy of the repository I added `agents/agents/builder.md` and the reviewer's new part, both exactly as the Interface gives them. Without my test changes, these 8 tests failed there and nothing else did (I ran tests/agent_files, tests/agents, tests/guards and tests/entry/test_tick_shipped_agent_file.py): the template role list, the builder's decisions, anchors and lessons, `PARTS_BEFORE` for reviewer and builder, the reviewer CRC, and `EFFORTS`.
+   - With my changes, all of tests/agent_files passed in that copy, the new file included.
+   - In the copy, `mypy` could not resolve the `factory` package, so the type check of these tests is left to the coder's `make check`.
+
+   Red on the branch on purpose: `make test` fails because `agents/agents/builder.md` does not exist. That includes the fixture of tests/agents/adapters/test_shipped_agents_effect.py, which copies every shipped agent, so all of its rows error with FileNotFoundError. The reviewer's earlier checksum tests and the review-points test fail until the new part is added to `agents/agents/reviewer.md`.
+
+   `make lint`: green.
+
+   No module failed to import.
+
+   The throwaway copy is still in a `mktemp -d` directory under /tmp: removing it was refused, and it goes with the stage.
+
+   `lint`: lint: green (0.2 s)
