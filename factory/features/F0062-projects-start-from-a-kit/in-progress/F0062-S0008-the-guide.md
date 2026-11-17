@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 697
 comments_read: [6938616709, 6938770109]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: docs
+  started_at: '2026-11-17T04:53:48.253956Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -125,6 +129,11 @@ journal:
   at: '2026-11-17T04:53:42.902845Z'
   stage: review
   run: 1916865327af4fbe87625a49ee66d01d
+- number: 22
+  speaker: factory
+  kind: started
+  at: '2026-11-17T04:53:48.253956Z'
+  stage: docs
 ---
 
 # The guide
@@ -333,3 +342,4 @@ Expect: two numbers, each at least 3 for the first and at least 2 for the second
     Earlier tests changed:
     - `tests/support/check_documents_support.py`: the human's leave, journal entry 6.
     - `tests/shared/domain/test_documents_guide_files.py`: the human's leave, journal entry 6.
+22. factory: started docs as self.
