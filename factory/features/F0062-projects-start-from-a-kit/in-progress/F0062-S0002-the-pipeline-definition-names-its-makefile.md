@@ -1,5 +1,5 @@
 ---
-stage: review
+stage: docs
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 691
 comments_read: [6934588171, 6934893656]
 handed_over: null
-claim:
-  instance: self
-  stage: review
-  started_at: '2026-11-17T01:35:23.454455Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -145,6 +141,12 @@ journal:
   kind: started
   at: '2026-11-17T01:35:23.454455Z'
   stage: review
+- number: 25
+  speaker: reviewer
+  kind: result
+  at: '2026-11-17T01:36:12.158426Z'
+  stage: review
+  run: 1239a740b6f245aaa1039f919876fa93
 ---
 
 # The pipeline definition names its makefile
@@ -434,3 +436,30 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     `duplicates`: duplicates: 7 new, 39 known, 4 gone
 24. factory: started review as self.
+25. reviewer: Review, round 1. I read the diff of `develop...HEAD` (generated schemas excluded except to check they carry 4.6 and the `make_file` property) against criteria 1 to 13 and the Interface.
+
+    no findings
+
+    What I checked:
+    - Criteria 1 and 2: `tests/pipeline/domain/test_pipeline_definition_make_file.py`. Contracts 1.0, 1.1 and 1.2 all load, and `_contract_faults` checks only the major version. The 8 refused rows and 3 accepted rows are one parametrized test, and each refused row's fault must name `make_file`. `MakeFilePath` (`src/factory/pipeline/domain/pipeline_definition.py:33`) refuses a leading `-` or `/` and any character outside the set. `_make_file_faults` refuses a `..` segment through `is_inside_checkout`.
+    - Criteria 3 to 6: `tests/machine/adapters/test_make_commands_make_file.py` and `tests/machine/application/test_stage_environment_make_file.py`.
+      - In `src/factory/machine/adapters/make_commands.py`, the path is always an argument (`$3`). `asked_make_file` asks the source at every `_run_script` call. With no source, or a source that returns `None`, the argv is unchanged, and the test pins it exactly.
+      - In `src/factory/machine/application/stage_environment.py`, the sync's path is the argument `$7`.
+      - The real-make row (criterion 6) is green with the source and red without it.
+    - Criteria 7 and 11: `tests/pipeline/application/test_make_file_source.py`. The `missing-working-branch` row reaches the `GitError` branch of `src/factory/pipeline/application/make_file_source.py:30-32`.
+    - Criteria 8 and 9: `tests/pipeline/application/test_project_check_make_file.py`. `src/factory/pipeline/application/project_check.py` reads `definition.make_file or MAKEFILE`, names that path in its faults, and still takes includes from the root.
+    - Criterion 10: `tests/guards/test_make_file_wiring.py` now also checks that the `Boundaries(...)` call in `factory.entry.wiring` passes the same `make_file` as `ContainerMakeCommands`. `wiring.py` builds one `GitMakeFileSource` and passes it to both. `ContainerEnvironment` is built only in `stage_environment_of`, from `boundaries.make_file`.
+    - Architecture: the ABC is in `machine.application` (its abstract method has a docstring as its only body), the git-based implementation is in `pipeline.application`, and only `entry` wires. No layer imports upward.
+    - Security: the path is validated when the definition loads and is passed only as a script argument. No silencing markers.
+    - Quality: docstrings are present. `make duplicates` (7 new, 39 known, 4 gone) has no new finding in any file this diff touches.
+    - Records contract: 4.6, with every schema regenerated, as the human answered in entry 11.
+    - Hygiene: the journal explains the main choices (the source reaches the stage environment through `Boundaries`; a named path gets its own script text). The Description matches what was built. The docs criterion still says what the reader needs.
+
+    Notes:
+    - `tests/machine/adapters/test_make_commands_make_file.py:74-82`: `_assert_named` checks only that `-f` appears somewhere in the script or its arguments, not that it is passed for both the sync and the command. Criterion 6's real run covers the sync side, because the base has no root `Makefile`.
+
+    Earlier tests changed:
+    - `tests/pipeline/domain/test_contract.py`: the human's leave in journal entry 11 (version 4.5 → 4.6 only).
+    - `tests/shared/domain/test_contract_version_4.py`: the human's leave in journal entry 11 (version 4.5 → 4.6 only).
+    - `tests/shared/domain/test_contract_version_4_2.py`: the human's leave in journal entry 11 (version 4.5 → 4.6 only).
+    - `tests/guards/test_agent_home_wiring.py`: the standing leave to move a shared test helper (`_called_name` moved to `tests/support/source_search.py` as `called_name`; the test keeps its name and checks the same thing).
