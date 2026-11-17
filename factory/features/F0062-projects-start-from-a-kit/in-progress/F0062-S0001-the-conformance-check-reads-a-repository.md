@@ -1,11 +1,11 @@
 ---
 stage: intake
-blocked: question
+blocked: null
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 690
-comments_read: []
+comments_read: [6933812910]
 handed_over: null
 claim: null
 journal:
@@ -26,6 +26,11 @@ journal:
   stage: intake
   run: 90d27bf0547c4f7da1847693825a8b1b
   blocked: question
+- number: 4
+  speaker: human
+  kind: comment
+  at: '2026-11-17T00:32:00.839227Z'
+  stage: intake
 ---
 
 # The conformance check reads a repository
@@ -152,3 +157,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    6. Criterion 11 tests the agent home taken from `FACTORY_CLAUDE_HOME`, but not that `--agent-home` wins when both are given. I would add a row: the variable points to an empty folder, the option to a real agent home, and `main` returns 0.
 
    What I'd choose: add all six as rows of the existing parametrized criteria, with the tab case in question 4 counting as no include. Then I would accept the story on the `tests` route.
+4. 2026-11-17 human: Add all six, as rows of the existing parametrized criteria. On 4: a tab after the keyword counts as the separator, as make itself reads it, so change the Interface line to "followed by a space or a tab" and make `include<tab>e.mk` a row that gives one entry; keep `included: f` as the row that gives nothing. On 2: criterion 6's repository has no stage file, and a valid stage file is a new row that is ok.
