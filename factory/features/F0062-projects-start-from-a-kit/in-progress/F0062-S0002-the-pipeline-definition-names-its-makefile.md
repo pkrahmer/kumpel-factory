@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 691
 comments_read: [6934588171, 6934893656]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: doing
+  started_at: '2026-11-17T01:32:47.416455Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -125,6 +129,11 @@ journal:
   at: '2026-11-17T01:32:42.026352Z'
   stage: tests
   run: a8d8025ede64428aba15248fe298f370
+- number: 22
+  speaker: factory
+  kind: started
+  at: '2026-11-17T01:32:47.416455Z'
+  stage: doing
 ---
 
 # The pipeline definition names its makefile
@@ -385,3 +394,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     Run: `uv run pytest -q` on the five affected test files passed all 21 tests. `make types` is green. Lint: `lint: green (0.1 s)`.
 
     `lint`: lint: green (0.1 s)
+22. factory: started doing as self.
