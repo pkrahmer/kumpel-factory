@@ -40,7 +40,7 @@ class Git(ABC):
 
     @abstractmethod
     def list_files(self, ref: str, directory: str) -> list[str]:
-        """The paths of all files under `directory` at `ref`, recursive and sorted."""
+        """The paths of all files under `directory` at `ref`, recursive and sorted; `""` is all."""
 
     @abstractmethod
     def is_ancestor(self, ancestor: str, descendant: str) -> bool:

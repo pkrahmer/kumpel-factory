@@ -1,17 +1,13 @@
 ---
 stage: doing
-blocked: null
+blocked: question
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 690
 comments_read: [6933812910]
 handed_over: null
-claim:
-  instance: self
-  stage: doing
-  started_at: '2026-11-17T00:36:59.687217Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -62,6 +58,13 @@ journal:
   kind: started
   at: '2026-11-17T00:36:59.687217Z'
   stage: doing
+- number: 10
+  speaker: coder
+  kind: question
+  at: '2026-11-17T00:43:46.266651Z'
+  stage: doing
+  run: 3636fea364e14879aa0823c607bdb426
+  blocked: question
 ---
 
 # The conformance check reads a repository
@@ -231,3 +234,33 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
    `lint`: lint: green (0.1 s)
 9. factory: started doing as self.
+10. coder: Stopped before `review`. The code is built and the story's three test files pass (56 tests). `make check` is red on one test that this story did not write: `tests/guards/test_agent_home_wiring.py::test_the_agent_definition_reader_is_built_once_from_the_settings_agent_home`. Changing that test needs your leave.
+
+    Failure from the `make check` run:
+    ```
+    E   AssertionError: assert [('factory.en...agent_home'])] == [('factory.en...agent_home'])]
+    FAILED tests/guards/test_agent_home_wiring.py::test_the_agent_definition_reader_is_built_once_from_the_settings_agent_home
+    ```
+    The guard requires exactly one call `FrontmatterAgentDefinitionReader(settings.agent_home)`, in `factory.entry.wiring`. The Interface requires the command to read the installed agents from `--agent-home`, or from `FACTORY_CLAUDE_HOME` when the option is not given, without building the instance settings. A reader built from that folder cannot also match the argument text `settings.agent_home`. The guard therefore contradicts the Interface (R9). Feature decision 4 gives leave only for tables that list every module or every entry command. This guard is neither.
+
+    Options:
+    - A (my choice): the reader is still built in exactly one place. The tester changes the guard's expected list to `[("factory.entry.wiring", ["agent_home"])]`. The code already has this shape: the new `build_agent_definitions(git, agent_home, ref=PIPELINE_REF)` in `src/factory/entry/wiring.py` is now the only construction. `build_boundaries` calls it with `settings.agent_home`, and the new command calls it with its folder.
+    - B: the guard allows a second call site in `factory.entry.check_project`, and the command builds its own reader. I would revert the wiring builder.
+    - C: the command takes its agent home only from the instance settings. This drops `--agent-home` and contradicts criterion 11 and the smoke test.
+
+    With your answer for A or B, I end with `tests` and name the guard change.
+
+    What I built:
+    - `src/factory/pipeline/domain/project_check.py`: `POINT_NAMES`, `MAKEFILE`, `SYNC_COMMAND`, `ProjectPoint`, `MakefileInclude`, and the rule and report functions as the Interface states them. A rule line is one regex, and a lookahead refuses `:=` and `::=`. Include lines drop a trailing `#` comment.
+    - `src/factory/pipeline/application/project_check.py`: `ProjectCheck`. It reads every file through `Git.show_file` at the ref. A small private `_Makefiles` follows includes breadth-first, and a set of seen paths ends cycles.
+    - `src/factory/entry/check_project.py`: `main`. It parses the arguments by hand instead of with argparse, because argparse prints the usage and the error on two stderr lines and the Interface allows one line. "cannot read" covers a `GitError` or `OSError` from `resolve("HEAD")` and a missing commit.
+    - `src/factory/hosting/adapters/git_cli.py` and the `Git` interface docstring: `list_files(ref, "")` now lists the whole tree. Before, the empty directory gave `[]` because of its `/` prefix. No existing caller passes `""`. I chose this over a new `Git` operation, which would add to the interface.
+
+    Rejected: building `ProjectAgentDefinitions` directly in the entry module, which breaks the same guard and adds a second construction site.
+
+    Checks:
+    - lint, types, layers, sast, secrets, licenses and `make guides` are green.
+    - The test stage is red only on the guard above.
+    - The smoke test was not run: the shell refused the command, so the smoke-test stage still has to run it.
+
+    No refactor pass yet; it waits for the answer. The journal did not change the Description.
