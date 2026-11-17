@@ -1,5 +1,5 @@
 ---
-stage: intake
+stage: tests
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 690
 comments_read: [6933812910]
 handed_over: null
-claim:
-  instance: self
-  stage: intake
-  started_at: '2026-11-17T00:32:03.988821Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -40,6 +36,12 @@ journal:
   kind: started
   at: '2026-11-17T00:32:03.988821Z'
   stage: intake
+- number: 6
+  speaker: intake
+  kind: result
+  at: '2026-11-17T00:32:30.976450Z'
+  stage: intake
+  run: 48772020b7f24fcf8a7d8710fe7a63a8
 ---
 
 # The conformance check reads a repository
@@ -75,7 +77,7 @@ def is_ready(points: Sequence[ProjectPoint]) -> bool: ...
 ```
 
   - `makefile_targets`: the names before the colon of every rule line. A rule line starts at column 0 with one or more names separated by spaces or tabs, then optional spaces, then `:` or `::`; a name holds only letters, digits, `_`, `.` and `-`. A line where the colon is followed by `=` (`X := 1`, `X ::= 1`) is an assignment and gives no target; an indented line, a comment line, a line whose names hold `%` or `$` give none.
-  - `makefile_includes`: one entry for each path of every line that starts at column 0 with `include`, `-include` or `sinclude` and a space; `optional` is true for `-include` and `sinclude`. A path that holds `$` is left out.
+  - `makefile_includes`: one entry for each path of every line that starts at column 0 with `include`, `-include` or `sinclude` followed by a space or a tab; `optional` is true for `-include` and `sinclude`. A path that holds `$` is left out.
   - `target_faults`: `no target <name>` for every name of `commands` that is not in `targets`, in the order of `commands`.
   - `write_path_faults`: `role <role>: write path <pattern> matches no tracked file` for every write path of every role that matches no path of `tracked`, matched as the factory matches write paths (`factory.agents.domain.write_paths.matches_any`). A write path that holds `{` (a placeholder such as `{work_item}`) is not judged.
   - `report_lines`: one line per point in the given order, `<name>: ok` without faults, `<name>: FAIL: <fault>; <fault>` with faults (joined by `; `), `<name>: skipped: no valid pipeline definition` when `skipped`; then the last line: `project: ready` when no point has a fault, otherwise `project: not ready (<n> faults)` with the number of all faults, `(1 fault)` for one. A skipped point has no fault of its own.
@@ -104,17 +106,17 @@ class ProjectCheck:
 
 ## Acceptance criteria
 
-1. `makefile_targets` returns the names of rule lines and nothing else: `check: lint` gives `check`; `a b: c` gives `a` and `b`; `x::` gives `x`; `X := 1`, `X ::= 1`, an indented `y: z`, `# c: d`, `%.o: %.c` and `$(T): u` give nothing: rows of one parametrized test.
-2. `makefile_includes` returns `include a.mk b.mk` as two entries that are not optional, `-include c.mk` and `sinclude d.mk` as optional ones, and nothing for `include $(X).mk`, an indented `include e.mk` and `included: f`: rows of one parametrized test.
+1. `makefile_targets` returns the names of rule lines and nothing else: `check: lint` gives `check`; `a b: c` gives `a` and `b`; `a<tab>b: c` gives `a` and `b`; `check : lint` gives `check`; `x::` gives `x`; `X := 1`, `X ::= 1`, an indented `y: z`, `# c: d`, `%.o: %.c`, `$(T): u` and `src/a.o: x` give nothing: rows of one parametrized test.
+2. `makefile_includes` returns `include a.mk b.mk` as two entries that are not optional, `-include c.mk` and `sinclude d.mk` as optional ones, `include<tab>e.mk` as one entry that is not optional, and nothing for `include $(X).mk`, an indented `include e.mk` and `included: f`: rows of one parametrized test.
 3. `target_faults(["check", "lint"], {"check"})` is `["no target lint"]`, and `[]` when both are there.
 4. `write_path_faults` names a role's write path that matches no tracked file, names none for one that matches, and none for `{work_item}` and `{feature}/backlog/*`: rows of one parametrized test.
 5. `report_lines` prints `ok`, `FAIL` with two faults joined by `; `, and `skipped` lines as the Interface says, and ends with `project: ready`, `project: not ready (1 fault)` or `project: not ready (3 faults)`; `is_ready` is true only in the first case: rows of one parametrized test.
-6. `ProjectCheck.run` on a committed repository that holds a valid pipeline definition, a `Makefile` with every command's target, both forms, a file under every write path and an installed agent for every role returns six points without a fault, in the order of `POINT_NAMES`.
-7. Each fault alone turns its point and no other: a missing `factory/pipeline.yml`; a definition the reader refuses (its fault text is the fault); a missing `Makefile`; a `Makefile` without the target `lint`; a `Makefile` without a `sync` target when `project_commands` does not name `sync`; a stage file with two `FROM`; a role without any agent file; a project agent file under `factory/agents/` without front matter; a write path that matches nothing; a missing `factory/feature-form.md`: rows of one parametrized test.
+6. `ProjectCheck.run` on a committed repository that holds a valid pipeline definition, a `Makefile` with every command's target, both forms, a file under every write path and an installed agent for every role, and no `factory/stage.Containerfile`, returns six points without a fault, in the order of `POINT_NAMES`.
+7. Each fault alone turns its point and no other: a missing `factory/pipeline.yml`; a definition the reader refuses (its fault text is the fault); a missing `Makefile`; a `Makefile` without the target `lint`; a `Makefile` without a `sync` target when `project_commands` does not name `sync`; a stage file with two `FROM`; a role without any agent file; a project agent file under `factory/agents/` without front matter; a write path that matches nothing; a missing `factory/feature-form.md`; and a valid stage file (an `ARG` for the base and a `FROM ${...}` alone) as a row that turns no point: rows of one parametrized test.
 8. Without a valid pipeline definition, `makefile`, `agents` and `write paths` are skipped, and `stage file` and `forms` are still judged.
-9. A target that only an included file holds counts: `Makefile` with `include factory/kit.mk`, the target in `factory/kit.mk`, and the same through a second level of include. A missing included file is the fault `Makefile: included file factory/kit.mk is missing`; with `-include` it is no fault.
+9. A target that only an included file holds counts: `Makefile` with `include factory/kit.mk`, the target in `factory/kit.mk`, and the same through a second level of include. A missing included file is the fault `Makefile: included file factory/kit.mk is missing`; with `-include` it is no fault. `factory/kit.mk` including a missing `factory/deep.mk` is the fault `factory/kit.mk: included file factory/deep.mk is missing`. `Makefile` including `a.mk` and `a.mk` including `Makefile` again ends, and the target in `a.mk` counts without a fault: rows of one parametrized test.
 10. A role whose agent exists only as the project's file `factory/agents/<role>.md` at `HEAD` has no fault; a file that exists only in the work tree and is not committed does not count.
-11. `main` prints the report and returns 0 for a ready repository and 1 for one with a fault; returns 2 with the usage on standard error without a folder, with two folders, and without `--agent-home` when `FACTORY_CLAUDE_HOME` is not set; returns 2 with `cannot read <folder>: ...` for a folder that is no git repository and for a repository without a commit; and reads the agent home from `FACTORY_CLAUDE_HOME` when the option is not given.
+11. `main` prints the report and returns 0 for a ready repository and 1 for one with a fault; returns 2 with the usage on standard error without a folder, with two folders, and without `--agent-home` when `FACTORY_CLAUDE_HOME` is not set; returns 2 with `cannot read <folder>: ...` for a folder that is no git repository and for a repository without a commit; reads the agent home from `FACTORY_CLAUDE_HOME` when the option is not given; and returns 0 when `FACTORY_CLAUDE_HOME` names an empty folder and `--agent-home` a real agent home, since the option wins: rows of one parametrized test.
 12. `make check` stays green.
 13. docs: the operator guide (`docs/operator-guide/`, where it explains setting up a project) says that `factory-check-project <folder>` answers whether a repository is ready, what its six points judge, that it reads the commit at `HEAD` and starts nothing, what its three exit statuses mean, and where it takes the installed agents from; the project guide (`docs/project-guide/pipeline.md`) names the two modules and the rule that the check reads commits, not the work tree; `docs/decisions.md` records that the check is a command of its own and not a preflight item, because the preflight guards a machine and the check a repository.
 
@@ -168,3 +170,12 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    What I'd choose: add all six as rows of the existing parametrized criteria, with the tab case in question 4 counting as no include. Then I would accept the story on the `tests` route.
 4. 2026-11-17 human: Add all six, as rows of the existing parametrized criteria. On 4: a tab after the keyword counts as the separator, as make itself reads it, so change the Interface line to "followed by a space or a tab" and make `include<tab>e.mk` a row that gives one entry; keep `included: f` as the row that gives nothing. On 2: criterion 6's repository has no stage file, and a valid stage file is a new row that is ok.
 5. factory: started intake as self.
+6. intake: accepted
+   Carried in the human's answer from journal entry 4. Interface: `makefile_includes` now accepts a space or a tab after the keyword. Criterion 1 gains three rows: `a<tab>b: c` gives `a` and `b`, `check : lint` gives `check`, and `src/a.o: x` gives nothing. Criterion 2 gains `include<tab>e.mk` as one entry that is not optional, and `included: f` stays a row that gives nothing. Criterion 6's repository has no `factory/stage.Containerfile`. Criterion 7 gains a valid stage file as a row that turns no point. Criterion 9 gains the nested missing include (`factory/kit.mk: included file factory/deep.mk is missing`) and the include cycle that ends, and its cases are now rows of one parametrized test. Criterion 11 gains the row where `--agent-home` beats `FACTORY_CLAUDE_HOME`. The Description is unchanged, because the meaning of the task did not change.
+   - Interface: concrete modules and signatures in `factory.pipeline.domain`, `factory.pipeline.application` and `factory.entry`, and every collaborator the Interface names exists (checked in round 0).
+   - Criteria: every Interface clause now has a criterion, with both sides of each rule: the separators and the refused names of `makefile_targets`; the tab, the optional forms and the `$` path of `makefile_includes`; the missing and present stage file; the missing include at both levels and the cycle; skipped versus judged points; the option versus the environment variable. Each criterion is testable by one test function.
+   - Smoke test: runnable from the repository with the template files and `agents/` as the agent home. Each `Expect:` names exact lines and the exit status. The pytest command passes no `-q`, because `addopts` sets it.
+   - Docs criterion: names what the operator guide, the project guide and the decision log must tell the reader, and dictates no sentences.
+   - Architecture: pure parsing and judging in `domain`; the use case in `application` over the existing `Git`, `PipelineDefinitionReader` and `AgentDefinitionReader` interfaces; the wiring only in `entry`. No new tool and no new dependency.
+   - Scope: within F0062 (decisions 2, 4, 6 and 7). The live check and the makefile a pipeline definition names are left to later stories, as the Description says. The guard table change has the feature's leave (decision 4).
+   Route: tests, because the Interface adds code under `src/`.
