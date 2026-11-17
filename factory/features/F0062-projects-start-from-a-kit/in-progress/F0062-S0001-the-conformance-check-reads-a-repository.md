@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 690
 comments_read: [6933812910, 6934072851]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: doing
+  started_at: '2026-11-17T00:44:36.259417Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -69,6 +73,11 @@ journal:
   speaker: human
   kind: comment
   at: '2026-11-17T00:44:33.779412Z'
+  stage: doing
+- number: 12
+  speaker: factory
+  kind: started
+  at: '2026-11-17T00:44:36.259417Z'
   stage: doing
 ---
 
@@ -270,3 +279,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     No refactor pass yet; it waits for the answer. The journal did not change the Description.
 11. 2026-11-17 human: A. Leave given: the tester may change the expected list of `tests/guards/test_agent_home_wiring.py` to the one construction in `factory.entry.wiring` with the argument `agent_home`; the guard keeps its name and still checks that the reader is built in exactly one place.
+12. factory: started doing as self.
