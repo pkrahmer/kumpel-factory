@@ -1,11 +1,11 @@
 ---
 stage: intake
-blocked: question
+blocked: null
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 693
-comments_read: []
+comments_read: [6936126509]
 handed_over: null
 claim: null
 journal:
@@ -26,6 +26,11 @@ journal:
   stage: intake
   run: ba8d80ed90db4e33a8a27f9049a0d235
   blocked: question
+- number: 4
+  speaker: human
+  kind: comment
+  at: '2026-11-17T02:28:39.782462Z'
+  stage: intake
 ---
 
 # The installed builder
@@ -156,3 +161,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
       - Builder rows are also needed in `ROLE_AND_STAGE_ANCHORS`, `LESSONS` and `EFFORTS`. The pinned role list of `test_template_pipeline_definition_is_valid_with_the_shipped_roles` would also change.
 
       Does leave 11 cover these changes? Options: (a) Add a boundary line to the builder's Interface text, for example "You build the story; what you cannot decide you ask." Extend leave 11 so the tester may add builder rows to those tables and take builder's decisions (`review`, `question`) from a thin-line definition in the test, not from the template. (b) Leave the builder text as it is, and let the tester make the boundary optional, with builder's row having none. I would choose (a): the builder then follows the same shape as the seven agents, and the tests change only by data rows and the source of one role's decisions.
+4. 2026-11-17 human: 1: (a), with your wording of step 1. 2: (a). The builder's text opens with this boundary sentence, a blank line, then its entry sentence: "Never change the build files, the makefile or `factory/`; a story that needs a change there is a question." Leave 11 is extended: the tester may add rows for `builder` to the per-agent tables of `tests/support/shipped_agents.py` and of the tests under `tests/agent_files/` (boundary, anchors, lessons, efforts, the pinned role lists), and may take the builder's stage and decisions from a thin-line pipeline definition written in the test instead of `operator/template/factory/pipeline.yml`. Every earlier test keeps its name and still checks the seven agents as before.
