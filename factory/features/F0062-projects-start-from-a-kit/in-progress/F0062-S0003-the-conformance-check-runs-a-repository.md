@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 692
 comments_read: [6935336014]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: doing
+  started_at: '2026-11-17T01:55:03.118753Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -53,6 +57,11 @@ journal:
   at: '2026-11-17T01:54:56.185553Z'
   stage: tests
   run: 8cbc8405911544faabf66604ef3ef28c
+- number: 9
+  speaker: factory
+  kind: started
+  at: '2026-11-17T01:55:03.118753Z'
+  stage: doing
 ---
 
 # The conformance check runs a repository
@@ -167,3 +176,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    - The entry tests' complete settings are `BASE` and `CONTAINER` (`tests/support/settings_support.py`) plus `FACTORY_WORKSPACE`, `FACTORY_CHECKOUT`, `FACTORY_STATE` and `FACTORY_IMAGE_ID_FILE` in `tmp_path`. The settings are read as `read_environment_settings` reads them. The incomplete case leaves out `FACTORY_REPOSITORY_URL`.
 
    `lint`: lint: green (0.1 s)
+9. factory: started doing as self.
