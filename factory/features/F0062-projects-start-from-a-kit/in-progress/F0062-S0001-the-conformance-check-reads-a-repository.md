@@ -1,5 +1,5 @@
 ---
-stage: docs
+stage: smoke-test
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 690
 comments_read: [6933812910, 6934072851]
 handed_over: null
-claim:
-  instance: self
-  stage: docs
-  started_at: '2026-11-17T00:59:40.279762Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -167,6 +163,12 @@ journal:
   kind: started
   at: '2026-11-17T00:59:40.279762Z'
   stage: docs
+- number: 29
+  speaker: documenter
+  kind: result
+  at: '2026-11-17T01:04:57.318080Z'
+  stage: docs
+  run: fcda2875d45c4ab88bbba2ca4e4804fe
 ---
 
 # The conformance check reads a repository
@@ -519,3 +521,28 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     Open: the smoke test has not been run yet. The smoke-test stage runs it.
 28. factory: started docs as self.
+29. documenter: Docs for the project check (criterion 13). Before writing, I read the diff and the code (`src/factory/entry/check_project.py`, both `project_check` modules, `wiring.py`, the `Git.list_files` change). I also ran the command myself on a template project: once not ready, once with a fix left uncommitted (still not ready, because only the commit counts), once ready after the commit, once with no agent home (status 2 and the usage line), and once on a folder that is no repository (status 2 and `cannot read ...`). The output matched the story's smoke test.
+
+    Files changed:
+    - `docs/operator-guide/pipeline.md`: new section *Checking a repository before the factory runs it*. It says what the command answers and that it reads the commit at `HEAD` and starts nothing. It gives the steps, how `--agent-home` and `FACTORY_CLAUDE_HOME` give the installed agents, a runnable example, a table of the six points, and that three points are skipped without a valid definition. Its *Reference* lists the line formats, every fault text, how the makefile and its includes are read, the usage, and the meaning of exit statuses 0, 1 and 2. It also says to run `uv run python -m factory.entry.check_project` until the console script is installed. The intro sentence now names the command.
+    - `docs/operator-guide/README.md`: the index row of `pipeline.md` names the new section.
+    - `docs/operator-guide/agent-runtime.md`: the paragraph on starting a new project from `operator/template/` now points to the check.
+    - `README.md`: the list of modules run with `uv run python -m` gains `factory.entry.check_project`.
+    - `docs/project-guide/pipeline.md`: new subsection *The project check* under *The pipeline definition*. It names the two modules and the entry command, and states the rule that the check reads commits and never the work tree, and why. It also covers no containers, the skipped points, how includes are followed and normalised, and the tests. The wiring list under *Boundaries* now names `build_agent_definitions` as the one place that builds `FrontmatterAgentDefinitionReader`.
+    - `docs/project-guide/README.md`: the `pipeline.md` entry names the three new modules and the subsection.
+    - `docs/project-guide/agents.md`: was stale. `build_boundaries` now wires `ProjectAgentDefinitions` through `build_agent_definitions`, and the project check uses it at `HEAD`.
+    - `docs/project-guide/hosting.md`: was stale. `list_files(ref, "")` now lists the whole tree.
+    - `docs/decisions.md`: new entry *The conformance check is a command of its own, not a preflight item*. It gives the reason from the docs criterion (the preflight guards a machine, the check a repository) and the commits-only reason from the Description. It has no "Rejected" line, because the story names no rejected option for this decision.
+
+    Checks:
+    - `make documents`: `documents ok (45.8 s)`. Its first run found two path names (`factory/stage.Containerfile`, now written `<project>/factory/stage.Containerfile`) and an example that printed uv's interpreter line. I rewrote the example to build its own repository and run with `python -m`, so the document check now runs it green.
+    - `make guides`: green.
+    - `make check`: not run, because I changed only documents.
+
+    Cross-read and found current: `docs/operator-guide/install.md` (*The project's make targets*), `docs/operator-guide/machine.md` (*The project's stage file*), the rest of `docs/operator-guide/agent-runtime.md` (*A project's own agents*), `docs/operator-guide/pipeline.md` (*Checking a story before it starts*), and `docs/project-guide/pipeline.md` (*The pipeline loader*).
+
+    Stale but not mine: none found.
+
+    `guides`: guides: green (9.2 s)
+    `secrets`: secrets: green (2.9 s)
+    `documents`: documents ok (46.2 s)

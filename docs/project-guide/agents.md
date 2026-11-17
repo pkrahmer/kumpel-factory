@@ -243,7 +243,7 @@ A project may carry its own agents. They are read from `origin/develop`, never f
 
     ProjectAgentDefinitions(git, installed, ref=PIPELINE_REF)
 
-- `build_boundaries` wires it with the boundaries' `GitCli` and `FrontmatterAgentDefinitionReader(settings.agent_home)`. The loader, the task composer and the preflight reach it through `boundaries.agent_definitions` and know nothing of it.
+- `build_boundaries` wires it through `build_agent_definitions(git, settings.agent_home)` in `factory.entry.wiring`, with the boundaries' `GitCli` and `FrontmatterAgentDefinitionReader(settings.agent_home)`. The project check builds it through the same function at the ref `HEAD` (see *The project check* in [pipeline.md](pipeline.md)). The loader, the task composer and the preflight reach it through `boundaries.agent_definitions` and know nothing of it.
 - `read(name)` checks the name first (no `git` call for a bad one), then reads `factory/agents/<name>.md` at `ref` (`origin/develop`) with `git.show_file`.
 - No file: `installed.read(name)`. A file: `installed.parse(name, text)`, so the rules are the installed reader's, and a fault is raised again with the fault text `factory/agents/<name>.md at origin/develop: <fault>` and the same `key`.
 - The installed file is then not read: a faulty project file is never replaced.

@@ -24,7 +24,7 @@ The guide is this index and one file per topic:
 | [cloud-run.md](cloud-run.md) | Running the factory in a Cloud Run job. |
 | [health.md](health.md) | The preflight and the health check, the factory log and the health status file, and the transcripts. |
 | [stops.md](stops.md) | The stops and what to do about each, what a stage run shows, [stalls](../project-guide/glossary.md), the factory's own questions, an event that keeps failing and stops that cannot be done. |
-| [pipeline.md](pipeline.md) | The [pipeline definition](../project-guide/glossary.md) and checking a [story](../project-guide/glossary.md) before it starts. |
+| [pipeline.md](pipeline.md) | The [pipeline definition](../project-guide/glossary.md), checking a repository before the factory runs it, and checking a [story](../project-guide/glossary.md) before it starts. |
 | [records.md](records.md) | The records contract, what a [work item](../project-guide/glossary.md) cost (`factory-bill`) and looking at the remote (`factory-watch`). |
 | [work-items.md](work-items.md) | A [feature](../project-guide/glossary.md) [acceptance](../project-guide/glossary.md), the hand-over at the [approval](../project-guide/glossary.md), merges, closes, stale branches, a stage changed by hand, a restart during a stage, an expired [lease](../project-guide/glossary.md), and [claims](../project-guide/glossary.md), leases and the clock. |
 

@@ -1712,3 +1712,11 @@ Date: 2026-11-08 (F0060-S0003, F0060-S0005).
 - Decision: when `tests` is in the `next` of `review` and every finding needs only a change to the tests of the work item's own story, the reviewer ends with `tests` instead of `doing`. The tester answers the findings and the coder runs once after it. When any finding needs a change outside those tests, all findings go to `doing`. A move from `review` to `tests` counts as a round, as a return to `doing` does. Step 4 of the reviewer's `## Stage` holds the rule, and the two sentences of its `## Role` that name its decisions name this route too.
 - Why: in F0050 to F0059, 58 of the 65 coder runs that came right after review findings only passed the work item on to the tester.
 - Rejected: splitting one review's findings across two stages, the test findings to the tester and the others to the coder (F0060, decision 5).
+
+## The conformance check is a command of its own, not a preflight item
+
+Date: 2026-11-17 (F0062-S0001).
+
+- Decision: whether a repository is ready for the factory is answered by the command `factory-check-project <folder>`, not by an item of the preflight. It reads the commit at `HEAD`, never the work tree, judges six points (the pipeline definition, the makefile's targets, the stage file, the agents of the roles, the write paths and the forms), starts no container and runs no project command, and exits 0 when ready, 1 when not, 2 when it cannot do its job.
+- Why a command: the preflight guards a machine, and the check guards a repository. Before it, whether a repository was ready was found out by starting a story and reading the stop.
+- Why commits only: the factory reads commits too, so a file that is only in the work tree must not make a repository look ready.

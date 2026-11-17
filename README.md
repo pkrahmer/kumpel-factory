@@ -66,6 +66,7 @@ To run a factory [instance](docs/project-guide/glossary.md) you need a prepared 
 ### Modules run with `uv run python -m`
 
 - `factory.entry.contract [<folder>]` regenerates the schemas of the records contract. A story that changes a model the contract covers runs it.
+- `factory.entry.check_project [--agent-home <dir>] <folder>` checks whether the commit at `HEAD` of a project's repository is ready for the factory (`factory-check-project`; see *Checking a repository before the factory runs it* in [docs/operator-guide/pipeline.md](docs/operator-guide/pipeline.md)).
 - `factory.entry.check_documents` checks the documents and prints one finding per line.
 - `factory.entry.check_demos` checks the demos in `demo/`. `make check` runs the same check through `tests/entry/test_demos.py`.
 
