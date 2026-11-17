@@ -1,5 +1,5 @@
 ---
-stage: docs-approval
+stage: done
 blocked: null
 round: 1
 attempts: 0
@@ -69,6 +69,11 @@ journal:
   at: '2026-11-17T07:56:13.649948Z'
   stage: docs-review
   run: d6c65b3319c54f87b82ac4de42523c55
+- number: 12
+  speaker: factory
+  kind: done
+  at: '2026-11-17T07:57:03.258620Z'
+  stage: docs-approval
 ---
 
 # The guides catch up with the one layout and name every shared test helper
@@ -195,3 +200,4 @@ Expect: the single line `done`.
       - Links and the `#name-the-makefile` anchor are as before.
 
     Not run here: `make documents` and `make guides` (the journal reports them green in entry 9; the factory runs them after this stage).
+12. factory: done (pull request merged); cost: 5 runs, 6.6 min, 30 turns, 111655 tokens in (800851 more from cache), 16276 out, $1.04
