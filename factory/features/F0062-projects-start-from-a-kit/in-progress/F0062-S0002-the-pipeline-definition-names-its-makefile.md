@@ -1,11 +1,11 @@
 ---
 stage: doing
-blocked: question
+blocked: null
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 691
-comments_read: [6934588171]
+comments_read: [6934588171, 6934893656]
 handed_over: null
 claim: null
 journal:
@@ -65,6 +65,11 @@ journal:
   stage: doing
   run: 0b85ebc081ab42459f6598aec9207740
   blocked: question
+- number: 11
+  speaker: human
+  kind: comment
+  at: '2026-11-17T01:26:14.880925Z'
+  stage: doing
 ---
 
 # The pipeline definition names its makefile
@@ -239,3 +244,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     **Not touched.** The new modules are not added to the table in `tests/guards/test_areas.py`; that guard passes as it is. The docs are the documenter's.
 
     The factory left out changes outside the write paths: pyproject.toml.
+11. 2026-11-17 human: (a). The records contract becomes 4.6. Leave given: the tester may change 4.5 to 4.6 in `tests/pipeline/domain/test_contract.py`, `tests/shared/domain/test_contract_version_4.py` and `tests/shared/domain/test_contract_version_4_2.py`, and in any other earlier test whose only failure is that version. The `PLR0913` exception for `src/factory/machine/application/stage_environment.py` is on `develop` now, in `pyproject.toml`.
