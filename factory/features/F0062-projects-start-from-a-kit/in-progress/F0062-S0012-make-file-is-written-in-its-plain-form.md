@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 703
 comments_read: [6940217140]
 handed_over: null
-claim:
-  instance: self
-  stage: tests
-  started_at: '2026-11-17T06:05:21.572673Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -51,6 +47,12 @@ journal:
   kind: started
   at: '2026-11-17T06:05:21.572673Z'
   stage: tests
+- number: 8
+  speaker: tester
+  kind: result
+  at: '2026-11-17T06:08:07.999870Z'
+  stage: tests
+  run: b5e1a497e6b74b79b2622dba4c517519
 ---
 
 # A `make_file` is written in its plain form, or the definition refuses it
@@ -130,3 +132,21 @@ Expect: one line ending with `passed` and a time, with no `failed`.
    - Scope: within F0062 (projects start from a kit) and not in its out-of-scope list. It closes a gap that the feature acceptance of 2026-11-17 found in its smoke test.
    - Route: tests. The Interface changes `src/factory`, which the documenter may not write.
 7. factory: started tests as self.
+8. tester: Wrote the tests for every criterion. `make test` is red for the right reason: the four plain-form rows get `assert None == 'make_file … must be written as factory/Makefile'`, because the definition still accepts them. `make lint` is green. I skipped the type check, as the stage says.
+
+   - criterion 1: `tests/pipeline/domain/test_pipeline_definition_make_file.py::test_a_make_file_not_in_its_plain_form_is_refused_with_its_plain_spelling`. The rows `dot-slash`, `double-slash`, `dot-inside` and `trailing-slash` check the exact fault. The rows `root-makefile`, `factory-makefile` and `mk-file` check that the value is accepted.
+   - criterion 2: the same test, row `outside-the-checkout`. It checks that the whole fault equals `make_file ../Makefile must be a path inside the checkout`, so a `must be written as` fault would fail it.
+   - criterion 3: `tests/entry/test_check_project.py::test_main_refuses_a_make_file_not_in_its_plain_form`, rows `not-plain` and `plain`. It runs `main` on a committed project that holds `factory/Makefile`.
+     - `not-plain` expects a line starting `pipeline definition: FAIL: make_file ./factory/Makefile must be written as factory/Makefile`, no line with `./factory/Makefile is missing`, and a last line starting with `project: not ready`.
+     - `plain` expects `pipeline definition: ok`, and also expects the last line to start with `project: ready`.
+   - criterion 4: no new test. The existing `tests/entry/test_contract.py::test_the_committed_schemas_are_the_generated_ones` keeps the committed schema equal to the generated one. That `pipeline-definition.schema.json` itself is unchanged is a matter of the diff, for the reviewer to check.
+   - criterion 5: `make check`, run by the coder.
+   - criterion 6: docs, for the documenter stage.
+
+   Files changed:
+   - `tests/pipeline/domain/test_pipeline_definition_make_file.py`: one new test appended. The earlier tests there are unchanged.
+   - `tests/entry/test_check_project.py`: one new test appended. Its imports gain `PIPELINE_YAML` and `READY_MAKEFILE`, and the earlier tests are unchanged.
+
+   No created files, and every module the test run needed imported.
+
+   `lint`: lint: green (0.1 s)

@@ -69,3 +69,32 @@ def test_a_make_file_outside_its_characters_or_the_checkout_is_refused(
     else:
         assert outcome is not None
         assert "make_file" in outcome
+
+
+@pytest.mark.parametrize(
+    ("value", "fault"),
+    [
+        ("./factory/Makefile", "make_file ./factory/Makefile must be written as factory/Makefile"),
+        ("factory//Makefile", "make_file factory//Makefile must be written as factory/Makefile"),
+        ("factory/./Makefile", "make_file factory/./Makefile must be written as factory/Makefile"),
+        ("factory/Makefile/", "make_file factory/Makefile/ must be written as factory/Makefile"),
+        ("../Makefile", "make_file ../Makefile must be a path inside the checkout"),
+        ("Makefile", None),
+        ("factory/Makefile", None),
+        ("build/factory.mk", None),
+    ],
+    ids=[
+        "dot-slash",
+        "double-slash",
+        "dot-inside",
+        "trailing-slash",
+        "outside-the-checkout",
+        "root-makefile",
+        "factory-makefile",
+        "mk-file",
+    ],
+)
+def test_a_make_file_not_in_its_plain_form_is_refused_with_its_plain_spelling(
+    value: str, fault: str | None
+) -> None:
+    assert pipeline_outcome(_with_make_file(value)) == fault
