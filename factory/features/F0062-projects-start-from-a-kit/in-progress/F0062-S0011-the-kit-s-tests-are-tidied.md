@@ -1,3 +1,30 @@
+---
+stage: intake
+blocked: null
+round: 0
+attempts: 0
+crashes: 0
+pull_request: null
+comments_read: []
+handed_over: null
+claim:
+  instance: self
+  stage: intake
+  started_at: '2026-11-17T05:38:58.537618Z'
+  lease_duration: 60
+journal:
+- number: 1
+  speaker: human
+  kind: created
+  at: '2026-11-17T05:38:58.529519Z'
+  stage: intake
+- number: 2
+  speaker: factory
+  kind: started
+  at: '2026-11-17T05:38:58.537618Z'
+  stage: intake
+---
+
 # The feature's tests are tidied: one missing row, one weak check, one copy, and names that still say template
 
 <!-- proposed by feature acceptance of 2026-11-17; refine before starting -->
@@ -38,3 +65,6 @@ uv run pytest tests/pipeline/application/test_project_check_run.py tests/operato
 Expect: one line ending with `passed` and a time, with no `failed`.
 
 ## Journal
+
+1. 2026-11-17 human: created.
+2. factory: started intake as self.
