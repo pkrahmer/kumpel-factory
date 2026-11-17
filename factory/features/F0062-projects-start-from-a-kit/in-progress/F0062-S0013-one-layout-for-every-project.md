@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 705
 comments_read: []
 handed_over: null
-claim:
-  instance: self
-  stage: tests
-  started_at: '2026-11-17T06:55:32.572249Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -56,6 +52,12 @@ journal:
   kind: started
   at: '2026-11-17T06:55:32.572249Z'
   stage: tests
+- number: 9
+  speaker: tester
+  kind: result
+  at: '2026-11-17T06:55:55.324565Z'
+  stage: tests
+  run: 50ccfa35122e498aa2a0df4dab8b8104
 ---
 
 # One layout for every project
@@ -191,3 +193,14 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
    Noticed, not touched: nothing else.
 8. factory: started tests as self.
+9. tester: Made the one test change the coder named in entry 7. The new layout broke this test and nothing else, so feature decision 36's leave covers it.
+
+   - Changed: in `tests/agent_files/test_claude_files.py`, `test_template_holds_only_the_rules_file_the_makefile_and_the_pipeline_definition` now has `"root.Makefile"` in its expected listing of `operator/kit/`, after `"factory/story-form.md"` (the list is sorted). The test keeps its name, and it still checks that the kit holds only the listed files.
+   - Why: the story adds `operator/kit/root.Makefile`, so the earlier listing failed with `Left contains one more item: 'root.Makefile'`. My entry 5 had wrongly left this file out, saying it uses only `pack_claude_md`; this test also lists the kit's files.
+   - No other test was changed or removed.
+
+   Test run (the single-file command from `CLAUDE.md`): `uv run pytest -q tests/agent_files/test_claude_files.py` passed all 22 tests. Every module imported.
+
+   `lint`: lint: green (0.1 s)
+
+   `lint`: lint: green (0.1 s)
