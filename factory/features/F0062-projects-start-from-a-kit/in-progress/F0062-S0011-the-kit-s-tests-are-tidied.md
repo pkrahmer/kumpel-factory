@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 701
 comments_read: [6939751878]
 handed_over: null
-claim:
-  instance: self
-  stage: tests
-  started_at: '2026-11-17T05:40:54.169919Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -51,6 +47,12 @@ journal:
   kind: started
   at: '2026-11-17T05:40:54.169919Z'
   stage: tests
+- number: 8
+  speaker: tester
+  kind: result
+  at: '2026-11-17T05:45:08.976552Z'
+  stage: tests
+  run: 0992ac31acbd411e8e0de2bfc15e8450
 ---
 
 # The feature's tests are tidied: one missing row, one weak check, one copy, and names that still say template
@@ -113,3 +115,31 @@ Expect: one line ending with `passed` and a time, with no `failed`.
    - Architecture: only tests change. The shared reader stays in `tests/support/`, as CLAUDE.md asks, and no test module imports another.
    - Scope: this is the tidy-up of F0062's tests that the feature's acceptance proposed. It stays within the feature and adds nothing new. The route is `tests`, because the Interface changes test files and the documenter may not write those.
 7. factory: started tests as self.
+8. tester: Tests written. This is a tests-only story, so nothing is red on purpose: `make test` is green (coverage 99.14 %) and `make lint` and `make types` are green too. The coder has nothing to build. It only runs the checks.
+
+   Criteria → tests:
+   - criterion 1: `tests/pipeline/application/test_project_check_run.py::test_a_definition_naming_sync_among_its_commands_asks_for_its_target_once`. It has two rows. Both use a definition, `NAMING_SYNC` (`PIPELINE_YAML` plus `sync: {time_limit: 5}` under `project_commands`). With `READY_MAKEFILE` the `makefile` point has `[]`. With `WITHOUT_SYNC` it has `["no target sync"]`. Each row also checks that the definition point has no fault.
+   - criterion 2: `tests/machine/adapters/test_make_commands_make_file.py::test_the_named_makefile_must_reach_the_sync_and_the_command_each`. It has three rows (both / only-sync / only-command). Only the both row passes `_assert_named`; the other two raise `AssertionError`. `_assert_named` now splits the script on `&&`. It finds the sync segment and the command segment, by the word itself or by the `"$n"` argument that holds it. It then checks that each segment holds `-f "$k"` next to each other, where argument k is the named makefile. The old checks stay: the shell, the path not in the script, the path and `check` among the arguments, and sync present only `with_sync`.
+   - criterion 3: `tests/operator_scripts/test_packs.py::test_each_stage_file_keeps_the_layer_rule_and_checks_every_download` now uses `dockerfile_instructions` from `tests/support/dockerfile_support.py`. Its own `_instructions` is gone. It checks `f"{keyword} {arguments}"`, so a download on a bare line is still searched.
+   - criterion 4: `git ls-files tests | grep template` prints only `tests/guards/test_template_removed.py`. Renames: `tests/agent_files/test_template_makefile.py` → `test_python_pack_makefile.py`, `test_template_makefile_header.py` → `test_python_pack_makefile_header.py`, `test_template_sync.py` → `test_python_pack_sync.py`, and `tests/support/template_make_support.py` → `tests/support/kit_make_support.py`. Every function name is unchanged, including `test_template_*` function names, as the Interface asks. In `tests/guards/test_operator_guide_files.py`, `..._ten_topics` became `..._and_its_topics`.
+   - criterion 5: `tests/agent_files/test_installed_builder.py::test_the_installed_reviewer_checks_the_projects_review_points`. It now asserts the heading once, as a whole line of the Stage section: `"\n### The project's review points\n" in f"\n{points}\n"`.
+
+   Earlier tests changed under the human's leave (entry 4):
+   - the Interface's targets: `test_project_check_run.py`, `test_make_commands_make_file.py`, `test_installed_builder.py`, `test_packs.py`, `dockerfile_support.py`, the three renamed modules and `test_operator_guide_files.py`;
+   - the renamed support module's importers: `tests/operator_scripts/test_packs.py`, `tests/operator_scripts/test_kit_makefile.py`, `tests/support/kit_support.py` and the three renamed modules.
+
+   The renames forced two changes outside the files the Interface names. Each still checks the same thing:
+   - `tests/guards/test_tests_layout.py`: `FORMER_ROOT_HELPERS` now lists `kit_make_support`. `FORMER_ROOT_TEST_MODULES` lists the three new module names. The placement pattern `test_template_*.py` became `test_python_pack_*.py`, since a pattern that matches nothing fails `assert fitting`.
+   - `tests/vm/test_stage_image.py`: imports and calls the reader under its public name.
+
+   The public name is `dockerfile_instructions`, not `instructions`, because `test_stage_image.py` already has local variables named `instructions`.
+
+   Rejected: keeping `_instructions` as an alias beside the public name, which would be a second name for one helper.
+
+   For the documenter:
+   - criterion 7: `docs/project-guide/agents.md:404` and `docs/project-guide/README.md:192` still link `tests/support/template_make_support.py`.
+   - `docs/project-guide/README.md:164` still calls the Dockerfile reader `_instructions`; its new name is `dockerfile_instructions`.
+
+   Files created: none (four renamed). No module failed to import.
+
+   `lint`: lint: green (0.1 s)

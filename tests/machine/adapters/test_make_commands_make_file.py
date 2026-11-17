@@ -70,15 +70,52 @@ def dataset(tmp_path: Path, checkout: GitCli) -> Dataset:
     return Dataset(tmp_path, checkout)
 
 
+def _refers(words: list[str], arguments: list[str], word: str) -> bool:
+    """Whether a segment's `words` hold `word`, as itself or as the argument that holds it."""
+    return word in words or any(
+        f'"${position}"' in words for position, each in enumerate(arguments) if each == word
+    )
+
+
 def _assert_named(command: list[str], *, with_sync: bool) -> None:
     script = command[2]
     arguments = command[3:]
     assert command[:2] == ["/bin/sh", "-c"]
     assert NAMED not in script
     assert NAMED in arguments
-    assert "-f" in script or "-f" in arguments
     assert "check" in arguments
-    assert ("sync" in script or "sync" in arguments) is with_sync
+    named = ["-f", f'"${arguments.index(NAMED)}"']
+    segments = [segment.split() for segment in script.split("&&")]
+    syncs = [words for words in segments if _refers(words, arguments, "sync")]
+    runs = [words for words in segments if _refers(words, arguments, "check")]
+    assert bool(syncs) is with_sync
+    assert runs
+    for words in syncs + runs:
+        assert any(words[index : index + 2] == named for index in range(len(words))), words
+
+
+@pytest.mark.parametrize(
+    ("script", "passes"),
+    [
+        pytest.param(
+            '"$1" -f "$3" sync && "$1" -f "$3" --no-print-directory "$2"', True, id="both"
+        ),
+        pytest.param('"$1" -f "$3" sync && "$1" --no-print-directory "$2"', False, id="only-sync"),
+        pytest.param(
+            '"$1" sync && "$1" -f "$3" --no-print-directory "$2"', False, id="only-command"
+        ),
+    ],
+)
+def test_the_named_makefile_must_reach_the_sync_and_the_command_each(
+    script: str, *, passes: bool
+) -> None:
+    command = ["/bin/sh", "-c", script, "factory-check", "make", "check", NAMED]
+
+    if passes:
+        _assert_named(command, with_sync=True)
+    else:
+        with pytest.raises(AssertionError):
+            _assert_named(command, with_sync=True)
 
 
 @pytest.mark.parametrize(

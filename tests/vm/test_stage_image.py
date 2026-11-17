@@ -22,12 +22,12 @@ from support.dockerfile_support import (
     _env,
     _from_references,
     _instruction_commands,
-    _instructions,
     _piped_download_findings,
     _pipelines,
     _shell_lines,
     _substitute,
     _uncommented,
+    dockerfile_instructions,
     floating_references,
 )
 
@@ -95,7 +95,7 @@ def stage_dockerfile() -> str:
 
 @pytest.fixture
 def stage_instructions(stage_dockerfile: str) -> list[Instruction]:
-    return _instructions(stage_dockerfile)
+    return dockerfile_instructions(stage_dockerfile)
 
 
 def _pins(instructions: list[Instruction]) -> dict[str, str]:
@@ -156,7 +156,7 @@ def _npm_packages(command: Command) -> list[str] | None:
 def _for_runtime(dockerfile: str, requirement: str) -> str:
     """The instructions of `dockerfile` with every `npm install` naming `requirement` alone."""
     lines: list[str] = []
-    for keyword, arguments in _instructions(dockerfile):
+    for keyword, arguments in dockerfile_instructions(dockerfile):
         commands = _run_commands(arguments) if keyword == "RUN" else []
         installs = [command for command in commands if _npm_packages(command) is not None]
         if installs:
@@ -438,7 +438,7 @@ def test_each_setting_is_one_name_on_a_line_of_its_own(
 ) -> None:
     text = f"{stage_dockerfile}\n{extra}\n"
     lines = [line for line in text.splitlines() if line.startswith("ENV ")]
-    names = _env(_instructions(text))
+    names = _env(dockerfile_instructions(text))
     one_pair_per_line = all(ONE_SETTING.fullmatch(line) for line in lines)
 
     assert (one_pair_per_line and len(lines) == len(names)) == one_name_each
@@ -514,7 +514,7 @@ def test_the_first_line_names_the_build_command_with_the_runtime(
 
 
 def _node_is_pinned(dockerfile: str) -> bool:
-    pins = _arg_defaults(_instructions(dockerfile), before_from=False)
+    pins = _arg_defaults(dockerfile_instructions(dockerfile), before_from=False)
     return bool(
         NODE_VERSION.fullmatch(pins.get("NODE_VERSION", ""))
         and LOWER_SHA256.fullmatch(pins.get("NODE_SHA256", ""))
@@ -572,7 +572,7 @@ def _drop_lines_with(marker: str) -> Callable[[str], str]:
 
 
 def _node_archive_is_checked(dockerfile: str) -> bool:
-    instructions = _instructions(dockerfile)
+    instructions = dockerfile_instructions(dockerfile)
     commands = _commands(dockerfile)
     downloads = [command for command in commands if any("nodejs.org" in w for w in command)]
     checks = [
@@ -680,7 +680,7 @@ def _execs_its_installed_command(dockerfile: str, name: str) -> bool:
     wrapper = re.compile(rf'exec {re.escape(FACTORY_PREFIX)}/bin/{name} "\$@"')
     runs = [
         arguments
-        for keyword, arguments in _instructions(dockerfile)
+        for keyword, arguments in dockerfile_instructions(dockerfile)
         if keyword == "RUN" and f"/usr/local/bin/{name}" in arguments
     ]
     return bool(runs) and all(
@@ -721,7 +721,7 @@ def test_each_runtime_command_execs_its_installed_command(
 
 
 def _keeps_the_factory_node_off_the_path(dockerfile: str) -> bool:
-    instructions = _instructions(dockerfile)
+    instructions = dockerfile_instructions(dockerfile)
     named = re.search(r"/usr/local/bin/(node|npm)\b", _uncommented(dockerfile))
     links = [
         command
@@ -779,7 +779,7 @@ def test_the_runtime_build_argument_has_no_default(
 ) -> None:
     declared = [
         arguments
-        for keyword, arguments in _instructions(change(stage_dockerfile))
+        for keyword, arguments in dockerfile_instructions(change(stage_dockerfile))
         if keyword == "ARG" and arguments.partition("=")[0] == "AGENT_RUNTIME"
     ]
 
@@ -952,7 +952,7 @@ CLEANED = [f"{TEMPORARY}/a", "/var/lib/apt/lists/a", "/var/cache/debconf/a-old",
 
 
 def _final_stage_cleans_up(dockerfile: str) -> bool:
-    commands = _instruction_commands(_final_stage(_instructions(dockerfile)))
+    commands = _instruction_commands(_final_stage(dockerfile_instructions(dockerfile)))
     last_use = max(
         (
             index
@@ -1013,7 +1013,7 @@ def _takes_from_the_install(source: str) -> bool:
 def _takes_only_the_chosen_runtime(dockerfile: str) -> bool:
     copies = [
         [word for word in arguments.split() if not word.startswith("--")]
-        for keyword, arguments in _final_stage(_instructions(dockerfile))
+        for keyword, arguments in _final_stage(dockerfile_instructions(dockerfile))
         if keyword == "COPY" and "--from=" in arguments
     ]
     return copies != [] and not any(
@@ -1024,7 +1024,9 @@ def _takes_only_the_chosen_runtime(dockerfile: str) -> bool:
 
 
 def _first_stage_name(dockerfile: str) -> str:
-    first = next(arguments for keyword, arguments in _instructions(dockerfile) if keyword == "FROM")
+    first = next(
+        arguments for keyword, arguments in dockerfile_instructions(dockerfile) if keyword == "FROM"
+    )
     words = first.split()
     return words[-1] if len(words) == 3 and words[1].upper() == "AS" else "0"
 
@@ -1064,4 +1066,4 @@ def test_the_version_settings_stay_in_the_image(
 ) -> None:
     text = _drop_lines_with(f"ENV {name}=")(stage_dockerfile) if removed else stage_dockerfile
 
-    assert (name in _env(_final_stage(_instructions(text)))) != removed
+    assert (name in _env(_final_stage(dockerfile_instructions(text)))) != removed

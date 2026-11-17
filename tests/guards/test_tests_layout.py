@@ -81,7 +81,7 @@ FORMER_ROOT_HELPERS = (
     "stall_support",
     "story_form_support",
     "take_support",
-    "template_make_support",
+    "kit_make_support",
     "tick_support",
     "time_limits",
     "tmp_path_support",
@@ -194,9 +194,9 @@ FORMER_ROOT_TEST_MODULES = (
     "test_suite_held_once.py",
     "test_suite_leftovers.py",
     "test_suite_old_names.py",
-    "test_template_makefile.py",
-    "test_template_makefile_header.py",
-    "test_template_sync.py",
+    "test_python_pack_makefile.py",
+    "test_python_pack_makefile_header.py",
+    "test_python_pack_sync.py",
     "test_test_children.py",
     "test_test_names.py",
     "test_tests_run_under_the_starting_umask.py",
@@ -242,7 +242,7 @@ PLACEMENTS = (
     ("test_stage_image*.py", "vm"),
     ("test_claude_*.py", "agent_files"),
     ("test_shipped_agents*.py", "agent_files"),
-    ("test_template_*.py", "agent_files"),
+    ("test_python_pack_*.py", "agent_files"),
 )
 
 

@@ -12,7 +12,7 @@ import pytest
 from factory.shared.domain.paths import REMOTE, WORK_BRANCH
 from support.claude_stand_in import Step, read_calls
 from support.git_support import commit_all, run_git, write_files
-from support.template_make_support import (
+from support.kit_make_support import (
     green_line,
     makefile_lines,
     run_make,

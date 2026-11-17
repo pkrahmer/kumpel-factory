@@ -11,6 +11,8 @@ from factory.machine.domain.stage_layer import stage_layer
 from factory.pipeline.domain.project_check import makefile_targets
 from factory.shared.adapters.process import ProcessRequest, run_process
 from factory.shared.domain.sections import sections
+from support.dockerfile_support import dockerfile_instructions
+from support.kit_make_support import green_line
 from support.kit_support import (
     KIT,
     LINES,
@@ -27,7 +29,6 @@ from support.kit_support import (
     section_texts,
 )
 from support.project_check_support import committed_repository, project_faults
-from support.template_make_support import green_line
 
 STACK_TARGETS = ("sync", "lint", "test", "check")
 KIT_TARGETS = ("facts-diff", "facts-changes", "facts-files")
@@ -91,21 +92,6 @@ def _check_prerequisites(pack: Pack) -> list[str]:
     return match.group(1).split()
 
 
-def _instructions(text: str) -> list[str]:
-    instructions: list[str] = []
-    current = ""
-    for line in text.splitlines():
-        if not current and (not line.strip() or line.lstrip().startswith("#")):
-            continue
-        current += line.rstrip().removesuffix("\\") + " "
-        if not line.rstrip().endswith("\\"):
-            instructions.append(current)
-            current = ""
-    if current:
-        instructions.append(current)
-    return instructions
-
-
 @pytest.mark.parametrize("line", LINES)
 @pytest.mark.parametrize("pack", PACKS)
 def test_a_project_from_the_kit_and_a_pack_is_ready(tmp_path: Path, pack: Pack, line: Line) -> None:
@@ -150,7 +136,8 @@ def test_each_stage_file_keeps_the_layer_rule_and_checks_every_download(pack: Pa
 
     stage_layer(text, "base")
 
-    for instruction in _instructions(text):
+    for keyword, arguments in dockerfile_instructions(text):
+        instruction = f"{keyword} {arguments}"
         for after_download in instruction.split("curl ")[1:]:
             assert "sha256sum -c" in after_download, instruction
 

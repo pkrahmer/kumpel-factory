@@ -8,6 +8,7 @@ from factory.machine.domain.stage_layer import StageLayerRefused, stage_layer
 from factory.pipeline.domain.project_check import POINT_NAMES, ProjectPoint
 from support.git_support import AGENT_FILE, PIPELINE_YAML, pipeline_outcome
 from support.project_check_support import (
+    READY_MAKEFILE,
     ROLES,
     committed_repository,
     installed_home,
@@ -21,6 +22,9 @@ VALID_STAGE_FILE = "ARG FACTORY_BASE\nFROM ${FACTORY_BASE}\n"
 WITHOUT_LINT = "check:\n\t@:\ntest:\n\t@:\nsync:\n\t@:\n"
 WITHOUT_SYNC = "check:\n\t@:\nlint:\n\t@:\ntest:\n\t@:\n"
 SKIPPED_WITHOUT_DEFINITION = {"makefile", "agents", "write paths"}
+NAMING_SYNC = PIPELINE_YAML.replace(
+    "  test: {time_limit: 10}\n", "  test: {time_limit: 10}\n  sync: {time_limit: 5}\n"
+)
 
 
 def _stage_reason(text: str) -> str:
@@ -143,6 +147,23 @@ def test_each_fault_turns_its_point_and_no_other(
         assert faults[point][0] != "role coder: no agent file"
     else:
         assert faults[point] == expected
+
+
+@pytest.mark.parametrize(
+    ("makefile", "expected"),
+    [
+        pytest.param(READY_MAKEFILE, [], id="with-sync-target"),
+        pytest.param(WITHOUT_SYNC, ["no target sync"], id="without-sync-target"),
+    ],
+)
+def test_a_definition_naming_sync_among_its_commands_asks_for_its_target_once(
+    tmp_path: Path, makefile: str, expected: list[str]
+) -> None:
+    assert "  sync: {time_limit: 5}\n" in NAMING_SYNC
+    faults = _faults(_run(tmp_path, {"factory/pipeline.yml": NAMING_SYNC, "Makefile": makefile}))
+
+    assert faults["pipeline definition"] == []
+    assert faults["makefile"] == expected
 
 
 @pytest.mark.parametrize(

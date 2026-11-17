@@ -22,7 +22,7 @@ SEARCHED = (
 NOT_SEARCHED = (ROOT / "docs" / "runs", ROOT / "docs" / "decisions.md")
 
 
-def test_the_single_guide_is_gone_and_the_folder_holds_the_index_and_ten_topics() -> None:
+def test_the_single_guide_is_gone_and_the_folder_holds_the_index_and_its_topics() -> None:
     assert not OLD_GUIDE.exists()
     names = sorted(path.name for path in GUIDE.iterdir())
     assert names == sorted(("README.md", *TOPIC_FILES))

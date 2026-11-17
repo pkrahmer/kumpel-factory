@@ -7,8 +7,8 @@ from pathlib import Path
 import pytest
 
 from support.git_support import clone, commit_all, make_remote, run_git, write_files
+from support.kit_make_support import green_line
 from support.kit_support import KIT_MAKEFILE, run_kit_make
-from support.template_make_support import green_line
 
 PROJECT_MAKEFILE = (
     "include factory/kit.mk\n"
