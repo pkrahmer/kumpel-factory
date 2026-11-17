@@ -1,17 +1,13 @@
 ---
-stage: intake
+stage: tests
 blocked: null
 round: 0
 attempts: 0
 crashes: 0
-pull_request: null
+pull_request: 705
 comments_read: []
 handed_over: null
-claim:
-  instance: self
-  stage: intake
-  started_at: '2026-11-17T06:47:26.862966Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -23,6 +19,12 @@ journal:
   kind: started
   at: '2026-11-17T06:47:26.862966Z'
   stage: intake
+- number: 3
+  speaker: intake
+  kind: result
+  at: '2026-11-17T06:47:54.215861Z'
+  stage: intake
+  run: 6e9fb6e9f50a4ce592a37ad4cda26e18
 ---
 
 # One layout for every project
@@ -85,3 +87,10 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
 1. 2026-11-17 human: created.
 2. factory: started intake as self.
+3. intake: accepted
+   - Interface: names concrete files: the drafts under `planning/kit-draft/` and `planning/packs-draft/` exist, and `diff -rq` against `operator/kit/` and `operator/packs/` shows exactly the differences the Interface lists (pipeline.thin/full.yml, kit.mk, factory/README.md, CLAUDE.md, new root.Makefile, `.gitleaks.toml` → `gitleaks.toml`, Java Makefile/TRAPS/CLAUDE.sections, C Makefile, trust-store.sh, which differs only by the licence header the Interface keeps). The assembly rule (pack files but the two pages into `factory/` at the same path, root.Makefile only when there is no root Makefile) is stated once, for the helper `tests/support/kit_support.py` and the documents. No module under `src/factory/` changes.
+   - Criteria: each testable by one test function: 1 parametrized over the two definitions (value and no commented line); 2 over three packs × two lines, both sides of "outside `factory/`" (only `CLAUDE.md` and `Makefile`); 3 the other side of the root.Makefile rule (an existing root Makefile is kept byte for byte); 4 the forwarding makefile's default goal, a target, an unknown target red and no remaking of `Makefile`, all real runs; 5 the Java pack's new paths, with the refused side (no pack file names the old root paths); 6 protection of `factory/Makefile` and `factory/kit.mk`. Test changes to other stories' tests carry the human's leave (feature decision 36, quoted in the Interface).
+   - Smoke test: three blocks, runnable from the checkout (`factory.entry.check_project` exists, root.Makefile draft forwards with `.DEFAULT_GOAL := check` and `Makefile: ;`); each `Expect:` is checkable (three exact lines, two green lines with the time masked, a pytest summary with only `passed`); the pytest command passes no `-q`, and `addopts` already sets `-q`, so the summary line prints.
+   - Docs criterion: names what the reader must know (the one layout, the pack files in `factory/`, root.Makefile and when to copy it, running a target by hand, the `CLAUDE.md` line for `make -f factory/Makefile`, the decision with its price and gain); it dictates no sentences, and its files are in the documenter's write paths.
+   - Architecture: the changes are data files under `operator/kit/` and `operator/packs/` (coder's write paths), tests under `tests/` (tester's) and documents (documenter's); `make_file` and its protection are already built, so no layer or wrapper is touched.
+   - Scope: within F0062 and exactly its decision 36 (one layout, story S0013); nothing from its Out of scope. Route `tests`, since the coder must write `operator/kit/` and `operator/packs/`.
