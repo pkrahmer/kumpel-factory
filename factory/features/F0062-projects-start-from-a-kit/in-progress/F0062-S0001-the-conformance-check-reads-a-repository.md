@@ -1,11 +1,11 @@
 ---
 stage: doing
-blocked: question
+blocked: null
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 690
-comments_read: [6933812910]
+comments_read: [6933812910, 6934072851]
 handed_over: null
 claim: null
 journal:
@@ -65,6 +65,11 @@ journal:
   stage: doing
   run: 3636fea364e14879aa0823c607bdb426
   blocked: question
+- number: 11
+  speaker: human
+  kind: comment
+  at: '2026-11-17T00:44:33.779412Z'
+  stage: doing
 ---
 
 # The conformance check reads a repository
@@ -264,3 +269,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     - The smoke test was not run: the shell refused the command, so the smoke-test stage still has to run it.
 
     No refactor pass yet; it waits for the answer. The journal did not change the Description.
+11. 2026-11-17 human: A. Leave given: the tester may change the expected list of `tests/guards/test_agent_home_wiring.py` to the one construction in `factory.entry.wiring` with the argument `agent_home`; the guard keeps its name and still checks that the reader is built in exactly one place.
