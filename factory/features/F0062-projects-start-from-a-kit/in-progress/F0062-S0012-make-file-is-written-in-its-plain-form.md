@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 703
 comments_read: [6940217140]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: docs
+  started_at: '2026-11-17T06:11:26.621243Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -75,6 +79,11 @@ journal:
   at: '2026-11-17T06:11:21.274026Z'
   stage: review
   run: 0ad68fc78e334194a086da8b4e96ac51
+- number: 13
+  speaker: factory
+  kind: started
+  at: '2026-11-17T06:11:26.621243Z'
+  stage: docs
 ---
 
 # A `make_file` is written in its plain form, or the definition refuses it
@@ -208,3 +217,4 @@ Expect: one line ending with `passed` and a time, with no `failed`.
     Earlier tests:
     - `tests/pipeline/domain/test_pipeline_definition_make_file.py`: none needed. One test is appended, and every earlier test is unchanged.
     - `tests/entry/test_check_project.py`: none needed. One test is appended, the imports gain `PIPELINE_YAML` and `READY_MAKEFILE`, and every earlier test is unchanged.
+13. factory: started docs as self.
