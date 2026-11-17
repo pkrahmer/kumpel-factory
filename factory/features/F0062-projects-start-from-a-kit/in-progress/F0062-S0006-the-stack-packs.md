@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 695
 comments_read: [6937495535]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: review
+  started_at: '2026-11-17T03:46:46.316482Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -64,6 +68,11 @@ journal:
   at: '2026-11-17T03:46:41.139558Z'
   stage: doing
   run: 15849d18913c473fac8692cff4725d22
+- number: 11
+  speaker: factory
+  kind: started
+  at: '2026-11-17T03:46:46.316482Z'
+  stage: review
 ---
 
 # The stack packs
@@ -192,3 +201,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     - The folder-readme row for `operator/README.md` did not fail, so leave 27 was not needed.
 
     `duplicates`: duplicates: 8 new, 38 known, 5 gone
+11. factory: started review as self.
