@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 692
 comments_read: [6935336014, 6935606286]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: review
+  started_at: '2026-11-17T02:05:46.357391Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -103,6 +107,11 @@ journal:
   at: '2026-11-17T02:05:40.951443Z'
   stage: doing
   run: 778f455a2b3e4a8ba2737d4722e72602
+- number: 18
+  speaker: factory
+  kind: started
+  at: '2026-11-17T02:05:46.357391Z'
+  stage: review
 ---
 
 # The conformance check runs a repository
@@ -312,3 +321,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     Noticed but not touched: the docs (`docs/operator-guide/`, `docs/project-guide/machine.md`) are left to the documenter for criterion 11.
 
     `duplicates`: duplicates: 8 new, 38 known, 5 gone
+18. factory: started review as self.
