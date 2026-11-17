@@ -1,5 +1,5 @@
 ---
-stage: smoke-test
+stage: approval
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 701
 comments_read: [6939751878]
 handed_over: null
-claim:
-  instance: self
-  stage: smoke-test
-  started_at: '2026-11-17T05:51:13.248563Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -95,6 +91,12 @@ journal:
   kind: started
   at: '2026-11-17T05:51:13.248563Z'
   stage: smoke-test
+- number: 16
+  speaker: smoke-tester
+  kind: result
+  at: '2026-11-17T05:53:29.773836Z'
+  stage: smoke-test
+  run: bc38654c1c5148bb93467e540470993d
 ---
 
 # The feature's tests are tidied: one missing row, one weak check, one copy, and names that still say template
@@ -250,3 +252,26 @@ Expect: one line ending with `passed` and a time, with no `failed`.
     `secrets`: secrets: green (1.0 s)
     `documents`: documents ok (48.9 s)
 15. factory: started smoke-test as self.
+16. smoke-tester: Smoke test run from the repository root, exactly as written. No findings.
+
+    Command 1: `git ls-files tests | grep template`
+    ```
+    tests/guards/test_template_removed.py
+    ```
+    Met: it prints one line, `tests/guards/test_template_removed.py`.
+
+    Command 2: `uv run pytest tests/pipeline/application/test_project_check_run.py tests/operator_scripts/test_packs.py 2>&1 | tail -1`
+    ```
+    54 passed in 1.16s
+    ```
+    Met: one line ending with `passed` and a time, with no `failed`.
+
+    Criteria checked against the smoke test:
+    - Criterion 4: the first command shows only one file under `tests` names the template. `grep -rn ten_topics tests/guards` prints nothing.
+    - Criteria 1 and 3: their test files pass in the second command.
+    - Criterion 7: `docs/project-guide/agents.md:404` and `docs/project-guide/README.md:192` name and link `tests/support/kit_make_support.py`. Under `README.md` and `docs/`, the old name `template_make_support` now appears only in the human's `docs/runs/` log, which is history and not a guide.
+    - No criterion is contradicted.
+
+    I did not run `make check` (criterion 6); the factory runs it after this stage.
+
+    `check`: check: green
