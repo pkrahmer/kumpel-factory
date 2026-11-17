@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 697
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: docs-only
+  started_at: '2026-11-17T04:38:56.737815Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -25,6 +29,11 @@ journal:
   at: '2026-11-17T04:38:51.692736Z'
   stage: intake
   run: ce2a53df165c440ca470313967a460e0
+- number: 4
+  speaker: factory
+  kind: started
+  at: '2026-11-17T04:38:56.737815Z'
+  stage: docs-only
 ---
 
 # The guide
@@ -75,3 +84,4 @@ Expect: two numbers, each at least 3 for the first and at least 2 for the second
    - Docs criterion: it names what the reader must know (the page, the index entry, the README pointer, the Java part of the site page, and the decision with its reason, that the reader is a person setting a repository up). It dictates no sentences.
    - Architecture: the story is documents only, in the folders CLAUDE.md gives the operator guide (`docs/operator-guide/`), the newcomer (`README.md`) and the decision log (`docs/decisions.md`). It does not touch `planning/` or `docs/runs/`.
    - Scope: it is in the feature's scope ("The guide for a fresh start and for a brownfield repository", story S0008). The page goes in the operator guide, as decision 26 of `feature.md` placed it. It describes the onboarding pull request and starters only as things that do not exist yet, which keeps it inside the feature's "Out of scope".
+4. factory: started docs-only as self.
