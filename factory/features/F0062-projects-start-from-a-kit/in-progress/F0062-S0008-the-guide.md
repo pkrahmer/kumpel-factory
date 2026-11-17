@@ -1,5 +1,5 @@
 ---
-stage: docs-only
+stage: tests
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 697
 comments_read: [6938616709]
 handed_over: null
-claim:
-  instance: self
-  stage: docs-only
-  started_at: '2026-11-17T04:44:34.756800Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -51,6 +47,12 @@ journal:
   kind: started
   at: '2026-11-17T04:44:34.756800Z'
   stage: docs-only
+- number: 8
+  speaker: documenter
+  kind: result
+  at: '2026-11-17T04:44:54.279028Z'
+  stage: docs-only
+  run: e4cddc12913843479543c98031eb452c
 ---
 
 # The guide
@@ -125,3 +127,22 @@ Expect: two numbers, each at least 3 for the first and at least 2 for the second
    Cross-read and found current: `operator/kit/README.md`, `operator/packs/README.md`, the three `TRAPS.md`, `docs/operator-guide/pipeline.md` (*Checking a repository before the factory runs it*), `agent-runtime.md` (*Behind a proxy*, *A project's own agents*), `docs/project-guide/style.md` (examples). Nothing stale found that is not this story's.
 6. 2026-11-17 human: A. The page is the eleventh topic. Leave given: the tester may add `start-a-project.md` to `TOPIC_FILES` in `tests/support/check_documents_support.py` and change the earlier tests that pin the number or the list of the operator guide's topics (ten becomes eleven), each keeping its name; the coder adds the page to `OPERATOR_GUIDE_FILES` in `src/factory/shared/domain/documents.py`. The story's sentence that no module and no test changes is lifted for exactly these lines.
 7. factory: started docs-only as self.
+8. documenter: Sent on to the tester and the coder: the human's answer A (entry 6) needs a test change and a code change, and neither is in my write paths. This run changed no document.
+
+   What the tester changes (the human gave leave in entry 6):
+   - `tests/support/check_documents_support.py:11`: add `"start-a-project.md"` to `TOPIC_FILES`.
+   - The earlier tests that pin the number or the list of topics, each keeping its name. I found one: `tests/guards/test_operator_guide_files.py:25` (`test_the_single_guide_is_gone_and_the_folder_holds_the_index_and_ten_topics`). It reads `TOPIC_FILES`, so the list change may be the only edit it needs. `MISSING_LINES` in the same support module is built from `TOPIC_FILES`, so it follows the list by itself. The test files that use `MISSING_LINES` or `TOPIC_FILES` should still be run.
+
+   What the coder changes:
+   - `src/factory/shared/domain/documents.py:29`: add `f"{OPERATOR_GUIDE_FOLDER}/start-a-project.md"` to `OPERATOR_GUIDE_FILES`. The document check then requires the page, as it requires the other topics.
+
+   The documents are already on the branch from my last run and stay as they are:
+   - `docs/operator-guide/start-a-project.md` (new)
+   - `docs/operator-guide/site.md` (*A Java project*)
+   - `docs/operator-guide/README.md`
+   - `README.md`
+   - `docs/decisions.md` (it has no "Rejected" line because the story names no rejected option)
+   - `docs/checked-documents.txt`
+   - `docs/operator-guide/agent-runtime.md`
+
+   When the story comes back to the docs stage, `make guides` should be run again. Its only red result was the guard above.
