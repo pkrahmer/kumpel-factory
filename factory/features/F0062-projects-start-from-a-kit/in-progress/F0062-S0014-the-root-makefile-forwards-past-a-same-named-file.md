@@ -1,5 +1,5 @@
 ---
-stage: review
+stage: docs
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 707
 comments_read: [6941636547]
 handed_over: null
-claim:
-  instance: self
-  stage: review
-  started_at: '2026-11-17T07:37:04.117715Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -106,6 +102,12 @@ journal:
   kind: started
   at: '2026-11-17T07:37:04.117715Z'
   stage: review
+- number: 18
+  speaker: reviewer
+  kind: result
+  at: '2026-11-17T07:37:31.237096Z'
+  stage: review
+  run: dd802303fe154c8aa0811d008bb48b56
 ---
 
 # The root makefile forwards a target that a file at the root is named after
@@ -288,3 +290,33 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     `duplicates`: duplicates: 8 new, 38 known, 5 gone
 17. factory: started review as self.
+18. reviewer: Round 1. No findings.
+
+    Both findings from round 0 are fixed. `MAKEFILE_TARGET` and `forwarding_project` are now in `tests/support/kit_support.py` and both modules use them. Neither test module defines its own copy any more.
+
+    What I checked and found to hold:
+    - **Criteria:**
+      - 1: three parametrized rows (nothing named `test`, a `test/` folder, an empty `test` file). Each row asserts exit 0, exactly one `test` green line and no "up to date".
+      - 2: with a `check/` folder, `make` with no target gives one green line each for `lint` and `test`, and `check: green` is the last line.
+      - 3: with a `test/` folder and a recipe ending in `exit 3`, the exit status is non-zero.
+      - 4: one parametrized test with a row for each case of criteria 1 to 3 plus `nosuch`. Each row checks the expected exit status and that no line names `Makefile`, on merged output.
+      - 5: `make factory-forward` exits 0 and no line reads `forwarded`, although `factory/Makefile` has that target and declares it phony.
+      - 6: the coder's entry 16 reports `check: green` and `guides: green`.
+      - 7: left for the docs stage, and its wording still names what the reader must know.
+      - Each of the Interface's five rules is tested on its failing side.
+    - **Kit file:** `operator/kit/root.Makefile` is identical to `planning/kit-draft/root.Makefile` (`diff` reports no difference). It matches the Interface's whole-file text, and the two comment lines are kept.
+    - **Architecture and security:** nothing under `src/` changed. The diff adds no marker, no secret and no shell built from strings.
+    - **Quality:**
+      - `forwarding_project` writes `factory/Makefile`, the same path as `FACTORY_MAKEFILE` in `test_one_layout.py`, which that module still uses at lines 48 and 153.
+      - `shutil` and `KIT_MAKEFILE` were removed from `test_one_layout.py` and are no longer used there.
+      - The new helpers have docstrings.
+    - **Work item hygiene:**
+      - The journal names the main choice (copy the draft as it is) and what was rejected (a `.PHONY` list of known targets, `MAKECMDGOALS` tricks).
+      - The Description matches what was built.
+
+    Notes:
+    - `tests/operator_scripts/test_root_makefile.py:59` (`matching`): it counts matching lines with the same expression that `tests/operator_scripts/test_one_layout.py:111` and `tests/operator_scripts/test_packs.py:131` write inline. A shared helper in `tests/support/kit_make_support.py` could serve all three. This is a quality point in a test file the diff adds, so it does not send the work item back.
+
+    Earlier tests:
+    - `tests/operator_scripts/test_one_layout.py`: changed under the standing leave to move a shared test helper. `MAKEFILE_TARGET` and the project setup moved to `tests/support/kit_support.py`. `test_the_root_makefile_forwards_every_target_to_the_factory_makefile` keeps its name, rows and assertions.
+    - `tests/support/kit_support.py`: changed under the same leave. It is the shared place, and it only gained `MAKEFILE_TARGET` and `forwarding_project`.
