@@ -1,17 +1,13 @@
 ---
-stage: intake
+stage: docs-only
 blocked: null
 round: 0
 attempts: 0
 crashes: 0
-pull_request: null
+pull_request: 699
 comments_read: []
 handed_over: null
-claim:
-  instance: self
-  stage: intake
-  started_at: '2026-11-17T05:10:26.392628Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -23,6 +19,12 @@ journal:
   kind: started
   at: '2026-11-17T05:10:26.392628Z'
   stage: intake
+- number: 3
+  speaker: intake
+  kind: result
+  at: '2026-11-17T05:10:46.282495Z'
+  stage: intake
+  run: 52b57a2d34e7473ba66f471cd715be90
 ---
 
 # The conformance check's documents catch up with the console script and the live part
@@ -65,3 +67,10 @@ Expect: a number of at least 2.
 
 1. 2026-11-17 human: created.
 2. factory: started intake as self.
+3. intake: accepted
+   - Interface: only documents change: `docs/operator-guide/pipeline.md` (the "Until the command is installed" sentence at line 219 goes), `docs/operator-guide/start-a-project.md` and `pipeline.md` (one sentence beside the `python -m factory.entry.check_project` examples, at pipeline.md:234 and start-a-project.md:49 and :74), and a new entry in `docs/decisions.md` that widens *The conformance check is a command of its own, not a preflight item* (line 1716). No module, test or `operator/` file changes; the console script exists in `pyproject.toml:19`. Every path is one the documenter may write, so the route is docs-only.
+   - Criteria: each can be checked on its own: 1 by grep; 2 per page and section that has a module example; 3 by reading the new entry for each listed point (clone, `<stage image>-check`, settings without a dataset, live points only after a clean static part with nothing printed after a failure, make part of the sync only, widens S0001). The live-part points match decisions 12, 13 and 17 of `feature.md`. 4 is `make documents` (both pages are in `docs/checked-documents.txt`); 5 is `make check`. These are document criteria with no rule that has a refused side.
+   - Smoke test: both greps run from the checkout root. Expecting `0` is exact. Expecting "at least 2" can be checked against the count.
+   - Docs criterion: it names what the reader must know (the command's name, why the examples run the module, why the live part uses a clone, its own image and the static part first). It dictates no sentences.
+   - Architecture: no code. The decision log is the place for lasting reasons and the operator guide for the operator, as CLAUDE.md *Docs* says.
+   - Scope: within F0062. It brings the documents of S0001 and S0003 up to date, and none of it is under the feature's Out of scope.
