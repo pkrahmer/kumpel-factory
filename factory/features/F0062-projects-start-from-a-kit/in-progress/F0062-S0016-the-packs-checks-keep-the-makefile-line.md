@@ -1,5 +1,5 @@
 ---
-stage: review
+stage: docs
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 710
 comments_read: [6942486584]
 handed_over: null
-claim:
-  instance: self
-  stage: review
-  started_at: '2026-11-17T08:16:04.712005Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -95,6 +91,12 @@ journal:
   kind: started
   at: '2026-11-17T08:16:04.712005Z'
   stage: review
+- number: 16
+  speaker: reviewer
+  kind: result
+  at: '2026-11-17T08:16:32.364023Z'
+  stage: review
+  run: 22700e4797a64bc3801d1e7cd461c4da
 ---
 
 # Each pack's checks section keeps the line that names the factory's makefile
@@ -251,3 +253,19 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     `duplicates`: duplicates: 8 new, 38 known, 5 gone
 15. factory: started review as self.
+16. reviewer: no findings
+
+    I reviewed `git diff develop...HEAD -- . ':!factory'` and checked the parts that matter against the repository.
+
+    - Pack copies: `operator/packs/{python,c-host,java-gradle}/CLAUDE.sections.md` are byte-for-byte copies of `planning/packs-draft/<pack>/CLAUDE.sections.md` (checked with `cmp`). In each, the diff adds one line, and that line is the second bullet of `## Checks`. It is identical to line 22 of `operator/kit/CLAUDE.md`. The diff does not touch `operator/kit/`, and no module under `src/factory/` changes.
+    - Criterion 1: `test_each_assembled_checks_section_holds_the_kit_makefile_line_once` has one row per pack. It reads the `## Checks` section of `pack_claude_md(pack)` and requires the lines that start with the kit line's opening to equal `[kit line]`. That fails a missing line, a second copy and a different wording.
+    - Criterion 2: `test_each_pack_sections_file_differs_from_before_only_by_the_kit_line` has one row per pack. It removes the kit's line and compares the whole file, split on `\n`, with the expected lines before the section, the section's other bullets and the lines after it. That pins every other line and the trailing newline. It also checks that the kit's line is the second bullet. The hex pins are gone, so `make secrets` has nothing to flag, and no marker or baseline entry was added, as the human answered in entry 8.
+    - Criterion 3: `test_the_kit_holds_the_makefile_line_once_under_checks` checks that the kit holds the line once in the whole file and that this one copy is under `## Checks`.
+    - Criterion 4: the coder's entry 14 reports `make check guides` green.
+    - Criterion 5: this is the documenter's work, and the criterion still says what the reader must learn in both guide steps.
+    - The Interface rule "the kit's `CLAUDE.md` is unchanged" holds by the diff; criterion 3 and the assembly test pin the line it carries.
+    - Architecture, security and quality: there is no code change. The new test reuses `section_texts`, `pack_claude_md`, `KIT`, `PACKS`, `PACKS_FOLDER`, `PACK_SECTIONS` and `Pack` from `tests/support/kit_support.py`, and `split_lines` from `factory.shared.domain.sections`. It copies no helper, and the module carries its docstring.
+    - Hygiene: the Description matches what was built, and the journal names the main choice (copy the drafts unchanged) and what was rejected (adding the line by hand; options (b) and (c) for the secrets finding).
+
+    Earlier tests:
+    - `tests/agent_files/test_claude_files.py`: changed under the leave in the story's Interface, which the human wrote at creation (entry 1). `TEMPLATE_RULES_LINES` gains only the kit's line, and `test_template_rules_file_is_the_python_project_text` keeps its name and what it checks.
