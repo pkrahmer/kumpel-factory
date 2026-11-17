@@ -1,5 +1,5 @@
 ---
-stage: intake
+stage: tests
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 691
 comments_read: [6934588171]
 handed_over: null
-claim:
-  instance: self
-  stage: intake
-  started_at: '2026-11-17T01:10:05.309025Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -40,6 +36,12 @@ journal:
   kind: started
   at: '2026-11-17T01:10:05.309025Z'
   stage: intake
+- number: 6
+  speaker: intake
+  kind: result
+  at: '2026-11-17T01:10:28.407312Z'
+  stage: intake
+  run: 0508575d6bee47dd8eb59f2c59c531f2
 ---
 
 # The pipeline definition names its makefile
@@ -72,7 +74,7 @@ class MakeFileSource(ABC):
 - `src/factory/entry/wiring.py` (`entry`): both get the source.
 - `src/factory/pipeline/domain/project_check.py` and `src/factory/pipeline/application/project_check.py`: the point `makefile` reads the file `make_file` names when the definition has one, and `Makefile` otherwise; its faults name that file (`factory/Makefile is missing`, `factory/Makefile: included file ... is missing`). Included paths are still taken from the root of the repository, as make takes them.
 - `operator/template/factory/pipeline.yml` and `factory/pipeline.yml` stay as they are.
-- Tests: `tests/pipeline/domain/test_pipeline_definition_make_file.py`, `tests/machine/adapters/test_make_commands_make_file.py`, `tests/machine/application/test_stage_environment_make_file.py`, `tests/pipeline/application/test_make_file_source.py`, `tests/pipeline/application/test_project_check_make_file.py`. `feature.md` gives this leave (decision 4): "S0001 to S0004 may add their new modules to the table of `tests/guards/test_areas.py`, and to any other guard table that lists every module or every entry command." And this one (decision 5): "S0002 may change earlier tests that pin the exact argument list of the sync script or of the check script, where their only failure is the added argument for the makefile."
+- Tests: `tests/pipeline/domain/test_pipeline_definition_make_file.py`, `tests/machine/adapters/test_make_commands_make_file.py`, `tests/machine/application/test_stage_environment_make_file.py`, `tests/pipeline/application/test_make_file_source.py`, `tests/pipeline/application/test_project_check_make_file.py`, `tests/guards/test_make_file_wiring.py`. `feature.md` gives this leave (decision 4): "S0001 to S0004 may add their new modules to the table of `tests/guards/test_areas.py`, and to any other guard table that lists every module or every entry command." And this one (decision 5): "S0002 may change earlier tests that pin the exact argument list of the sync script or of the check script, where their only failure is the added argument for the makefile."
 
 ## Acceptance criteria
 
@@ -84,8 +86,10 @@ class MakeFileSource(ABC):
 6. A real run, without a container, of the scripts' make calls on a checkout in `tmp_path` whose only makefile is `factory/Makefile` with the targets `sync` and `check`: the check's result is green and its last line is the one `factory/Makefile`'s `check` prints; without the source the same checkout's check is red.
 7. The source built on git returns the `make_file` of the definition at `origin/<working branch>`, the new value after that branch moved, and `None` for a missing file, an invalid definition and a definition without the key: rows of one parametrized test where they share a setup.
 8. `ProjectCheck.run` on a repository whose definition names `factory/Makefile`: no fault when that file holds every target and there is no root `Makefile`; the fault `factory/Makefile is missing` when it is not there, also when a root `Makefile` with every target exists.
-9. `make check` stays green.
-10. docs: the operator guide's page on the pipeline definition (`docs/operator-guide/pipeline.md`) explains `make_file`: what it is for (an existing repository keeps its own root `Makefile`), that every project command and the sync then run as `make -f <path>` from the root of the checkout, that paths inside that makefile are therefore still relative to the root, which values are refused, and that it is contract 1.2 while 1.0 and 1.1 still load; the project guide (`docs/project-guide/pipeline.md` and `docs/project-guide/machine.md`) names the source interface and the rule that the path is always an argument; `docs/decisions.md` records the decision of 2026-11-16 that the pipeline definition names the makefile and that make stays the one command runner for every stack.
+9. `ProjectCheck.run` on a repository whose definition names `factory/Makefile`, which includes `common.mk`: no fault when `common.mk` is at the root of the repository and holds the targets `factory/Makefile` lacks; the fault `factory/Makefile: included file common.mk is missing` when `common.mk` is only beside it at `factory/common.mk`: rows of one parametrized test.
+10. The project commands and the stage environment that `factory.entry.wiring` builds both read `make_file` from the pipeline definition at `origin/<working branch>`: on a wired instance whose definition names `factory/Makefile`, a check and a sync, read from the fake container runs, call make with `-f factory/Makefile` (a guard in the style of `tests/guards/test_agent_home_wiring.py` is an acceptable test).
+11. `make check` stays green.
+12. docs: the operator guide's page on the pipeline definition (`docs/operator-guide/pipeline.md`) explains `make_file`: what it is for (an existing repository keeps its own root `Makefile`), that every project command and the sync then run as `make -f <path>` from the root of the checkout, that paths inside that makefile are therefore still relative to the root, which values are refused, and that it is contract 1.2 while 1.0 and 1.1 still load; the project guide (`docs/project-guide/pipeline.md` and `docs/project-guide/machine.md`) names the source interface and the rule that the path is always an argument; `docs/decisions.md` records the decision of 2026-11-16 that the pipeline definition names the makefile and that make stays the one command runner for every stack.
 
 ## Smoke test
 
@@ -135,3 +139,10 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    3. Plain make when there is no source. "When the definition is missing or not valid … the preflight's probe then runs plain make" is covered only through criteria 3 and 7 (a source returning `None` gives today's call). I take that to be enough and need no new criterion. Please confirm.
 4. 2026-11-17 human: 1: (a). 2: (a), and the guard in the style of `tests/guards/test_agent_home_wiring.py` is an acceptable test. 3: confirmed, no new criterion.
 5. factory: started intake as self.
+6. intake: accepted. I added the human's answers from journal entry 4 to the story. Criterion 9 is new and covers the included-file fault and that included paths are taken from the root, as rows of one parametrized test. That is answer 1 (a). Criterion 10 is new and checks that the project commands and the stage environment built by `factory.entry.wiring` both read `make_file` from the definition at `origin/<working branch>`. A guard in the style of `tests/guards/test_agent_home_wiring.py` is an acceptable test for it. That is answer 2 (a). Both go before the two closing criteria, which are now 11 and 12. The Interface's Tests line also names `tests/guards/test_make_file_wiring.py` for criterion 10. Answer 3 confirmed that no further criterion is needed.
+   - Interface: it names concrete modules and signatures: `MakeFilePath` on `PipelineDefinition`, the `MakeFileSource` ABC, the git-based source, the optional source on `ContainerMakeCommands` and on the container stage environment, the wiring, and the project check. It also lists the tests and the human's leave for test changes (feature decisions 4 and 5).
+   - Criteria: each one can be tested by a single test function, and each rule has its failing side. Criterion 2 covers the refused and accepted `make_file` values. Criteria 3 to 5 cover a source, no source and `None`, and keep the path out of the script text. Criterion 6 is a real run, red and green. Criterion 7 covers the moved branch, a missing file, an invalid definition and a definition without the key. Criteria 8 and 9 cover the missing-file fault and the included-file fault. Criterion 10 covers the wiring.
+   - Smoke test: the three blocks can be run, and each `Expect:` line can be checked against the output. The pytest block passes no `-q` because pyproject's addopts already sets it.
+   - Docs criterion: it names what the reader must know in the operator guide, the project guide and the decision log, and it dictates no sentences.
+   - Architecture: the ABC is in `machine.application`, the git-based implementation in `pipeline.application`, the adapters take the source optionally, and only `entry` wires. The `ProjectCommands` and `StageEnvironment` interfaces keep their signatures.
+   - Scope: within F0062 (feature decisions 4, 5, 8 and 9). The template and `factory/pipeline.yml` are not changed.
