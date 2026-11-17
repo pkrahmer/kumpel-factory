@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 691
 comments_read: [6934588171, 6934893656]
 handed_over: null
-claim:
-  instance: self
-  stage: doing
-  started_at: '2026-11-17T01:32:47.416455Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -134,6 +130,12 @@ journal:
   kind: started
   at: '2026-11-17T01:32:47.416455Z'
   stage: doing
+- number: 23
+  speaker: coder
+  kind: result
+  at: '2026-11-17T01:35:18.101324Z'
+  stage: doing
+  run: 9ad1698b33814ba3ad3db64b5a2ef7b1
 ---
 
 # The pipeline definition names its makefile
@@ -395,3 +397,30 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     `lint`: lint: green (0.1 s)
 22. factory: started doing as self.
+23. coder: Round 1. The reviewer's four findings in entry 19 needed test changes only, and the tester made them in entry 21. I changed no code this round.
+
+    Run:
+    - The five test files the tester named all pass (21 tests): `tests/pipeline/application/test_make_file_source.py`, `tests/guards/test_make_file_wiring.py`, `tests/guards/test_agent_home_wiring.py`, `tests/machine/adapters/test_make_commands_make_file.py` and `tests/machine/application/test_stage_environment_make_file.py`.
+    - `make check guides` is green: `check: green` and `guides: green`, with coverage at 99.20 %.
+    - The new row `missing-working-branch` covers criterion 11. It reaches the `GitError` branch in `src/factory/pipeline/application/make_file_source.py`, which was already built and returns `None`.
+    - The wiring guard now also checks that `Boundaries(...)` gets the same `make_file=` source as `ContainerMakeCommands`. It passes against `src/factory/entry/wiring.py` as it stands.
+
+    What was built is unchanged from entries 10 and 17:
+    - `MakeFilePath` and the `..` rule in `src/factory/pipeline/domain/pipeline_definition.py`
+    - the `MakeFileSource` ABC and `asked_make_file` in `src/factory/machine/application/make_file.py`
+    - `GitMakeFileSource` in `src/factory/pipeline/application/make_file_source.py`
+    - the path as a script argument (`$3`, `$7`) in `src/factory/machine/adapters/make_commands.py` and `src/factory/machine/application/stage_environment.py`
+    - the `Boundaries.make_file` field
+    - the source, built once in `src/factory/entry/wiring.py`
+    - the named makefile in `src/factory/pipeline/application/project_check.py`
+    - `RECORDS_CONTRACT` at 4.6, with the schemas regenerated
+
+    Main choice, unchanged: the stage environment gets its source through `Boundaries`, which the wiring fills, so the wiring is the only place that builds a source. I rejected having `stage_environment_of` build it itself.
+
+    Refactor: I had nothing new to refactor, because this round's diff has no code.
+
+    The journal did not change what the Description means.
+
+    Not touched: the docs, which are the documenter's work, and the area table in `tests/guards/test_areas.py`, which passes as it is.
+
+    `duplicates`: duplicates: 7 new, 39 known, 4 gone
