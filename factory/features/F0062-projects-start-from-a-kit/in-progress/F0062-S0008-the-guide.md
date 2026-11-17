@@ -1,11 +1,11 @@
 ---
 stage: review
-blocked: question
+blocked: null
 round: 1
 attempts: 0
 crashes: 0
 pull_request: 697
-comments_read: [6938616709]
+comments_read: [6938616709, 6938770109]
 handed_over: null
 claim: null
 journal:
@@ -109,6 +109,11 @@ journal:
   stage: review
   run: a131cb7df5bb4985aa0f97b93f9cc5aa
   blocked: question
+- number: 19
+  speaker: human
+  kind: comment
+  at: '2026-11-17T04:53:09.001609Z'
+  stage: review
 ---
 
 # The guide
@@ -295,3 +300,4 @@ Expect: two numbers, each at least 3 for the first and at least 2 for the second
     Earlier tests changed:
     - `tests/support/check_documents_support.py`: the human's leave, journal entry 6 (adds `start-a-project.md` to `TOPIC_FILES`).
     - `tests/shared/domain/test_documents_guide_files.py`: the human's leave, journal entry 6 (the pinned list of guide paths gains the page; the test keeps its name).
+19. 2026-11-17 human: docs. The documenter fixes finding 1 in `start-a-project.md`, and the same line in `docs/operator-guide/pipeline.md` (the example that loads only `factory.env`): both load `factory.local.env` after `factory.env` when it exists, as the unit does. The real run of 2026-11-17 on the Spring demo loaded both files.
