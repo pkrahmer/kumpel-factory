@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 693
 comments_read: [6936126509]
 handed_over: null
-claim:
-  instance: self
-  stage: doing
-  started_at: '2026-11-17T02:35:28.741326Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -62,6 +58,12 @@ journal:
   kind: started
   at: '2026-11-17T02:35:28.741326Z'
   stage: doing
+- number: 10
+  speaker: coder
+  kind: result
+  at: '2026-11-17T02:38:42.559238Z'
+  stage: doing
+  run: 753fd95047b5433f9ab721bfd8f82eb8
 ---
 
 # The installed builder
@@ -253,3 +255,28 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
    `lint`: lint: green (0.2 s)
 9. factory: started doing as self.
+10. coder: I added the installed builder and the reviewer's review points. `make check guides` is green.
+
+    Built:
+    - New `agents/agents/builder.md`. Its front matter and text are exactly as the Interface gives them: it opens with the boundary sentence from entry 4, and step 1 is reworded as entry 4 decided.
+    - `agents/agents/reviewer.md`: the subsection `### The project's review points` now sits directly before `## Lessons`, after `### docs-review`, with the Interface's wording.
+    - No module under `src/factory/` changed. I changed no tests.
+
+    Checked:
+    - The tester's files, `uv run pytest -q tests/agent_files/ tests/agents/adapters/test_shipped_agents_effect.py`: all pass.
+    - `make check guides`: lint, types, layers, sast, secrets, licenses and test are each green, then `check: green` and `guides: green`.
+
+    Smoke test, all three blocks run as written:
+    - The reader prints `True 8`, then `read`. The `grep -c` gives `1`.
+    - The thin-line project, checked with `check_project --agent-home agents`, prints `agents: ok` and `project: ready`.
+    - `pytest tests/agent_files/` passed, part of the run above.
+
+    Main choice: I put the reviewer's new part as the last subsection before `## Lessons`, as the Interface says. I rejected putting it inside the Role's checklist, because the Interface fixes its place and the tester's checksum tests strip it as one block.
+
+    The Interface asks to add `builder` to the system prompt only where a list there claims to be complete. `agents/system-prompt.md` has no such list (it names roles only in passing, in R9 and R13), so I left it unchanged.
+
+    Not touched: the documents of criterion 8 (`docs/operator-guide/`, `docs/project-guide/agents.md`, `agents/README.md`, `docs/decisions.md`). They belong to the documenter.
+
+    Refactor: nothing to change. The diff is one new agent file and one inserted subsection, both fixed word for word by the Interface.
+
+    `duplicates`: duplicates: 8 new, 38 known, 5 gone

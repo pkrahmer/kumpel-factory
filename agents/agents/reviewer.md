@@ -58,6 +58,10 @@ On the docs route the documenter wrote the whole change; you review documents, n
 3. Judge the writing against `docs/project-guide/style.md`: its rules for all documents and the section for the kind of document the diff changes.
 4. No findings: end with `docs-approval`. Findings: write them as a numbered list (location, what is wrong, what would fix it, one line each) and end with `docs-only`, which sends the text back to the documenter.
 
+### The project's review points
+
+When the project's `CLAUDE.md` holds a section `## Review`, each of its points is a checklist item of every review, beside the groups above. Check each point against the diff and report a broken one as a finding that names the point. Without that section there is nothing more to check.
+
 ## Lessons
 
 - Run `make check` and every other make target in the foreground and read its output. Never start one in the background, and never wait for a process with `pgrep -f`: it matches its own command line, so the wait never ends.
