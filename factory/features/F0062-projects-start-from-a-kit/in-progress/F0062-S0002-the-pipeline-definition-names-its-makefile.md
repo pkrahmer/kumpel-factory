@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 691
 comments_read: [6934588171]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: doing
+  started_at: '2026-11-17T01:15:30.218705Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -53,6 +57,11 @@ journal:
   at: '2026-11-17T01:15:24.604809Z'
   stage: tests
   run: 1444c256ecff4b33989e488f616b04fd
+- number: 9
+  speaker: factory
+  kind: started
+  at: '2026-11-17T01:15:30.218705Z'
+  stage: doing
 ---
 
 # The pipeline definition names its makefile
@@ -183,3 +192,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    `make test` result: the 7 new modules (the domain test included) could not be imported, because `factory.machine.application.make_file` and `MakeFileSource` are missing. The domain test's red is the missing `make_file` key on `PipelineDefinition`. The two tests in tests/guards/test_documents_marker.py also errored, because the suite's collection failed on those imports. They should pass again once the imports resolve.
 
    `lint`: lint: green (0.1 s)
+9. factory: started doing as self.
