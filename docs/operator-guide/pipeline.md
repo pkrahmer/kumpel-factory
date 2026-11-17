@@ -49,15 +49,15 @@ A refused definition [stops](../project-guide/glossary.md) the factory with `pip
 
 Most agent runs begin by gathering the same facts: the diff, the list of changed files, the recent log. Each such call costs the agent a turn. A stage's `context` names project commands that gather these facts instead; the factory runs them before the agent, and the agent starts with their outputs. Your Makefile decides what each command shows.
 
-The template (`operator/template/Makefile` and `operator/template/factory/pipeline.yml`) ships three such targets. `facts-diff` and `facts-changes` measure from the point where the branch left `origin/develop`; `facts-files` lists the tracked files as they are. Each leaves out the factory's own files under `factory/`.
+The kit ships three such targets in `operator/kit/factory/kit.mk`, which a project's makefile includes, and its two pipeline definitions list them. `facts-diff` and `facts-changes` measure from the point where the branch left `origin/develop` (`origin/$(WORKING_BRANCH)` when the makefile sets `WORKING_BRANCH`); `facts-files` lists the tracked files as they are. Each leaves out the factory's own files under `factory/`, and the paths a makefile names in `FACTS_LEFT_OUT`: the Python pack sets it to `':!uv.lock'`.
 
-| Target | What it shows | Stages in the template |
+| Target | What it shows | Stages in the full line |
 |---|---|---|
-| `facts-diff` | the branch's changes: `git diff --stat`, then the whole diff, without `uv.lock` | `review` |
+| `facts-diff` | the branch's changes: `git diff --stat`, then the whole diff | `review` |
 | `facts-changes` | the changed files by name and status, then the new untracked files | `doing`, `docs` |
 | `facts-files` | every tracked file | `tests` |
 
-The template's [pipeline.yml](../../operator/template/factory/pipeline.yml) lists them like this:
+The thin line lists `facts-files` for `doing` and `facts-diff` for `review`. The full line, [pipeline.full.yml](../../operator/kit/factory/pipeline.full.yml), lists them like this:
 
 ```yaml
 project_commands:
@@ -70,13 +70,14 @@ stages:
   review: {role: reviewer, next: [docs, doing, tests], round_cap: 3, context: [facts-diff]}
 ```
 
-Its [Makefile](../../operator/template/Makefile) finds the base with `git merge-base` against `origin/develop`, so a checkout without a local `develop` branch works too:
+[kit.mk](../../operator/kit/factory/kit.mk) finds the base with `git merge-base` against the remote's working branch, so a checkout without a local `develop` branch works too:
 
 ```make
-base_ref = $$(git merge-base HEAD origin/develop)
+facts_base = $$(git merge-base HEAD origin/$(WORKING_BRANCH))
+facts_paths = . ':!factory' $(FACTS_LEFT_OUT)
 
 facts-diff:
-	base=$(base_ref); git diff --stat "$$base" -- . ':!factory' ':!uv.lock'; echo; git diff "$$base" -- . ':!factory' ':!uv.lock'
+	base=$(facts_base); git diff --stat "$$base" -- $(facts_paths); echo; git diff "$$base" -- $(facts_paths)
 ```
 
 The targets are your project's own. The factory knows only the names a stage's `context` lists. You may change what a target shows, rename it, or drop a stage's `context`, and nothing in the factory changes with it.
@@ -111,9 +112,9 @@ The value must be a path inside the checkout made of letters, digits, `_`, `.`, 
 
 A definition may hold more than one route and more than one [approval](../project-guide/glossary.md) stage. When you close a pull request at an approval stage, the story goes to that stage's second `next`. The stage whose first `next` is that approval counts the [rounds](../project-guide/glossary.md).
 
-The smoke test of the template reads `smoke-test: {role: smoke-tester, next: [approval, doing, docs], checks: [check], round_cap: 3}`. It is the template's one full check: `make check` runs after the smoke tester, and no stage before it lists `check`. A finding that is only a slip in a document goes from the smoke test straight to `docs`. There the documenter fixes it and hands back to the smoke test. This counts as a round against the `round_cap`, as a return to `doing` does.
+The smoke test of the kit's full line reads `smoke-test: {role: smoke-tester, next: [approval, doing, docs], checks: [check], round_cap: 3}`. It is the full line's one full check: `make check` runs after the smoke tester, and no stage before it lists `check`. A finding that is only a slip in a document goes from the smoke test straight to `docs`. There the documenter fixes it and hands back to the smoke test. This counts as a round against the `round_cap`, as a return to `doing` does.
 
-The review stage may send a story straight to the tester when every finding needs only a change to the story's own tests, such as an untested side of a rule. The tester writes or changes exactly the tests the findings name and hands to the coder, so the coder runs once before the next review. When any finding needs a change outside those tests, all findings go to `doing`. This needs `tests` in the `next` of `review`. The template's `review` already lists it: `review: {role: reviewer, next: [docs, doing, tests], round_cap: 3, context: [facts-diff]}`. In a definition whose `review` lists only `[docs, doing]`, the reviewer sends every finding to `doing`. A move from `review` to `tests` counts as a round against the `round_cap`, as a return to `doing` does.
+The review stage may send a story straight to the tester when every finding needs only a change to the story's own tests, such as an untested side of a rule. The tester writes or changes exactly the tests the findings name and hands to the coder, so the coder runs once before the next review. When any finding needs a change outside those tests, all findings go to `doing`. This needs `tests` in the `next` of `review`. The full line's `review` already lists it: `review: {role: reviewer, next: [docs, doing, tests], round_cap: 3, context: [facts-diff]}`. In a definition whose `review` lists only `[docs, doing]`, the reviewer sends every finding to `doing`. A move from `review` to `tests` counts as a round against the `round_cap`, as a return to `doing` does.
 
 ### The docs route
 
@@ -209,7 +210,7 @@ Further rules:
 - Every limit and cap is a positive whole number.
 - `human`, `factory` and `question` cannot be a stage name or a role name.
 - Every name in `checks` and `reports` must be a project command.
-- `sync` is a project command like the others (`sync: {time_limit: 5}` in the template). The [stage environment](../project-guide/glossary.md) reads its limit for the container that prepares the tools after a checkout. No stage lists it, so it never enters a lease. A definition without `sync` gives it 10 minutes.
+- `sync` is a project command like the others (`sync: {time_limit: 5}` in the kit's full line, `10` in its thin line). The [stage environment](../project-guide/glossary.md) reads its limit for the container that prepares the tools after a checkout. No stage lists it, so it never enters a lease. A definition without `sync` gives it 10 minutes.
 
 ## Checking a repository before the factory runs it
 
@@ -221,12 +222,13 @@ Until the command is installed as a console script, run it in the factory's own 
 2. Run the command with the folder of that repository. Name the installed agents with `--agent-home <dir>`; without it the command takes the folder that `FACTORY_CLAUDE_HOME` names. In the factory's checkout the shipped agents are the folder `agents`.
 3. Read the lines it prints: one line per point, then the verdict. Fix every `FAIL`, commit, and run it again.
 
-The example builds a project from the template in a new folder `my-project`, with two slips: its `Makefile` has no `lint:` rule, and `factory/feature-form.md` is missing. It runs in the factory's checkout, where the shipped agents are the folder `agents`:
+The example builds a project from the kit's full line and the Python pack in a new folder `my-project`, with two slips: its `Makefile` has no `lint:` rule, and `factory/feature-form.md` is missing. It runs in the factory's checkout, where the shipped agents are the folder `agents`:
 
 ```console
 $ git init -q my-project && mkdir -p my-project/factory my-project/src my-project/tests my-project/docs
-$ cp operator/template/factory/pipeline.yml factory/story-form.md my-project/factory/
-$ grep -v '^lint:' operator/template/Makefile > my-project/Makefile
+$ cp operator/kit/factory/kit.mk operator/kit/factory/story-form.md my-project/factory/
+$ cp operator/kit/factory/pipeline.full.yml my-project/factory/pipeline.yml
+$ grep -v '^lint:' operator/packs/python/Makefile > my-project/Makefile
 $ touch my-project/src/a.py my-project/tests/t.py my-project/docs/d.md my-project/README.md
 $ git -C my-project add -A && git -C my-project -c user.name=t -c user.email=t@example.com commit -q -m one
 $ python -m factory.entry.check_project --agent-home agents my-project

@@ -1,5 +1,5 @@
 ---
-stage: docs
+stage: smoke-test
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 696
 comments_read: [6937913187]
 handed_over: null
-claim:
-  instance: self
-  stage: docs
-  started_at: '2026-11-17T04:17:14.039941Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -84,6 +80,12 @@ journal:
   kind: started
   at: '2026-11-17T04:17:14.039941Z'
   stage: docs
+- number: 14
+  speaker: documenter
+  kind: result
+  at: '2026-11-17T04:24:45.094727Z'
+  stage: docs
+  run: c89db49db1a7472faf8a802c84063086
 ---
 
 # The template goes
@@ -286,3 +288,37 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     - tests/support/shipped_agents.py: decision 25 (a test helper)
     - tests/support/template_make_support.py: decision 25 (a test helper)
 13. factory: started docs as self.
+14. documenter: Docs written. Every document that named the template as the start of a project now names the kit and the packs. `operator/README.md` no longer lists the template, and the decision log has the removal entry.
+
+    Files changed:
+    - `operator/README.md`: removed "and for now the template" from line 3, and removed the template's bullet and its table row. This fixes the one hit that the coder's run left on `tests/guards/test_template_removed.py`.
+    - `docs/operator-guide/agent-runtime.md`: the full line is now `operator/kit/factory/pipeline.full.yml`, and the thin line names `pipeline.thin.yml`. "A new project starts from…" now names the kit and a stack pack: what each brings, the Python pack's `SOURCE` and `LAYERS` placeholders, and links to the kit's and the packs' READMEs. The old text said the forms were yours to add; the kit now ships them, so that is gone.
+    - `docs/operator-guide/install.md`: the three mentions of "the template" (`uv run`, `make secrets`, `mutants`) now name the Python pack's makefile. The `CLAUDE.md` part of the mutants sentence is gone, because the pack's sections do not mention mutants.
+    - `docs/operator-guide/pipeline.md`, three changes:
+      - *Start facts* now reads `kit.mk`: `WORKING_BRANCH`, `FACTS_LEFT_OUT`, and the pack's `':!uv.lock'`. Its example is `kit.mk`'s real `facts-diff`. The table's stage column is now the full line's, and the thin line's facts are named.
+      - The smoke-test, review and `sync` sentences now say "the kit's full line"; the thin line's `sync` limit is 10.
+      - The `factory-check-project` example is rebuilt from the kit's full line and the Python pack. I ran it in a temporary folder and got the same seven lines as printed, ending `project: not ready (2 faults)`.
+    - `docs/project-guide/agents.md`: the title, intro and section heading now say "the start of a project", and the line about data the image carries no longer names the template. The decisions in `test_claude_agent_texts.py` are now derived from `pipeline.full.yml`. *The template* became *The start of a project*. It covers `pipeline.full.yml` (all its old detail kept), `pipeline.thin.yml`, the kit's `CLAUDE.md` with the pack's `CLAUDE.sections.md`, `kit.mk`, and the Python pack's `Makefile` (secrets, demo equality, duplicates, mutants, placeholders, all checked against the file). The forms now ship with the kit. A line names the two test helpers.
+    - `docs/project-guide/README.md`: changed the `agents.md` index line and section name, the licence-guard scope (`operator/kit/` in place of `operator/template/`), the `tests/agent_files/` line and the `template_make_support.py` line (now `KIT_MK` and `header_text`).
+    - `docs/project-guide/machine.md`: the `sync` text now names the packs' makefiles and both kit pipeline definitions.
+    - `docs/project-guide/operator.md`: removed the template's line from the layout listing, and its bullet.
+    - `docs/project-guide/shared.md`: replaced the sentence about the template carrying no README with one about `operator/kit/factory/README.md`, which is not on `FOLDER_READMES`.
+    - `docs/decisions.md`:
+      - New entry, *The template is removed* (2026-11-17, F0062-S0007): what replaces each file, the new guard, and the licence-header guard's scope moving to `operator/kit/`.
+      - Its Why is the story's: the kit and the Python pack hold everything, and two copies drift.
+      - It has no Rejected line, because the story names no rejected option.
+      - The older entries that tell history keep their words (lines 11, 465, 1576, 1660 and 1745).
+
+    Runs:
+    - `make documents`: documents ok (47.5 s).
+    - `make check guides`: check: green, guides: green (9.3 s). The new guard now passes, because nothing under `src agents operator tests` names `operator/template`.
+
+    Cross-read and found current: `README.md` (it does not name the template), `operator/kit/README.md` (the coder's change), `docs/operator-guide/machine.md` (its "template" is the systemd unit, which is unrelated), `docs/project-guide/hosting.md` (`remote_template` is unrelated).
+
+    Stale but not mine to touch:
+    - `docs/brochure/README.md:459` still says "A new project starts from the **template**". The brochure states it describes Kumpel "as of November 2026 (version 1.1)", a record of that time, so I left it. The human may want it updated.
+    - `demo/todo-service/README.md` is the human's, as the Description says.
+
+    `guides`: guides: green (9.4 s)
+    `secrets`: secrets: green (2.9 s)
+    `documents`: documents ok (47.3 s)

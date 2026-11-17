@@ -1,6 +1,6 @@
-# The agents area: runtimes, agent files, the template and the write paths
+# The agents area: runtimes, agent files, the start of a project and the write paths
 
-Read this page when you change how the factory starts an agent, reads an agent file, ships its agents and template, or decides what an agent may write. Read the index, [README.md](README.md), first. The words the factory gave its own meaning are linked to [glossary.md](glossary.md) at their first use.
+Read this page when you change how the factory starts an agent, reads an agent file, ships its agents and the start of a project, or decides what an agent may write. Read the index, [README.md](README.md), first. The words the factory gave its own meaning are linked to [glossary.md](glossary.md) at their first use.
 
 ## The agent runtime
 
@@ -265,9 +265,9 @@ A project may carry its own agents. They are read from `origin/develop`, never f
 - Of several validation faults the first in the order of `first_fault` is reported: unapplied key, unknown key, missing key, invalid value.
 - `first_error` in [validation_faults.py](../../src/factory/shared/adapters/validation_faults.py) gives the error `first_fault` formats, so the `key` and the fault name the same problem.
 
-## The shipped agents, settings and template
+## The shipped agents, settings and the start of a project
 
-[agents/](../../agents/) and [operator/template/](../../operator/template/) are data the image carries; no code under `src/` reads them except through the readers named here. To change what an agent is told, edit its file under `agents/agents/`; there is no other copy of a shipped agent. A project's own agent is its file under `<project>/factory/agents/` on `origin/develop` (see *A project's own agents*).
+[agents/](../../agents/) is data the image carries, and the kit and the packs under `operator/` are data a project copies; no code under `src/` reads them except through the readers named here. To change what an agent is told, edit its file under `agents/agents/`; there is no other copy of a shipped agent. A project's own agent is its file under `<project>/factory/agents/` on `origin/develop` (see *A project's own agents*).
 
 ### The eight agents
 
@@ -326,7 +326,7 @@ Besides the lessons, these passages are the factory's own text, and the tests na
 
 The words of the agent files are the factory's (work item, journal, backlog, `in-progress/`, start, the pipeline definition, write paths, approval, smoke test, acceptance reviewer, decision, recommendation, `round_cap`, `question`, `## Description`, `## Journal`, `## Smoke test`).
 
-- `tests/agent_files/test_claude_agent_texts.py` checks the sections, the banned old words, the decisions (derived from `next` in [operator/template/factory/pipeline.yml](../../operator/template/factory/pipeline.yml)), the anchor phrases and the exact `## Lessons` bullets.
+- `tests/agent_files/test_claude_agent_texts.py` checks the sections, the banned old words, the decisions (derived from `next` in the kit's [pipeline.full.yml](../../operator/kit/factory/pipeline.full.yml)), the anchor phrases and the exact `## Lessons` bullets.
 - [test_claude_files.py](../../tests/agent_files/test_claude_files.py) checks the files (keys, values, bodies).
 - [test_shipped_agents_effect.py](../../tests/agents/adapters/test_shipped_agents_effect.py) runs `ClaudeCodeRuntime` against the stand-in executable over each shipped agent and checks that `--model`, `--effort`, `--tools`, `--max-budget-usd` carry the file's values, that the instructions file holds the common system prompt, and that the role's body is in the first message. [shipped_agents.py](../../tests/support/shipped_agents.py) holds the shared table.
 - No skills are shipped: the agents load the project's own with the `Skill` tool (last in every `tools`; allowed in [agents/settings.json](../../agents/settings.json)).
@@ -371,30 +371,27 @@ These rules do not change the other stages, the allowed decisions or the opencod
 - `factory-check-story` is the only `factory-` command allowed: an agent may not run `factory-run`, `factory-watch` or `factory-bill`.
 - The environment sets `CLAUDE_CODE_FORK_SUBAGENT` to `0`.
 
-### The template
+### The start of a project
 
-[operator/template/](../../operator/template/) is what a new project starts from, laid out as the project's tree. It holds three files and nothing else.
+A new project starts from the kit, [operator/kit/](../../operator/kit/), and one stack pack under [operator/packs/](../../operator/packs/). [operator/kit/README.md](../../operator/kit/README.md) and [operator/packs/README.md](../../operator/packs/README.md) say how a project is assembled from them and who owns each file afterwards; *The layout* in [operator.md](operator.md) names their files and tests. This section names what in them the shipped agents and the checks rely on.
 
-- `operator/template/factory/pipeline.yml`, the starting pipeline definition. Copy it to `factory/pipeline.yml` and adjust it. This guide does not copy it, because a copy goes stale with every change of the file: read the file itself.
-  - Its roles are the agents above other than `builder`: the template is the full line. The stages run `intake`, `tests`, `doing`, `review`, `docs`, `smoke-test`, then `approval`; `acceptance` is the acceptance stage.
+- [pipeline.full.yml](../../operator/kit/factory/pipeline.full.yml), the full line's pipeline definition. A project copies it to `factory/pipeline.yml` and adjusts it. This guide does not copy it, because a copy goes stale with every change of the file: read the file itself.
+  - Its roles are the agents above other than `builder`. The stages run `intake`, `tests`, `doing`, `review`, `docs`, `smoke-test`, then `approval`; `acceptance` is the acceptance stage.
   - The smoke test's `next` is `approval`, `doing`, `docs` (`round_cap` 3).
   - `docs` is a rework like `doing`, counted against the cap by `decide`, for a finding that is only a slip in a document. R12 in every agent names it (`smoke-test → docs`).
   - The smoke tester's *Stage* steps 5 and 6 choose between `docs` and `doing`. The documenter's step 1 says what to do on a `docs` round. [test_claude_agent_texts_docs_slip.py](../../tests/agent_files/test_claude_agent_texts_docs_slip.py) pins the texts.
   - When the smoke tester runs again after a `check_red` stall (the factory's check after its stage was red), its *Stage* section tells it not to run the smoke test again but to route the failing lines of the stall entry: `doing` for a failure in code or tests, or one it cannot place, `docs` for a failure in a file only the documenter writes, and an entry that names each failure and the file it points to. [test_claude_agent_texts_check_red.py](../../tests/agent_files/test_claude_agent_texts_check_red.py) pins the rule and that no other agent and no shared rule carries it.
-  - It holds the four project commands `check`, `lint`, `test` and `sync` with their `time_limit`s, the seven roles with their [write paths](glossary.md), and the stages. `sync` installs the tools after a checkout; the [stage environment](glossary.md) runs it, and no stage lists it.
+  - It holds the four project commands `check`, `lint`, `test` and `sync` with their `time_limit`s, the three start facts, the seven roles with their [write paths](glossary.md), and the stages. `sync` installs the tools after a checkout; the [stage environment](glossary.md) runs it, and no stage lists it.
   - The coder's write path is `src/*` only; a project that keeps code elsewhere changes it.
-- [CLAUDE.md](../../operator/template/CLAUDE.md), the starting rules file of a Python project. It has placeholders in angle brackets for the project's own architecture, test framework and checks.
-  - It carries the Python lessons: the `mypy --strict` traps in tests, low-entropy hexadecimal test values, and the time-limit lesson that a test which waits for a time limit gives the process it starts room to start.
-  - It gives the standing leave to move a shared test helper.
-  - A helper, constant or fixture that a new test would copy from another story's test module may be moved to one shared place under `tests/`. So may one that an earlier module still holds as a copy.
-  - The earlier tests are changed to use it, without asking, as long as every earlier test keeps its name and checks the same thing.
-  - The tester makes the move, never the coder. Any other change to another story's test still needs the human's leave.
-- [Makefile](../../operator/template/Makefile), the project commands of a Python project with a src layout, in the pattern of this repository's own.
+- [pipeline.thin.yml](../../operator/kit/factory/pipeline.thin.yml), the thin line: the roles `builder` and `reviewer`, the stages `doing`, `review`, `approval` and `done`.
+- [CLAUDE.md](../../operator/kit/CLAUDE.md), the skeleton of a project's rules file. It names no stack and has placeholders in angle brackets for the project's own architecture, tests, docs, checks and review points. The Python sections that fill it are in [CLAUDE.sections.md](../../operator/packs/python/CLAUDE.sections.md): pytest, the `mypy --strict` trap in tests, low-entropy hexadecimal test values, the Python checks, review points and what is not done without asking.
+- [kit.mk](../../operator/kit/factory/kit.mk), the factory's part of a project's makefile, which the makefile includes as `include factory/kit.mk`: one bash shell per recipe, `check` as the default goal, `$(start)` and `$(green)` (the line `<target>: green (<seconds> s)`), and the start facts `facts-diff`, `facts-changes` and `facts-files`.
+- [Makefile](../../operator/packs/python/Makefile) of the Python pack, the project commands of a Python project with a src layout, in the pattern of this repository's own. It includes `kit.mk` and sets `FACTS_LEFT_OUT` to `':!uv.lock'`.
   - Its targets are the contract's four, `check`, `lint`, `test` and `sync` (`uv sync --frozen`, between `check` and `lint`, not run by `check`), and the other targets `check` runs: `types`, `layers`, `sast`, `secrets` and `licenses`.
-  - Every recipe runs in one shell and ends with `<target>: green (<seconds> s)`. `make test` runs on every core and writes a JUnit report.
+  - `make test` runs on every core and writes a JUnit report.
   - `make secrets` scans the files changed against `origin/develop`. It leaves out `uv.lock`, `.secrets.baseline` and every file ending `.costs.jsonl`.
   - The `.costs.jsonl` files are the factory's cost records. They hold run metadata and no secret, but their 32-character hexadecimal run ids read to detect-secrets as high-entropy secrets.
-  - The todo demo's recipe, [demo/todo-service/project/Makefile](../../demo/todo-service/project/Makefile), is the template's, and [test_demo_makefile_secrets.py](../../tests/agent_files/test_demo_makefile_secrets.py) keeps them equal.
+  - The todo demo's recipe, [demo/todo-service/project/Makefile](../../demo/todo-service/project/Makefile), is the pack's, and [test_demo_makefile_secrets.py](../../tests/agent_files/test_demo_makefile_secrets.py) keeps them equal.
   - `duplicates` is a report outside `check`: it writes similar code and dead code to `.reports/` and counts them, and compares them with no baseline.
   - `mutants` is for a sweep by hand and is never run by a stage.
   - `make mutants FEATURE=<feature id>` runs mutmut over the modules that the feature's story commits on `origin/develop` changed. It finds them by the subjects `work item <id>: ...` (or `<id>: ...` after a squash merge).
@@ -402,7 +399,9 @@ These rules do not change the other stages, the allowed decisions or the opencod
   - There is no `documents` target.
   - A project fills in two placeholders, `SOURCE` (its package folder) and `LAYERS` (its layers command), and the file's header names the development dependencies the targets need.
 
-The template ships no forms. The story and feature forms (`factory/story-form.md`, `factory/feature-form.md`) are the human's to add to a project made from it. Until `factory/story-form.md` exists, `StoryFormChecker` (see *The story form check* in `pipeline.md`) stops every stage.
+The kit ships the story and feature forms, `factory/story-form.md` and `factory/feature-form.md`; a project copies them with the rest of `operator/kit/factory/`. Until `factory/story-form.md` exists, `StoryFormChecker` (see *The story form check* in `pipeline.md`) stops every stage.
+
+The tests in [tests/agent_files/](../../tests/agent_files/) read the full line through `TEMPLATE_PIPELINE` of [shipped_agents.py](../../tests/support/shipped_agents.py), and run the Python pack's makefile with `kit.mk` through [template_make_support.py](../../tests/support/template_make_support.py).
 
 ## The write paths
 

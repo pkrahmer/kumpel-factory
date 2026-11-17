@@ -257,7 +257,7 @@ See also: *The stage environment*, *The take* and *The checks*.
 
 ## The sync command
 
-The sync brings a checkout's tools up to date after a checkout, so that an agent and a check start from a checkout that works. `make sync` is the fourth target of the project contract (*Project commands*). For a project it must bring the checkout's tools up to date and nothing else: `uv sync --frozen` in the template, the project's own command in another stack.
+The sync brings a checkout's tools up to date after a checkout, so that an agent and a check start from a checkout that works. `make sync` is the fourth target of the project contract (*Project commands*). For a project it must bring the checkout's tools up to date and nothing else: `uv sync --frozen` in the Python pack, the project's own command in another stack.
 
 - It must work on a checkout without ignored state and end with its usual green line.
 - It runs in the sync container of `prepare` and before every check.
@@ -442,7 +442,7 @@ The factory reaches a project's build only through one interface, so another sta
 - The string `"make"` appears in `make_commands.py` and in `project_run.py` (the live project check, which passes it to the check script as `ContainerMakeCommands` does) alone. [test_make_search.py](../../tests/guards/test_make_search.py) allows exactly those two.
 - The contract between a project and the factory is four make targets: `check`, `lint`, `test` and `sync`.
 - `sync` brings a checkout's tools up to date (`uv sync --frozen` for Python; another stack names its own command in the same target). The stage environment runs it, in its sync container before every agent run and in its check container before every check. It is never a stage's `checks` or `reports`, and `check` does not run it.
-- [Makefile](../../operator/template/Makefile) in `operator/template/` has the target, and [pipeline.yml](../../operator/template/factory/pipeline.yml) there has the command `sync` with a time limit. This repository's own [Makefile](../../Makefile) has the target `sync` (`uv sync --frozen`), and its [pipeline.yml](../../factory/pipeline.yml) has the command `sync` with `time_limit: 5`.
+- Every pack's makefile under `operator/packs/` has the target (the Python pack's [Makefile](../../operator/packs/python/Makefile) runs `uv sync --frozen`), and both pipeline definitions of the kit, [pipeline.full.yml](../../operator/kit/factory/pipeline.full.yml) and [pipeline.thin.yml](../../operator/kit/factory/pipeline.thin.yml), have the command `sync` with a time limit. This repository's own [Makefile](../../Makefile) has the target `sync` (`uv sync --frozen`), and its [pipeline.yml](../../factory/pipeline.yml) has the command `sync` with `time_limit: 5`.
 - A project declares its own layers and checks them with a project command of its own.
 - To add the layers check, the project adds a make target to its Makefile, for example `layers`, which calls its tool through uv.
 - Where the check belongs in the gate, the project makes `check` depend on the target.
