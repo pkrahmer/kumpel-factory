@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 """The pipeline definition: the project's stages, roles, caps and project commands."""
 
+import posixpath
 import re
 from datetime import timedelta
 from typing import Annotated, Self
@@ -273,9 +274,16 @@ def _not_read_faults(definition: PipelineDefinition) -> list[str]:
 
 def _make_file_faults(definition: PipelineDefinition) -> list[str]:
     path = definition.make_file
-    if path is None or is_inside_checkout(path):
+    if path is None:
         return []
-    return [f"make_file {path} must be a path inside the checkout"]
+    if not is_inside_checkout(path):
+        return [f"make_file {path} must be a path inside the checkout"]
+    # The take and the conformance check compare the text as written, so only
+    # the spelling make itself would arrive at is one path for all of them.
+    plain = posixpath.normpath(path)
+    if plain != path:
+        return [f"make_file {path} must be written as {plain}"]
+    return []
 
 
 _RULES = (

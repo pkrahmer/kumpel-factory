@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 703
 comments_read: [6940217140]
 handed_over: null
-claim:
-  instance: self
-  stage: doing
-  started_at: '2026-11-17T06:08:13.094165Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -62,6 +58,12 @@ journal:
   kind: started
   at: '2026-11-17T06:08:13.094165Z'
   stage: doing
+- number: 10
+  speaker: coder
+  kind: result
+  at: '2026-11-17T06:10:50.920059Z'
+  stage: doing
+  run: 6fa5fbe7020e4178a994238647bbd96f
 ---
 
 # A `make_file` is written in its plain form, or the definition refuses it
@@ -160,3 +162,19 @@ Expect: one line ending with `passed` and a time, with no `failed`.
 
    `lint`: lint: green (0.1 s)
 9. factory: started doing as self.
+10. coder: Built the plain-form rule for `make_file`. All tests pass, and `make check` ends with `check: green`. `make guides` is green too.
+
+    - What I changed: `_make_file_faults` in `src/factory/pipeline/domain/pipeline_definition.py`. It now imports `posixpath`.
+      - A value outside the checkout still gets only `make_file <value> must be a path inside the checkout`, and the function returns there.
+      - A value inside the checkout whose `posixpath.normpath` differs from the text gets `make_file <value> must be written as <plain>`.
+      - A comment gives the reason: the take and the conformance check compare the text as written.
+    - Test runs:
+      - The tester's two files (`tests/pipeline/domain/test_pipeline_definition_make_file.py`, `tests/entry/test_check_project.py`) failed in 5 rows at first. All of them pass now.
+      - Smoke test 1 by hand: its last line is `PipelineDefinitionInvalid: make_file ./factory/Makefile must be written as factory/Makefile`.
+    - Main choice: I added the rule to the existing function, so a value outside the checkout keeps exactly one fault. I rejected a separate rule in `_RULES`: an outside value such as `./../Makefile` would then get both faults, which criterion 2 does not allow.
+    - `MakeFilePath`, `protected_paths`, the take, the conformance check and the records contract are unchanged. `git status` shows only the one source file, so `pipeline-definition.schema.json` is untouched.
+    - Refactor: I read the diff and found nothing to change.
+    - The journal did not change the meaning of the task beyond the smoke-test command, which intake already fixed, so I left the Description as it is.
+    - Noticed but not touched: the docs criterion (operator guide *Name the makefile* and the project guide's pipeline-definition page) is the documenter's.
+
+    `duplicates`: duplicates: 8 new, 38 known, 5 gone
