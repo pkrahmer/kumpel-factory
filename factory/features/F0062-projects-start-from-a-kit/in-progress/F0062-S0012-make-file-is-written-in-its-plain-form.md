@@ -1,11 +1,11 @@
 ---
 stage: intake
-blocked: question
+blocked: null
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 703
-comments_read: []
+comments_read: [6940217140]
 handed_over: null
 claim: null
 journal:
@@ -26,6 +26,11 @@ journal:
   stage: intake
   run: 233e96fc8a444ea0a2f4fe1119d9d922
   blocked: question
+- number: 4
+  speaker: human
+  kind: comment
+  at: '2026-11-17T06:04:56.089165Z'
+  stage: intake
 ---
 
 # A `make_file` is written in its plain form, or the definition refuses it
@@ -93,3 +98,4 @@ Expect: one line ending with `passed` and a time, with no `failed`.
    - Docs criterion: it says what the reader must know and dictates no sentences.
    - Architecture: the change is a load-time rule in the domain layer, and the schema does not change.
    - Scope: within F0062 and not in its out-of-scope list.
+4. 2026-11-17 human: (a): remove the `-q` from the command and keep the `Expect:` as it is.
