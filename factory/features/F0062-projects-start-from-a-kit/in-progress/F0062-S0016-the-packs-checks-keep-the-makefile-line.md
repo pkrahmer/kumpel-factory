@@ -1,6 +1,5 @@
 # Each pack's checks section keeps the line that names the factory's makefile
 
-<!-- proposed by feature acceptance of 2026-11-17; refine before starting -->
 
 ## Description
 
