@@ -37,6 +37,7 @@ OPERATOR_GUIDE_FILES: Final = (
     f"{OPERATOR_GUIDE_FOLDER}/pipeline.md",
     f"{OPERATOR_GUIDE_FOLDER}/records.md",
     f"{OPERATOR_GUIDE_FOLDER}/work-items.md",
+    f"{OPERATOR_GUIDE_FOLDER}/start-a-project.md",
 )
 PROJECT_GUIDE_FOLDER: Final = "docs/project-guide"
 PROJECT_GUIDE: Final = f"{PROJECT_GUIDE_FOLDER}/README.md"

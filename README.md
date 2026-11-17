@@ -26,6 +26,7 @@ To run a factory [instance](docs/project-guide/glossary.md) you need a prepared 
 
 ## Where to read next
 
+- [docs/operator-guide/start-a-project.md](docs/operator-guide/start-a-project.md): where to begin with a repository of your own, to set it up so that the factory builds it.
 - [docs/operator-guide/](docs/operator-guide/README.md): install, configure, the [stops](docs/project-guide/glossary.md) and what to do about each, one file per topic. *Setting up an operator's machine* in [site.md](docs/operator-guide/site.md) takes a new machine to a running job.
 - [docs/project-guide/README.md](docs/project-guide/README.md): the guide for agents and developers who change this code, an index of its files by domain.
 - [docs/project-guide/glossary.md](docs/project-guide/glossary.md): the words the factory gives its own meaning.

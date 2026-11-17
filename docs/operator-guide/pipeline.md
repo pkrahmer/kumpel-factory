@@ -266,11 +266,14 @@ A point with a fault ends the run: the points after it are neither run nor print
 
 What it needs: an instance's environment, as `factory-run` reads it (the settings come from the environment, and a missing one ends the command with `cannot run: <fault>` before anything runs), podman, and the stage image the settings name. It needs no dataset: it works on a new temporary folder with a clone of the commit at `HEAD` and an empty home, mounted at `/work` as a stage's dataset is, and removes that folder at the end. It never touches the instance's dataset, its checkout or its project image, so it may run beside a working instance and for another repository than the instance's. The image `<stage image>-check` stays after the run and is replaced by the next one. The agent home (from `--agent-home`, else from the settings) serves only the point `agents`; the containers get no agent files.
 
-On the VM, run it as `factory` with the instance's environment loaded (an example for the VM, where `/srv/factory/vm` is the instance's folder; not run here):
+On the VM, run it as `factory` with the instance's environment loaded, `factory.env` and then `factory.local.env` when it exists, as the unit reads them (an example for the VM, where `/srv/factory/vm` is the instance's folder; not run here):
 
 ```sh
 sudo -iu factory
-set -a; . /srv/factory/vm/factory.env; set +a
+set -a
+. /srv/factory/vm/factory.env
+if [ -f /srv/factory/vm/factory.local.env ]; then . /srv/factory/vm/factory.local.env; fi
+set +a
 /srv/factory/vm/factory/.venv/bin/factory-check-project --run /path/to/my-project
 ```
 

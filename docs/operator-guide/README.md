@@ -9,7 +9,8 @@ An instance usually runs on a VM with ZFS and rootless Podman, where every [stag
 1. Prepare the machine and install the factory: read "The machine" in [machine.md](machine.md), then [install.md](install.md).
 2. Set the instance's settings: read "Configuration" in [install.md](install.md).
 3. Check that the instance is healthy: read [health.md](health.md).
-4. When the instance stops, look the stop up in "The stops" in [stops.md](stops.md).
+4. To set up a repository for the factory, read [start-a-project.md](start-a-project.md).
+5. When the instance stops, look the stop up in "The stops" in [stops.md](stops.md).
 
 ## The files of the guide
 
@@ -20,7 +21,8 @@ The guide is this index and one file per topic:
 | [install.md](install.md) | Installing the factory, its configuration, a process that refuses to start, the loop and its pauses, and the project's make targets. |
 | [agent-runtime.md](agent-runtime.md) | The agent runtime (Claude Code or opencode), the login, a proxy, a provider's limits and the agent files. |
 | [machine.md](machine.md) | The VM with ZFS and rootless Podman that runs every stage, its stage image, its service, its costs and its logs. |
-| [site.md](site.md) | The site file, repeating a trial, and setting up an operator's machine from one site file. |
+| [site.md](site.md) | The site file, repeating a trial, setting up an operator's machine from one site file, and what a Java project needs from a site. |
+| [start-a-project.md](start-a-project.md) | Starting a project: the kit, the stack packs and starters, setting up an existing repository or a fresh one, and each stack's traps. |
 | [cloud-run.md](cloud-run.md) | Running the factory in a Cloud Run job. |
 | [health.md](health.md) | The preflight and the health check, the factory log and the health status file, and the transcripts. |
 | [stops.md](stops.md) | The stops and what to do about each, what a stage run shows, [stalls](../project-guide/glossary.md), the factory's own questions, an event that keeps failing and stops that cannot be done. |

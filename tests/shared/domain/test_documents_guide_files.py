@@ -40,6 +40,7 @@ def test_the_guide_is_an_index_in_its_folder() -> None:
         "docs/operator-guide/pipeline.md",
         "docs/operator-guide/records.md",
         "docs/operator-guide/work-items.md",
+        "docs/operator-guide/start-a-project.md",
         "docs/project-guide/README.md",
         "docs/decisions.md",
     )
