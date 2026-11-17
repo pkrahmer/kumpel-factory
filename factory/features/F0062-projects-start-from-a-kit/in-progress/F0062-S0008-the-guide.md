@@ -1,17 +1,13 @@
 ---
-stage: intake
+stage: docs-only
 blocked: null
 round: 0
 attempts: 0
 crashes: 0
-pull_request: null
+pull_request: 697
 comments_read: []
 handed_over: null
-claim:
-  instance: self
-  stage: intake
-  started_at: '2026-11-17T04:38:27.712552Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -23,6 +19,12 @@ journal:
   kind: started
   at: '2026-11-17T04:38:27.712552Z'
   stage: intake
+- number: 3
+  speaker: intake
+  kind: result
+  at: '2026-11-17T04:38:51.692736Z'
+  stage: intake
+  run: ce2a53df165c440ca470313967a460e0
 ---
 
 # The guide
@@ -66,3 +68,10 @@ Expect: two numbers, each at least 3 for the first and at least 2 for the second
 
 1. 2026-11-17 human: created.
 2. factory: started intake as self.
+3. intake: accepted
+   - Interface: every changed path is one the documenter may write: `docs/operator-guide/start-a-project.md` (new), `docs/operator-guide/README.md`, `docs/operator-guide/site.md`, `README.md` and `docs/decisions.md`. Nothing under `src/factory/` or `operator/` changes and no test does, so the story takes the docs route. The real runs the page may quote are listed with their dates.
+   - Criteria: criteria 1 to 7 can each be checked against the documents. They name the three layers and which exist, the ten steps of the walk for an existing repository, the fresh start and private starters, what the project owns and what stays the kit's, agent replacement and `## Review`, one TRAPS paragraph per stack, every command either runnable by the document check or marked as a VM example with its source and date, and the Java part of the site page. They state no rule with a failing side. The facts the page must describe exist in the repository: `operator/kit/` and `operator/packs/{python,c-host,java-gradle}/TRAPS.md`. The pipeline page already uses the "example for the VM" form (`docs/operator-guide/pipeline.md:269`). Criterion 8 (`make check`) and criterion 9 (`docs:`) close the list.
+   - Smoke test: both commands only read files and can run in the checkout. `grep -c` over two files prints `file:count` lines, and the second command prints two bare counts, so both `Expect:` lines can be checked against the output.
+   - Docs criterion: it names what the reader must know (the page, the index entry, the README pointer, the Java part of the site page, and the decision with its reason, that the reader is a person setting a repository up). It dictates no sentences.
+   - Architecture: the story is documents only, in the folders CLAUDE.md gives the operator guide (`docs/operator-guide/`), the newcomer (`README.md`) and the decision log (`docs/decisions.md`). It does not touch `planning/` or `docs/runs/`.
+   - Scope: it is in the feature's scope ("The guide for a fresh start and for a brownfield repository", story S0008). The page goes in the operator guide, as decision 26 of `feature.md` placed it. It describes the onboarding pull request and starters only as things that do not exist yet, which keeps it inside the feature's "Out of scope".
