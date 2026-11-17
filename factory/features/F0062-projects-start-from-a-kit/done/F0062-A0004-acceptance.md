@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 0
 attempts: 0
@@ -20,8 +20,13 @@ journal:
   at: '2026-11-17T07:23:53.360520Z'
   stage: acceptance
   run: 7d71eb114a8b4f4d99729c678b85dd04
+- number: 3
+  speaker: factory
+  kind: done
+  at: '2026-11-17T07:24:42.181300Z'
+  stage: done
 stories: [F0062-S0001, F0062-S0002, F0062-S0003, F0062-S0004, F0062-S0005, F0062-S0006, F0062-S0007, F0062-S0008, F0062-S0009, F0062-S0010, F0062-S0011, F0062-S0012, F0062-S0013]
-outcome: null
+outcome: accepted
 ---
 
 # Acceptance of Projects start from a kit and a stack pack
@@ -298,3 +303,4 @@ Human interventions: 15 questions answered, all of cause `question`, with 2.0 h 
    6 Decisions: decision 36 was built as worded. The decision log entry has no Rejected line. The `CLAUDE.md` `## Checks` line chooses between the two wordings. Three items are still open from the earlier acceptances, and one is new: whether all of `factory/*` should be protected. Each earlier test S0013 changed has its leave (36, or the standing leave for the helper move).
    7 Slow checks: none beyond `make check` (green, 111.3 s, 99.14 %). The slowest test is test_documents_marker at 19.8 s. The feature's 505 cases take 18.4 s. Disk: 0.2 GB less free on the shared pool with used space unchanged, so not this feature's growth.
    8 Cost: 133 runs, 260.4 min, $43.38. S0013 cost $3.85, above average because of one test rework (an earlier test the tester missed) and one review round (copied helpers). Questions: 15, 2.0 h waited, unchanged since the third acceptance. S0001 still needed the human most.
+3. factory: done (pull request merged); cost: 1 runs, 6.4 min, 26 turns, 90791 tokens in (1510645 more from cache), 27733 out, $1.31
