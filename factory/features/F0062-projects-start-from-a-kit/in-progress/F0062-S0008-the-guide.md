@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 697
 comments_read: [6938616709]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: review
+  started_at: '2026-11-17T04:50:48.687816Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -97,6 +101,11 @@ journal:
   at: '2026-11-17T04:50:43.450764Z'
   stage: doing
   run: fa63307d25fe45fbba5bafba048a927d
+- number: 17
+  speaker: factory
+  kind: started
+  at: '2026-11-17T04:50:48.687816Z'
+  stage: review
 ---
 
 # The guide
@@ -259,3 +268,4 @@ Expect: two numbers, each at least 3 for the first and at least 2 for the second
     - Refactor: none needed. Checks: my code is unchanged since `make check guides` was green in entry 12.
 
     `duplicates`: duplicates: 8 new, 38 known, 5 gone
+17. factory: started review as self.
