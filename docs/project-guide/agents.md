@@ -401,7 +401,7 @@ A new project starts from the kit, [operator/kit/](../../operator/kit/), and one
 
 The kit ships the story and feature forms, `factory/story-form.md` and `factory/feature-form.md`; a project copies them with the rest of `operator/kit/factory/`. Until `factory/story-form.md` exists, `StoryFormChecker` (see *The story form check* in `pipeline.md`) stops every stage.
 
-The tests in [tests/agent_files/](../../tests/agent_files/) read the full line through `TEMPLATE_PIPELINE` of [shipped_agents.py](../../tests/support/shipped_agents.py), and run the Python pack's makefile with `kit.mk` through [template_make_support.py](../../tests/support/template_make_support.py).
+The tests in [tests/agent_files/](../../tests/agent_files/) read the full line through `TEMPLATE_PIPELINE` of [shipped_agents.py](../../tests/support/shipped_agents.py), and run the Python pack's makefile with `kit.mk` through [kit_make_support.py](../../tests/support/kit_make_support.py).
 
 ## The write paths
 

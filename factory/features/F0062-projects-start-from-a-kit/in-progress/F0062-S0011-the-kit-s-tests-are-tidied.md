@@ -1,5 +1,5 @@
 ---
-stage: docs
+stage: smoke-test
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 701
 comments_read: [6939751878]
 handed_over: null
-claim:
-  instance: self
-  stage: docs
-  started_at: '2026-11-17T05:48:51.441851Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -84,6 +80,12 @@ journal:
   kind: started
   at: '2026-11-17T05:48:51.441851Z'
   stage: docs
+- number: 14
+  speaker: documenter
+  kind: result
+  at: '2026-11-17T05:51:07.996258Z'
+  stage: docs
+  run: 04bb676732e8492db220a52a701e8991
 ---
 
 # The feature's tests are tidied: one missing row, one weak check, one copy, and names that still say template
@@ -221,3 +223,20 @@ Expect: one line ending with `passed` and a time, with no `failed`.
     - tests/support/kit_support.py: the human's leave, entry 4 (an importer of the renamed support module).
     - tests/vm/test_stage_image.py: the standing leave to move a shared test helper. The change only switches it to the shared reader under its new public name in `tests/support/dockerfile_support.py`, and every test keeps its name and what it checks. The Interface does not name this file, but the rename it does name requires the change.
 13. factory: started docs as self.
+14. documenter: I updated the project guide for the renamed test modules. `make documents` ended with `documents ok (48.5 s)`. I did not run `make check` because I changed only files under `docs/`.
+
+    Files changed:
+    - `docs/project-guide/agents.md:404`: this line now names and links the kit's make support module under its new name, `tests/support/kit_make_support.py`. It used to link `template_make_support.py`. This is criterion 7.
+    - `docs/project-guide/README.md:192`: this index entry now names and links `tests/support/kit_make_support.py`. Its list of helpers is the same as before, which I checked against the module. This is criterion 7.
+    - `docs/project-guide/README.md:164`: this entry was stale and named the Dockerfile reader `_instructions`. It now names it `dockerfile_instructions`. It also lists `tests/operator_scripts/test_packs.py` as a user of the support module, because that test now imports the reader from there.
+
+    Cross-read and found current:
+    - I searched `README.md` and `docs/` for the old names and found no other mention. The names I searched for were `template_make_support`, `test_template_makefile`, `test_template_makefile_header`, `test_template_sync` and `ten_topics`/`ten topics`.
+    - `docs/project-guide/operator.md`: its lines on the kit and pack tests (`test_kit_files.py`, `test_kit_makefile.py`, `test_packs.py`, `kit_support.py`) and its test table still hold.
+    - The other mentions of `_instructions` in `agents.md` and `pipeline.md` are a different subject (`_project_instructions`, `result_instructions`, `role_instructions`), so they are not stale.
+
+    I saw no stale text outside this story. I found nothing for the coder.
+
+    `guides`: guides: green (9.5 s)
+    `secrets`: secrets: green (1.0 s)
+    `documents`: documents ok (48.9 s)
