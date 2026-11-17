@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 695
 comments_read: [6937495535]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: docs
+  started_at: '2026-11-17T03:52:16.781675Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -108,6 +112,11 @@ journal:
   at: '2026-11-17T03:52:11.255033Z'
   stage: review
   run: 1b19a4b4598143efbefe5655724d8d04
+- number: 19
+  speaker: factory
+  kind: started
+  at: '2026-11-17T03:52:16.781675Z'
+  stage: docs
 ---
 
 # The stack packs
@@ -331,3 +340,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     Earlier tests:
     - `tests/operator_scripts/test_kit_files.py`: changed under the standing leave to move a shared test helper. `WRITTEN_FILES` moved to `tests/support/kit_support.py`, and `_check` was replaced by `project_faults` in `tests/support/project_check_support.py`. Both tests that used it keep their names and what they check.
+19. factory: started docs as self.
