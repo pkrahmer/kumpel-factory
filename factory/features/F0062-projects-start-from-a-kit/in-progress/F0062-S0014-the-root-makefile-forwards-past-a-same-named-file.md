@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 707
 comments_read: [6941636547]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: docs
+  started_at: '2026-11-17T07:37:36.265472Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -108,6 +112,11 @@ journal:
   at: '2026-11-17T07:37:31.237096Z'
   stage: review
   run: dd802303fe154c8aa0811d008bb48b56
+- number: 19
+  speaker: factory
+  kind: started
+  at: '2026-11-17T07:37:36.265472Z'
+  stage: docs
 ---
 
 # The root makefile forwards a target that a file at the root is named after
@@ -320,3 +329,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     Earlier tests:
     - `tests/operator_scripts/test_one_layout.py`: changed under the standing leave to move a shared test helper. `MAKEFILE_TARGET` and the project setup moved to `tests/support/kit_support.py`. `test_the_root_makefile_forwards_every_target_to_the_factory_makefile` keeps its name, rows and assertions.
     - `tests/support/kit_support.py`: changed under the same leave. It is the shared place, and it only gained `MAKEFILE_TARGET` and `forwarding_project`.
+19. factory: started docs as self.
