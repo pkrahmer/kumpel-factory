@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: review
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 697
 comments_read: [6938616709]
 handed_over: null
-claim:
-  instance: self
-  stage: doing
-  started_at: '2026-11-17T04:50:20.787784Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -95,6 +91,12 @@ journal:
   kind: started
   at: '2026-11-17T04:50:20.787784Z'
   stage: doing
+- number: 16
+  speaker: coder
+  kind: result
+  at: '2026-11-17T04:50:43.450764Z'
+  stage: doing
+  run: fa63307d25fe45fbba5bafba048a927d
 ---
 
 # The guide
@@ -247,3 +249,13 @@ Expect: two numbers, each at least 3 for the first and at least 2 for the second
     - `tests/support/check_documents_support.py`: the human's leave, journal entry 6 (adds `start-a-project.md` to `TOPIC_FILES`).
     - `tests/shared/domain/test_documents_guide_files.py`: the human's leave, journal entry 6 (the pinned list of guide paths gains the page; the test keeps its name).
 15. factory: started doing as self.
+16. coder: Round 1: I changed no file. The reviewer's only finding (entry 14) is in a document, which this role cannot write. No code or test is wrong: the one code line from entry 12 (`src/factory/shared/domain/documents.py`, the page added to `OPERATOR_GUIDE_FILES`) and the tester's lines stay as they are.
+
+    The finding, passed on for the documenter. In `docs/operator-guide/start-a-project.md`, the *The live check on the machine* `sh` block and step 8 load only `/srv/factory/vm/factory.env`. Keep the real run's command, and add one sentence (or a second marked line) saying that `/srv/factory/vm/factory.local.env` must be loaded after `factory.env` when that file exists, as the unit does (`docs/operator-guide/machine.md:387`, `:407`). This matters because `factory-check-project --run` reads the `FACTORY_CONTAINER_ENV` names and the Maven variables that `site.md` puts in `factory.local.env` from its own process environment (`src/factory/entry/check_project.py:134`, `src/factory/machine/domain/containers.py:81`).
+
+    - Main choice: end with `review` and send the finding on unchanged. The rejected alternative was to edit the page myself. CLAUDE.md says the coder does not write documents, and `docs/` is outside my write paths, so that edit would be dropped.
+    - Open: the docs stage that follows the review should make the change above and then run `make guides` and `make documents` again.
+    - Description: the reviewer already rewrote it for entry 6, so there is nothing more for me to change.
+    - Refactor: none needed. Checks: my code is unchanged since `make check guides` was green in entry 12.
+
+    `duplicates`: duplicates: 8 new, 38 known, 5 gone
