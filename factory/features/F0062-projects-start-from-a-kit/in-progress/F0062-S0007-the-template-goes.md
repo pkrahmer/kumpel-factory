@@ -1,5 +1,5 @@
 ---
-stage: intake
+stage: tests
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 696
 comments_read: [6937913187]
 handed_over: null
-claim:
-  instance: self
-  stage: intake
-  started_at: '2026-11-17T04:04:55.384731Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -40,6 +36,12 @@ journal:
   kind: started
   at: '2026-11-17T04:04:55.384731Z'
   stage: intake
+- number: 6
+  speaker: intake
+  kind: result
+  at: '2026-11-17T04:05:16.513702Z'
+  stage: intake
+  run: d6665a7d80a0424cab69fb0b136eb0f7
 ---
 
 # The template goes
@@ -54,6 +56,7 @@ With the kit and the stack packs in place, `operator/template/` is a second, old
 - Where a shipped file under `agents/`, `operator/` or `src/` names `operator/template`, the coder names the kit or the pack that now holds the thing; a sentence that is only about the template goes.
 - What replaces each file for a reader: the pipeline definition is `operator/kit/factory/pipeline.full.yml`; the makefile is `operator/packs/python/Makefile` together with `operator/kit/factory/kit.mk` (the shell settings, `$(start)`, `$(green)` and the start facts are in `kit.mk`, the targets in the pack's makefile); `CLAUDE.md` is `operator/kit/CLAUDE.md`, with the Python sections in `operator/packs/python/CLAUDE.sections.md`.
 - Tests: `tests/guards/test_template_removed.py`, new. `feature.md` gives this leave (decision 25): "S0007 may change every earlier test and test helper that reads a file under `operator/template/`, or that pins that folder's name, so that it reads the kit or the Python pack instead: each test keeps its name and checks the same thing at the new place. Where the thing a test checks is now split between `kit.mk` and the pack's makefile, the test reads both, or an assembled makefile from `tests/support/kit_support.py`. A test whose only subject was that the template exists or lists its files is changed to check the same of the kit and the Python pack. The tester names every changed file in its entry."
+- The coder's green run (journal entry 4): the coder may end its run with the new guard `tests/guards/test_template_removed.py` red and the folder-readme row red, both only on `operator/README.md` naming `operator/template`, which the docs stage fixes.
 
 ## Acceptance criteria
 
@@ -109,3 +112,12 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    - `operator/kit/README.md:5` names the template too. It is a shipped file under `operator/`, so the coder rewords it by the Interface's second line.
 4. 2026-11-17 human: (a). Leave given: the coder may end its run with the new guard `tests/guards/test_template_removed.py` red and the folder-readme row red, both only on `operator/README.md` naming `operator/template`, which the docs stage fixes.
 5. factory: started intake as self.
+6. intake: accepted
+   - Answer carried in: I added the human's leave from journal entry 4 to the Interface, as a line after the Tests line. With it, the coder may end its run with `tests/guards/test_template_removed.py` and the folder-readme row red, but only on `operator/README.md` naming `operator/template`. The docs stage fixes both. This matches decision 27 for S0005 and S0006.
+   - Interface: names the three files to remove and what replaces each one: `pipeline.full.yml`, the Python pack's `Makefile` with `kit.mk`, and the kit's `CLAUDE.md` with `CLAUDE.sections.md`. It also names how shipped texts under `agents/`, `operator/` and `src/` are reworded, and the new guard. `operator/kit/README.md:5` is one of those shipped texts, so the coder rewords it.
+   - Criteria: each one is testable. Criterion 1 is a git-grep guard with two named exceptions. Criterion 2 asks the tester's entry to compare the test function names. Criteria 3 and 4 name the checks that move to the pack's makefile with `kit.mk` and to both kit pipeline definitions. The story adds no new rule with a failing side, because it moves existing checks to a new place.
+   - Smoke test: all three blocks can be run. `check_project` exists. The pytest block passes no `-q`, because `addopts` already sets it, so the summary line prints. Each `Expect:` (`gone` then `0`, `project: ready`, a summary line with only passed) can be checked against the output.
+   - Docs criterion: it names what the reader must know: the kit and the packs replace the template, no document tells the reader to copy it, `operator/README.md` has no template entry, and the decision log has a removal entry while older history keeps its words. It dictates no sentences.
+   - Architecture: no module under `src/factory/` reads the template. Changes to tests made by other stories are covered by `feature.md` decision 25. `demo/todo-service/README.md` stays the human's.
+   - Scope: within F0062 (projects start from a kit). This story is the cleanup after S0005 and S0006 and is not in the feature's out-of-scope list.
+   - Route: `tests`. The story removes files under `operator/` and changes tests and shipped texts, which are outside the documenter's paths.
