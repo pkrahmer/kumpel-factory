@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 705
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: tests
+  started_at: '2026-11-17T06:59:36.203635Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -80,6 +84,11 @@ journal:
   at: '2026-11-17T06:59:31.091508Z'
   stage: review
   run: b76fc64198114b61876ac8587146944c
+- number: 14
+  speaker: factory
+  kind: started
+  at: '2026-11-17T06:59:36.203635Z'
+  stage: tests
 ---
 
 # One layout for every project
@@ -273,3 +282,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     - `tests/agent_files/test_claude_files.py`: feature decision 36, as asked in entry 7 and made in entry 9 (`root.Makefile` added to the kit listing). Its only failure was the new layout.
 
     Decision: `tests`. The one finding needs a change only to this story's tests and the helpers moved under the standing leave.
+14. factory: started tests as self.
