@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 701
 comments_read: [6939751878]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: tests
+  started_at: '2026-11-17T05:40:54.169919Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -42,6 +46,11 @@ journal:
   at: '2026-11-17T05:40:48.823082Z'
   stage: intake
   run: 57ce641c905b4684adafa9f39a182bc3
+- number: 7
+  speaker: factory
+  kind: started
+  at: '2026-11-17T05:40:54.169919Z'
+  stage: tests
 ---
 
 # The feature's tests are tidied: one missing row, one weak check, one copy, and names that still say template
@@ -103,3 +112,4 @@ Expect: one line ending with `passed` and a time, with no `failed`.
    - Docs criterion: it names what the reader must know (the module's new name and link) and dictates no sentences. The links at `docs/project-guide/agents.md:404` and `docs/project-guide/README.md:192` will need it.
    - Architecture: only tests change. The shared reader stays in `tests/support/`, as CLAUDE.md asks, and no test module imports another.
    - Scope: this is the tidy-up of F0062's tests that the feature's acceptance proposed. It stays within the feature and adds nothing new. The route is `tests`, because the Interface changes test files and the documenter may not write those.
+7. factory: started tests as self.
