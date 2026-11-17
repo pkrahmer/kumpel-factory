@@ -1,5 +1,5 @@
 ---
-stage: intake
+stage: tests
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 693
 comments_read: [6936126509]
 handed_over: null
-claim:
-  instance: self
-  stage: intake
-  started_at: '2026-11-17T02:28:42.279205Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -40,6 +36,12 @@ journal:
   kind: started
   at: '2026-11-17T02:28:42.279205Z'
   stage: intake
+- number: 6
+  speaker: intake
+  kind: result
+  at: '2026-11-17T02:29:04.235495Z'
+  stage: intake
+  run: 495090b8960d49aea1413564509964ae
 ---
 
 # The installed builder
@@ -59,6 +61,8 @@ effort: medium
 budget_usd: 6
 tools: [Read, Grep, Glob, Edit, Bash, Write, Skill]
 ---
+Never change the build files, the makefile or `factory/`; a story that needs a change there is a question.
+
 Your entry says what you built (the paths), the decisions you took where the story left something open, and what you noticed but did not touch.
 
 ## Role
@@ -75,7 +79,7 @@ You build the whole story alone: its tests, its code and its documents, inside t
 
 ## Stage
 
-1. Read the work item: its Description, Interface, criteria and smoke test. `CLAUDE.md` is already in your context. Read the code and documents the story touches; not other work items, not `feature.md`, not `factory/`, not `.claude/`. If the prompt's round is greater than 0, address exactly the findings in the reviewer's latest entry, nothing more.
+1. The work item is in your first message: its Description, Interface, criteria and smoke test. `CLAUDE.md` is already in your context. Read the code and documents the story touches; not other work items, not `feature.md`, not `factory/`, not `.claude/`. If the prompt's round is greater than 0, address exactly the findings in the reviewer's latest entry, nothing more.
 2. Write the tests for every criterion, then the code, until `make check` is green.
 3. Update the documents the docs criterion names.
 4. Run the smoke test's commands as written and check each against its `Expect:` line. A command that does not meet its line is work still to do, not a remark.
@@ -99,7 +103,7 @@ When the project's `CLAUDE.md` holds a section `## Review`, each of its points i
 
 - Where another shipped file lists the installed agents or the roles by name (the system prompt `agents/system-prompt.md`, `agents/README.md` is the documenter's), the coder adds `builder` only where the list claims to be complete.
 - No module under `src/factory/` changes: `ProjectAgentDefinitions` already reads a project's file first and the installed one otherwise.
-- Tests: `tests/agent_files/test_installed_builder.py`. `feature.md` gives this leave (decision 11): "S0004 may change earlier tests under `tests/agent_files/`, and any other earlier test, that pin the list or the number of the shipped agents or the text or a checksum of `reviewer.md`, where their only failure is the eighth agent `builder` or the reviewer's new part."
+- Tests: `tests/agent_files/test_installed_builder.py`. `feature.md` gives this leave (decision 11): "S0004 may change earlier tests under `tests/agent_files/`, and any other earlier test, that pin the list or the number of the shipped agents or the text or a checksum of `reviewer.md`, where their only failure is the eighth agent `builder` or the reviewer's new part." Journal entry 4 extends it: the tester may add rows for `builder` to the per-agent tables of `tests/support/shipped_agents.py` and of the tests under `tests/agent_files/` (boundary, anchors, lessons, efforts, the pinned role lists), and may take the builder's stage and decisions from a thin-line pipeline definition written in the test instead of `operator/template/factory/pipeline.yml`. Every earlier test keeps its name and still checks the seven agents as before.
 
 ## Acceptance criteria
 
@@ -172,3 +176,15 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
       Does leave 11 cover these changes? Options: (a) Add a boundary line to the builder's Interface text, for example "You build the story; what you cannot decide you ask." Extend leave 11 so the tester may add builder rows to those tables and take builder's decisions (`review`, `question`) from a thin-line definition in the test, not from the template. (b) Leave the builder text as it is, and let the tester make the boundary optional, with builder's row having none. I would choose (a): the builder then follows the same shape as the seven agents, and the tests change only by data rows and the source of one role's decisions.
 4. 2026-11-17 human: 1: (a), with your wording of step 1. 2: (a). The builder's text opens with this boundary sentence, a blank line, then its entry sentence: "Never change the build files, the makefile or `factory/`; a story that needs a change there is a question." Leave 11 is extended: the tester may add rows for `builder` to the per-agent tables of `tests/support/shipped_agents.py` and of the tests under `tests/agent_files/` (boundary, anchors, lessons, efforts, the pinned role lists), and may take the builder's stage and decisions from a thin-line pipeline definition written in the test instead of `operator/template/factory/pipeline.yml`. Every earlier test keeps its name and still checks the seven agents as before.
 5. factory: started intake as self.
+6. intake: accepted
+   I carried the human's answer from journal entry 4 into the story. I made no other edits.
+   - The builder text in the Interface now opens with the boundary sentence "Never change the build files, the makefile or `factory/`; a story that needs a change there is a question." Then come a blank line and the entry sentence.
+   - Step 1 of the builder text is reworded to "1. The work item is in your first message: its Description, Interface, criteria and smoke test. …". This is the wording from option (a) of question 1.
+   - The Tests line of the Interface now carries the extended leave 11. The tester may add rows for `builder` to the per-agent tables of `tests/support/shipped_agents.py` and `tests/agent_files/` (boundary, anchors, lessons, efforts, pinned role lists). The tester may take the builder's stage and decisions from a thin-line definition written in the test. Every earlier test keeps its name and still checks the seven agents.
+
+   Interface: it names concrete files: `agents/agents/builder.md` with its exact text, and the exact section added to `agents/agents/reviewer.md`. Nothing under `src/factory/` changes. The test file is named, and the system prompt adds `builder` only where a list claims to be complete. With the reworded step 1 and the boundary sentence, the builder text now fits the existing shape tests.
+   Criteria: each one can be tested by one test function. Criterion 5 has both rows: the project's file is read when it exists, the installed one when it does not. Criterion 2 covers both sides of the stack-word rule. Criterion 4 covers the thin line on a repository with no agent files. Criterion 6 is now coverable under the extended leave.
+   Smoke test: the commands can be run. Each Expect line can be checked: `True 8`, `read`, `1`, `agents: ok` / `project: ready`, and a pytest summary with only `passed`. pytest is called without `-q`.
+   Docs criterion: it names what the reader must know: `builder`, that the thin line needs no agent file, that the replacement works file by file, the `## Review` section, the project guide's list, `agents/README.md` and the decision of 2026-11-16. It dictates no sentences.
+   Architecture: the change is agent files plus tests and docs only. `ProjectAgentDefinitions` already resolves the project's file first, then the installed one. No layer moves.
+   Scope: the story is within F0062: the installed agents become the default and kits copy no agent file. Its test changes are covered by leave 11 as extended in entry 4. Route: `tests`, because `agents/agents/` and tests change, which the documenter alone may not write.
