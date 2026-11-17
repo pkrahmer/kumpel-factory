@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 692
 comments_read: [6935336014, 6935606286]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: doing
+  started_at: '2026-11-17T02:11:25.776137Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -136,6 +140,11 @@ journal:
   at: '2026-11-17T02:11:20.253407Z'
   stage: tests
   run: ea9d45b94ba04b53a1de05771c79c607
+- number: 24
+  speaker: factory
+  kind: started
+  at: '2026-11-17T02:11:25.776137Z'
+  stage: doing
 ---
 
 # The conformance check runs a repository
@@ -393,3 +402,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     `lint`: lint: green (0.2 s)
 
     `lint`: lint: green (0.1 s)
+24. factory: started doing as self.
