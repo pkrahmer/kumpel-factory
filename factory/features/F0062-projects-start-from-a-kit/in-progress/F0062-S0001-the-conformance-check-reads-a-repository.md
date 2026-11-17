@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 690
 comments_read: [6933812910]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: tests
+  started_at: '2026-11-17T00:32:36.179283Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -42,6 +46,11 @@ journal:
   at: '2026-11-17T00:32:30.976450Z'
   stage: intake
   run: 48772020b7f24fcf8a7d8710fe7a63a8
+- number: 7
+  speaker: factory
+  kind: started
+  at: '2026-11-17T00:32:36.179283Z'
+  stage: tests
 ---
 
 # The conformance check reads a repository
@@ -179,3 +188,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    - Architecture: pure parsing and judging in `domain`; the use case in `application` over the existing `Git`, `PipelineDefinitionReader` and `AgentDefinitionReader` interfaces; the wiring only in `entry`. No new tool and no new dependency.
    - Scope: within F0062 (decisions 2, 4, 6 and 7). The live check and the makefile a pipeline definition names are left to later stories, as the Description says. The guard table change has the feature's leave (decision 4).
    Route: tests, because the Interface adds code under `src/`.
+7. factory: started tests as self.
