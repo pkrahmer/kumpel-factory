@@ -4,12 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from factory.agents.adapters.agent_files import FrontmatterAgentDefinitionReader
-from factory.agents.application.project_agents import ProjectAgentDefinitions
-from factory.hosting.adapters.git_cli import GitCli
 from factory.machine.domain.stage_layer import StageLayerRefused, stage_layer
-from factory.pipeline.adapters.pipeline_yaml import RuamelPipelineDefinitionReader
-from factory.pipeline.application.project_check import ProjectCheck
 from factory.pipeline.domain.project_check import POINT_NAMES, ProjectPoint
 from support.git_support import AGENT_FILE, PIPELINE_YAML, pipeline_outcome
 from support.project_check_support import (
@@ -17,6 +12,7 @@ from support.project_check_support import (
     committed_repository,
     installed_home,
     ready_files,
+    run_project_check,
 )
 
 REFUSED_DEFINITION = PIPELINE_YAML + "colour: red\n"
@@ -42,9 +38,7 @@ def _run(
 ) -> list[ProjectPoint]:
     repository = committed_repository(tmp_path / "project", ready_files(changes))
     home = installed_home(tmp_path / "agent-home", roles)
-    git = GitCli(repository)
-    agents = ProjectAgentDefinitions(git, FrontmatterAgentDefinitionReader(home), ref="HEAD")
-    return ProjectCheck(git, RuamelPipelineDefinitionReader(), agents).run()
+    return run_project_check(repository, home)
 
 
 def _faults(points: list[ProjectPoint]) -> dict[str, list[str]]:
@@ -252,9 +246,7 @@ def test_a_project_agent_counts_only_when_committed(tmp_path: Path) -> None:
     (repository / "factory" / "agents").mkdir(parents=True)
     (repository / "factory" / "agents" / "coder.md").write_text(AGENT_FILE, encoding="utf-8")
     home = installed_home(tmp_path / "uncommitted" / "agent-home", without_coder)
-    git = GitCli(repository)
-    agents = ProjectAgentDefinitions(git, FrontmatterAgentDefinitionReader(home), ref="HEAD")
-    uncommitted = _faults(ProjectCheck(git, RuamelPipelineDefinitionReader(), agents).run())
+    uncommitted = _faults(run_project_check(repository, home))
 
     assert committed["agents"] == []
     assert uncommitted["agents"] == ["role coder: no agent file"]

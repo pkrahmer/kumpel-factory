@@ -8,8 +8,8 @@ import pytest
 
 from support.git_support import clone, commit_all, make_remote, run_git, write_files
 from support.kit_support import KIT_MAKEFILE, run_kit_make
+from support.template_make_support import green_line
 
-GREEN = re.compile(r"^lint: green \(\d+\.\d s\)$")
 PROJECT_MAKEFILE = (
     "include factory/kit.mk\n"
     "lint:\n\t$(start)\n\ttrue\n\t$(green)\n"
@@ -53,7 +53,9 @@ def _branch_clone(tmp_path: Path, base: str, changes: dict[str, str]) -> Path:
 @pytest.mark.parametrize(
     ("args", "succeeds", "lines"),
     [
-        pytest.param([], True, [GREEN, re.compile(r"^check: green$")], id="default-goal"),
+        pytest.param(
+            [], True, [green_line("lint"), re.compile(r"^check: green$")], id="default-goal"
+        ),
         pytest.param(["broken"], False, [], id="first-line-fails"),
     ],
 )

@@ -5,16 +5,11 @@ from pathlib import Path
 
 import pytest
 
-from factory.agents.adapters.agent_files import FrontmatterAgentDefinitionReader
-from factory.agents.application.project_agents import ProjectAgentDefinitions
-from factory.hosting.adapters.git_cli import GitCli
 from factory.pipeline.adapters.pipeline_yaml import RuamelPipelineDefinitionReader
-from factory.pipeline.application.project_check import ProjectCheck
-from factory.pipeline.domain.project_check import ProjectPoint
 from factory.work.domain.story_form import check_story_form
 from factory.work.domain.work_item import WorkItemDocument
 from support.kit_support import KIT, KIT_FILES, LINES, Line, kit_pipeline_text, kit_project_files
-from support.project_check_support import ROLES, committed_repository
+from support.project_check_support import ROLES, committed_repository, run_project_check
 from support.shipped_agents import AGENT_HOME, ROOT
 
 STACK_WORDS = re.compile(r"\b(uv|gradle|pytest|cmake)\b", re.IGNORECASE)
@@ -56,10 +51,7 @@ SECTIONS = (
 
 def _check(tmp_path: Path, files: dict[str, str]) -> dict[str, list[str]]:
     repository = committed_repository(tmp_path / "project", files)
-    git = GitCli(repository)
-    agents = ProjectAgentDefinitions(git, FrontmatterAgentDefinitionReader(AGENT_HOME), ref="HEAD")
-    points: list[ProjectPoint] = ProjectCheck(git, RuamelPipelineDefinitionReader(), agents).run()
-    return {point.name: point.faults for point in points}
+    return {point.name: point.faults for point in run_project_check(repository, AGENT_HOME)}
 
 
 def _story(left_out: str | None) -> str:
