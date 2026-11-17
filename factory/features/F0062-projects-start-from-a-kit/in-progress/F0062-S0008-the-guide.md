@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 697
 comments_read: [6938616709]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: tests
+  started_at: '2026-11-17T04:44:59.496331Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -53,6 +57,11 @@ journal:
   at: '2026-11-17T04:44:54.279028Z'
   stage: docs-only
   run: e4cddc12913843479543c98031eb452c
+- number: 9
+  speaker: factory
+  kind: started
+  at: '2026-11-17T04:44:59.496331Z'
+  stage: tests
 ---
 
 # The guide
@@ -146,3 +155,4 @@ Expect: two numbers, each at least 3 for the first and at least 2 for the second
    - `docs/operator-guide/agent-runtime.md`
 
    When the story comes back to the docs stage, `make guides` should be run again. Its only red result was the guard above.
+9. factory: started tests as self.
