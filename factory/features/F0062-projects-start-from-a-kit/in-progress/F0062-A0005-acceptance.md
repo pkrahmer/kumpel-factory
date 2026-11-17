@@ -7,8 +7,17 @@ crashes: 0
 pull_request: null
 comments_read: []
 handed_over: null
-claim: null
-journal: []
+claim:
+  instance: self
+  stage: acceptance
+  started_at: '2026-11-17T07:57:10.524670Z'
+  lease_duration: 60
+journal:
+- number: 1
+  speaker: factory
+  kind: started
+  at: '2026-11-17T07:57:10.524670Z'
+  stage: acceptance
 stories: [F0062-S0001, F0062-S0002, F0062-S0003, F0062-S0004, F0062-S0005, F0062-S0006, F0062-S0007, F0062-S0008, F0062-S0009, F0062-S0010, F0062-S0011, F0062-S0012, F0062-S0013, F0062-S0014, F0062-S0015]
 outcome: null
 ---
@@ -16,3 +25,5 @@ outcome: null
 # Acceptance of Projects start from a kit and a stack pack
 
 ## Journal
+
+1. factory: started acceptance as self.
