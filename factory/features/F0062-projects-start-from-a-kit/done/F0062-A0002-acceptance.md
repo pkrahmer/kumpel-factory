@@ -1,5 +1,5 @@
 ---
-stage: approval
+stage: done
 blocked: null
 round: 0
 attempts: 0
@@ -20,8 +20,13 @@ journal:
   at: '2026-11-17T06:02:16.709254Z'
   stage: acceptance
   run: f9e89ac01ff741ab9f5e96a13bd69030
+- number: 3
+  speaker: factory
+  kind: done
+  at: '2026-11-17T06:03:05.813733Z'
+  stage: done
 stories: [F0062-S0001, F0062-S0002, F0062-S0003, F0062-S0004, F0062-S0005, F0062-S0006, F0062-S0007, F0062-S0008, F0062-S0009, F0062-S0010, F0062-S0011]
-outcome: null
+outcome: accepted
 ---
 
 # Acceptance of Projects start from a kit and a stack pack
@@ -319,3 +324,4 @@ The story that needed the human most is still S0001, with two questions, one of 
      - On the letter of a leave: `tests/guards/test_tests_layout.py` was changed in S0011, but the Interface that decision 33's leave covers does not name it. It is forced by the renames and checks the same placement, so the human should ratify it.
    7 Slow checks: nothing beyond `make check`, which is green (test 110.1 s, coverage 99.14 %). The slowest test is `test_documents_marker` at 20 s. The feature's 434 cases take 17.9 s together. Disk: 0.1 GB less free on the shared pool and use unchanged at 1.2 GB, which fits caches and rounding.
    8 Cost: 115 runs, 226.8 min, $38.42, about $3.49 a story. The follow-ups cost $4.36. S0003 still stands out at $6.53. 14 questions were answered, 2.0 h waited. S0001 needed the human most (two questions, 102 min overnight). S0010 and S0011 each asked for a leave that the proposals had left unworded.
+3. factory: done (pull request merged); cost: 1 runs, 6.7 min, 40 turns, 96140 tokens in (2764498 more from cache), 28088 out, $1.60
