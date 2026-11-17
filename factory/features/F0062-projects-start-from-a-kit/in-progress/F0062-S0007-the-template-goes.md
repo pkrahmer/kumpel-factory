@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 696
 comments_read: [6937913187]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: review
+  started_at: '2026-11-17T04:30:25.081334Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -126,6 +130,11 @@ journal:
   at: '2026-11-17T04:30:19.759296Z'
   stage: doing
   run: 1c44b054eab644bcaf1574afd7910b99
+- number: 22
+  speaker: factory
+  kind: started
+  at: '2026-11-17T04:30:25.081334Z'
+  stage: review
 ---
 
 # The template goes
@@ -434,3 +443,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     Open: if `layers` segfaults again in the factory's check, the cause is in the tool or the machine (import-linter or the Python build that uv runs), and that is the human's question. `docs/brochure/README.md:459` still names the template, as the documenter noted; I did not touch it. The journal changed nothing in the task's meaning, so the Description stays as it is.
 
     `duplicates`: duplicates: 8 new, 38 known, 5 gone
+22. factory: started review as self.
