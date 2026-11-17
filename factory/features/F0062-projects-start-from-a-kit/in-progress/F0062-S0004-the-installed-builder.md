@@ -1,17 +1,13 @@
 ---
-stage: review
+stage: tests
 blocked: null
-round: 0
+round: 1
 attempts: 0
 crashes: 0
 pull_request: 693
 comments_read: [6936126509]
 handed_over: null
-claim:
-  instance: self
-  stage: review
-  started_at: '2026-11-17T02:38:48.311041Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -73,6 +69,12 @@ journal:
   kind: started
   at: '2026-11-17T02:38:48.311041Z'
   stage: review
+- number: 12
+  speaker: reviewer
+  kind: result
+  at: '2026-11-17T02:39:39.418589Z'
+  stage: review
+  run: e92c960c46854719a2b19879e1f29392
 ---
 
 # The installed builder
@@ -290,3 +292,29 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     `duplicates`: duplicates: 8 new, 38 known, 5 gone
 11. factory: started review as self.
+12. reviewer: Review, round 0: one finding, and it touches only this story's tests. So the work item goes to `tests`.
+
+    I read the diff against every criterion and the Interface:
+    - `agents/agents/builder.md` matches the Interface word for word: the front matter, the boundary sentence and the reworded step 1 from entry 4.
+    - `agents/agents/reviewer.md` has the new subsection as its last part before `## Lessons`, word for word.
+    - Nothing under `src/` changed.
+    - Criteria 1 to 5 each have a test that checks what the criterion says. Criterion 4 is checked twice: through `PipelineLoader` on the `remote` fixture, whose `REMOTE_FILES` hold no `factory/agents/`, and through `ProjectCheck.run` on a committed repository with no `factory/agents/`. Criterion 5 is two rows of one parametrized test.
+    - The coder reports `make check guides` green (entry 10).
+
+    I found no architecture, security or hygiene problem.
+    - The system prompt has no complete list of roles, so leaving it unchanged is right.
+    - The Description and the docs criterion still describe what was built.
+
+    Findings:
+    1. `tests/agent_files/test_claude_agent_texts_review_groups.py:29` and `tests/agent_files/test_shared_rules_system_prompt.py:84`: the same regex `_REVIEW_POINTS_SUBSECTION` (`^### The project's review points\n(?:(?!#).*\n|\n)*`) is written twice. That is a second copy of one helper. Fix: define it once in `tests/support/shipped_agents.py`, with the comment of the first file, and import it in both test files.
+
+    Notes:
+    - `tests/agent_files/test_installed_builder.py:65`: the first assertion (the heading in `f"\n{body}\n"`) adds nothing to the next one, which finds the heading in the `## Stage` section. One of them could go.
+
+    Earlier tests changed:
+    - `tests/agent_files/test_claude_agent_texts.py`: entry 4. It adds builder rows to `LESSONS` and `ROLE_AND_STAGE_ANCHORS`, and takes the builder's decisions from the thin-line definition.
+    - `tests/agent_files/test_claude_agent_texts_review_groups.py`: leave 11 of feature.md, as the Interface cites it. The test strips the reviewer's new part before its checksum.
+    - `tests/agent_files/test_claude_files.py`: entry 4. The template's pinned role list is now `full_line_names()`.
+    - `tests/agent_files/test_shared_rules_system_prompt.py`: leave 11 and entry 4. It strips the reviewer's new part, and its rows stay the seven agents of `PARTS_BEFORE`.
+    - `tests/agent_files/test_shared_start_agent_files.py`: entry 4. A `builder` row in `EFFORTS`.
+    - `tests/support/shipped_agents.py`: entry 4. A builder `ShippedAgent` row, plus `THIN_LINE_ONLY`, `THIN_LINE_PIPELINE`, `thin_line_definition()` and `full_line_names()`.
