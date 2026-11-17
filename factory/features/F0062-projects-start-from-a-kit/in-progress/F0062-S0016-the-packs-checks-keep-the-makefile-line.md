@@ -1,5 +1,5 @@
 ---
-stage: smoke-test
+stage: approval
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 710
 comments_read: [6942486584]
 handed_over: null
-claim:
-  instance: self
-  stage: smoke-test
-  started_at: '2026-11-17T08:23:02.607955Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -117,6 +113,12 @@ journal:
   kind: started
   at: '2026-11-17T08:23:02.607955Z'
   stage: smoke-test
+- number: 20
+  speaker: smoke-tester
+  kind: result
+  at: '2026-11-17T08:25:14.272230Z'
+  stage: smoke-test
+  run: 6a4bb33b2996486081eb4beb6ccd215c
 ---
 
 # Each pack's checks section keeps the line that names the factory's makefile
@@ -319,3 +321,34 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     `secrets`: secrets: green (0.5 s)
     `documents`: documents ok (49.0 s)
 19. factory: started smoke-test as self.
+20. smoke-tester: I ran both smoke-test commands from the repository root, exactly as written. Both met their `Expect:` lines.
+
+    Command 1, which counts the kit's line inside each pack's `## Checks` section:
+    ```
+    1
+    1
+    1
+    ```
+    Expected three lines, each `1`. Met.
+
+    Command 2, `uv run pytest tests/operator_scripts/test_pack_checks_line.py tests/operator_scripts/test_packs.py tests/agent_files/test_claude_files.py`:
+    ```
+    Bytecode compiled 4164 files in 89ms
+    ...................................................                      [100%]
+    51 passed in 0.41s
+    ```
+    Expected a summary line with only `passed`. Met.
+
+    Each acceptance criterion against what I saw:
+    - Criteria 1 to 3: the new tests pass, and they include the per-pack rows that check the line in the assembled `## Checks` section, the other lines of each pack file and the kit's line. `git diff develop...HEAD` touches nothing under `operator/kit/`. Each of the three pack files gains one line.
+    - Criterion 4 (`make check`): the coder and the documenter both reported it green. I did not run it again in this stage; the factory runs it after this stage.
+    - Criterion 5 (docs): I read the diff of both pages.
+      - `docs/operator-guide/start-a-project.md` step 5 says the pack's `## Checks` section carries the kit's line as its second bullet, so the replacement keeps it. It tells the reader to keep the one wording that fits.
+      - `operator/packs/README.md` step 4 replaces the old "Keep the kit's line…" sentence. It now says the line comes along with the pack's section, and that the reader keeps the wording that fits.
+      - Neither page asks the reader to keep a line that the replacement removes.
+
+    Nothing the smoke test showed contradicts a criterion.
+
+    Findings: none.
+
+    `check`: check: green
