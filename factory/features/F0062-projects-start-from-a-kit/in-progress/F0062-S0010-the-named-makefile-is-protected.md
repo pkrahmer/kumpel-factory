@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 700
 comments_read: [6939383328]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: tests
+  started_at: '2026-11-17T05:22:14.352379Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -42,6 +46,11 @@ journal:
   at: '2026-11-17T05:22:08.936326Z'
   stage: intake
   run: b489a3cfd4e64d2396ff814d4e3d4e16
+- number: 7
+  speaker: factory
+  kind: started
+  at: '2026-11-17T05:22:14.352379Z'
+  stage: tests
 ---
 
 # The makefile a pipeline definition names, and the kit's `kit.mk`, are protected paths
@@ -118,3 +127,4 @@ Expect: `13 13`
    - Scope: this is follow-up S0010 of feature F0062's decision 31, inside the feature. It changes no `factory/` file and leaves the conformance check alone.
 
    The route is `tests`, because the Interface changes `src/factory`.
+7. factory: started tests as self.
