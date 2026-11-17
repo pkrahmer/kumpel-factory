@@ -1,17 +1,13 @@
 ---
-stage: intake
+stage: tests
 blocked: null
 round: 0
 attempts: 0
 crashes: 0
-pull_request: null
+pull_request: 710
 comments_read: []
 handed_over: null
-claim:
-  instance: self
-  stage: intake
-  started_at: '2026-11-17T08:06:54.237439Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -23,6 +19,12 @@ journal:
   kind: started
   at: '2026-11-17T08:06:54.237439Z'
   stage: intake
+- number: 3
+  speaker: intake
+  kind: result
+  at: '2026-11-17T08:07:18.171476Z'
+  stage: intake
+  run: 9c414dde64ce440f911031b60381cd1e
 ---
 
 # Each pack's checks section keeps the line that names the factory's makefile
@@ -67,3 +69,10 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
 1. 2026-11-17 human: created.
 2. factory: started intake as self.
+3. intake: accepted
+   - Interface: concrete. No module under `src/factory/` changes. The three `operator/packs/<pack>/CLAUDE.sections.md` files are copied from the human's drafts. I checked that each draft in `planning/packs-draft/<pack>/CLAUDE.sections.md` holds the kit's line byte for byte as the second bullet of `## Checks`, and that it differs from today's pack file by that line alone. The new test `tests/operator_scripts/test_pack_checks_line.py` builds on `pack_claude_md`, `KIT` and `PACKS`, which exist in `tests/support/kit_support.py`. The leave for earlier tests names `TEMPLATE_RULES_LINES` in `tests/agent_files/test_claude_files.py`, and any other test that fails only because of the added line.
+   - Criteria: each can be tested by one test function. Criterion 1 has one row per pack and covers both failing sides: the line missing, and a different wording. It also checks that the line appears exactly once. Criterion 2 pins every other line, against the text before the story or an expected list. Criterion 3 checks that the kit is unchanged. Each of the three Interface rules has its own criterion.
+   - Smoke test: both commands can run. The pytest command passes no `-q`, and `addopts` already sets `-q`, so the summary line still prints. The expectations can be checked: three lines that each say `1`, and a summary with only `passed`.
+   - Docs criterion: it says what the reader must know in the guide's step 5 and the packs README's step 4. That is: the pack's `## Checks` section replaces the kit's section together with the line about `factory/Makefile`, the reader keeps the wording that fits their repository, and no step asks them to keep a line the replacement removed. It dictates no sentences.
+   - Architecture: the change is pack data under `operator/packs/` plus one test in `tests/operator_scripts/`. No code changes and no layer is touched.
+   - Scope: within F0062, which covers the kit and the packs. The packs are copies of the human's drafts (feature decision 23), and the change touches nothing listed under Out of scope. The route is `tests`, because the pack files are outside the documenter's write paths.
