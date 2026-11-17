@@ -1,11 +1,11 @@
 ---
 stage: intake
-blocked: question
+blocked: null
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 692
-comments_read: []
+comments_read: [6935336014]
 handed_over: null
 claim: null
 journal:
@@ -26,6 +26,11 @@ journal:
   stage: intake
   run: c27d9ff020b64c879440d7e9c0b1cc2b
   blocked: question
+- number: 4
+  speaker: human
+  kind: comment
+  at: '2026-11-17T01:47:58.988042Z'
+  stage: intake
 ---
 
 # The conformance check runs a repository
@@ -99,3 +104,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    3. **No criterion for where the agent home comes from.** The Interface says that with `--run` the agent home comes from the settings unless `--agent-home` is given, but no criterion tests either side. If the agent home stays in the live part (question 1), I propose a criterion with two rows: without `--agent-home` the settings' agent home is used, and with it the given folder is used. If it does not stay, the Interface line should go.
    4. **The image build's time limit is untested.** The Interface says the build has "the time limit a stage's build has" (`IMAGE_BUILD_TIME_LIMIT` in `src/factory/machine/application/images.py`), but no criterion checks it. I propose adding to criterion 2: "the build gets `IMAGE_BUILD_TIME_LIMIT`".
    5. **"Not printed" is only tested where the check fails.** The rule is that a point after a failed live point is not printed. Criterion 8 only covers a failing check, which is the last point, so nothing is left out. I propose a row in criterion 8: when the build fails, `main` prints the six static lines, `image: FAIL: the image does not build: …` and `project: not ready (1 fault)`, with no `sync` or `check` line, and returns 1.
+4. 2026-11-17 human: 1: (b). Under `--run` the agent home serves only the static part's point `agents` (the installed agents); the live part does not use it and mounts no agent files. 2: (a), the story may move the two check scripts and `CHECK_ENVIRONMENT` to a public place in `factory.machine.application`. 3: add the criterion with the two rows, for the static part's agents. 4: add it. 5: add the row.
