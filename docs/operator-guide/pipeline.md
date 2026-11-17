@@ -213,7 +213,7 @@ Further rules:
 
 ## Checking a repository before the factory runs it
 
-`factory-check-project <folder>` answers whether the git repository in `<folder>` is ready for the factory, before you start a story there. It reads the commit at `HEAD`, never the work tree, because the factory reads commits too: a fix you have not committed does not count. It starts no container and runs no project command, so `make check` and the stage image are not tried; it judges only the committed files.
+`factory-check-project <folder>` answers whether the git repository in `<folder>` is ready for the factory, before you start a story there. It reads the commit at `HEAD`, never the work tree, because the factory reads commits too: a fix you have not committed does not count. On its own it starts no container and runs no project command, so `make check` and the stage image are not tried; it judges only the committed files. With `--run` it then also builds the project's image and runs `make sync` and `make check` in containers, as a stage does (see *The live part: `--run`* below).
 
 Until the command is installed as a console script, run it in the factory's own checkout as `uv run python -m factory.entry.check_project`, with the same arguments.
 
@@ -252,6 +252,28 @@ project: not ready (2 faults)
 
 Without a valid pipeline definition the points `makefile`, `agents` and `write paths` cannot be judged: their lines read `skipped: no valid pipeline definition`. `stage file` and `forms` are judged all the same.
 
+### The live part: `--run`
+
+The six points judge the committed files; they cannot say that the project's image builds and that its targets run green in the factory's containers. A cache that follows the working directory, a tool that ignores `HOME`, or a certificate the stack does not read shows only there. `factory-check-project --run <folder>` first judges the six points. When none has a fault, it then runs three more points:
+
+1. `image`: without `<project>/factory/stage.Containerfile` the containers run in the instance's stage image, and the point is `ok`. With the file, it builds the file on the stage image under the tag `<stage image>-check`, with the time limit of a stage's build.
+2. `sync`: one container runs `make sync` (or `make -f <makefile> sync` when the pipeline definition names a `make_file`) in the checkout, with the environment, the site's variables (`FACTORY_CONTAINER_ENV`), the CA bundle and the time limit of a stage's sync.
+3. `check`: a second, fresh container runs the sync and then `make check`, as a stage's check does, with the time limit of the definition's `check` command.
+
+A point with a fault ends the run: the points after it are neither run nor printed. When one of the six points has a fault, no live point runs, and the output is the same as without `--run`.
+
+What it needs: an instance's environment, as `factory-run` reads it (the settings come from the environment, and a missing one ends the command with `cannot run: <fault>` before anything runs), podman, and the stage image the settings name. It needs no dataset: it works on a new temporary folder with a clone of the commit at `HEAD` and an empty home, mounted at `/work` as a stage's dataset is, and removes that folder at the end. It never touches the instance's dataset, its checkout or its project image, so it may run beside a working instance and for another repository than the instance's. The image `<stage image>-check` stays after the run and is replaced by the next one. The agent home (from `--agent-home`, else from the settings) serves only the point `agents`; the containers get no agent files.
+
+On the VM, run it as `factory` with the instance's environment loaded (an example for the VM, where `/srv/factory/vm` is the instance's folder; not run here):
+
+```sh
+sudo -iu factory
+set -a; . /srv/factory/vm/factory.env; set +a
+/srv/factory/vm/factory/.venv/bin/factory-check-project --run /path/to/my-project
+```
+
+On a ready project it prints the six lines of the static points, then `image: ok`, `sync: ok`, `check: ok` and `project: ready`.
+
 ### Reference
 
 The lines:
@@ -278,7 +300,18 @@ The faults:
 
 How the makefile is read: a rule line starts at column 0 with one or more names of letters, digits, `_`, `.` and `-`, then `:` or `::`. An assignment (`X := 1`), an indented line, a comment and a pattern or variable rule (`%.o: %.c`, `$(T): u`) give no target. An include line starts at column 0 with `include`, `-include` or `sinclude`, then a space or a tab; a `#` ends its paths, and a path that holds `$` is left out. Every included path is taken from the root of the repository, also in a makefile that `make_file` names in a folder, as make takes it, and each file is read once, so an include cycle ends.
 
-The usage is `factory-check-project [--agent-home <dir>] <folder>`. `--agent-home` wins over `FACTORY_CLAUDE_HOME`.
+The faults of the live points (`--run`), each point with at most one:
+
+| Fault | Point | What it means |
+|---|---|---|
+| `the image does not build: <last line>` | `image` | The stage file is refused, or its build on the stage image did not pass; the last line is the refusal or the last line of the build's output. |
+| `could not start: <reason>` | `sync`, `check` | podman could not start the container, or could not read the image it would run in (for example, the stage image is missing). |
+| `timed out after <n> min` | `sync`, `check` | The run reached the time limit of its project command in the pipeline definition. |
+| `exit status <n>: <last line>` | `sync`, `check` | make ended red; the last printed line, make's own messages included, says why. |
+| `no line "sync: green (<seconds> s)"` | `sync` | The run ended with status 0, but the `sync` target printed no green line, as the project contract asks (see *Project commands* in the project guide's [machine.md](../project-guide/machine.md)). |
+| `the last line is not "check: green": <last line>` | `check` | The run ended with status 0, but the last line is not `check: green`. |
+
+The usage is `factory-check-project [--agent-home <dir>] [--run] <folder>`. `--agent-home` wins over the agent home of the settings (with `--run`) and over `FACTORY_CLAUDE_HOME`.
 
 The exit status:
 
@@ -286,7 +319,7 @@ The exit status:
 |---|---|
 | 0 | the project is ready: no point has a fault |
 | 1 | at least one point has a fault |
-| 2 | the command could not do its job. No folder or more than one was given, or no agent home is known, and it prints the usage line on standard error. Or the folder is no git repository or has no commit at `HEAD`, and it prints `cannot read <folder>: <reason>` on standard error. |
+| 2 | the command could not do its job. No folder or more than one was given, or no agent home is known, and it prints the usage line on standard error. Or the folder is no git repository or has no commit at `HEAD`, and it prints `cannot read <folder>: <reason>` on standard error. Or, with `--run`, the instance's settings are incomplete or invalid, or name no stage image, and it prints `cannot run: <fault>` on standard error before it prints or starts anything. |
 
 ## Checking a story before it starts
 

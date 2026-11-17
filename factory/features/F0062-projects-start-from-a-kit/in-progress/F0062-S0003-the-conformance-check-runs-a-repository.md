@@ -1,5 +1,5 @@
 ---
-stage: docs
+stage: smoke-test
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 692
 comments_read: [6935336014, 6935606286]
 handed_over: null
-claim:
-  instance: self
-  stage: docs
-  started_at: '2026-11-17T02:15:58.369827Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -167,6 +163,12 @@ journal:
   kind: started
   at: '2026-11-17T02:15:58.369827Z'
   stage: docs
+- number: 29
+  speaker: documenter
+  kind: result
+  at: '2026-11-17T02:21:04.823259Z'
+  stage: docs
+  run: bc970a704cb64f4286eec96ce2a2f9c3
 ---
 
 # The conformance check runs a repository
@@ -465,3 +467,37 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     - `tests/entry/test_check_project.py`: the human's leave, journal entry 11 (`USAGE` only).
     - `tests/guards/test_make_search.py`: the human's leave, journal entry 11 (only adds `factory.machine.application.project_run` to the expected set).
 28. factory: started docs as self.
+29. documenter: I wrote the documents that docs criterion 11 asks for and fixed the stale text that the diff showed. Only documents changed, so I did not run `make check`. `make documents` ends with `documents ok (47.3 s)`, and `make guides` ends with `guides: green (9.0 s)`.
+
+    Files changed:
+    - `docs/operator-guide/pipeline.md`, under *Checking a repository before the factory runs it*:
+      - The opening paragraph now says what `--run` adds.
+      - A new section, *The live part: `--run`*, covers:
+        - the three live points and the order they run in;
+        - that a point with a fault ends the run, and that a static fault keeps the output the same as without `--run`;
+        - what the live part needs: an instance's environment, podman and the stage image, but no dataset;
+        - the temporary clone of the commit at `HEAD`, and the `<stage image>-check` tag, so it can run beside a working instance and for another repository;
+        - that the `-check` image stays after the run;
+        - that the agent home serves only the point `agents`.
+      - A VM example runs the command as `factory` with `factory.env` loaded. It is marked as an example for the VM that I did not run, and it shows no output. The text says what a ready project prints, taken from the code and criterion 8.
+      - *Reference* now has a table of the live faults and what each means, the usage with `[--run]`, and the `cannot run: <fault>` case of status 2.
+    - `docs/project-guide/machine.md`:
+      - A new section, *The live project check*, names `ProjectRun`, its constructor and `run`, the work folder, the three points, the faults, and the rule that the scripts and environments are the stage's own constants, reused and not copied.
+      - *The checks* now says that the check scripts and `CHECK_ENVIRONMENT` are public in `project_commands.py`, and why `SYNC_ENVIRONMENT` is a copy of `CHECK_ENVIRONMENT`.
+      - *Project commands*: the string `"make"` is now allowed in `project_run.py` too (this was stale).
+      - *The sync script*, step 6: now says `SYNC_MAKE`, and `shift 6` followed by `NAMED_SYNC_MAKE` (this was stale).
+    - `docs/project-guide/pipeline.md`, under *The project check*:
+      - names `LIVE_POINT_NAMES`, the `--run` wiring (`build_project_run`, `cannot run:` with status 2) and the new entry test;
+      - the rule "starts no container" now applies to `ProjectCheck`, and `ProjectRun` is the live part.
+    - `docs/project-guide/README.md`: the `machine.md` index line now names `factory.machine.application.project_run` and the new section.
+    - `README.md`: the command's usage line now has `[--run]` and says what it adds.
+
+    I cross-read and found current: `docs/operator-guide/agent-runtime.md` (the pointer to the check), `docs/operator-guide/machine.md` (the environment file and the `sudo -iu factory` pattern I reused), and the rest of `docs/project-guide/machine.md` and `pipeline.md` around the changed sections.
+
+    Stale text I noticed but did not touch:
+    - `docs/operator-guide/pipeline.md` still says "Until the command is installed as a console script, run it … as `uv run python -m factory.entry.check_project`". But `pyproject.toml` already declares the console script `factory-check-project`. That text was there before this story and has nothing to do with `--run`.
+    - `docs/decisions.md` (around line 1720) records that the project check "starts no container and runs no project command". That was true of the decision when it was made. This story names no decision that changes it, so I added no entry.
+
+    `guides`: guides: green (9.4 s)
+    `secrets`: secrets: green (1.7 s)
+    `documents`: documents ok (46.3 s)
