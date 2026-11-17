@@ -16,6 +16,7 @@ from support.git_support import (
     run_git,
     write_files,
 )
+from support.shipped_agents import AGENT_HOME
 
 ROLES = (
     "intake",
@@ -66,3 +67,10 @@ def run_project_check(repository: Path, agent_home: Path) -> list[ProjectPoint]:
     git = GitCli(repository)
     agents = ProjectAgentDefinitions(git, FrontmatterAgentDefinitionReader(agent_home), ref="HEAD")
     return ProjectCheck(git, RuamelPipelineDefinitionReader(), agents).run()
+
+
+def project_faults(tmp_path: Path, files: dict[str, str]) -> dict[str, list[str]]:
+    """Each project check point's faults for a repository committed under `tmp_path` with `files`,
+    the shipped agents installed."""
+    repository = committed_repository(tmp_path / "project", files)
+    return {point.name: point.faults for point in run_project_check(repository, AGENT_HOME)}
