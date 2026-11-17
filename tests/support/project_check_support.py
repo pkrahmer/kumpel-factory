@@ -2,6 +2,12 @@
 
 from pathlib import Path
 
+from factory.agents.adapters.agent_files import FrontmatterAgentDefinitionReader
+from factory.agents.application.project_agents import ProjectAgentDefinitions
+from factory.hosting.adapters.git_cli import GitCli
+from factory.pipeline.adapters.pipeline_yaml import RuamelPipelineDefinitionReader
+from factory.pipeline.application.project_check import ProjectCheck
+from factory.pipeline.domain.project_check import ProjectPoint
 from support.git_support import (
     PIPELINE_YAML,
     STORY_FORM,
@@ -53,3 +59,10 @@ def installed_home(agent_home: Path, roles: tuple[str, ...] = ROLES) -> Path:
     agent_home.mkdir(parents=True, exist_ok=True)
     install_agents(agent_home, roles)
     return agent_home
+
+
+def run_project_check(repository: Path, agent_home: Path) -> list[ProjectPoint]:
+    """The project check's points for the committed `repository`, agents from `agent_home`."""
+    git = GitCli(repository)
+    agents = ProjectAgentDefinitions(git, FrontmatterAgentDefinitionReader(agent_home), ref="HEAD")
+    return ProjectCheck(git, RuamelPipelineDefinitionReader(), agents).run()
