@@ -1,5 +1,5 @@
 ---
-stage: smoke-test
+stage: approval
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 692
 comments_read: [6935336014, 6935606286]
 handed_over: null
-claim:
-  instance: self
-  stage: smoke-test
-  started_at: '2026-11-17T02:21:10.388517Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -178,6 +174,12 @@ journal:
   kind: started
   at: '2026-11-17T02:21:10.388517Z'
   stage: smoke-test
+- number: 31
+  speaker: smoke-tester
+  kind: result
+  at: '2026-11-17T02:23:32.056444Z'
+  stage: smoke-test
+  run: 072adf7d11084883b40a6a77bfd9a502
 ---
 
 # The conformance check runs a repository
@@ -511,3 +513,25 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     `secrets`: secrets: green (1.7 s)
     `documents`: documents ok (46.3 s)
 30. factory: started smoke-test as self.
+31. smoke-tester: Round 1: I ran the smoke test as written, from the repository root. Both commands met their `Expect:` lines. No findings.
+
+    Command 1 (settings fault under `--run`):
+    ```
+    status 2
+    0
+    Bytecode co
+    cannot run:
+    ```
+    It met its `Expect:` line: `status 2`, then `0` bytes on standard output, then `cannot run:`. Standard error has one extra line before it, `Bytecode co…`, which is cut from `Bytecode compiled 4164 files in 43ms`. That line is uv's own message from compiling bytecode on its first run in this container, and command 2 shows it too. It does not come from `factory-check-project`, so it is not a finding.
+
+    Command 2 (`uv run pytest tests/machine/application/test_project_run.py tests/entry/test_check_project_run.py`):
+    ```
+    Bytecode compiled 4164 files in 43ms
+    .........................                                                [100%]
+    25 passed in 0.78s
+    ```
+    It met its `Expect:` line: the summary says only `passed`, with no `failed` or `error`.
+
+    Criteria: the smoke test contradicts none of them. Criterion 7's settings fault returns 2, prints `cannot run:` on standard error and nothing on standard output. Criteria 1 to 9 are covered by the 25 passing tests.
+
+    `check`: check: green
