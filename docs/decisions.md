@@ -1734,3 +1734,12 @@ Date: 2026-11-16 (F0062-S0004).
 
 - Decision: the factory's installed agents are the default for every project, and a kit copies no agent file into the project. The installed agents include `builder`, written for any stack, which builds a story's tests, code and documents alone for the thin line (one builder, one reviewer, the approval). The installed reviewer also checks each point of the section `## Review` of the project's `CLAUDE.md`, so a stack's review points live there. A project's own file under `factory/agents/` still replaces the installed one, file by file; the full line is unchanged.
 - Why: the factory shipped no `builder`, so each of the three templates carried its own copy of a builder and of a reviewer under `factory/agents/`, and the copies had drifted.
+
+## A project starts from a kit, a stack pack and a starter
+
+Date: 2026-11-16 (F0062-S0005).
+
+- Decision: a new project is built from three layers. The kit, in `operator/kit/`, holds what every project needs from the factory's contract whatever its stack: the pipeline definitions of the thin and of the full line, the story and feature forms, `kit.mk` (the makefile's contract part: the shell, the green line, the default goal and the start facts), a `README.md` for the project's `factory/` folder and the skeleton of `CLAUDE.md`. A stack pack adds what one stack needs on top of the kit: the makefile's own targets (`sync`, `lint`, `test`, `check`) and the stack's files. A starter is a project assembled from the kit and a pack.
+- Who owns which: `kit.mk` and the two forms stay the kit's, and an upgrade of the kit replaces them, so a project does not edit them. `pipeline.yml`, `CLAUDE.md` and `factory/README.md` become the project's own once copied.
+- Where they live: the kit and the packs live in this repository; the starters are repositories of their own.
+- Why: every project needs the same few contract files, and each one copied them from `operator/template/`, a Python example, and rewrote what did not fit its stack. The kit holds them once, without naming a stack. `operator/template/` stays until it becomes the Python pack.
