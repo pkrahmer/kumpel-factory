@@ -1,4 +1,5 @@
-"""The template's `sync` target, its place in the Makefile and its project command."""
+"""The `sync` target of the Python pack's makefile, its place there and its project command in the
+kit's full line."""
 
 from collections.abc import Callable
 from pathlib import Path
@@ -9,23 +10,24 @@ from factory.pipeline.adapters.pipeline_yaml import RuamelPipelineDefinitionRead
 from support.claude_stand_in import Step, read_calls
 from support.shipped_agents import ROOT
 from support.template_make_support import (
+    KIT_MK,
     MAKEFILE,
     green_line,
+    header_text,
     makefile_lines,
     run_make,
     stand_in_uv,
     template_project,
 )
 
-TEMPLATE = ROOT / "operator" / "template"
-FIRST_LINE = (
-    "# The contract between a project and the factory is four targets: "
-    "`check`, `lint`, `test`, `sync`."
-)
+KIT = ROOT / "operator" / "kit"
+PYTHON_SECTIONS = ROOT / "operator" / "packs" / "python" / "CLAUDE.sections.md"
+FIRST_LINE = "the factory's four targets `check`, `lint`, `test` and `sync`"
 FOURTH_LINE = (
-    "# `duplicates` is a report outside `check`; `mutants` is for a sweep by hand, never a stage."
+    "`duplicates` is a report outside `check`; `mutants` is for a sweep by hand, never a stage."
 )
-FIFTH_LINE = "# A Python example with a src layout."
+FIFTH_LINE = "for a Python project with a src layout"
+KIT_MK_FOUR = "defines `sync`, `lint`, `test` and `check`"
 
 
 def _line_number(target: str) -> int:
@@ -36,15 +38,17 @@ def _line_number(target: str) -> int:
 
 
 def _first_line_is_the_four_targets() -> None:
-    assert makefile_lines()[0] == FIRST_LINE
+    assert header_text().count(FIRST_LINE) == 1
 
 
 def _no_three_targets() -> None:
-    assert MAKEFILE.read_text(encoding="utf-8").count("three targets") == 0
+    for path in (MAKEFILE, KIT_MK):
+        assert path.read_text(encoding="utf-8").count("three targets") == 0
 
 
 def _lines_four_and_five_stay() -> None:
-    assert makefile_lines()[3:5] == [FOURTH_LINE, FIFTH_LINE]
+    assert FOURTH_LINE in header_text()
+    assert FIFTH_LINE in header_text()
 
 
 def _sync_lies_between_check_and_lint() -> None:
@@ -52,9 +56,10 @@ def _sync_lies_between_check_and_lint() -> None:
 
 
 def _rules_file_names_the_four() -> None:
-    text = (TEMPLATE / "CLAUDE.md").read_text(encoding="utf-8")
-    assert text.count("names `check`, `lint`, `test` and `sync`") == 1
-    assert text.count("names `check`, `lint` and `test`") == 0
+    kit_mk = " ".join(KIT_MK.read_text(encoding="utf-8").replace("#", " ").split())
+    assert kit_mk.count(KIT_MK_FOUR) == 1
+    for path in (KIT / "CLAUDE.md", PYTHON_SECTIONS):
+        assert path.read_text(encoding="utf-8").count("names `check`, `lint` and `test`") == 0
 
 
 @pytest.mark.parametrize(
@@ -89,7 +94,7 @@ def test_sync_runs_uv_sync_frozen_once_and_says_green(
 
 
 def test_template_pipeline_definition_names_sync_and_no_stage_lists_it() -> None:
-    text = (TEMPLATE / "factory" / "pipeline.yml").read_text(encoding="utf-8")
+    text = (KIT / "factory" / "pipeline.full.yml").read_text(encoding="utf-8")
 
     definition = RuamelPipelineDefinitionReader().parse(text)
 

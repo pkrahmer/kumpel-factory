@@ -1,4 +1,4 @@
-"""The shipped agent files and the project template name `develop` as the working branch."""
+"""The shipped agent files, the kit and the Python pack name `develop` as the working branch."""
 
 import re
 from pathlib import Path
@@ -8,12 +8,12 @@ import pytest
 from factory.shared.domain.paths import REMOTE
 
 ROOT = Path(__file__).parents[2]
-FOLDERS = ("agents/agents", "operator/template")
+FOLDERS = ("agents/agents", "operator/kit", "operator/packs/python")
 CACHE = "__pycache__"
 
 
 def _texts() -> dict[str, str]:
-    """Return the text of every file under the two folders, by its path from the root."""
+    """Return the text of every file under the folders, by its path from the root."""
     texts: dict[str, str] = {}
     for folder in FOLDERS:
         for path in sorted((ROOT / folder).rglob("*")):

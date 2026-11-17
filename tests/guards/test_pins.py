@@ -12,7 +12,7 @@ from support.dockerfile_support import floating_references
 ROOT = Path(__file__).parents[2]
 PYPROJECT = ROOT / "pyproject.toml"
 LOCKFILE = ROOT / "uv.lock"
-TEMPLATE = ROOT / "operator" / "template"
+STARTS = (ROOT / "operator" / "kit", ROOT / "operator" / "packs" / "python")
 PRODUCTION_DEPENDENCIES = ["pydantic", "PyGithub", "ruamel.yaml", "python-frontmatter"]
 
 
@@ -92,8 +92,11 @@ def test_installed_versions_equal_the_locked_and_pinned_ones(name: str) -> None:
 
 
 def test_the_template_has_no_placeholder_files_and_no_tasks_directory() -> None:
-    found = list(TEMPLATE.rglob(".gitkeep")) + [
-        path for path in TEMPLATE.rglob("tasks") if path.is_dir()
+    found = [
+        path
+        for start in STARTS
+        for path in [*start.rglob(".gitkeep"), *start.rglob("tasks")]
+        if path.name == ".gitkeep" or path.is_dir()
     ]
 
     assert found == []

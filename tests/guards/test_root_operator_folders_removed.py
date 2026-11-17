@@ -1,4 +1,5 @@
-"""The VM's files and the template sit under `operator/`, and nothing names their old place."""
+"""The VM's files and what the template held sit under `operator/`, and nothing names their old
+place."""
 
 import re
 from pathlib import Path
@@ -20,7 +21,7 @@ SEARCHED = (
 )
 NOT_SEARCHED = (ROOT / "docs" / "decisions.md", ROOT / "docs" / "runs")
 VM_FILES = ("setup.sh", "job-start.sh", "Dockerfile", "factory.service", "git-credential-factory")
-TEMPLATE_FILES = ("CLAUDE.md", "Makefile", "factory/pipeline.yml")
+TEMPLATE_FILES = ("kit/CLAUDE.md", "packs/python/Makefile", "kit/factory/pipeline.full.yml")
 # Built from their parts, so that this file does not name the old places itself.
 OLD_VM = "vm" + "/"
 OLD_TEMPLATE = "template" + "/"
@@ -36,7 +37,7 @@ def test_the_old_root_folder_is_gone(folder: str) -> None:
 @pytest.mark.parametrize(
     "path",
     [*(f"operator/vm/{name}" for name in VM_FILES)]
-    + [*(f"operator/template/{name}" for name in TEMPLATE_FILES)],
+    + [*(f"operator/{name}" for name in TEMPLATE_FILES)],
 )
 def test_the_moved_file_lies_under_operator(path: str) -> None:
     assert (ROOT / path).is_file()

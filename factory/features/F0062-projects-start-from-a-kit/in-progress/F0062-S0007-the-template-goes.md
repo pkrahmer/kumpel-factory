@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 696
 comments_read: [6937913187]
 handed_over: null
-claim:
-  instance: self
-  stage: tests
-  started_at: '2026-11-17T04:05:22.094981Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -51,6 +47,12 @@ journal:
   kind: started
   at: '2026-11-17T04:05:22.094981Z'
   stage: tests
+- number: 8
+  speaker: tester
+  kind: result
+  at: '2026-11-17T04:11:03.308751Z'
+  stage: tests
+  run: 6c620ef8363c403bb70b7aad571efa4b
 ---
 
 # The template goes
@@ -131,3 +133,47 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    - Scope: within F0062 (projects start from a kit). This story is the cleanup after S0005 and S0006 and is not in the feature's out-of-scope list.
    - Route: `tests`. The story removes files under `operator/` and changes tests and shipped texts, which are outside the documenter's paths.
 7. factory: started tests as self.
+8. tester: Tests written. Every earlier test that read `operator/template/` now reads the kit or the Python pack, under leave 25 in `feature.md`. The new guard is red for the right reason.
+
+   Criterion → test:
+   - criterion 1: `tests/guards/test_template_removed.py::test_the_template_folder_does_not_exist` and `::test_no_shipped_file_or_test_names_the_template_folder`. The second runs `git ls-files` over `src agents operator tests`, skips files that are gone from disk, and leaves out this guard and `test_root_operator_folders_removed.py`. Both carry the marker `documents`, so they run in `make guides` (the coder's `make check guides`) and not in `make test`, because they read `operator/README.md`, which the documenter fixes. Both are red now: the folder exists, and `operator/README.md` and `operator/kit/README.md` name it.
+   - criterion 2: test function names in each changed test file, compared against `HEAD` with a sorted grep of `^def test_`. They are identical in all 13 files: `test_claude_agent_texts_mutants.py`, `test_claude_files.py`, `test_demo_makefile_secrets.py`, `test_template_makefile.py`, `test_template_makefile_header.py`, `test_template_sync.py` (all `tests/agent_files/`), `tests/guards/test_license_headers.py`, `test_pins.py`, `test_root_operator_folders_removed.py`, `test_working_branch_in_agent_texts.py`, `tests/operator_scripts/test_kit_files.py`, `tests/pipeline/adapters/test_pipeline_yaml_tool_paths.py` and `tests/shared/domain/test_folder_readmes_list.py`. No test was deleted.
+   - criterion 3 (the Python makefile with `kit.mk`):
+     - header: `tests/agent_files/test_template_makefile_header.py::test_template_makefile_header_calls_mutants_a_sweep_by_hand`, and `test_template_makefile.py::test_header_names_the_development_dependency`
+     - `sync`: `test_template_sync.py::test_template_says_the_contract_is_four_targets` and `::test_sync_runs_uv_sync_frozen_once_and_says_green`
+     - `secrets` beside the demo's: `test_demo_makefile_secrets.py::test_the_todo_demos_secrets_target_is_the_templates`
+     - `mutants`: `test_claude_agent_texts_mutants.py::test_template_makefile_leaves_mutants_to_a_sweep_by_hand`
+     - pins: `tests/guards/test_pins.py::test_the_template_has_no_placeholder_files_and_no_tasks_directory`, over the kit and the Python pack
+     - the rest of `test_template_makefile.py`, run on a project made of the pack's `Makefile` plus `factory/kit.mk`
+   - criterion 4 (the kit's pipeline definitions):
+     - valid with the shipped roles: `test_claude_files.py::test_template_pipeline_definition_is_valid_with_the_shipped_roles`. Full line only, because it depends on the seven roles.
+     - tool paths: `test_pipeline_yaml_tool_paths.py::test_the_shipped_definitions_hold_no_tool_paths_and_load`, with rows for both `pipeline.full.yml` and `pipeline.thin.yml`.
+     - working branch: `test_working_branch_in_agent_texts.py::*`, whose folders are now `agents/agents`, `operator/kit` (both lines) and `operator/packs/python`.
+     - `sync` named and listed by no stage: `test_template_sync.py::test_template_pipeline_definition_names_sync_and_no_stage_lists_it`. Full line only, because it pins the full line's project commands.
+   - criteria 5 and 6: none (`make check`; docs).
+
+   Helpers changed:
+   - `tests/support/template_make_support.py`: `MAKEFILE` is now the Python pack's makefile. New `KIT_MK` and `header_text()` (the opening comment lines joined into one). `template_project` also copies `kit.mk` to `factory/kit.mk`.
+   - `tests/support/shipped_agents.py`: `TEMPLATE_PIPELINE` is now `operator/kit/factory/pipeline.full.yml`. This moves `template_definition()` users to the full line: `test_decide_docs_slip.py`, `test_claude_agent_texts*.py` and `test_take_refuses_write_and_edit.py`, none of which needed an edit.
+
+   Docstrings changed: `tests/README.md` and `tests/agent_files/__init__.py`.
+
+   Choices I made to keep each check the same at the new place (please say if one is wrong):
+   - Header rows: they check the phrases inside the joined header, not lines 1, 4 and 5, because the pack wraps those lines differently.
+   - `rules-file` row: the kit's `CLAUDE.md` names no project commands, so the row now checks two things. `kit.mk` says "defines `sync`, `lint`, `test` and `check`". Neither the kit's `CLAUDE.md` nor the pack's sections say "names `check`, `lint` and `test`".
+   - `test_template_rules_file_is_the_python_project_text`: the expected lines are now the kit's `CLAUDE.md` with the Python sections put in by `pack_claude_md("python")`, taken from today's files.
+   - Folder listing: `test_template_holds_only_…` now pins what the kit and the Python pack each list.
+   - Secrets file list: the expected lists in `test_secrets_scans_the_changed_files_or_every_tracked_file` now include `factory/kit.mk`, because the project made from the pack tracks it.
+   - License headers: the guard leaves out `operator/kit/` where it used to leave out `operator/template/`. The packs stay in scope, because their script carries the header.
+   - Folder READMEs: the list test checks `operator/packs/python/README.md`.
+   - `test_kit_files.py::test_the_template_stays_with_its_three_files` and `test_root_operator_folders_removed.py::test_the_moved_file_lies_under_operator` now check the kit and pack files that replace the template's three.
+
+   Runs:
+   - `make test`: green, 102.1 s. The new guard is outside it because of the `documents` marker.
+   - `uv run pytest tests/guards/test_template_removed.py`: 2 failed, for the right reasons.
+   - `make lint`: green.
+   - Every module imported.
+
+   Files created: `tests/guards/test_template_removed.py`.
+
+   `lint`: lint: green (0.1 s)
