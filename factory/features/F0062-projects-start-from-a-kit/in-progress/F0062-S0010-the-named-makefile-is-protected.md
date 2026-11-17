@@ -1,5 +1,5 @@
 ---
-stage: intake
+stage: tests
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 700
 comments_read: [6939383328]
 handed_over: null
-claim:
-  instance: self
-  stage: intake
-  started_at: '2026-11-17T05:21:40.038923Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -40,11 +36,15 @@ journal:
   kind: started
   at: '2026-11-17T05:21:40.038923Z'
   stage: intake
+- number: 6
+  speaker: intake
+  kind: result
+  at: '2026-11-17T05:22:08.936326Z'
+  stage: intake
+  run: b489a3cfd4e64d2396ff814d4e3d4e16
 ---
 
 # The makefile a pipeline definition names, and the kit's `kit.mk`, are protected paths
-
-<!-- proposed by feature acceptance of 2026-11-17; refine before starting -->
 
 ## Description
 
@@ -63,18 +63,18 @@ def protected_paths(make_file: str | None) -> list[str]:
 
 - `protected_paths(None)` is `[*PROTECTED_PATHS, KIT_MAKEFILE]`.
 - `protected_paths("factory/Makefile")` is `[*PROTECTED_PATHS, KIT_MAKEFILE, "factory/Makefile"]`.
-- `protected_paths("Makefile")` holds `Makefile` once.
+- `protected_paths("Makefile")` is `[*PROTECTED_PATHS, KIT_MAKEFILE]`: a `make_file` already in the list is not added again; likewise `protected_paths("factory/kit.mk")` is `[*PROTECTED_PATHS, KIT_MAKEFILE]`.
 - `PROTECTED_PATHS` keeps its twelve patterns unchanged.
 
 `factory.agents.application.write_paths.WritePathService.at` (application): `protected_paths` of the returned `WritePathSettings` is `protected_paths(definition.make_file)`, read from the definition at the stage-start commit, never from the work tree.
 
 Tests: `tests/agents/domain/test_write_paths.py` (new rows for `protected_paths`, and `refusal` for `factory/kit.mk` and a named makefile), `tests/pipeline/application/test_write_paths.py` (the definition at the commit with and without `make_file`).
 
-Earlier test changed, with a leave the human gives when refining this story (proposed wording): "the tester may change the expected `protected_paths` in `tests/pipeline/application/test_write_paths.py::test_at_returns_the_role_write_paths_with_the_work_item_expanded`, and in any other earlier test whose only failure is the added `factory/kit.mk`, to `protected_paths(None)`".
+Earlier test changed, with the human's leave (journal entry 4): "the tester may change the expected `protected_paths` in `tests/pipeline/application/test_write_paths.py::test_at_returns_the_role_write_paths_with_the_work_item_expanded`, and in any other earlier test whose only failure is the added `factory/kit.mk`, to `protected_paths(None)`".
 
 ## Acceptance criteria
 
-1. `protected_paths` returns, for `None`, `"factory/Makefile"` and `"Makefile"`, the three lists the Interface names, each without a duplicate.
+1. `protected_paths` returns, for `None`, `"factory/Makefile"`, `"Makefile"` and `"factory/kit.mk"`, exactly the four lists the Interface names, in that order, each without a duplicate.
 2. `refusal("factory/kit.mk", settings)` with write paths `["factory/*"]` and `protected_paths(None)` is `factory/kit.mk is owned by the human; a change there is a question.`; `refusal("factory/other.mk", settings)` with the same settings is `None`.
 3. `WritePathService.at` for a definition with `make_file: factory/Makefile` at the stage-start commit returns settings whose `protected_paths` hold `factory/Makefile`. The same definition with the key in the work tree only, not committed, gives settings without it. A definition without the key gives `protected_paths(None)`.
 4. A take after a stage whose role's write paths are `["factory/*", "src/*"]`, and whose agent changed `factory/Makefile` (named by `make_file`), `factory/kit.mk` and `src/a.py`, takes `src/a.py` only.
@@ -104,3 +104,17 @@ Expect: `13 13`
    2. `protected_paths("Makefile")`: the Interface says only that it "holds `Makefile` once". Criterion 1 says it returns "the list the Interface names", and the smoke test expects a length of 13. So the exact list, and its order, is not stated. Options: (a) state that `protected_paths("Makefile")` is `[*PROTECTED_PATHS, KIT_MAKEFILE]`: a `make_file` already in the list is not added again, and the same holds for `"factory/kit.mk"`. Criterion 1 then checks that exact list, and a row for `"factory/kit.mk"` is added. (b) Keep "holds once" and test only the count of `Makefile` and the length. I recommend (a), so that two coders cannot both pass with different orders.
 4. 2026-11-17 human: 1: (a), the leave is granted as worded. 2: (a).
 5. factory: started intake as self.
+6. intake: accepted
+
+   I carried the human's answers from journal entry 4 into the story:
+   - (1a) The Interface's "Earlier test changed" paragraph now says the leave is granted (journal entry 4), with the wording unchanged. The "refine before starting" comment is removed.
+   - (2a) The Interface now says `protected_paths("Makefile")` and `protected_paths("factory/kit.mk")` are `[*PROTECTED_PATHS, KIT_MAKEFILE]`, because a `make_file` already in the list is not added again. Criterion 1 now checks the exact lists for `None`, `"factory/Makefile"`, `"Makefile"` and `"factory/kit.mk"`.
+
+   - Interface: names concrete modules and signatures. `KIT_MAKEFILE` and the pure `protected_paths(make_file)` go in `factory.agents.domain.write_paths`. `WritePathService.at` in `factory.agents.application.write_paths` reads `make_file` from the definition at the stage-start commit. Every list the function can return is now given exactly. `PROTECTED_PATHS` (twelve patterns, `src/factory/agents/domain/write_paths.py:22`) stays as it is.
+   - Criteria: each can be tested by one test function. Criterion 1 covers all four lists the Interface names, the duplicate rule included. Criterion 2 covers both sides of the refusal: `factory/kit.mk` is refused and `factory/other.mk` is not. Criterion 3 covers the definition at the commit, the key in the work tree only (the failing side of "never from the work tree"), and a definition without the key. Criterion 4 covers the take from start to end. The earlier test that breaks has the human's leave.
+   - Smoke test: both commands can run once the code exists. Both `Expect:` lines can be checked against the output: `True True 14` follows from 12 + kit.mk + factory/Makefile, and `13 13` follows from the duplicate rule.
+   - Docs criterion: names what the reader must know (the named makefile and `factory/kit.mk` are protected, and why) and which pages hold it. It does not dictate any sentences.
+   - Architecture: the rule is in the domain layer and the reading at the commit is in the application layer, as CLAUDE.md lays out. The code already has a way to read the definition at a commit (`make_file_source`). No new tool, dependency or interface.
+   - Scope: this is follow-up S0010 of feature F0062's decision 31, inside the feature. It changes no `factory/` file and leaves the conformance check alone.
+
+   The route is `tests`, because the Interface changes `src/factory`.
