@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 690
 comments_read: [6933812910, 6934072851]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: tests
+  started_at: '2026-11-17T00:55:07.580333Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -125,6 +129,11 @@ journal:
   at: '2026-11-17T00:55:02.465512Z'
   stage: doing
   run: d52b03397248467783b26eb3d3886a39
+- number: 22
+  speaker: factory
+  kind: started
+  at: '2026-11-17T00:55:07.580333Z'
+  stage: tests
 ---
 
 # The conformance check reads a repository
@@ -407,3 +416,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     Not touched: the reviewer's note about a definition whose `project_commands` already names `sync`. It is a note, not a finding, and the code handles it.
 
     The journal did not change the Description.
+22. factory: started tests as self.
