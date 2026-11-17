@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pytest
 
+from factory.pipeline.domain.project_check import ProjectPoint
 from support.git_support import PIPELINE_YAML
 from support.project_check_support import (
     READY_MAKEFILE,
@@ -24,7 +25,7 @@ def _makefile_faults(tmp_path: Path, changes: dict[str, str | None]) -> list[str
     files = ready_files({"factory/pipeline.yml": NAMING_DEFINITION, **changes})
     repository = committed_repository(tmp_path / "project", files)
     home = installed_home(tmp_path / "agent-home")
-    points = run_project_check(repository, home)
+    points: list[ProjectPoint] = run_project_check(repository, home)
     [point] = [point for point in points if point.name == "makefile"]
     assert not point.skipped
     return point.faults
