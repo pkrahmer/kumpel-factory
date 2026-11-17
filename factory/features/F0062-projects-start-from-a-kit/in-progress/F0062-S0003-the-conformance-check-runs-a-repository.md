@@ -1,17 +1,13 @@
 ---
 stage: intake
-blocked: null
+blocked: question
 round: 0
 attempts: 0
 crashes: 0
-pull_request: null
+pull_request: 692
 comments_read: []
 handed_over: null
-claim:
-  instance: self
-  stage: intake
-  started_at: '2026-11-17T01:46:15.272200Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -23,6 +19,13 @@ journal:
   kind: started
   at: '2026-11-17T01:46:15.272200Z'
   stage: intake
+- number: 3
+  speaker: intake
+  kind: question
+  at: '2026-11-17T01:47:14.031915Z'
+  stage: intake
+  run: c27d9ff020b64c879440d7e9c0b1cc2b
+  blocked: question
 ---
 
 # The conformance check runs a repository
@@ -83,3 +86,16 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
 1. 2026-11-17 human: created.
 2. factory: started intake as self.
+3. intake: Questions from intake. The format check passed. The smoke tests can be run and their `Expect:` lines can be checked: pytest's `addopts` already sets `-q`, and the settings fault comes before the static part. The story fits the feature's scope (decisions 12 and 13). These points have to be settled before tests are written:
+
+   1. **Which sync script does the live `sync` reuse?** The Interface says the sync container does "what a stage's sync does after its checkout" and runs only `make sync` in `/work/checkout`. It also says "the scripts … reused from their modules and not copied". But the stage's script, `_SYNC_SCRIPT`/`_NAMED_SYNC` in `src/factory/machine/application/stage_environment.py`, starts with `_SYNC_PREPARATION`. That part fetches from `/upstream`, checks out a branch and a commit, and copies the agent files into `home/.claude`. There is no stage script that only runs make. The Interface also takes an agent home from the settings or from `--agent-home`, and nothing in the live part says what that home is for. Options:
+      - (a) Run the whole stage script. The clone's `.git` is mounted at `/upstream`, the agent home at `/etc/factory/agents`, and the script gets a branch and the commit at `HEAD`. `checkout/` is then filled by the script, not cloned first.
+      - (b) Split the make part of the script into public constants in `stage_environment.py`, which the stage's script and the use case both use. The live sync runs only that part, and the agent home is not used by the live part.
+      I would choose (b), because it is what the Interface's wording describes. Please also say what the agent home is for under `--run`.
+   2. **The check script cannot be imported by the use case.** It is private in `src/factory/machine/adapters/make_commands.py` (`_CHECK_SCRIPT`, `_NAMED_CHECK_SCRIPT`). `project_run.py` sits in `application`, and import-linter forbids it to import from `adapters`. Options:
+      - (a) Move the two scripts, and the `CHECK_ENVIRONMENT` they need, to a public place in `factory.machine.application` (for example `project_commands.py`); `make_commands.py` then imports them from there.
+      - (b) The use case asks an adapter for the check run through a new interface.
+      I would choose (a). Please confirm that the story may move them.
+   3. **No criterion for where the agent home comes from.** The Interface says that with `--run` the agent home comes from the settings unless `--agent-home` is given, but no criterion tests either side. If the agent home stays in the live part (question 1), I propose a criterion with two rows: without `--agent-home` the settings' agent home is used, and with it the given folder is used. If it does not stay, the Interface line should go.
+   4. **The image build's time limit is untested.** The Interface says the build has "the time limit a stage's build has" (`IMAGE_BUILD_TIME_LIMIT` in `src/factory/machine/application/images.py`), but no criterion checks it. I propose adding to criterion 2: "the build gets `IMAGE_BUILD_TIME_LIMIT`".
+   5. **"Not printed" is only tested where the check fails.** The rule is that a point after a failed live point is not printed. Criterion 8 only covers a failing check, which is the last point, so nothing is left out. I propose a row in criterion 8: when the build fails, `main` prints the six static lines, `image: FAIL: the image does not build: …` and `project: not ready (1 fault)`, with no `sync` or `check` line, and returns 1.
