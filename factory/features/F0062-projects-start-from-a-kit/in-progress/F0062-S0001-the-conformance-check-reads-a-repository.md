@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: tests
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 690
 comments_read: [6933812910, 6934072851]
 handed_over: null
-claim:
-  instance: self
-  stage: doing
-  started_at: '2026-11-17T00:50:23.014476Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -123,6 +119,12 @@ journal:
   kind: started
   at: '2026-11-17T00:50:23.014476Z'
   stage: doing
+- number: 21
+  speaker: coder
+  kind: result
+  at: '2026-11-17T00:55:02.465512Z'
+  stage: doing
+  run: d52b03397248467783b26eb3d3886a39
 ---
 
 # The conformance check reads a repository
@@ -380,3 +382,28 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     - `tests/guards/test_agent_home_wiring.py`: the human's leave in journal entry 11, used as given; the guard keeps its name and still checks the one construction.
     - `tests/guards/test_areas.py`: the feature's decision 4, quoted in the Interface; the change only adds the two new modules to the table.
 20. factory: started doing as self.
+21. coder: Round 1. I fixed the reviewer's finding 1 in the code. Finding 1's new rows and finding 2's row are test changes, so the tester has to make them.
+
+    Code change, in `src/factory/pipeline/application/project_check.py` (`_Makefiles`):
+    - Each include path is now passed through `posixpath.normpath` before anything else uses it: the `seen` set, the read through git, and the name of the including file when that file reports its own missing includes. So `include ./factory/kit.mk` now finds the committed `factory/kit.mk`.
+    - A new private `_committed` uses the existing `is_inside_checkout` from `factory.pipeline.domain.pipeline_definition`. A path that is absolute or leaves the root is never passed to `Git.show_file`. It counts as not in the commit: `include` gives the fault `<including file>: included file <path> is missing`, and `-include` gives nothing. Before this, `GitError` ended `main` with a traceback.
+    - The fault still shows the include path as the makefile wrote it. That is the text the operator will look for, and it matches the reviewer's expected `../common.mk`.
+    - Rejected: catching `GitError` around `show_file`. That would also hide real git failures as missing includes.
+
+    Tests for the tester to add:
+    - Finding 1, three new rows in `tests/pipeline/application/test_project_check_run.py::test_targets_count_through_included_files` (criterion 9):
+      1. `include ../common.mk` gives the fault `Makefile: included file ../common.mk is missing`.
+      2. `-include ../common.mk` gives no fault.
+      3. `include ./factory/kit.mk`, with the target in `factory/kit.mk`, gives no fault.
+    - Finding 2: criterion 2 now holds the row `include a.mk # b.mk`, which gives the one entry `a.mk`, not optional. It belongs in `tests/pipeline/domain/test_project_check.py::test_makefile_includes_are_the_paths_of_include_lines`. It needs no code change, because the comment is already dropped.
+
+    Checks:
+    - `make check guides` is green: `check: green`, `guides: green`.
+    - `tests/pipeline/application/test_project_check_run.py` passes.
+    - I tried an ad hoc command-line run of the three cases, but the shell refused it, so the new rows will be their first test. The smoke test also has not been run yet.
+
+    Refactor pass: nothing more to change.
+
+    Not touched: the reviewer's note about a definition whose `project_commands` already names `sync`. It is a note, not a finding, and the code handles it.
+
+    The journal did not change the Description.

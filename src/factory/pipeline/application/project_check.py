@@ -1,10 +1,12 @@
 # SPDX-License-Identifier: Apache-2.0
 """The conformance check of a repository: six points judged on the files of one commit."""
 
+import posixpath
+
 from factory.agents.application.agent_runtime import AgentDefinitionReader
 from factory.hosting.application.git import Git
 from factory.machine.domain.stage_layer import STAGE_FILE, StageLayerRefused, stage_layer
-from factory.pipeline.domain.pipeline_definition import PipelineDefinition
+from factory.pipeline.domain.pipeline_definition import PipelineDefinition, is_inside_checkout
 from factory.pipeline.domain.project_check import (
     MAKEFILE,
     POINT_NAMES,
@@ -49,14 +51,21 @@ class _Makefiles:
             path, text = pending.pop(0)
             self.targets.update(makefile_targets(text))
             for include in makefile_includes(text):
-                if include.path in seen:
+                relative = posixpath.normpath(include.path)
+                if relative in seen:
                     continue
-                seen.add(include.path)
-                included = self._git.show_file(self._ref, include.path)
+                seen.add(relative)
+                included = self._committed(relative)
                 if included is not None:
-                    pending.append((include.path, included))
+                    pending.append((relative, included))
                 elif not include.optional:
                     self.faults.append(f"{path}: included file {include.path} is missing")
+
+    def _committed(self, relative: str) -> str | None:
+        # A file outside the repository is not in the commit, and git refuses to look it up.
+        if not is_inside_checkout(relative):
+            return None
+        return self._git.show_file(self._ref, relative)
 
 
 class ProjectCheck:
