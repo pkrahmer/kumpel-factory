@@ -1,5 +1,5 @@
 ---
-stage: tests
+stage: doing
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 707
 comments_read: [6941636547]
 handed_over: null
-claim:
-  instance: self
-  stage: tests
-  started_at: '2026-11-17T07:27:06.803288Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -51,6 +47,12 @@ journal:
   kind: started
   at: '2026-11-17T07:27:06.803288Z'
   stage: tests
+- number: 8
+  speaker: tester
+  kind: result
+  at: '2026-11-17T07:29:54.872193Z'
+  stage: tests
+  run: cba05b7a76c14b0082ad22e782e3efc2
 ---
 
 # The root makefile forwards a target that a file at the root is named after
@@ -132,3 +134,24 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    - Scope: within F0062 (the kit, its one layout) and not in its Out of scope.
    - Route: `tests`, because the Interface changes `operator/kit/root.Makefile` and adds a test, which the documenter may not write.
 7. factory: started tests as self.
+8. tester: I wrote the new test module `tests/operator_scripts/test_root_makefile.py` and created no other file. Its tests run real make in `tmp_path`, using `ROOT_MAKEFILE`, `KIT_MAKEFILE` and `run_kit_make` of `tests/support/kit_support.py` and `green_line` of `tests/support/kit_make_support.py`. I changed no earlier test.
+
+   Each project has a `factory/Makefile` that includes `factory/kit.mk`. It declares `lint`, `test`, `check` (on `lint` and `test`) and `factory-forward` (`echo forwarded`) as `.PHONY`, as the smoke test's makefile does, so that only the root makefile's forwarding is tested and the `test/` folder does not also stop `factory/Makefile`.
+
+   - criterion 1: `tests/operator_scripts/test_root_makefile.py::test_a_target_is_forwarded_past_a_file_or_folder_of_its_name`, with three rows: nothing named `test`, a folder `test/`, an empty file `test`.
+   - criterion 2: `tests/operator_scripts/test_root_makefile.py::test_the_default_goal_runs_check_past_a_check_folder`
+   - criterion 3: `tests/operator_scripts/test_root_makefile.py::test_a_red_target_is_not_hidden_by_a_folder_of_its_name` (the `test` recipe ends with `exit 3`).
+   - criterion 4: `tests/operator_scripts/test_root_makefile.py::test_an_unknown_target_ends_red_and_no_run_remakes_the_makefile`. It has one row for each case of criteria 1 to 3 plus `nosuch`, and checks the expected exit status and that no line matches `` [`']Makefile' ``.
+   - criterion 5: `tests/operator_scripts/test_root_makefile.py::test_the_forwarding_target_name_is_not_forwarded`
+   - criterion 6: the coder's `make check`.
+   - criterion 7: docs stage.
+
+   The test runner imported every module. `make test` is red for the right reasons against the current `operator/kit/root.Makefile`:
+   - the `test-folder` and `test-file` rows, the `check/` folder case and the red `test/` folder case fail with "make: 'test' is up to date." (or 'check');
+   - `make factory-forward` prints `forwarded`.
+
+   The rows that already pass are criterion 1's `nothing-named-test`, and in criterion 4 the `nothing-named-test`, `test-folder`, `test-file`, `default-goal-check-folder` and `unknown-target` rows. They hold already and must keep holding.
+
+   `make lint` is green. I deviated from the procedure once: after `make test` I also ran the new file alone with pytest to read the failure reasons. The helper functions are named `with_*` so that pytest does not collect them as tests.
+
+   `lint`: lint: green (0.1 s)
