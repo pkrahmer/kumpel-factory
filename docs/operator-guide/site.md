@@ -343,6 +343,16 @@ FAIL site file: site: no site file at <d>/none/.config/kumpel/site.env; run: sit
 site: 1 failed
 ```
 
+## A Java project
+
+A Java project, set up with the kit and the Java pack (see [start-a-project.md](start-a-project.md)), needs two things from a site: its private Maven repository and its certificate authority. Both are settings of the instance, never files of the project's repository.
+
+**The private Maven repository.** The project's build file reads the repository's address and its login from environment variables; the build file chooses their names, such as `MAVEN_REPOSITORY_URL`, `MAVEN_REPOSITORY_USER` and `MAVEN_REPOSITORY_PASSWORD`. Set them in the instance's `factory.local.env` (see *The environment file* in [machine.md](machine.md)), and list their names in `FACTORY_CONTAINER_ENV`, so that the sync and check containers get them with their values. Nothing of them is committed to the repository. Only `make sync` reaches the repository: every other target runs offline.
+
+**The certificate authority.** `FACTORY_CA_BUNDLE` names the site's CA bundle, a PEM file, and the containers get `SSL_CERT_FILE` pointing at it (see *Behind a proxy* in [agent-runtime.md](agent-runtime.md)). Java does not read `SSL_CERT_FILE`. The Java pack's `make sync` therefore builds a trust store from the bundle with the pack's [trust-store.sh](../../operator/packs/java-gradle/scripts/trust-store.sh), a copy of the JDK's own with the bundle's certificates added, builds it again only when the bundle changes, and every target points Gradle's JVMs at it.
+
+Both were proven with a stand-in Maven repository on 2026-11-16.
+
 ## Reference
 
 ### Loader and `site` statuses

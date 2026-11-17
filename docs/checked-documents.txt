@@ -13,6 +13,7 @@ docs/operator-guide/pipeline.md
 docs/operator-guide/records.md
 docs/operator-guide/work-items.md
 docs/operator-guide/README.md
+docs/operator-guide/start-a-project.md
 docs/project-guide/shared.md
 docs/project-guide/hosting.md
 docs/project-guide/work.md

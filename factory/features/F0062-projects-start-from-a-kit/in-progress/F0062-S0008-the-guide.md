@@ -1,17 +1,13 @@
 ---
 stage: docs-only
-blocked: null
+blocked: question
 round: 0
 attempts: 0
 crashes: 0
 pull_request: 697
 comments_read: []
 handed_over: null
-claim:
-  instance: self
-  stage: docs-only
-  started_at: '2026-11-17T04:38:56.737815Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -34,6 +30,13 @@ journal:
   kind: started
   at: '2026-11-17T04:38:56.737815Z'
   stage: docs-only
+- number: 5
+  speaker: documenter
+  kind: question
+  at: '2026-11-17T04:43:44.881315Z'
+  stage: docs-only
+  run: 616009ca26364756b4a7390927ffea1c
+  blocked: question
 ---
 
 # The guide
@@ -85,3 +88,24 @@ Expect: two numbers, each at least 3 for the first and at least 2 for the second
    - Architecture: the story is documents only, in the folders CLAUDE.md gives the operator guide (`docs/operator-guide/`), the newcomer (`README.md`) and the decision log (`docs/decisions.md`). It does not touch `planning/` or `docs/runs/`.
    - Scope: it is in the feature's scope ("The guide for a fresh start and for a brownfield repository", story S0008). The page goes in the operator guide, as decision 26 of `feature.md` placed it. It describes the onboarding pull request and starters only as things that do not exist yet, which keeps it inside the feature's "Out of scope".
 4. factory: started docs-only as self.
+5. documenter: Stopped: the new page needs a change outside the documents, which the Interface rules out ("no module under `src/factory/` ... changes; no test is written or changed").
+
+   What blocks: `make guides` fails on `tests/guards/test_operator_guide_files.py::test_the_single_guide_is_gone_and_the_folder_holds_the_index_and_ten_topics`. It asserts that `docs/operator-guide/` holds exactly `README.md` plus `TOPIC_FILES` (`tests/support/check_documents_support.py`, ten names). The same list is `OPERATOR_GUIDE_FILES` in `src/factory/shared/domain/documents.py:29`, the documents the document check requires. Any new page in that folder fails the guard.
+
+   Question: which way?
+   - A (my choice): make the page an eleventh topic. The tester adds `"start-a-project.md"` to `TOPIC_FILES` (needs your leave: a test another story wrote) and the coder adds `f"{OPERATOR_GUIDE_FOLDER}/start-a-project.md"` to `OPERATOR_GUIDE_FILES`. The document check then requires the page like the other topics. The Interface then names that one code line and that one test-support line.
+   - B: change only the guard, so the folder may hold the ten topics plus `start-a-project.md` (your leave for the test change; no code change). The document check would not require the page.
+   - C: keep to documents only and put the walk into an existing topic (for example `pipeline.md`). That contradicts criteria 1 and 9 and the smoke test, which name the separate page.
+
+   What is written and stays in the working tree:
+   - `docs/operator-guide/start-a-project.md` (new): the three layers and what exists (kit, packs python/c-host/java-gradle, no public starter, no onboarding pull request); the ten-step walk for an existing repository; two runnable `console` examples on a firmware repository with a root `Makefile` (C pack at `factory/Makefile`, `make_file`), first with two `FAIL` points and then `project: ready`; the `--run` command as an `sh` block for the VM, with the real runs and their dates from the Interface; the fresh start from a starter and private company starters; what the project owns and what stays the kit's; installed agents and `factory/agents/<role>.md`; `## Review`; one paragraph per pack's `TRAPS.md`.
+   - `docs/operator-guide/site.md`: new section *A Java project* (Maven repository variables in `factory.local.env`, named in `FACTORY_CONTAINER_ENV`; `FACTORY_CA_BUNDLE`, which Java does not read, turned into a trust store by the pack's `make sync`; proven with a stand-in repository on 2026-11-16).
+   - `docs/operator-guide/README.md`: new row in the file table, a step 4 in *Where to start*, and the Java part added to the site row.
+   - `README.md`: the pointer under *Where to read next*.
+   - `docs/decisions.md`: the new entry *The guide for starting a project is an operator's page*. It has no "Rejected" line because the story names no rejected option.
+   - `docs/checked-documents.txt`: lists the new page, so `make documents` runs its examples.
+   - `docs/operator-guide/agent-runtime.md:396`: now points to the new page.
+
+   Checked: `make documents` ends `documents ok (48.0 s)`. Both smoke commands give the expected counts (README.md:2, README.md:1; 13 and 2). `make guides` is red only on the guard above.
+
+   Cross-read and found current: `operator/kit/README.md`, `operator/packs/README.md`, the three `TRAPS.md`, `docs/operator-guide/pipeline.md` (*Checking a repository before the factory runs it*), `agent-runtime.md` (*Behind a proxy*, *A project's own agents*), `docs/project-guide/style.md` (examples). Nothing stale found that is not this story's.

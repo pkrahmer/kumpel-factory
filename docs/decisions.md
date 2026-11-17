@@ -1751,3 +1751,10 @@ Date: 2026-11-17 (F0062-S0007).
 - Decision: `operator/template/` is removed, with its three files, `CLAUDE.md`, `Makefile` and `factory/pipeline.yml`. A project starts from the kit and a stack pack alone. In place of the template's pipeline definition stands the kit's `operator/kit/factory/pipeline.full.yml`; in place of its makefile, `operator/packs/python/Makefile` with `operator/kit/factory/kit.mk`; in place of its `CLAUDE.md`, `operator/kit/CLAUDE.md` with the Python sections in `operator/packs/python/CLAUDE.sections.md`. The tests that read the template read the kit and the Python pack instead, and a guard, `tests/guards/test_template_removed.py`, keeps the folder gone and its name out of the shipped files and the tests.
 - The licence header: `tests/guards/test_license_headers.py` leaves out `operator/kit/` where it left out `operator/template/`; the scripts of the packs keep the header.
 - Why: the kit and the Python pack hold everything the template held, so the template had become a second, older copy of the same files, and two copies drift. Nothing a project gets changed with its removal.
+
+## The guide for starting a project is an operator's page
+
+Date: 2026-11-17 (F0062-S0008).
+
+- Decision: the guide that leads from a fresh or an existing repository to its first story is a page of the operator guide, `docs/operator-guide/start-a-project.md`, not a part of the agents' project guide. `README.md` points to it as the place to begin with a repository of one's own.
+- Why: its reader is a person who sets a repository up, not an agent that changes the factory's code.
