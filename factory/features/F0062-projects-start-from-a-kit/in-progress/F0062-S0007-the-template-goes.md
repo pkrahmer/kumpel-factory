@@ -1,5 +1,5 @@
 ---
-stage: review
+stage: docs
 blocked: null
 round: 1
 attempts: 1
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 696
 comments_read: [6937913187]
 handed_over: null
-claim:
-  instance: self
-  stage: review
-  started_at: '2026-11-17T04:30:25.081334Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -135,6 +131,12 @@ journal:
   kind: started
   at: '2026-11-17T04:30:25.081334Z'
   stage: review
+- number: 23
+  speaker: reviewer
+  kind: result
+  at: '2026-11-17T04:31:15.460769Z'
+  stage: review
+  run: 07b5a8eb413b4748b535cd4d5bd369a1
 ---
 
 # The template goes
@@ -444,3 +446,62 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     `duplicates`: duplicates: 8 new, 38 known, 5 gone
 22. factory: started review as self.
+23. reviewer: no findings
+
+    What I checked in round 1, against the code on the branch. The coder's rework (entry 21) changed no file. So the new part of this review is the documenter's diff, checked under the Documents item, and I went through groups 1 to 6 again:
+    - Criterion 1:
+      - `operator/template` is gone.
+      - `tests/guards/test_template_removed.py` checks that the folder does not exist. It also checks the tracked files under `src agents operator tests` for the folder's name, leaving out only the two named guards. It builds the name from parts, so it does not find itself.
+      - The documenter removed the three mentions in `operator/README.md` (lines 3, 19 and the table row), so the leave of entry 4 is no longer needed. The documenter's `make check guides` was green, and the smoke tester's block 1 printed `0`.
+    - Criteria 2 to 4: unchanged since entry 12, where I checked them.
+      - The test names are identical in every changed file.
+      - The pack's `Makefile` with `kit.mk` is checked for its header, `sync`, `secrets`, `mutants` and pins.
+      - Both kit lines are checked for tool paths, and both are covered by the working-branch test.
+    - Criterion 5: the coder's two `make check` runs in entry 21 were green, and `make guides` was green. The `layers` exit 139 in entry 17 did not come back. The diff touches nothing under `src/` and no import contract.
+    - Criterion 6 (Documents), each claim checked against the files:
+      - `docs/operator-guide/pipeline.md`:
+        - The `kit.mk` snippet (`facts_base`, `facts_paths`, the `facts-diff` recipe) matches `operator/kit/factory/kit.mk` word for word.
+        - `WORKING_BRANCH ?= develop` and `FACTS_LEFT_OUT` are in `kit.mk`, and `FACTS_LEFT_OUT = ':!uv.lock'` is at `operator/packs/python/Makefile:15`.
+        - The `context` lists of the stage table and the YAML block match `pipeline.full.yml:12-31`. The thin line's `facts-files` for `doing` and `facts-diff` for `review` match `pipeline.thin.yml`.
+        - The `sync` limits match: 5 in the full line, 10 in the thin line.
+        - The smoke-test and review lines match `pipeline.full.yml:31,33`.
+        - The `check_project` example uses the kit's and the pack's real paths. Its output was copied from the documenter's real run (entry 14).
+      - `docs/operator-guide/agent-runtime.md`:
+        - The kit holds both lines, the two forms, `kit.mk` and `CLAUDE.md`.
+        - `SOURCE` and `LAYERS` are the pack's placeholders (`Makefile:21-22`).
+        - `operator/packs/README.md` exists.
+      - `docs/operator-guide/install.md`: the pack's header line 5 says `mutants` is for a sweep by hand, and `uv run` and `make secrets` are in the pack.
+      - `docs/project-guide/agents.md`:
+        - `kit.mk` sets bash with `.ONESHELL`, `.DEFAULT_GOAL := check`, `$(start)`, `$(green)` and the three facts targets.
+        - The pack includes `factory/kit.mk`.
+        - The `secrets` recipe leaves out `uv.lock|.secrets.baseline|.*\.costs\.jsonl` (`Makefile:70`).
+        - There is no `documents` target.
+        - The section list of `CLAUDE.sections.md` matches the file.
+        - The forms are in `operator/kit/factory/`.
+      - `docs/project-guide/shared.md`: `operator/kit/factory/README.md` exists and is not on `FOLDER_READMES` (`src/factory/shared/domain/folder_readmes.py`), and the count of 22 is unchanged.
+      - `docs/project-guide/README.md`: the licence-guard scope matches `KIT = "operator/kit/"` in `tests/guards/test_license_headers.py:18`, and the helper names match `tests/support/template_make_support.py`.
+      - `docs/project-guide/machine.md`: the `sync` targets and limits match.
+      - `docs/decisions.md`: the new entry *The template is removed* records the replacements, the guard, the licence scope and the reason. The older entries keep their words: the diff only appends.
+    - Architecture and security: no change under `src/`, no silencing marker, no new baseline entry.
+    - Quality: the guard's two tests check two different rules, so two test functions are right.
+    - Work item: the Description matches what was built, and the docs criterion is met.
+    - Open, not mine: `docs/brochure/README.md:459` still says a new project starts from the template. It is a dated record of v1.1, and it is the human's call (entries 14 and 16).
+
+    Earlier tests (all `M`, all under the human's leave in `feature.md` decision 25, which the story's Interface quotes):
+    - tests/README.md: decision 25
+    - tests/agent_files/__init__.py: decision 25
+    - tests/agent_files/test_claude_agent_texts_mutants.py: decision 25
+    - tests/agent_files/test_claude_files.py: decision 25
+    - tests/agent_files/test_demo_makefile_secrets.py: decision 25
+    - tests/agent_files/test_template_makefile.py: decision 25
+    - tests/agent_files/test_template_makefile_header.py: decision 25
+    - tests/agent_files/test_template_sync.py: decision 25
+    - tests/guards/test_license_headers.py: decision 25
+    - tests/guards/test_pins.py: decision 25
+    - tests/guards/test_root_operator_folders_removed.py: decision 25
+    - tests/guards/test_working_branch_in_agent_texts.py: decision 25
+    - tests/operator_scripts/test_kit_files.py: decision 25
+    - tests/pipeline/adapters/test_pipeline_yaml_tool_paths.py: decision 25
+    - tests/shared/domain/test_folder_readmes_list.py: decision 25
+    - tests/support/shipped_agents.py: decision 25 (a test helper)
+    - tests/support/template_make_support.py: decision 25 (a test helper)
