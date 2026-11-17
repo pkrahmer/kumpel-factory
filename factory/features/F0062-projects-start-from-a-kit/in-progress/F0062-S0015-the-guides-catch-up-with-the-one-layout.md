@@ -1,5 +1,5 @@
 ---
-stage: docs-review
+stage: docs-approval
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 708
 comments_read: []
 handed_over: null
-claim:
-  instance: self
-  stage: docs-review
-  started_at: '2026-11-17T07:55:42.382339Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -67,6 +63,12 @@ journal:
   kind: started
   at: '2026-11-17T07:55:42.382339Z'
   stage: docs-review
+- number: 11
+  speaker: reviewer
+  kind: result
+  at: '2026-11-17T07:56:13.649948Z'
+  stage: docs-review
+  run: d6c65b3319c54f87b82ac4de42523c55
 ---
 
 # The guides catch up with the one layout and name every shared test helper
@@ -170,3 +172,26 @@ Expect: the single line `done`.
    `secrets`: secrets: green (0.7 s)
    `documents`: documents ok (48.8 s)
 10. factory: started docs-review as self.
+11. reviewer: Reviewed `git diff develop...HEAD -- README.md docs operator/README.md` (three files, round 1) against the code on the branch and `docs/project-guide/style.md`.
+
+    no findings
+
+    What I checked:
+    - All four round-0 findings are fixed.
+      - The install.md make-target text is now short sentences, and the "see" clause is gone.
+      - The `operator/packs/` bullet in operator.md is three sentences.
+      - The `kit_support.py` bullet names `LINES`/`PACKS` as the kit's lines and packs, and its long sentence is split.
+      - The `project_run_support.py` bullet has one parenthesis at most per sentence, and names `NAMED_MAKEFILE` on its own as the makefile path.
+    - Every claim matches the branch:
+      - operator.md: the one way of assembly, with every pack file but `CLAUDE.sections.md` and `TRAPS.md` going into `factory/`, matches `operator/packs/README.md` *Assembling a project from the kit and a pack* (lines 17 and 20) and `pack_project_files` (`tests/support/kit_support.py:110`).
+      - install.md: the kit's definitions do name `make_file: factory/Makefile` (`operator/kit/factory/pipeline.thin.yml:8`, `pipeline.full.yml:9`).
+      - README.md: each of the eight new bullets matches its module's top-level names and docstrings. I checked `finished_feature` (two done stories and an accepted acceptance), `tree`, the `bill_cache` helpers, `CODER_*`, `KIT*`/`LINES`/`PACKS`, `git_make_file_source_class`/`AnsweringSource`, the `project_check` helpers, `ScriptedContainerRuns`/`SeenRun`/`UninspectableImages`/`result`/`definition(make_file=)`/`GREEN_*`/`NAMED_MAKEFILE`, and `RULES_BEFORE`/`PARTS_BEFORE`/`text_checksum`/`opening_text`/`own_parts`.
+    - Criteria:
+      - 1 and 2: the old phrases are gone from the diff, and *The project's make targets* names `make_file` and `factory/Makefile`.
+      - 3: all eight missing modules now have bullets.
+      - Docs criterion: met. The reader learns that a kit project's targets are in `factory/Makefile`, which the definition names; that there is one way to assemble; and what each helper holds.
+    - Writing:
+      - A few sentences run a little over 25 words (the `archive_feature_support`, `bill_cache_support` and `kit_support` bullets, and the assembly sentence in operator.md). Each still holds one idea and at most one parenthesis, which is within style.md rule 2's "about 25 words".
+      - Links and the `#name-the-makefile` anchor are as before.
+
+    Not run here: `make documents` and `make guides` (the journal reports them green in entry 9; the factory runs them after this stage).
