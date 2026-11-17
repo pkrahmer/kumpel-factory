@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 710
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: doing
+  started_at: '2026-11-17T08:10:38.059115Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -36,6 +40,11 @@ journal:
   at: '2026-11-17T08:10:30.583385Z'
   stage: tests
   run: 8b19930b2bae430094fa7962dac2d838
+- number: 6
+  speaker: factory
+  kind: started
+  at: '2026-11-17T08:10:38.059115Z'
+  stage: doing
 ---
 
 # Each pack's checks section keeps the line that names the factory's makefile
@@ -114,3 +123,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    `make lint` is green. The coder's work: copy the three `planning/packs-draft/<pack>/CLAUDE.sections.md` files to `operator/packs/<pack>/CLAUDE.sections.md`.
 
    `lint`: lint: green (0.2 s)
+6. factory: started doing as self.
