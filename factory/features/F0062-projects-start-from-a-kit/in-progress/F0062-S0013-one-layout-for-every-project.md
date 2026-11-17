@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 705
 comments_read: []
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: review
+  started_at: '2026-11-17T06:58:28.866442Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -69,6 +73,11 @@ journal:
   at: '2026-11-17T06:58:23.536057Z'
   stage: doing
   run: d11e7cafcfdf40f8aeda5f4548852b40
+- number: 12
+  speaker: factory
+  kind: started
+  at: '2026-11-17T06:58:28.866442Z'
+  stage: review
 ---
 
 # One layout for every project
@@ -230,3 +239,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     - Noticed, not touched: nothing.
 
     `duplicates`: duplicates: 8 new, 38 known, 5 gone
+12. factory: started review as self.
