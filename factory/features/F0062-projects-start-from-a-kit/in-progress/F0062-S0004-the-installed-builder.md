@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 693
 comments_read: [6936126509]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: smoke-test
+  started_at: '2026-11-17T02:51:32.813101Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -119,6 +123,11 @@ journal:
   at: '2026-11-17T02:51:27.462465Z'
   stage: docs
   run: a8ad34b872cf4e9aaf5e27ec53c47ce2
+- number: 21
+  speaker: factory
+  kind: started
+  at: '2026-11-17T02:51:32.813101Z'
+  stage: smoke-test
 ---
 
 # The installed builder
@@ -461,3 +470,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     `guides`: guides: green (9.3 s)
     `secrets`: secrets: green (1.9 s)
     `documents`: documents ok (46.4 s)
+21. factory: started smoke-test as self.
