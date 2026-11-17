@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 691
 comments_read: [6934588171, 6934893656]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: docs
+  started_at: '2026-11-17T01:36:17.432382Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -147,6 +151,11 @@ journal:
   at: '2026-11-17T01:36:12.158426Z'
   stage: review
   run: 1239a740b6f245aaa1039f919876fa93
+- number: 26
+  speaker: factory
+  kind: started
+  at: '2026-11-17T01:36:17.432382Z'
+  stage: docs
 ---
 
 # The pipeline definition names its makefile
@@ -463,3 +472,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     - `tests/shared/domain/test_contract_version_4.py`: the human's leave in journal entry 11 (version 4.5 → 4.6 only).
     - `tests/shared/domain/test_contract_version_4_2.py`: the human's leave in journal entry 11 (version 4.5 → 4.6 only).
     - `tests/guards/test_agent_home_wiring.py`: the standing leave to move a shared test helper (`_called_name` moved to `tests/support/source_search.py` as `called_name`; the test keeps its name and checks the same thing).
+26. factory: started docs as self.
