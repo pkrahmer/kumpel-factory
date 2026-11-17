@@ -1,17 +1,13 @@
 ---
 stage: intake
-blocked: null
+blocked: question
 round: 0
 attempts: 0
 crashes: 0
-pull_request: null
+pull_request: 701
 comments_read: []
 handed_over: null
-claim:
-  instance: self
-  stage: intake
-  started_at: '2026-11-17T05:38:58.537618Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -23,6 +19,13 @@ journal:
   kind: started
   at: '2026-11-17T05:38:58.537618Z'
   stage: intake
+- number: 3
+  speaker: intake
+  kind: question
+  at: '2026-11-17T05:39:31.445319Z'
+  stage: intake
+  run: 8a146b5ced6845ab869b0b28693c073c
+  blocked: question
 ---
 
 # The feature's tests are tidied: one missing row, one weak check, one copy, and names that still say template
@@ -68,3 +71,9 @@ Expect: one line ending with `passed` and a time, with no `failed`.
 
 1. 2026-11-17 human: created.
 2. factory: started intake as self.
+3. intake: 1. The leave. The Interface gives the leave for changing other stories' tests only as "proposed wording", and the journal has no entry from the human that gives it. CLAUDE.md lists a change to a test you did not write, beyond the standing leave, under "Not without asking". Do you give the leave as worded ("the tester may make exactly the changes this story's Interface names to the earlier tests it names, each test keeping what it checks")? If so, should it go into the Interface as your word, in place of "proposed wording"? I would carry it in exactly as worded.
+   2. The docs criterion is wrong. Criterion 6 says none of the four documents names the renamed modules. `docs/project-guide/agents.md:404` and `docs/project-guide/README.md:192` both link to `tests/support/template_make_support.py`. Once it is renamed to `kit_make_support.py`, those links break, and the docs stage's `make documents` gate checks links. Options: (a) rewrite criterion 6 as "docs: the project guide names and links the kit's make support module under its new name, `tests/support/kit_make_support.py`", which makes the story take the documenter's stage; (b) keep the old module name, which drops one rename. I would choose (a).
+   3. The `test_installed_builder.py` change has no criterion, and it may check less. Line 65 asserts `"\n### The project's review points\n" in f"\n{body}\n"`, meaning the heading is a line of its own somewhere in the body. Line 66 asserts only that the text appears in the Stage section. The two are not the same check. Removing line 65 loses the "line of its own" part, which goes against "no test checks less than it did". Options: (a) remove line 66 and keep line 65's whole-line check, but aimed at `points` (`"\n### The project's review points\n" in f"\n{points}\n"`), and add a criterion: "the reviewer test asserts the heading once, as a whole line of the Stage section"; (b) drop this item from the story. I would choose (a).
+   4. A minor gap: no criterion covers keeping each renamed module's test functions under the same names (Interface: "each keeping every test function's name"). Should criterion 4 add "and the renamed modules hold the same test function names as before"? I would add it.
+
+   Checks I made, which raised no question: the smoke test is runnable (`addopts` already sets `-q`, and the command passes none, so the summary line prints). Every file the Interface names exists as described: `_instructions` sits in both `test_packs.py:94` and `dockerfile_support.py:61`; `_assert_named` checks only `"-f" in script or "-f" in arguments`; the guard is named `..._ten_topics`. The architecture is fine (tests only, and the shared reader is in `tests/support/`). The scope is within F0062, as the tidy-up the feature's acceptance proposed.
