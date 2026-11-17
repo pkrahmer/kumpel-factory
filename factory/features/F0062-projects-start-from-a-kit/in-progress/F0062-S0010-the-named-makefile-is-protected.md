@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 700
 comments_read: [6939383328]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: smoke-test
+  started_at: '2026-11-17T05:34:43.510650Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -86,6 +90,11 @@ journal:
   at: '2026-11-17T05:34:38.149493Z'
   stage: docs
   run: b2a9dc6e96574df9b46a7aa1b4cd80f2
+- number: 15
+  speaker: factory
+  kind: started
+  at: '2026-11-17T05:34:43.510650Z'
+  stage: smoke-test
 ---
 
 # The makefile a pipeline definition names, and the kit's `kit.mk`, are protected paths
@@ -269,3 +278,4 @@ Expect: `13 13`
     `guides`: guides: green (9.3 s)
     `secrets`: secrets: green (2.0 s)
     `documents`: documents ok (47.2 s)
+15. factory: started smoke-test as self.
