@@ -7,7 +7,11 @@ crashes: 0
 pull_request: 692
 comments_read: [6935336014, 6935606286]
 handed_over: null
-claim: null
+claim:
+  instance: self
+  stage: smoke-test
+  started_at: '2026-11-17T02:21:10.388517Z'
+  lease_duration: 60
 journal:
 - number: 1
   speaker: human
@@ -169,6 +173,11 @@ journal:
   at: '2026-11-17T02:21:04.823259Z'
   stage: docs
   run: bc970a704cb64f4286eec96ce2a2f9c3
+- number: 30
+  speaker: factory
+  kind: started
+  at: '2026-11-17T02:21:10.388517Z'
+  stage: smoke-test
 ---
 
 # The conformance check runs a repository
@@ -501,3 +510,4 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
     `guides`: guides: green (9.4 s)
     `secrets`: secrets: green (1.7 s)
     `documents`: documents ok (46.3 s)
+30. factory: started smoke-test as self.
