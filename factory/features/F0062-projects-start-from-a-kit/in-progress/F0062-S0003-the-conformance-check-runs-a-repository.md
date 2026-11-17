@@ -1,5 +1,5 @@
 ---
-stage: review
+stage: docs
 blocked: null
 round: 1
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 692
 comments_read: [6935336014, 6935606286]
 handed_over: null
-claim:
-  instance: self
-  stage: review
-  started_at: '2026-11-17T02:14:20.459909Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -156,6 +152,12 @@ journal:
   kind: started
   at: '2026-11-17T02:14:20.459909Z'
   stage: review
+- number: 27
+  speaker: reviewer
+  kind: result
+  at: '2026-11-17T02:15:53.117559Z'
+  stage: review
+  run: dd8565abb734439599b9955bf30a018a
 ---
 
 # The conformance check runs a repository
@@ -431,3 +433,25 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
 
     `duplicates`: duplicates: 8 new, 38 known, 5 gone
 26. factory: started review as self.
+27. reviewer: Round 1: no findings.
+
+    All three findings from entry 19 are fixed in the code on the branch:
+    - Finding 1: `Images.path` is now read in a guarded step in `ProjectRun._run_in`. A `ContainerError` from it becomes the `sync` fault `could not start: <reason>`, built by the shared `_not_started` helper, and `check` is not run. The row `sync-image-not-inspected` of `test_faults_of_the_sync_and_the_check` tests this with `UninspectableImages`.
+    - Finding 2: the image is now picked in one place, `ProjectRun._image`, and passed to `containers(workspace, image)`. `checkout_has_stage_file` is gone. `build_project_run` hands the given image to `PodmanRuns`. Criteria 1 and 2 check the image of each run (stage image, or `<stage image>-check`).
+    - Finding 3: `_last_line` is now built on `printed_lines` and keeps make's own lines, unlike `checks.last_line`. The code comment gives that reason.
+
+    Checked and fine:
+    - Criteria 1 to 9 each have a test that checks what the criterion says. Every fault of `sync` and `check` is a row of one parametrized test. The work folder is removed after a green run, after a fault and after an exception. The settings fault and the static fault each have their own test. The red-build row prints no `sync` or `check` line.
+    - `make check` was green after the coder (entry 25).
+    - Architecture holds:
+      - `project_run` is in `machine.application` and imports no adapter. It reuses `ANY_BASE`, `MOUNTED_CHECKOUT`, `target_times`, `bundle_mounts`, `IMAGE_BUILD_TIME_LIMIT`, the moved `CHECK_SCRIPT`/`NAMED_CHECK_SCRIPT`/`CHECK_ENVIRONMENT`, and `SYNC_MAKE`/`NAMED_SYNC_MAKE`.
+      - `command_time_limit` replaces the copy in `stage.py`.
+      - The stage's `_NAMED_SYNC` now has `shift 6`, so its seventh argument (the makefile) becomes `$1` for `NAMED_SYNC_MAKE`.
+      - The live sync gets the environment of a stage's sync (extras below `SYNC_ENVIRONMENT`, then the image's `PATH`) and its bundle mounts. It gets no agent mount.
+    - Security: every script is a constant, and paths and commands are passed as arguments. No silencing markers and no secrets.
+    - `build_project_run` in `src/factory/entry/check_project.py` is reached by no test, because the entry tests monkeypatch it. I read it: it passes `extra_environment(settings, os.environ)` and `settings.ca_bundle` as the stage's wiring does, and the use case's handling of both is tested under criterion 6. Testing it would mean starting real podman, so I raise no finding.
+    - The journal explains the main choices and what was rejected (the `SYSTEM_PATH` fallback, a second image decision in the entry). The Description and the docs criterion (11) still match what was built.
+
+    Earlier tests:
+    - `tests/entry/test_check_project.py`: the human's leave, journal entry 11 (`USAGE` only).
+    - `tests/guards/test_make_search.py`: the human's leave, journal entry 11 (only adds `factory.machine.application.project_run` to the expected set).
