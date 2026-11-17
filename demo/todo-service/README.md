@@ -12,7 +12,7 @@ It is the input of two runs of the plan (`planning/overnight/restructure-after-f
   - `F0002-operations`: health endpoint, version command, statistics (S0001 to S0003).
   - `F0003-search`: title search (S0001).
 
-The pipeline definition is the template's (`operator/template/factory/pipeline.yml`) with two changes: the coder may also write `docs/openapi.json`, which `make openapi` generates from the routes, and `make duplicates` runs as a report after the coder's stage.
+The pipeline definition is the kit's full line (`operator/kit/factory/pipeline.full.yml`) with two changes: the coder may also write `docs/openapi.json`, which `make openapi` generates from the routes, and `make duplicates` runs as a report after the coder's stage.
 
 ## What you need
 
