@@ -1,5 +1,5 @@
 ---
-stage: doing
+stage: tests
 blocked: null
 round: 0
 attempts: 0
@@ -7,11 +7,7 @@ crashes: 0
 pull_request: 710
 comments_read: [6942486584]
 handed_over: null
-claim:
-  instance: self
-  stage: doing
-  started_at: '2026-11-17T08:12:08.180010Z'
-  lease_duration: 60
+claim: null
 journal:
 - number: 1
   speaker: human
@@ -62,6 +58,12 @@ journal:
   kind: started
   at: '2026-11-17T08:12:08.180010Z'
   stage: doing
+- number: 10
+  speaker: coder
+  kind: result
+  at: '2026-11-17T08:12:19.604833Z'
+  stage: doing
+  run: 240dfe9e1b094504841da50dbf96bce4
 ---
 
 # Each pack's checks section keeps the line that names the factory's makefile
@@ -163,3 +165,8 @@ Expect: a summary line with only `passed`, no `failed` or `error`.
    I would choose (a): it keeps the test readable, needs no secrets exception, and matches what criterion 2 already allows. On an answer of (a), I end the next run with `tests` naming that change.
 8. 2026-11-17 human: (a). No marker and no baseline entry.
 9. factory: started doing as self.
+10. coder: The human answered (a), which needs a test change. I changed no code and no test. The three pack copies from the previous run are already in place and stay as they are.
+
+    The change for the tester, under option (a): in `tests/operator_scripts/test_pack_checks_line.py::test_each_pack_sections_file_differs_from_before_only_by_the_kit_line`, replace the sha256 pin `SECTIONS_BEFORE_SHA256` with an expected list of each pack file's lines once the kit's line is removed. That list may be merged with `OTHER_CHECKS_BULLETS`. This gets the high-entropy hex values out of the test, so `make secrets` goes green with no `pragma: allowlist secret` and no `.secrets.baseline` entry.
+
+    `make check` is still red on `make secrets` until the tester makes this change. When the work item comes back to doing, I will run `make check` again and hand forward to review.
