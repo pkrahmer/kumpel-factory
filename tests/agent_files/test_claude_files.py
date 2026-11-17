@@ -96,6 +96,10 @@ TEMPLATE_RULES_LINES = [
     " (pip-licenses against an allow list) and `make test` (pytest on every core, with "
     "coverage). Each target ends with the line `<target>: green (<seconds> s)`; `make check` "
     "ends with `check: green`.",
+    "- The factory's targets are in `factory/Makefile`. <Either: the root `Makefile` forwards "
+    "every target to it, so `make check` works at the root. Or: the root `Makefile` is this "
+    "repository's own, and every target the agents' instructions name is run as `make -f "
+    "factory/Makefile <target>`, `make check` as `make -f factory/Makefile check`.>",
     "- Run Python through `uv run`. All dependencies, runtime and development, are declared and"
     " pinned in `pyproject.toml`; the lockfile is `uv.lock`.",
     "- Run `make check` and every other make target in the foreground and read its output.",

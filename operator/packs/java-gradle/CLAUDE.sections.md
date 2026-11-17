@@ -4,6 +4,7 @@
 
 ## Checks
 - `make check` must be green before any stage reports done. It runs `make lint` (the compiler with `-Xlint:all -Werror`), `make secrets` (gitleaks over the working tree), `make test` and `make package`. Each target ends with the line `<target>: green (<seconds> s)`; `make check` ends with `check: green`.
+- The factory's targets are in `factory/Makefile`. <Either: the root `Makefile` forwards every target to it, so `make check` works at the root. Or: the root `Makefile` is this repository's own, and every target the agents' instructions name is run as `make -f factory/Makefile <target>`, `make check` as `make -f factory/Makefile check`.>
 - `make sync` fetches the Gradle distribution and every dependency; every other target runs Gradle offline. A dependency that is new since the last sync fails until `make sync` ran again.
 - Run `make check` and every other make target in the foreground and read its output.
 
